@@ -1906,7 +1906,7 @@ export default function LocalMarketingSuitePage() {
       {/* Bottom Footer Bar matching Screenshot 1 */}
       <footer className="bg-white border-t border-gray-200 mt-auto py-3 px-6 flex flex-wrap items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-2">
-          <SeRankingLogo variant="color" width={90} height={20} />
+          <SeRankingLogo variant="brand" width={90} height={20} />
         </div>
         <div className="flex items-center gap-4 text-[11px]">
           <button onClick={() => alert('Bug report dialog opened.')} className="hover:text-gray-800 cursor-pointer">

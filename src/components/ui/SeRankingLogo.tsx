@@ -2,7 +2,7 @@ import React from 'react';
 
 interface SeRankingLogoProps {
   className?: string;
-  variant?: 'white' | 'dark' | 'brand';
+  variant?: 'white' | 'dark' | 'brand' | 'color';
   width?: number;
   height?: number;
 }
@@ -14,7 +14,7 @@ export function SeRankingLogo({
   height = 30,
 }: SeRankingLogoProps) {
   const iconBlue = variant === 'white' ? '#FFFFFF' : '#123AF8';
-  const textFill = variant === 'white' ? '#FFFFFF' : variant === 'brand' ? '#0B69FF' : '#0E161E';
+  const textFill = variant === 'white' ? '#FFFFFF' : variant === 'brand' || variant === 'color' ? '#0B69FF' : '#0E161E';
 
   return (
     <svg
