@@ -559,7 +559,6 @@ function BacklinkCheckerContent() {
                             </span>
                           </div>
                         </td>
-                        <td className="p-3 text-gray-600 whitespace-nowrap">{item.firstSeen}</td>
                         <td className="p-3 text-gray-600 whitespace-nowrap">{item.lastSeen}</td>
                       </tr>
                     ))}
@@ -567,24 +566,22 @@ function BacklinkCheckerContent() {
                 </table>
               </div>
 
-              {/* Table pagination matching Screenshot 3 */}
-              <div className="p-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
-                <span>Showing 1-{filteredAnchors.length} of {filteredAnchors.length}</span>
-                <div className="flex items-center gap-2">
-                  <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
-                    20 v
-                  </span>
+              {/* Table pagination matching Screenshot 1 */}
+              <div className="p-3 border-t border-gray-100 flex items-center justify-end text-xs text-gray-500">
+                <div className="flex items-center gap-1 border border-gray-300 rounded px-2.5 py-1 text-gray-700 bg-white shadow-2xs font-medium cursor-pointer">
+                  <span>20</span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
                 </div>
               </div>
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* TAB 2: PAGES (MATCHING SCREENSHOT 4) */}
+          {/* TAB 2: PAGES (MATCHING SCREENSHOT 2) */}
           {/* ======================================================== */}
           {activeSubTab === 'pages' && (
             <div className="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
-              {/* Header Filter Row matching Screenshot 4 */}
+              {/* Header Filter Row matching Screenshot 2 */}
               <div className="p-3.5 border-b border-gray-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-bold text-gray-900">
@@ -602,7 +599,7 @@ function BacklinkCheckerContent() {
                   </div>
                 </div>
 
-                {/* Filter row matching Screenshot 4 */}
+                {/* Filter row matching Screenshot 2 */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-2">
                     <div className="relative">
@@ -611,30 +608,40 @@ function BacklinkCheckerContent() {
                         placeholder="URL or domain"
                         value={searchFilterText}
                         onChange={(e) => setSearchFilterText(e.target.value)}
-                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs placeholder:text-gray-400 w-56 sm:w-72 focus:outline-hidden focus:border-[#0B69FF]"
+                        className="px-3 pr-8 py-1.5 border border-gray-300 rounded text-xs placeholder:text-gray-400 w-56 sm:w-72 focus:outline-hidden focus:border-[#0B69FF]"
                       />
+                      <Search className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-2 pointer-events-none" />
                     </div>
-                    <button className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
-                      <Filter className="w-3 h-3" />
-                      <span>Filter</span>
+                    <button
+                      onClick={() => {
+                        const q = prompt('Filter pages by URL keyword:', searchFilterText);
+                        if (q !== null) setSearchFilterText(q);
+                      }}
+                      className="px-2.5 py-1.5 border border-gray-200 rounded text-[11px] uppercase font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <span>+ FILTER</span>
                     </button>
                   </div>
 
-                  <button className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
-                    <span>Presets</span>
-                    <ChevronDown className="w-3 h-3" />
+                  <button className="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer font-semibold uppercase text-[11px]">
+                    <span>PRESETS</span>
+                    <ChevronDown className="w-3 h-3 text-gray-500" />
                   </button>
                 </div>
               </div>
 
-              {/* Table matching Screenshot 4 */}
+              {/* Table matching Screenshot 2 */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs divide-y divide-gray-200">
-                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px] tracking-wider">
                     <tr>
                       <th className="p-3">URL</th>
-                      <th className="p-3 text-center">Backlinks</th>
-                      <th className="p-3 text-center">Ref.Domains</th>
+                      <th className="p-3 text-center">BACKLINKS</th>
+                      <th className="p-3 text-center">
+                        <span className="inline-flex items-center gap-1 cursor-pointer">
+                          REF.DOMAINS <ChevronDown className="w-3 h-3 text-gray-400" />
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -647,7 +654,9 @@ function BacklinkCheckerContent() {
                             rel="noreferrer"
                             className="flex items-center gap-1.5 hover:underline"
                           >
-                            <Globe2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                            <span className="w-3.5 h-3.5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] shrink-0 font-bold">
+                              🌐
+                            </span>
                             <span>{page.url}</span>
                           </a>
                         </td>
@@ -669,21 +678,22 @@ function BacklinkCheckerContent() {
                 </table>
               </div>
 
-              <div className="p-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
-                <span>Showing 1-{filteredPages.length} of {filteredPages.length}</span>
-                <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
-                  20 v
-                </span>
+              {/* Bottom pagination selector matching Screenshot 2 */}
+              <div className="p-3 border-t border-gray-100 flex items-center justify-end text-xs text-gray-500">
+                <div className="flex items-center gap-1 border border-gray-300 rounded px-2.5 py-1 text-gray-700 bg-white shadow-2xs font-medium cursor-pointer">
+                  <span>20</span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                </div>
               </div>
             </div>
           )}
 
           {/* ======================================================== */}
-          {/* TAB 3: IPs (MATCHING SCREENSHOT 5) */}
+          {/* TAB 3: IPs (MATCHING SCREENSHOT 3) */}
           {/* ======================================================== */}
           {activeSubTab === 'ips' && (
             <div className="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
-              {/* Header Filter Row matching Screenshot 5 */}
+              {/* Header Filter Row matching Screenshot 3 */}
               <div className="p-3.5 border-b border-gray-200 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="text-sm font-bold text-gray-900">
@@ -701,54 +711,67 @@ function BacklinkCheckerContent() {
                   </div>
                 </div>
 
-                {/* Filter row matching Screenshot 5 */}
+                {/* Filter row matching Screenshot 3 */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
+                    <div className="flex items-center gap-1 text-xs font-semibold">
                       <button
                         onClick={() => setIpFilterTab('ips')}
-                        className={`px-3 py-1 rounded transition-colors cursor-pointer ${
-                          ipFilterTab === 'ips' ? 'bg-[#374151] text-white' : 'text-gray-600'
+                        className={`px-3 py-1.5 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                          ipFilterTab === 'ips'
+                            ? 'bg-[#374151] text-white'
+                            : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         IPS
                       </button>
                       <button
                         onClick={() => setIpFilterTab('subnets')}
-                        className={`px-3 py-1 rounded transition-colors cursor-pointer ${
-                          ipFilterTab === 'subnets' ? 'bg-[#374151] text-white' : 'text-gray-600'
+                        className={`px-3 py-1.5 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                          ipFilterTab === 'subnets'
+                            ? 'bg-[#374151] text-white'
+                            : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         SUBNETS
                       </button>
                     </div>
 
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Search IP..."
-                        value={searchFilterText}
-                        onChange={(e) => setSearchFilterText(e.target.value)}
-                        className="px-2.5 py-1 border border-gray-300 rounded text-xs placeholder:text-gray-400 w-36 sm:w-48 focus:outline-hidden focus:border-[#0B69FF]"
-                      />
-                    </div>
+                    <button
+                      onClick={() => {
+                        const q = prompt('Filter IPs by address or country:', searchFilterText);
+                        if (q !== null) setSearchFilterText(q);
+                      }}
+                      className="px-2.5 py-1.5 border border-gray-200 rounded text-[11px] uppercase font-bold text-gray-700 hover:bg-gray-50 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <span>+ FILTER</span>
+                      {searchFilterText && (
+                        <span className="bg-blue-100 text-blue-800 px-1 rounded text-[10px]">
+                          &quot;{searchFilterText}&quot;
+                        </span>
+                      )}
+                    </button>
                   </div>
 
-                  <button className="px-2.5 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
-                    <span>Presets</span>
-                    <ChevronDown className="w-3 h-3" />
+                  <button className="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer font-semibold uppercase text-[11px]">
+                    <span>PRESETS</span>
+                    <ChevronDown className="w-3 h-3 text-gray-500" />
                   </button>
                 </div>
               </div>
 
-              {/* Table matching Screenshot 5 */}
+              {/* Table matching Screenshot 3 */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs divide-y divide-gray-200">
-                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px] tracking-wider">
                     <tr>
                       <th className="p-3">IP</th>
-                      <th className="p-3 text-center">Ref.Domains</th>
-                      <th className="p-3 text-center">Backlinks</th>
+                      <th className="p-3 text-center">
+                        <span className="inline-flex items-center gap-1 cursor-pointer">
+                          REF.DOMAINS <ChevronDown className="w-3 h-3 text-gray-400" />
+                        </span>
+                      </th>
+                      <th className="p-3 text-center">BACKLINKS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -776,7 +799,7 @@ function BacklinkCheckerContent() {
                 </table>
               </div>
 
-              {/* Pagination matching Screenshot 5 */}
+              {/* Pagination matching Screenshot 3 */}
               <div className="p-3 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
                 <div className="flex items-center gap-1">
                   <button className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer">
@@ -791,7 +814,7 @@ function BacklinkCheckerContent() {
                   <button className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer">
                     &gt;
                   </button>
-                  <span className="ml-2">Go to page:</span>
+                  <span className="ml-2 font-medium">Go to page:</span>
                   <input
                     type="number"
                     defaultValue={1}
@@ -799,10 +822,9 @@ function BacklinkCheckerContent() {
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
-                    20 v
-                  </span>
+                <div className="flex items-center gap-1 border border-gray-300 rounded px-2.5 py-1 text-gray-700 bg-white shadow-2xs font-medium cursor-pointer">
+                  <span>20</span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
                 </div>
               </div>
             </div>
