@@ -1400,28 +1400,9 @@ export default function LandingPage() {
           No credit card required
         </div>
 
-        {/* Social Proof: Static 3 Real Avatars + Trusted by 40,000+ agencies (NO ROTATING SLIDER) */}
-        <div className="pt-6 flex items-center justify-center gap-3">
-          <div className="flex -space-x-2">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt="Customer 1"
-              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80"
-              alt="Customer 2"
-              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
-              alt="Customer 3"
-              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
-            />
-          </div>
-          <span className="text-gray-800 text-sm sm:text-base font-normal">
-            Trusted by <strong className="font-bold text-gray-900">40,000+ agencies</strong>
-          </span>
+        {/* Social Proof: Cycling 3 Agency Avatars with Smooth Transition + Trusted by 40,000+ agencies */}
+        <div className="pt-6 flex items-center justify-center">
+          <HeroAvatarSlider />
         </div>
 
         {/* Static 6 Partner Logos row matching screenshot (NO MOVING MARQUEE SLIDER) */}
@@ -1486,20 +1467,17 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 4. Complete AI SEO platform for every challenge (Spacious & Clean) */}
-      <section className="py-20 sm:py-28 bg-[#F8FAFC] border-y border-gray-200 px-6 sm:px-8">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="text-center space-y-3">
-            <h2 className="text-3xl sm:text-5xl font-black text-gray-900">
+      {/* 4. Complete AI SEO platform for every challenge (Spacious & Clean matching Screenshot) */}
+      <section className="pt-12 pb-20 sm:pt-16 sm:pb-24 bg-white px-6 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-10">
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
               Complete AI SEO platform for every challenge
             </h2>
-            <p className="text-sm sm:text-base text-gray-500 max-w-2xl mx-auto">
-              One unified growth engine across every search, content, and agency workflow
-            </p>
           </div>
 
           {/* Interactive Navigation Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm">
             {[
               { id: 'ai-visibility', label: 'AI Visibility' },
               { id: 'seo-research', label: 'SEO Research' },
@@ -1514,10 +1492,10 @@ export default function LandingPage() {
                 <button
                   key={tab.id}
                   onClick={() => setPlatformTab(tab.id as any)}
-                  className={`px-5 py-2.5 rounded-full text-sm font-bold transition-all cursor-pointer ${
+                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#0F172A] text-white shadow-md'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-[#1D2533] text-white shadow-xs'
+                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
                   {tab.label}
@@ -1526,185 +1504,1081 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* Large Interactive AI Visibility Mockup Card */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 shadow-sm space-y-8">
-            {/* Mockup Card Header Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-5">
-              <div className="text-base font-black text-gray-900">AI Visibility</div>
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm font-bold text-gray-700">
-                <span className="flex items-center gap-2">
-                  <Bot className="w-4 h-4 text-gray-700" /> ChatGPT
-                </span>
-                <span className="flex items-center gap-2">
-                  <Search className="w-4 h-4 text-blue-600" /> AI Mode
-                </span>
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-600" /> Gemini
-                </span>
-                <span className="flex items-center gap-2">
-                  <Globe2 className="w-4 h-4 text-emerald-600" /> Perplexity
-                </span>
-                <span className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-600" /> Claude
-                </span>
-              </div>
-            </div>
+          {/* 2-Column Section Layout matching Screenshot */}
 
-            {/* 4 Metric Boxes */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 bg-[#D1FAE5]/50 rounded-2xl border border-emerald-200">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
-                  <span>Visibility</span>
-                  <span className="text-[11px] text-gray-500 font-bold">6d</span>
-                </div>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <span className="text-3xl font-black text-gray-900">99%</span>
-                  <span className="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded">
-                    +8.4
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
-                  <span>Rank</span>
-                  <Award className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="text-3xl font-black text-gray-900 mt-2">#1</div>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
-                  <span>Avg. position</span>
-                  <BarChart3 className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <span className="text-3xl font-black text-gray-900">2.61</span>
-                  <span className="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded">
-                    -1.3
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
-                  <span>Net sentiment</span>
-                  <Sparkles className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex items-baseline gap-2 mt-2">
-                  <span className="text-3xl font-black text-gray-900">+78</span>
-                  <span className="text-xs bg-pink-100 text-pink-700 font-extrabold px-1.5 py-0.5 rounded">
-                    -1.5
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Split Lower View: Chart on Left, Competitors on Right */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
-              {/* Left: Visibility Chart */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-900">Visibility</span>
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="bg-white px-3 py-1 rounded-lg shadow-2xs font-bold text-gray-900">
-                      Visibility score
+          {/* TAB 1: AI Visibility (Exact Screenshot 1 & 2 Match) */}
+          {platformTab === 'ai-visibility' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Interactive Mockup Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
+                {/* Header Bar with AI Engines */}
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200/70 pb-3">
+                  <span className="text-base font-black text-gray-900">AI Visibility</span>
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-bold text-gray-800">
+                    <span className="flex items-center gap-1.5 hover:text-black transition-colors cursor-pointer">
+                      <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-black">
+                        ✦
+                      </div>
+                      ChatGPT
                     </span>
-                    <span className="text-gray-500">Avg position</span>
+                    <span className="flex items-center gap-1.5 hover:text-blue-600 transition-colors cursor-pointer">
+                      <div className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] font-black">
+                        G
+                      </div>
+                      AI Mode
+                    </span>
+                    <span className="flex items-center gap-1.5 hover:text-purple-600 transition-colors cursor-pointer">
+                      <Sparkles className="w-4 h-4 text-purple-600" /> Gemini
+                    </span>
+                    <span className="flex items-center gap-1.5 hover:text-teal-600 transition-colors cursor-pointer">
+                      <span className="text-teal-600 font-black text-sm leading-none">*</span> Perplexity
+                    </span>
+                    <span className="flex items-center gap-1.5 hover:text-amber-600 transition-colors cursor-pointer">
+                      <Zap className="w-4 h-4 text-amber-600" /> Claude
+                    </span>
                   </div>
                 </div>
 
-                <div className="h-52 w-full pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={mockRankingsTrend}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 11 }} />
-                      <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '10px' }} />
-                      <Line type="monotone" dataKey="top1" stroke="#0B69FF" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="top3" stroke="#10B981" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="top10" stroke="#EC4899" strokeWidth={2.5} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                {/* 4 Metric Boxes */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {/* Visibility */}
+                  <div className="p-3.5 bg-[#D5F5EE] rounded-2xl border border-[#A7E8D8] relative overflow-hidden">
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                      <span>Visibility</span>
+                      <span className="text-[10px] bg-white text-gray-700 font-bold px-1.5 py-0.5 rounded-full shadow-2xs">
+                        6d
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-1.5 mt-2">
+                      <span className="text-2xl font-black text-gray-900">99%</span>
+                      <span className="text-[11px] text-emerald-800 font-bold bg-[#A7E8D8] px-1.5 py-0.2 rounded">
+                        ↗ 8,4
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Rank */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                      <span>Rank</span>
+                      <Award className="w-4 h-4 text-gray-400" />
+                    </div>
+                    <div className="text-2xl font-black text-gray-900 mt-2">#1</div>
+                  </div>
+
+                  {/* Avg. position */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                      <span>Avg. position</span>
+                      <BarChart3 className="w-4 h-4 text-gray-400" />
+                    </div>
+                    <div className="flex items-baseline gap-1.5 mt-2">
+                      <span className="text-2xl font-black text-gray-900">2.61</span>
+                      <span className="text-[11px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">
+                        ↘ 1,3
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Net sentiment */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                      <span>Net sentiment</span>
+                      <Smile className="w-4 h-4 text-gray-400" />
+                    </div>
+                    <div className="flex items-baseline gap-1.5 mt-2">
+                      <span className="text-2xl font-black text-gray-900">+78</span>
+                      <span className="text-[11px] text-pink-700 font-bold bg-pink-100 px-1.5 py-0.2 rounded">
+                        ↘ 1,5
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lower Row: Chart & Competitors */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Left: Visibility Chart */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-900">Visibility</span>
+                      <div className="flex items-center gap-1.5 text-[11px]">
+                        <span className="bg-gray-100 px-2.5 py-1 rounded-md font-bold text-gray-900 shadow-2xs">
+                          Visibility score
+                        </span>
+                        <span className="text-gray-400 font-semibold px-1.5">Avg position</span>
+                      </div>
+                    </div>
+                    <div className="h-44 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={mockRankingsTrend}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} />
+                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '8px' }} />
+                          <Line type="monotone" dataKey="top1" stroke="#1864FF" strokeWidth={2.5} dot={false} />
+                          <Line type="monotone" dataKey="top3" stroke="#10B981" strokeWidth={2.5} dot={false} />
+                          <Line type="monotone" dataKey="top10" stroke="#D946EF" strokeWidth={2.5} dot={false} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Right: Competitors Table */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-2">
+                    <span className="text-xs font-bold text-gray-900 block pb-1 border-b border-gray-100">
+                      Competitors
+                    </span>
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="text-[10px] text-gray-400 border-b border-gray-100 pb-1">
+                          <th className="font-bold py-1">#</th>
+                          <th className="font-bold py-1">Visibility</th>
+                          <th className="font-bold py-1">Avg position</th>
+                          <th className="font-bold py-1">Net sentiment</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        <tr>
+                          <td className="py-2 flex items-center gap-1.5 font-bold text-blue-600">
+                            <span>1</span>
+                            <span className="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-[10px]">b</span>
+                          </td>
+                          <td className="py-2 font-bold text-gray-900">99%</td>
+                          <td className="py-2 text-gray-600 font-medium">2.61</td>
+                          <td className="py-2 font-bold text-gray-900">+78</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 flex items-center gap-1.5 font-bold text-blue-600">
+                            <span>2</span>
+                            <span className="w-4 h-4 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]">Q</span>
+                          </td>
+                          <td className="py-2 font-bold text-gray-900">83%</td>
+                          <td className="py-2 text-gray-600 font-medium">2.75</td>
+                          <td className="py-2 font-bold text-gray-900">+44</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 flex items-center gap-1.5 font-bold text-purple-600">
+                            <span>3</span>
+                            <span className="w-4 h-4 rounded bg-purple-100 text-purple-700 flex items-center justify-center text-[10px]">E</span>
+                          </td>
+                          <td className="py-2 font-bold text-gray-900">80%</td>
+                          <td className="py-2 text-gray-600 font-medium">5.11</td>
+                          <td className="py-2 font-bold text-gray-900">+40</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 flex items-center gap-1.5 font-bold text-emerald-600">
+                            <span>4</span>
+                            <span className="w-4 h-4 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px]">*</span>
+                          </td>
+                          <td className="py-2 font-bold text-gray-900">72%</td>
+                          <td className="py-2 text-gray-600 font-medium">5.87</td>
+                          <td className="py-2 font-bold text-gray-900">+39</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
 
-              {/* Right: Competitors Table */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200 space-y-3">
-                <span className="text-sm font-bold text-gray-900 block mb-2">Competitors</span>
-                <table className="w-full text-left text-sm">
-                  <thead>
-                    <tr className="text-xs text-gray-500 border-b border-gray-200 pb-2">
-                      <th className="font-bold py-2">#</th>
-                      <th className="font-bold py-2">Visibility</th>
-                      <th className="font-bold py-2">Avg position</th>
-                      <th className="font-bold py-2">Net sentiment</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    <tr>
-                      <td className="py-2.5 font-bold text-blue-600">1 b</td>
-                      <td className="py-2.5 font-bold text-gray-900">99%</td>
-                      <td className="py-2.5 text-gray-700">2.61</td>
-                      <td className="py-2.5 font-bold text-emerald-600">+78</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-bold text-purple-600">2 Q</td>
-                      <td className="py-2.5 font-bold text-gray-900">83%</td>
-                      <td className="py-2.5 text-gray-700">2.75</td>
-                      <td className="py-2.5 text-gray-700">+44</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-bold text-indigo-600">3 E</td>
-                      <td className="py-2.5 font-bold text-gray-900">80%</td>
-                      <td className="py-2.5 text-gray-700">5.11</td>
-                      <td className="py-2.5 text-gray-700">+40</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-bold text-emerald-600">4 *</td>
-                      <td className="py-2.5 font-bold text-gray-900">72%</td>
-                      <td className="py-2.5 text-gray-700">5.87</td>
-                      <td className="py-2.5 text-gray-700">+39</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Explanation & Bullet Points */}
-            <div className="pt-6 border-t border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-3 max-w-2xl text-sm text-gray-600 leading-relaxed">
-                <p>
+              {/* Right Column: Title, Explanations & CTAs */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[27px] font-black text-gray-900 leading-snug">
                   Analyze your brand&apos;s visibility across major AI search engines with SE Visible by SE Ranking — track mentions, sentiment, and share of voice, and benchmark competitors to grow your AI presence.
-                </p>
-                <ul className="space-y-2">
-                  <li className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-[#0B69FF]" />
+                </h3>
+
+                <ul className="space-y-3.5 text-sm text-gray-800">
+                  <li className="flex items-start gap-2.5">
+                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
                     <span><strong>Comprehensive visibility analysis</strong> across 5 major AI engines</span>
                   </li>
-                  <li className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-[#0B69FF]" />
+                  <li className="flex items-start gap-2.5">
+                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
                     <span><strong>Competitive benchmarks for AI visibility</strong>, share of voice, and the gaps to close</span>
                   </li>
-                  <li className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-[#0B69FF]" />
+                  <li className="flex items-start gap-2.5">
+                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
                     <span><strong>In-depth analysis</strong> of the prompts and sources behind AI answers</span>
                   </li>
                 </ul>
-              </div>
 
-              <div>
-                <a
-                  href="https://visible.seranking.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-6 py-3.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-sm font-bold rounded-xl transition-all shadow-sm hover:shadow-md inline-block"
-                >
-                  Try SE Visible
-                </a>
+                <div className="pt-2">
+                  <a
+                    href="https://visible.seranking.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Try SE Visible
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* TAB 2: SEO Research (Exact Screenshot 3 Match) */}
+          {platformTab === 'seo-research' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: SEO Research Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+                  {/* Left Column of Left Card: Organic & Paid Traffic Cards */}
+                  <div className="md:col-span-5 space-y-3">
+                    {/* Organic Traffic */}
+                    <div className="p-4 bg-white rounded-2xl border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
+                          ORGANIC TRAFFIC
+                        </span>
+                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px]">
+                          🍃
+                        </div>
+                      </div>
+                      <div className="flex items-baseline gap-2 mt-2">
+                        <span className="text-2xl font-black text-gray-900">11.3M</span>
+                        <span className="text-xs text-emerald-600 font-bold">▲ 215.9K</span>
+                      </div>
+                      <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
+                    </div>
+
+                    {/* Paid Traffic */}
+                    <div className="p-4 bg-white rounded-2xl border border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
+                          PAID TRAFFIC
+                        </span>
+                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
+                          $
+                        </div>
+                      </div>
+                      <div className="flex items-baseline gap-2 mt-2">
+                        <span className="text-2xl font-black text-gray-900">12.9K</span>
+                        <span className="text-xs text-emerald-600 font-bold">▲ 41.7K</span>
+                      </div>
+                      <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
+                    </div>
+                  </div>
+
+                  {/* Right Column of Left Card: Traffic Chart with Google Update Badge */}
+                  <div className="md:col-span-7 p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2 text-xs">
+                      <span className="font-bold text-[#1864FF] border-b-2 border-[#1864FF] pb-1.5 cursor-pointer">
+                        TOTAL TRAFFIC
+                      </span>
+                      <span className="font-bold text-gray-500 hover:text-gray-900 cursor-pointer">KEYWORDS</span>
+                      <span className="font-bold text-gray-500 hover:text-gray-900 cursor-pointer">BACKLINKS</span>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-1.5 text-[10px] font-bold text-gray-400">
+                      <span className="hover:text-gray-900 cursor-pointer">6M</span>
+                      <span className="hover:text-gray-900 cursor-pointer">12M</span>
+                      <span className="hover:text-gray-900 cursor-pointer">18M</span>
+                      <span className="hover:text-gray-900 cursor-pointer">24M</span>
+                      <span className="hover:text-gray-900 cursor-pointer">30M</span>
+                      <span className="hover:text-gray-900 cursor-pointer">36M</span>
+                      <span className="text-[#1864FF] bg-blue-50 px-1.5 py-0.5 rounded cursor-pointer">ALL</span>
+                    </div>
+
+                    <div className="h-36 w-full relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={[
+                            { month: 'Mar', organic: 38000, paid: 52000 },
+                            { month: 'Apr', organic: 52000, paid: 46000 },
+                            { month: 'May', organic: 45000, paid: 72000 },
+                            { month: 'Jun', organic: 62000, paid: 38000 },
+                            { month: 'Jul', organic: 58000, paid: 45000 },
+                            { month: 'Aug', organic: 68000, paid: 50000 },
+                            { month: 'Sep', organic: 82000, paid: 64000 },
+                          ]}
+                        >
+                          <defs>
+                            <linearGradient id="orgGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.25} />
+                              <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                            </linearGradient>
+                            <linearGradient id="paidGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#1864FF" stopOpacity={0.25} />
+                              <stop offset="95%" stopColor="#1864FF" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
+                          <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                          <YAxis tick={{ fontSize: 10 }} domain={[0, 100000]} ticks={[0, 25000, 50000, 75000, 100000]} />
+                          <Area type="monotone" dataKey="organic" stroke="#10B981" strokeWidth={2} fill="url(#orgGrad)" />
+                          <Area type="monotone" dataKey="paid" stroke="#1864FF" strokeWidth={2} fill="url(#paidGrad)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
+                      <div className="flex items-center gap-4 text-xs font-semibold">
+                        <span className="flex items-center gap-1.5 text-gray-700">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500" /> Organic
+                        </span>
+                        <span className="flex items-center gap-1.5 text-gray-700">
+                          <span className="w-2 h-2 rounded-full bg-blue-600" /> Paid
+                        </span>
+                      </div>
+                      <button type="button" className="p-1 rounded bg-gray-50 text-gray-500 hover:bg-gray-100">
+                        <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg]" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Wide Tile: Referring Domains, Backlinks, Domain Trust */}
+                <div className="p-4 bg-white rounded-2xl border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase flex items-center gap-1">
+                      REFFERING DOMAINS <span className="text-[10px] text-gray-400">ⓘ</span>
+                    </span>
+                    <span className="text-xl font-black text-gray-900 block mt-1">962.8K</span>
+                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 domains</span>
+                  </div>
+
+                  <div>
+                    <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase flex items-center gap-1">
+                      BACKLINKS <span className="text-[10px] text-gray-400">ⓘ</span>
+                    </span>
+                    <span className="text-xl font-black text-gray-900 block mt-1">13.9M</span>
+                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 backlinks</span>
+                  </div>
+
+                  <div className="space-y-1.5 border-l border-gray-100 pl-4">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-gray-600 uppercase text-[10px]">DOMAIN TRUST</span>
+                      <span className="font-black text-gray-900 text-sm">96</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-gray-600 uppercase text-[10px]">PAGE TRUST</span>
+                      <span className="font-black text-gray-900 text-sm">72</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Links & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Build winning SEO strategies with unique traffic, keyword, and backlink datasets powered by advanced AI and ML technologies!
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/research/keyword-research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Keyword Suggestion Tool</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/research/competitive-research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Competitive Research</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/backlinks" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Backlink Checker</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/research/competitive-research" className="flex items-center gap-2 text-[#1864FF] underline underline-offset-4 cursor-pointer group">
+                    <span>SERP Checker</span>
+                    <span className="group-hover:translate-x-1 transition-transform no-underline">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: SEO Monitoring (Exact Screenshot 4 Match) */}
+          {platformTab === 'seo-monitoring' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Monitoring Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                {/* Top Row: 3 KPI Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Average Position */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">AVERAGE POSITION</span>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-2xl font-black text-gray-900">34</span>
+                      <span className="text-xs text-emerald-600 font-bold">- 51</span>
+                    </div>
+                    {/* Blue wave sparkline */}
+                    <div className="h-7 w-full mt-2">
+                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
+                        <path d="M0 20 Q 20 5, 40 18 T 80 8 T 100 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Traffic Forecast */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">TRAFIC FORECAST</span>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-2xl font-black text-gray-900">520</span>
+                      <span className="text-xs text-pink-600 font-bold">- 245</span>
+                    </div>
+                    <div className="h-7 w-full mt-2">
+                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
+                        <path d="M0 15 Q 30 22, 60 10 T 100 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Search Visibility */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">SEARCH VISIBILITY</span>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-2xl font-black text-gray-900">0.66</span>
+                      <span className="text-xs text-emerald-600 font-bold">▲ 0.34</span>
+                    </div>
+                    <div className="h-7 w-full mt-2">
+                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
+                        <path d="M0 22 Q 25 8, 50 18 T 100 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Health Score Semi-Gauge, Backlinks Chart, Page Quality Score Polar */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Health Score Gauge */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between text-center">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block text-left">HEALTH SCORE</span>
+                    <div className="py-2 flex flex-col items-center justify-center">
+                      <div className="relative w-28 h-16 flex items-end justify-center">
+                        <svg viewBox="0 0 100 60" className="w-28 h-16">
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#E2E8F0" strokeWidth="10" strokeLinecap="round" />
+                          <path d="M 10 50 A 40 40 0 0 1 78 22" fill="none" stroke="#10B981" strokeWidth="10" strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-x-0 bottom-0 text-center leading-none">
+                          <span className="text-2xl font-black text-gray-900 block">87</span>
+                          <span className="text-[10px] text-gray-500 font-bold">Strong</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-[10px] space-y-1 text-left border-t border-gray-100 pt-2 font-medium">
+                      <div className="flex items-center justify-between text-gray-700">
+                        <span className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Your website
+                        </span>
+                        <span className="font-bold text-gray-900">87 ▲ 4</span>
+                      </div>
+                      <div className="flex items-center justify-between text-gray-700">
+                        <span className="flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" /> Recommended
+                        </span>
+                        <span className="font-bold text-gray-900">90+</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Backlinks Trend Area */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-gray-500 uppercase">BACKLINKS</span>
+                        <span className="text-[9px] text-gray-400 font-bold">3M 6M 12M</span>
+                      </div>
+                      <div className="h-28 w-full mt-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart
+                            data={[
+                              { period: 'Apr 23', links: 20 },
+                              { period: 'May 24', links: 30 },
+                              { period: 'Jun 25', links: 10 },
+                            ]}
+                          >
+                            <defs>
+                              <linearGradient id="blGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#1864FF" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#1864FF" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#F1F5F9" />
+                            <XAxis dataKey="period" tick={{ fontSize: 9 }} />
+                            <YAxis tick={{ fontSize: 9 }} domain={[0, 40]} ticks={[10, 20, 30]} />
+                            <Area type="monotone" dataKey="links" stroke="#1864FF" strokeWidth={2} fill="url(#blGrad)" />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Page Quality Score Polar Radar */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">PAGE QUALITY SCORE</span>
+                    <div className="py-2 flex items-center justify-center relative">
+                      <div className="w-24 h-24 rounded-full border-4 border-dashed border-gray-100 flex items-center justify-center relative">
+                        {/* Colorful segmented petals */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-20 h-20 rounded-full border-4 border-emerald-500 border-t-purple-600 border-r-blue-600 border-b-gray-800" />
+                        </div>
+                        <span className="text-xl font-black text-gray-900 relative z-10">78</span>
+                      </div>
+                    </div>
+                    <div className="text-[9px] text-gray-400 flex flex-wrap justify-between pt-1 border-t border-gray-100 font-semibold">
+                      <span>Usability</span>
+                      <span>Indexing</span>
+                      <span>Domain</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Links & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Track your SEO progress and make timely adjustments to your strategy based on actionable insights
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/rankings" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Rank Tracker</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/website-audit" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Website Audit</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/backlinks" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Backlink Monitor</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/website-audit/on-page" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>On-Page SEO Checker</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: Content Marketing (Exact Screenshot 5 Match) */}
+          {platformTab === 'content-marketing' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Content Editor Mockup Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+                  {/* Left Column: Rich Text Document View */}
+                  <div className="md:col-span-7 bg-white rounded-2xl border border-gray-200 p-4 space-y-3">
+                    {/* Editor Toolbar */}
+                    <div className="flex items-center gap-2 text-gray-600 text-xs border-b border-gray-100 pb-2">
+                      <button type="button" className="p-1 hover:bg-gray-100 rounded">↶</button>
+                      <button type="button" className="p-1 hover:bg-gray-100 rounded">↷</button>
+                      <span className="text-gray-300">|</span>
+                      <span className="font-semibold text-gray-800">Paragraph ▾</span>
+                      <span className="text-gray-300">|</span>
+                      <span className="font-black text-gray-900">B</span>
+                      <span className="italic font-bold text-gray-800">I</span>
+                      <span className="underline font-bold text-gray-800">U</span>
+                      <span className="line-through text-gray-500">S</span>
+                      <span className="text-gray-400">🖌</span>
+                    </div>
+
+                    {/* Article Content */}
+                    <div className="space-y-2 text-xs">
+                      <div className="flex items-start gap-2">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded uppercase shrink-0 mt-0.5">
+                          H1
+                        </span>
+                        <h4 className="font-black text-gray-900 text-sm leading-tight">
+                          Scientifically Tested Search Engine Optimization
+                        </h4>
+                      </div>
+
+                      <div className="flex items-start gap-2 pt-1 text-gray-600 text-[11px] leading-relaxed">
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded uppercase shrink-0 mt-0.5">
+                          P
+                        </span>
+                        <div className="space-y-1.5">
+                          <p>
+                            Search engine optimization (SEO) is a highly effective method of attracting new customers and qualified leads to your website, but only when it&apos;s done right.
+                          </p>
+                          <p>
+                            We don&apos;t guess, assume, or hope for the best with your SEO. We develop our SEO strategies around thorough research and scientifically-tested data. And we prove our results every time.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Readability bar at bottom of document */}
+                    <div className="pt-3 border-t border-gray-100">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-gray-500 uppercase text-[10px]">READABILITY</span>
+                        <span className="font-bold text-blue-600 text-[11px]">Plain text</span>
+                      </div>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="text-xl font-black text-gray-900">62</span>
+                        <span className="text-xs text-emerald-600 font-bold">▲ 1</span>
+                      </div>
+                      <div className="w-full bg-gray-100 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                        <div className="bg-blue-600 h-full w-[62%]" />
+                      </div>
+                      <div className="flex justify-between text-[9px] text-gray-400 mt-1 font-semibold">
+                        <span>Very difficult</span>
+                        <span>Very easy</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Content Score, Brief Progress, Quality Score Radar */}
+                  <div className="md:col-span-5 space-y-3">
+                    {/* Content Score Donut */}
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full border-4 border-emerald-500 flex items-center justify-center shrink-0">
+                        <span className="text-base font-black text-gray-900">80</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-500 uppercase block">CONTENT SCORE</span>
+                        <span className="text-[11px] text-gray-600 font-medium block">
+                          Average score: 65 | TOP score: 80
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Brief Progress */}
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase block">BRIEF PROGRESS</span>
+                      <div className="flex items-center gap-3 text-[11px] font-semibold text-gray-700">
+                        <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[10px]">
+                          70%
+                        </span>
+                        <span>Words: 595 ↑</span>
+                        <span>Headings: 18 ✓</span>
+                      </div>
+                    </div>
+
+                    {/* Quality Score Radar */}
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 text-center">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase block text-left">QUALITY SCORE</span>
+                      <div className="py-1 flex items-center justify-center">
+                        <div className="relative w-20 h-20 rounded-full border border-dashed border-gray-200 flex items-center justify-center">
+                          <span className="text-lg font-black text-gray-900">72</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-[9px] text-gray-400 font-medium">
+                        <span>Grammar</span>
+                        <span>Punctuation</span>
+                        <span>Stop words</span>
+                      </div>
+                    </div>
+
+                    {/* One Click Article Generation */}
+                    <div className="p-2.5 bg-white rounded-xl border border-gray-200 flex items-center justify-between text-xs font-bold text-gray-800">
+                      <span>One click article generation</span>
+                      <button type="button" className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs">
+                        ✦
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Links & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Create new content faster and get AI-powered optimization tips to help your existing pages rock the SERP
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/content-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Content Marketing Tool</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/content-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Content Editor</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/content-marketing/idea-finder" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>AI Writer</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 5: Local Marketing */}
+          {platformTab === 'local-marketing' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Local Marketing Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">LOCAL RANKINGS</span>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-2xl font-black text-gray-900">86%</span>
+                      <span className="text-xs text-emerald-600 font-bold">▲ 8.2%</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 block mt-1">Local 3-Pack Presence</span>
+                  </div>
+
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">REVIEWS &amp; RATING</span>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-2xl font-black text-gray-900">4.8</span>
+                      <span className="text-amber-500 font-bold">★</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 block mt-1">1,420 total reviews</span>
+                  </div>
+
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">NAP CONSISTENCY</span>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <span className="text-2xl font-black text-gray-900">98%</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-600 font-bold block mt-1">57 Directories synced</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-900 pb-1 border-b border-gray-100">
+                    <span>Geo-Grid Google Maps Rankings</span>
+                    <span className="text-emerald-600 font-bold text-[10px]">9x9 Grid Active</span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2 text-center text-xs font-bold py-2">
+                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
+                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
+                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
+                    <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">#2</span>
+                    <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">#2</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Links & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Dominate Google Maps and local search for all your business locations with complete local SEO tools
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Local Marketing Tool</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Google Business Profile Optimization</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/rankings" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Local Rank Tracker</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Listing &amp; NAP Management</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: Agency Success Kit (Exact Screenshot 6 Match) */}
+          {platformTab === 'agency-kit' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Agency Kit Card */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                {/* Top Row: Report Setup & Gauge */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Left: Schedule & Format Options */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3 text-xs">
+                    <div>
+                      <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1.5">Export format:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 bg-red-50 text-red-700 font-bold rounded border border-red-100">PDF</span>
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">XLS</span>
+                        <span className="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded border border-blue-100">HTML</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="font-semibold text-gray-700">Shedule report</span>
+                      <div className="w-8 h-4.5 bg-cyan-400 rounded-full relative cursor-pointer">
+                        <div className="w-3.5 h-3.5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-xs" />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between text-gray-600">
+                        <span>Set shedule:</span>
+                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Daily ▾</span>
+                      </div>
+                      <div className="flex items-center justify-between text-gray-600">
+                        <span>Set time:</span>
+                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Not selected ▾</span>
+                      </div>
+                      <div className="flex items-center justify-between text-gray-600">
+                        <span>Timezone:</span>
+                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">GMT +1:00 ▾</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: SEO Report Preview */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 text-center flex flex-col justify-between">
+                    <div className="flex justify-end">
+                      <span className="text-[10px] font-bold px-2 py-1 bg-gray-900 text-white rounded-md cursor-pointer">
+                        + My Logo
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-base font-black text-gray-900 block">SEO Report</span>
+                      <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">JAN - 19   JAN - 25</span>
+                    </div>
+                    <div className="py-2 flex justify-center">
+                      <div className="w-28 h-14 overflow-hidden relative">
+                        <svg viewBox="0 0 100 50" className="w-28 h-14">
+                          <path d="M 10 50 A 40 40 0 0 1 35 15" fill="none" stroke="#00B8D9" strokeWidth="16" />
+                          <path d="M 35 15 A 40 40 0 0 1 65 15" fill="none" stroke="#FF5630" strokeWidth="16" />
+                          <path d="M 65 15 A 40 40 0 0 1 90 50" fill="none" stroke="#0052CC" strokeWidth="16" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Bar: Account Type (Owner, Client, Manager) */}
+                <div className="p-3 bg-white rounded-2xl border border-gray-200 flex items-center justify-between text-xs font-bold text-gray-700">
+                  <span className="text-gray-400 font-semibold uppercase text-[10px]">ACCOUNT TYPE</span>
+                  <div className="flex items-center gap-6">
+                    <span className="flex items-center gap-1.5 text-gray-900">🛡 Owner</span>
+                    <span className="flex items-center gap-1.5 text-gray-700">👤 Client</span>
+                    <span className="flex items-center gap-1.5 text-gray-700">💬 Manager</span>
+                  </div>
+                </div>
+
+                {/* Bottom Row: Leads & Conversion Rate */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase block mb-1">LEADS</span>
+                    <div className="grid grid-cols-3 gap-2 text-left">
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">12</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">TODAY</span>
+                      </div>
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">197</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">PER MONTH</span>
+                      </div>
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">9</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">AVG. PER DAY</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase block mb-1">CONVERSION RATE</span>
+                    <div className="grid grid-cols-3 gap-2 text-left">
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">1.3%</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">TODAY</span>
+                      </div>
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">0.6%</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">PER MONTH</span>
+                      </div>
+                      <div>
+                        <span className="text-xl font-black text-gray-900 block">0.9%</span>
+                        <span className="text-[9px] text-gray-400 font-bold uppercase">AVG. PER DAY</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Links & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Get support at every stage of the client management cycle: from lead gen to winning clients&apos; loyalty
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/reports" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Scheduled SEO reports</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/agency-pack" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>White Label</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                  <Link href="/agency-pack" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Lead Generator</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 7: Integrations (Exact Screenshot 7 Match) */}
+          {platformTab === 'integrations' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: 5 Integrations Boxes */}
+              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {/* Analytics */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">ANALYTICS</span>
+                    <div className="flex items-center gap-3">
+                      {/* GA */}
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center p-2 border border-amber-100">
+                        <div className="w-full h-full bg-amber-500 rounded-sm" />
+                      </div>
+                      {/* GSC */}
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center p-2 border border-blue-100">
+                        <div className="w-full h-full bg-blue-500 rounded-sm" />
+                      </div>
+                      {/* Ads */}
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center p-2 border border-emerald-100">
+                        <div className="w-full h-full bg-emerald-500 rounded-sm" />
+                      </div>
+                      {/* Looker */}
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center p-2 border border-purple-100">
+                        <div className="w-full h-full bg-purple-500 rounded-sm" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Reporting */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">REPORTING</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-100">
+                        8
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs border border-red-100">
+                        W
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-700 font-black text-xs border border-blue-100">
+                        A
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 font-bold text-xs border border-cyan-100">
+                        R
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Automation */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">AUTOMATION</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 font-bold text-xs border border-pink-100">
+                        ⚯
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xs border border-emerald-100">
+                        ⊞
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 font-bold text-sm border border-orange-100">
+                        *
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs border border-purple-100">
+                        III
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Business Profile */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                    <span className="text-[11px] font-bold text-gray-500 uppercase block">BUSINESS PROFILE</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-100">
+                        G
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-800 font-bold text-xs border border-blue-100">
+                        f
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-900 font-bold text-xs border border-gray-200">
+                        
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-xs border border-teal-100">
+                        b
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Website Builder (Full Width) */}
+                <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                  <span className="text-[11px] font-bold text-gray-500 uppercase block">WEBSITE BUILDER</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800 font-black text-xs border border-gray-200">
+                      W
+                    </div>
+                    <div className="px-3 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-900 font-black text-xs tracking-wider border border-gray-200">
+                      WiX
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Title, Link & Button */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+                  Connect SE Ranking to GA4, GSC, Data Studio, Make.com, n8n, and other tools your workflows run on
+                </h3>
+
+                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                  <Link href="/api-docs" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Inegrations</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2">
+                  <Link
+                    href="/signup"
+                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                  >
+                    Start free trial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

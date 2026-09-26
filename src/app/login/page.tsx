@@ -11,8 +11,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { refreshProjects } = useApp();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@seranking.com');
+  const [password, setPassword] = useState('Admin123#');
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,28 +31,20 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Simulate login verification
     setTimeout(async () => {
-      // If wrong password entered (for demo test)
-      if (password === 'wrong') {
-        setError('Invalid pair username/password!');
-        setIsLoading(false);
-        return;
-      }
-
       await refreshProjects();
-      router.push('/project-overview');
-    }, 800);
+      router.push('/projects');
+    }, 500);
   };
 
   const handleSocialLogin = (provider: string) => {
     setIsLoading(true);
-    setEmail('suraj.vishwakarma@gvilab.com');
-    setPassword('WorkPassword123#');
+    setEmail('admin@seranking.com');
+    setPassword('Admin123#');
     setTimeout(async () => {
       await refreshProjects();
-      router.push('/project-overview');
-    }, 700);
+      router.push('/projects');
+    }, 500);
   };
 
   return (
