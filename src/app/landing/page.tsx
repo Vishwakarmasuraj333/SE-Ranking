@@ -369,13 +369,13 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* 2. Main Navigation Header (Spacious, Clean, Bold) */}
+      {/* 2. Main Navigation Header (Sleek, Compact, Crisp) */}
       <header className="border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur-md z-40 transition-all">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-6 sm:gap-8">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-[68px] flex items-center justify-between">
+          <div className="flex items-center gap-5 sm:gap-7 h-full">
             {/* 9-Dots Suite Switcher Button & Dropdown */}
             <div
-              className="relative py-4"
+              className="relative py-2"
               onMouseEnter={() => setActiveMenu('suite')}
               onMouseLeave={() => setActiveMenu(null)}
               onClick={(e) => e.stopPropagation()}
@@ -383,10 +383,10 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setActiveMenu(activeMenu === 'suite' ? null : 'suite')}
-                className="w-9 h-9 rounded-xl hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="App Switcher"
               >
-                <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                   <rect x="1" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
                   <rect x="7.25" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
                   <rect x="13.5" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
@@ -400,79 +400,81 @@ export default function LandingPage() {
               </button>
 
               {activeMenu === 'suite' && (
-                <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 z-50 animate-in fade-in zoom-in-95 duration-100 space-y-1.5">
-                  {/* SE Ranking */}
-                  <div className="p-3 bg-blue-50/80 rounded-xl flex items-center justify-between cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[#0B69FF] flex items-center justify-center shrink-0">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L3 9V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V9L12 2Z" fill="none" stroke="white" strokeWidth="2" />
-                          <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
+                <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-2 space-y-1">
+                    {/* SE Ranking */}
+                    <div className="p-2 bg-blue-50/70 rounded-lg flex items-center justify-between cursor-pointer">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-md bg-[#0B69FF] flex items-center justify-center shrink-0">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L3 9V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V9L12 2Z" fill="none" stroke="white" strokeWidth="2" />
+                            <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-gray-900 leading-tight">SE Ranking</div>
+                          <div className="text-[11px] text-gray-500 leading-tight">Grow your visibility with AI SEO</div>
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900">SE Ranking</div>
-                        <div className="text-xs text-gray-500">Grow your visibility with AI SEO</div>
-                      </div>
+                      <Check className="w-4 h-4 text-[#0B69FF] shrink-0" />
                     </div>
-                    <Check className="w-5 h-5 text-[#0B69FF] shrink-0" />
+
+                    {/* SE Visible */}
+                    <a
+                      href="https://visible.seranking.com/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-md bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 font-black text-xs">
+                          N
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-gray-900 flex items-center gap-1 leading-tight">
+                            <span>SE Visible</span>
+                            <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-gray-700" />
+                          </div>
+                          <div className="text-[11px] text-gray-500 leading-tight">Analyze AI visibility strategically</div>
+                        </div>
+                      </div>
+                    </a>
+
+                    {/* Planable */}
+                    <a
+                      href="https://planable.io/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors group cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-md bg-orange-50 flex items-center justify-center text-orange-500 shrink-0 font-black text-xs">
+                          ▲
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-gray-900 flex items-center gap-1 leading-tight">
+                            <span>Planable</span>
+                            <ExternalLink className="w-3 h-3 text-gray-400 group-hover:text-gray-700" />
+                          </div>
+                          <div className="text-[11px] text-gray-500 leading-tight">Manage your socials as a team</div>
+                        </div>
+                      </div>
+                    </a>
                   </div>
-
-                  {/* SE Visible */}
-                  <a
-                    href="https://visible.seranking.com/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-3 hover:bg-gray-50 rounded-xl flex items-center justify-between transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0 font-black text-sm">
-                        N
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900 flex items-center gap-1">
-                          <span>SE Visible</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700" />
-                        </div>
-                        <div className="text-xs text-gray-500">Analyze AI visibility strategically</div>
-                      </div>
-                    </div>
-                  </a>
-
-                  {/* Planable */}
-                  <a
-                    href="https://planable.io/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-3 hover:bg-gray-50 rounded-xl flex items-center justify-between transition-colors group cursor-pointer"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-orange-50 flex items-center justify-center text-orange-500 shrink-0 font-black text-sm">
-                        ▲
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-gray-900 flex items-center gap-1">
-                          <span>Planable</span>
-                          <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700" />
-                        </div>
-                        <div className="text-xs text-gray-500">Manage your socials as a team</div>
-                      </div>
-                    </div>
-                  </a>
                 </div>
               )}
             </div>
 
             {/* SE Ranking Logo */}
             <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-              <SeRankingLogo variant="brand" width={140} height={32} />
+              <SeRankingLogo variant="brand" width={135} height={30} />
             </Link>
 
             {/* Desktop Navigation Links & Dropdowns */}
-            <nav className="hidden lg:flex items-center gap-7 xl:gap-8 text-sm font-bold text-gray-800">
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-7 text-sm font-semibold text-gray-800 h-full">
               {/* 1. Solutions Dropdown */}
               <div
-                className="relative py-6"
+                className="relative h-full flex items-center"
                 onMouseEnter={() => setActiveMenu('solutions')}
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
@@ -480,86 +482,100 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setActiveMenu(activeMenu === 'solutions' ? null : 'solutions')}
-                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'solutions' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
                   <span>Solutions</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'solutions' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
                 </button>
 
                 {activeMenu === 'solutions' && (
-                  <div className="absolute top-full left-0 mt-1 w-[480px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 flex gap-3 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    {/* Left Column */}
-                    <div className="w-52 space-y-1.5 pr-2 border-r border-gray-100">
-                      <button
-                        type="button"
-                        onClick={() => setSolutionsSubTab('business-type')}
-                        className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          solutionsSubTab === 'business-type'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>By business type</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
+                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="w-[420px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2 h-fit">
+                      {/* Left Column */}
+                      <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100 flex flex-col justify-between">
+                        <div className="space-y-0.5">
+                          <button
+                            type="button"
+                            onClick={() => setSolutionsSubTab('business-type')}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                              solutionsSubTab === 'business-type'
+                                ? 'bg-[#E0F2FE] text-[#0f172a]'
+                                : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            <span>By business type</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          </button>
 
-                      <a
-                        href="https://seranking.com/migration.html"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>Migrate to SE Ranking</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </a>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="flex-1 space-y-1.5 pl-1">
-                      <Link
-                        href="/agency-pack"
-                        onClick={() => setActiveMenu(null)}
-                        className="p-3 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                      >
-                        <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                          <Target className="w-5 h-5" />
+                          <a
+                            href="https://seranking.com/solutions.html"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                          >
+                            <span>By SEO goals</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          </a>
                         </div>
-                        <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                          Agencies
-                        </span>
-                      </Link>
 
-                      <Link
-                        href="/project-overview"
-                        onClick={() => setActiveMenu(null)}
-                        className="p-3 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                      >
-                        <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                          <Building className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                          Enterprises
-                        </span>
-                      </Link>
+                        <a
+                          href="https://seranking.com/migration.html"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer border-t border-gray-50 pt-1.5"
+                        >
+                          <span>Migrate to SE Ranking</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        </a>
+                      </div>
 
-                      <Link
-                        href="/projects"
-                        onClick={() => setActiveMenu(null)}
-                        className="p-3 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                      >
-                        <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                          <Users className="w-5 h-5" />
-                        </div>
-                        <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                          Growing business
-                        </span>
-                      </Link>
+                      {/* Right Column */}
+                      <div className="flex-1 space-y-0.5 pl-0.5">
+                        <Link
+                          href="/agency-pack"
+                          onClick={() => setActiveMenu(null)}
+                          className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                        >
+                          <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                            <Target className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                            Agencies
+                          </span>
+                        </Link>
+
+                        <Link
+                          href="/project-overview"
+                          onClick={() => setActiveMenu(null)}
+                          className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                        >
+                          <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                            <Building className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                            Enterprises
+                          </span>
+                        </Link>
+
+                        <Link
+                          href="/projects"
+                          onClick={() => setActiveMenu(null)}
+                          className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                        >
+                          <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                            Growing business
+                          </span>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -567,7 +583,7 @@ export default function LandingPage() {
 
               {/* 2. Tools Dropdown */}
               <div
-                className="relative py-6"
+                className="relative h-full flex items-center"
                 onMouseEnter={() => setActiveMenu('tools')}
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
@@ -575,303 +591,305 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setActiveMenu(activeMenu === 'tools' ? null : 'tools')}
-                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'tools' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
                   <span>Tools</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'tools' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
                 </button>
 
                 {activeMenu === 'tools' && (
-                  <div className="absolute top-full -left-12 mt-1 w-[580px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 flex gap-3 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    {/* Left Column (Categories) */}
-                    <div className="w-60 space-y-1 pr-2 border-r border-gray-100">
-                      <button
-                        type="button"
-                        onMouseEnter={() => setToolsSubTab('core-seo')}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          toolsSubTab === 'core-seo'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Core SEO tools</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseEnter={() => setToolsSubTab('ai-search')}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          toolsSubTab === 'ai-search'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>AI Search tools</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseEnter={() => setToolsSubTab('other-seo')}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          toolsSubTab === 'other-seo'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Other SEO tools</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseEnter={() => setToolsSubTab('agency-pack')}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          toolsSubTab === 'agency-pack'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Agency Pack</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
-
-                      <button
-                        type="button"
-                        onMouseEnter={() => setToolsSubTab('content-marketing')}
-                        className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          toolsSubTab === 'content-marketing'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Content Marketing</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
-
-                      <Link
-                        href="/local-marketing"
-                        onClick={() => setActiveMenu(null)}
-                        className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>Local Marketing Software</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </Link>
-
-                      <Link
-                        href="/api-docs"
-                        onClick={() => setActiveMenu(null)}
-                        className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>Integrations</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </Link>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="flex-1 space-y-1 pl-1">
-                      {toolsSubTab === 'core-seo' && (
-                        <>
-                          <Link
-                            href="/rankings"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <BarChart3 className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Rank Tracker
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/research/keyword-research"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Key className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Keyword Research
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/website-audit/on-page"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Search className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              On-Page SEO Checker
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/website-audit"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <FileSearch className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Website Audit
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/research/competitive-research"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Target className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Competitor Analysis Tool
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/backlinks"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Globe className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Backlink Checker
-                            </span>
-                          </Link>
-                        </>
-                      )}
-
-                      {toolsSubTab === 'ai-search' && (
-                        <>
-                          <Link
-                            href="/research/ai-search"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
-                              <Sparkles className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              AI Overviews Tracker
-                            </span>
-                          </Link>
-                          <Link
-                            href="/research/ai-search"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                              <Bot className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              AI Visibility Studio
-                            </span>
-                          </Link>
-                        </>
-                      )}
-
-                      {toolsSubTab === 'other-seo' && (
-                        <>
-                          <Link
-                            href="/website-audit/serp-analyzer"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Sliders className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              SERP Tracker
-                            </span>
-                          </Link>
-                          <Link
-                            href="/keyword-grouper"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Layers className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Keyword Grouper
-                            </span>
-                          </Link>
-                          <Link
-                            href="/page-changes"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <CheckSquare className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Webpage Monitor
-                            </span>
-                          </Link>
-                        </>
-                      )}
-
-                      {toolsSubTab === 'agency-pack' && (
-                        <>
-                          <Link
-                            href="/agency-pack"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                              <Award className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Agency Pack &amp; White Label
-                            </span>
-                          </Link>
-                          <Link
-                            href="/reports"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <FileText className="w-4 h-4" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              SEO Report Generator
-                            </span>
-                          </Link>
-                        </>
-                      )}
-
-                      {toolsSubTab === 'content-marketing' && (
-                        <Link
-                          href="/content-marketing"
-                          onClick={() => setActiveMenu(null)}
-                          className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
+                  <div className="absolute top-full -left-12 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="w-[510px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
+                      {/* Left Column (Categories) */}
+                      <div className="w-48 space-y-0.5 pr-1.5 border-r border-gray-100">
+                        <button
+                          type="button"
+                          onMouseEnter={() => setToolsSubTab('core-seo')}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            toolsSubTab === 'core-seo'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
                         >
-                          <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                            Content Marketing Tool
-                          </span>
+                          <span>Core SEO tools</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onMouseEnter={() => setToolsSubTab('ai-search')}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            toolsSubTab === 'ai-search'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>AI Search tools</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onMouseEnter={() => setToolsSubTab('other-seo')}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            toolsSubTab === 'other-seo'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>Other SEO tools</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onMouseEnter={() => setToolsSubTab('agency-pack')}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            toolsSubTab === 'agency-pack'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>Agency Pack</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
+
+                        <button
+                          type="button"
+                          onMouseEnter={() => setToolsSubTab('content-marketing')}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            toolsSubTab === 'content-marketing'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>Content Marketing</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
+
+                        <Link
+                          href="/local-marketing"
+                          onClick={() => setActiveMenu(null)}
+                          className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <span>Local Marketing</span>
+                          <ExternalLink className="w-3 h-3 text-gray-400" />
                         </Link>
-                      )}
+
+                        <Link
+                          href="/api-docs"
+                          onClick={() => setActiveMenu(null)}
+                          className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <span>Integrations</span>
+                          <ExternalLink className="w-3 h-3 text-gray-400" />
+                        </Link>
+                      </div>
+
+                      {/* Right Column */}
+                      <div className="flex-1 space-y-0.5 pl-0.5">
+                        {toolsSubTab === 'core-seo' && (
+                          <>
+                            <Link
+                              href="/rankings"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <BarChart3 className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Rank Tracker
+                              </span>
+                            </Link>
+
+                            <Link
+                              href="/research/keyword-research"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Key className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Keyword Research
+                              </span>
+                            </Link>
+
+                            <Link
+                              href="/website-audit/on-page"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Search className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                On-Page SEO Checker
+                              </span>
+                            </Link>
+
+                            <Link
+                              href="/website-audit"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <FileSearch className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Website Audit
+                              </span>
+                            </Link>
+
+                            <Link
+                              href="/research/competitive-research"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Target className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Competitor Analysis Tool
+                              </span>
+                            </Link>
+
+                            <Link
+                              href="/backlinks"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Globe className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Backlink Checker
+                              </span>
+                            </Link>
+                          </>
+                        )}
+
+                        {toolsSubTab === 'ai-search' && (
+                          <>
+                            <Link
+                              href="/research/ai-search"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
+                                <Sparkles className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                AI Overviews Tracker
+                              </span>
+                            </Link>
+                            <Link
+                              href="/research/ai-search"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                <Bot className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                AI Visibility Studio
+                              </span>
+                            </Link>
+                          </>
+                        )}
+
+                        {toolsSubTab === 'other-seo' && (
+                          <>
+                            <Link
+                              href="/website-audit/serp-analyzer"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Sliders className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                SERP Tracker
+                              </span>
+                            </Link>
+                            <Link
+                              href="/keyword-grouper"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Layers className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Keyword Grouper
+                              </span>
+                            </Link>
+                            <Link
+                              href="/page-changes"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <CheckSquare className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Webpage Monitor
+                              </span>
+                            </Link>
+                          </>
+                        )}
+
+                        {toolsSubTab === 'agency-pack' && (
+                          <>
+                            <Link
+                              href="/agency-pack"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                <Award className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Agency Pack &amp; White Label
+                              </span>
+                            </Link>
+                            <Link
+                              href="/reports"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <FileText className="w-3.5 h-3.5" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                SEO Report Generator
+                              </span>
+                            </Link>
+                          </>
+                        )}
+
+                        {toolsSubTab === 'content-marketing' && (
+                          <Link
+                            href="/content-marketing"
+                            onClick={() => setActiveMenu(null)}
+                            className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                          >
+                            <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                              <FileText className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                              Content Marketing Tool
+                            </span>
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -879,7 +897,7 @@ export default function LandingPage() {
 
               {/* 3. Resources Dropdown */}
               <div
-                className="relative py-6"
+                className="relative h-full flex items-center"
                 onMouseEnter={() => setActiveMenu('resources')}
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
@@ -887,144 +905,146 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setActiveMenu(activeMenu === 'resources' ? null : 'resources')}
-                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'resources' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
                   <span>Resources</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'resources' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
                 </button>
 
                 {activeMenu === 'resources' && (
-                  <div className="absolute top-full left-0 mt-1 w-[480px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 flex gap-3 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    {/* Left Column */}
-                    <div className="w-52 space-y-1.5 pr-2 border-r border-gray-100">
-                      <button
-                        type="button"
-                        onClick={() => setResourcesSubTab('education')}
-                        className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          resourcesSubTab === 'education'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Education</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
+                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="w-[430px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
+                      {/* Left Column */}
+                      <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => setResourcesSubTab('education')}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            resourcesSubTab === 'education'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>Education</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => setResourcesSubTab('customer-hub')}
-                        className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          resourcesSubTab === 'customer-hub'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>Customer Hub</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setResourcesSubTab('customer-hub')}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            resourcesSubTab === 'customer-hub'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>Customer Hub</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
 
-                      <a
-                        href="https://seranking.com/agency-catalog/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>Agency Catalog</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </a>
-                    </div>
+                        <a
+                          href="https://seranking.com/agency-catalog/"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <span>Agency Catalog</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        </a>
+                      </div>
 
-                    {/* Right Column */}
-                    <div className="flex-1 space-y-1.5 pl-1">
-                      {resourcesSubTab === 'education' ? (
-                        <>
-                          <Link
-                            href="/landing"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <FileText className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Blog
-                            </span>
-                          </Link>
+                      {/* Right Column */}
+                      <div className="flex-1 space-y-0.5 pl-0.5">
+                        {resourcesSubTab === 'education' ? (
+                          <>
+                            <Link
+                              href="/landing"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <FileText className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Blog
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/landing"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Megaphone className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Webinars
-                            </span>
-                          </Link>
+                            <Link
+                              href="/landing"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Megaphone className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Webinars
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/landing"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Radio className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Podcast
-                            </span>
-                          </Link>
+                            <Link
+                              href="/landing"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Radio className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Podcast
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/landing"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <GraduationCap className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Academy
-                            </span>
-                          </Link>
-                        </>
-                      ) : (
-                        <>
-                          <a
-                            href="https://help.seranking.com"
-                            target="_blank"
-                            rel="noreferrer"
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Building className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Help Center
-                            </span>
-                          </a>
-                          <Link
-                            href="/landing"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Award className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Case Studies
-                            </span>
-                          </Link>
-                        </>
-                      )}
+                            <Link
+                              href="/landing"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <GraduationCap className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Academy
+                              </span>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <a
+                              href="https://help.seranking.com"
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Building className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Help Center
+                              </span>
+                            </a>
+                            <Link
+                              href="/landing"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Award className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Case Studies
+                              </span>
+                            </Link>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1032,7 +1052,7 @@ export default function LandingPage() {
 
               {/* 4. Pricing Dropdown */}
               <div
-                className="relative py-6"
+                className="relative h-full flex items-center"
                 onMouseEnter={() => setActiveMenu('pricing')}
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
@@ -1040,52 +1060,54 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setActiveMenu(activeMenu === 'pricing' ? null : 'pricing')}
-                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'pricing' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
                   <span>Pricing</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'pricing' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
                 </button>
 
                 {activeMenu === 'pricing' && (
-                  <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2.5 space-y-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    <a
-                      href="#pricing"
-                      onClick={() => setActiveMenu(null)}
-                      className="p-3 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group cursor-pointer"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                        <CreditCard className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                        Platform plans
-                      </span>
-                    </a>
+                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 space-y-0.5">
+                      <a
+                        href="#pricing"
+                        onClick={() => setActiveMenu(null)}
+                        className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                          <CreditCard className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                          Platform plans
+                        </span>
+                      </a>
 
-                    <Link
-                      href="/api-docs"
-                      onClick={() => setActiveMenu(null)}
-                      className="p-3 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group cursor-pointer"
-                    >
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                        <Code2 className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                        API Plans
-                      </span>
-                    </Link>
+                      <Link
+                        href="/api-docs"
+                        onClick={() => setActiveMenu(null)}
+                        className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                      >
+                        <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                          <Code2 className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                          API Plans
+                        </span>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* 5. API & MCP Dropdown */}
               <div
-                className="relative py-6"
+                className="relative h-full flex items-center"
                 onMouseEnter={() => setActiveMenu('api-mcp')}
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
@@ -1093,153 +1115,155 @@ export default function LandingPage() {
                 <button
                   type="button"
                   onClick={() => setActiveMenu(activeMenu === 'api-mcp' ? null : 'api-mcp')}
-                  className={`flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'api-mcp' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
                   <span>API &amp; MCP</span>
                   <ChevronDown
-                    className={`w-4 h-4 text-gray-400 transition-transform ${
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'api-mcp' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
                 </button>
 
                 {activeMenu === 'api-mcp' && (
-                  <div className="absolute top-full -left-20 mt-1 w-[480px] bg-white rounded-2xl shadow-2xl border border-gray-100 p-3 flex gap-3 z-50 animate-in fade-in zoom-in-95 duration-100">
-                    {/* Left Column */}
-                    <div className="w-52 space-y-1.5 pr-2 border-r border-gray-100">
-                      <button
-                        type="button"
-                        onClick={() => setApiSubTab('api')}
-                        className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          apiSubTab === 'api'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>API</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
+                  <div className="absolute top-full -left-20 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="w-[430px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
+                      {/* Left Column */}
+                      <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => setApiSubTab('api')}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            apiSubTab === 'api'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>API</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => setApiSubTab('mcp')}
-                        className={`w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold flex items-center justify-between transition-colors ${
-                          apiSubTab === 'mcp'
-                            ? 'bg-[#E0F2FE] text-[#0f172a]'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span>MCP</span>
-                        <ChevronRight className="w-4 h-4 text-gray-400" />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setApiSubTab('mcp')}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                            apiSubTab === 'mcp'
+                              ? 'bg-[#E0F2FE] text-[#0f172a]'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span>MCP</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </button>
 
-                      <a
-                        href="https://seranking.com/our-data.html"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>Our data</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </a>
+                        <a
+                          href="https://seranking.com/our-data.html"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <span>Our data</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        </a>
 
-                      <Link
-                        href="/api-docs"
-                        onClick={() => setActiveMenu(null)}
-                        className="w-full text-left px-3.5 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors"
-                      >
-                        <span>API Pricing</span>
-                        <ExternalLink className="w-4 h-4 text-gray-400" />
-                      </Link>
-                    </div>
+                        <Link
+                          href="/api-docs"
+                          onClick={() => setActiveMenu(null)}
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
+                        >
+                          <span>API Pricing</span>
+                          <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+                      </div>
 
-                    {/* Right Column */}
-                    <div className="flex-1 space-y-1.5 pl-1">
-                      {apiSubTab === 'api' ? (
-                        <>
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Code2 className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              API
-                            </span>
-                          </Link>
+                      {/* Right Column */}
+                      <div className="flex-1 space-y-0.5 pl-0.5">
+                        {apiSubTab === 'api' ? (
+                          <>
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Code2 className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                API
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Key className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Keyword Research API
-                            </span>
-                          </Link>
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Key className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Keyword Research API
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Globe className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Backlinks API
-                            </span>
-                          </Link>
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Globe className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Backlinks API
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Globe2 className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Domain Analysis API
-                            </span>
-                          </Link>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Bot className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              SE Ranking MCP Server
-                            </span>
-                          </Link>
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Globe2 className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Domain Analysis API
+                              </span>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Bot className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                SE Ranking MCP Server
+                              </span>
+                            </Link>
 
-                          <Link
-                            href="/api-docs"
-                            onClick={() => setActiveMenu(null)}
-                            className="p-2.5 rounded-xl hover:bg-blue-50/70 flex items-center gap-3.5 transition-colors group"
-                          >
-                            <div className="w-9 h-9 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                              <Sparkles className="w-5 h-5" />
-                            </div>
-                            <span className="text-sm font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                              Claude Integration
-                            </span>
-                          </Link>
-                        </>
-                      )}
+                            <Link
+                              href="/api-docs"
+                              onClick={() => setActiveMenu(null)}
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                            >
+                              <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
+                                <Sparkles className="w-4 h-4" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
+                                Claude Integration
+                              </span>
+                            </Link>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1248,10 +1272,10 @@ export default function LandingPage() {
           </div>
 
           {/* Right Header Navigation Items */}
-          <div className="flex items-center gap-4 sm:gap-5">
+          <div className="flex items-center gap-3.5 sm:gap-4.5 h-full">
             {/* 10-Language Selector Dropdown */}
             <div
-              className="relative py-4 hidden md:block"
+              className="relative h-full flex items-center hidden md:flex"
               onMouseEnter={() => setActiveMenu('lang')}
               onMouseLeave={() => setActiveMenu(null)}
               onClick={(e) => e.stopPropagation()}
@@ -1259,37 +1283,39 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setActiveMenu(activeMenu === 'lang' ? null : 'lang')}
-                className="px-2.5 py-2 rounded-xl hover:bg-gray-100 flex items-center gap-1.5 text-sm font-bold text-gray-800 transition-colors cursor-pointer"
+                className="px-2 py-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1 text-xs font-bold text-gray-800 transition-colors cursor-pointer"
               >
-                <span className="uppercase text-xs font-black tracking-wide">
+                <span className="uppercase text-xs font-bold tracking-wide">
                   {selectedLang}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
               </button>
 
               {activeMenu === 'lang' && (
-                <div className="absolute right-0 top-full mt-1 w-44 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <div className="space-y-0.5">
-                    {languages.map((l) => (
-                      <button
-                        key={l.code}
-                        type="button"
-                        onClick={() => {
-                          setSelectedLang(l.code);
-                          setActiveMenu(null);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center gap-2.5 text-sm font-medium transition-colors cursor-pointer ${
-                          selectedLang === l.code
-                            ? 'bg-[#E0F2FE] text-[#0B69FF] font-bold'
-                            : 'text-gray-700 hover:bg-gray-50'
-                        }`}
-                      >
-                        <span className="uppercase font-bold text-[11px] w-6 text-center bg-gray-100 rounded-md py-0.5">
-                          {l.code}
-                        </span>
-                        <span>{l.label}</span>
-                      </button>
-                    ))}
+                <div className="absolute right-0 top-full pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="w-40 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5">
+                    <div className="space-y-0.5">
+                      {languages.map((l) => (
+                        <button
+                          key={l.code}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLang(l.code);
+                            setActiveMenu(null);
+                          }}
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-medium transition-colors cursor-pointer ${
+                            selectedLang === l.code
+                              ? 'bg-[#E0F2FE] text-[#0B69FF] font-bold'
+                              : 'text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          <span className="uppercase font-bold text-[10px] w-5 text-center bg-gray-100 rounded py-0.5">
+                            {l.code}
+                          </span>
+                          <span className="text-xs">{l.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1298,7 +1324,7 @@ export default function LandingPage() {
             {/* "Sign in" link matching Screenshot */}
             <Link
               href="/login"
-              className="hidden sm:inline-block text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors"
+              className="hidden sm:inline-block text-xs sm:text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors"
             >
               Sign in
             </Link>
@@ -1307,7 +1333,7 @@ export default function LandingPage() {
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-xs sm:text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="hidden sm:inline-flex items-center justify-center px-3.5 py-1.5 border border-gray-900 text-gray-900 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span>See product tour</span>
             </button>
@@ -1315,7 +1341,7 @@ export default function LandingPage() {
             {/* "Start free trial" Blue Button matching Screenshot */}
             <Link
               href="/signup"
-              className="px-5 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer"
+              className="px-4 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer"
             >
               <span>Start free trial</span>
             </Link>

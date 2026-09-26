@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, Suspense, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -19,6 +19,10 @@ import {
   ChevronDown,
   ShieldCheck,
   Link2,
+  RefreshCw,
+  Bell,
+  SlidersHorizontal,
+  Table as TableIcon,
 } from 'lucide-react';
 import {
   BarChart,
@@ -43,6 +47,163 @@ interface BacklinkItem {
   lastSeen: string;
 }
 
+interface AnchorTextItem {
+  anchor: string;
+  refDomains: number;
+  backlinks: number;
+  dofollowCount: number;
+  dofollowPercent: number;
+  firstSeen: string;
+  lastSeen: string;
+}
+
+interface PageItem {
+  url: string;
+  backlinks: number;
+  refDomains: number;
+}
+
+interface IpItem {
+  ip: string;
+  country: string;
+  flag: string;
+  refDomains: number;
+  backlinks: number;
+}
+
+const INITIAL_ANCHORS: AnchorTextItem[] = [
+  {
+    anchor: 'zohosocial.com',
+    refDomains: 26,
+    backlinks: 33,
+    dofollowCount: 10,
+    dofollowPercent: 45.5,
+    firstSeen: '09 Mar 2024',
+    lastSeen: '12 Sep 2026',
+  },
+  {
+    anchor: 'Zoho Social',
+    refDomains: 7,
+    backlinks: 8,
+    dofollowCount: 4,
+    dofollowPercent: 18.2,
+    firstSeen: '17 Jun 2025',
+    lastSeen: '23 Sep 2026',
+  },
+  {
+    anchor: 'http://zohosocial.com',
+    refDomains: 3,
+    backlinks: 7,
+    dofollowCount: 6,
+    dofollowPercent: 27.3,
+    firstSeen: '01 Oct 2024',
+    lastSeen: '17 Aug 2026',
+  },
+  {
+    anchor: 'Probar gratis',
+    refDomains: 1,
+    backlinks: 3,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '01 Sep 2025',
+    lastSeen: '09 Sep 2026',
+  },
+  {
+    anchor: 'Probar Zoho Social gratis',
+    refDomains: 1,
+    backlinks: 1,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '01 Sep 2025',
+    lastSeen: '09 Sep 2026',
+  },
+  {
+    anchor: 'https://www.zohosocial.com',
+    refDomains: 1,
+    backlinks: 1,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '17 Jun 2026',
+    lastSeen: '07 Sep 2026',
+  },
+  {
+    anchor: 'No text',
+    refDomains: 1,
+    backlinks: 2,
+    dofollowCount: 2,
+    dofollowPercent: 9.1,
+    firstSeen: '12 Dec 2025',
+    lastSeen: '11 Sep 2026',
+  },
+  {
+    anchor: 'Tool #5: Zoho Social',
+    refDomains: 1,
+    backlinks: 1,
+    dofollowCount: 1,
+    dofollowPercent: 4.5,
+    firstSeen: '07 Dec 2025',
+    lastSeen: '08 Jun 2026',
+  },
+  {
+    anchor: 'ZohoSocial',
+    refDomains: 1,
+    backlinks: 7,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '21 Aug 2025',
+    lastSeen: '13 Sep 2026',
+  },
+  {
+    anchor: 'ZohoСоциальные',
+    refDomains: 1,
+    backlinks: 1,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '13 Sep 2025',
+    lastSeen: '20 Nov 2025',
+  },
+  {
+    anchor: 'ZohoSocisal',
+    refDomains: 1,
+    backlinks: 1,
+    dofollowCount: 0,
+    dofollowPercent: 0,
+    firstSeen: '04 Sep 2025',
+    lastSeen: '12 Nov 2025',
+  },
+];
+
+const INITIAL_PAGES: PageItem[] = [
+  { url: 'https://zohosocial.com/', backlinks: 36, refDomains: 30 },
+  { url: 'http://zohosocial.com/', backlinks: 24, refDomains: 6 },
+  { url: 'https://www.zohosocial.com/', backlinks: 2, refDomains: 2 },
+  { url: 'http://www.zohosocial.com/', backlinks: 3, refDomains: 2 },
+];
+
+const INITIAL_IPS: IpItem[] = [
+  { ip: '195.20.79.178', country: 'US', flag: '🇺🇸', refDomains: 15, backlinks: 18 },
+  { ip: '45.13.58.15', country: 'ES', flag: '🇪🇸', refDomains: 3, backlinks: 4 },
+  { ip: '24.199.114.38', country: 'US', flag: '🇺🇸', refDomains: 3, backlinks: 7 },
+  { ip: '152.53.38.228', country: 'ES', flag: '🇪🇸', refDomains: 2, backlinks: 2 },
+  { ip: '192.124.249.68', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '74.208.236.184', country: 'CA', flag: '🇨🇦', refDomains: 1, backlinks: 2 },
+  { ip: '23.227.38.65', country: 'GB', flag: '🇬🇧', refDomains: 1, backlinks: 1 },
+  { ip: '46.202.168.212', country: 'FR', flag: '🇫🇷', refDomains: 1, backlinks: 10 },
+  { ip: '217.182.220.21', country: 'FR', flag: '🇫🇷', refDomains: 1, backlinks: 6 },
+  { ip: '192.64.119.145', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '70.70.21.241', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '172.67.212.72', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 2 },
+  { ip: '66.29.152.156', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '104.21.21.200', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '92.113.15.67', country: 'DE', flag: '🇩🇪', refDomains: 1, backlinks: 1 },
+  { ip: '216.150.1.65', country: 'NL', flag: '🇳🇱', refDomains: 1, backlinks: 1 },
+  { ip: '82.25.125.136', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+  { ip: '194.59.167.151', country: 'BG', flag: '🇧🇬', refDomains: 1, backlinks: 1 },
+  { ip: '118.139.177.45', country: 'CL', flag: '🇨🇱', refDomains: 1, backlinks: 1 },
+  { ip: '35.219.200.15', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 4 },
+  { ip: '198.54.117.210', country: 'US', flag: '🇺🇸', refDomains: 1, backlinks: 1 },
+];
+
 const mockChartData7D = [
   { date: 'Sep 23', newDomains: 18, lostDomains: -8 },
   { date: 'Sep 24', newDomains: 24, lostDomains: -12 },
@@ -65,18 +226,24 @@ function BacklinkCheckerContent() {
   const { activeProject } = useApp();
 
   const [scope, setScope] = useState('*.DOMAIN.COM/*');
-  const [domainInput, setDomainInput] = useState('');
+  const [domainInput, setDomainInput] = useState('zohosocial.com');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(true);
   const [activeFeatureTab, setActiveFeatureTab] = useState(0);
   const [chartTimeframe, setChartTimeframe] = useState<'CURRENT' | '7D' | '1M' | '3M' | '6M'>('7D');
   const [showNoticeBanner, setShowNoticeBanner] = useState(true);
   const [showInfoBanner, setShowInfoBanner] = useState(true);
 
-  // Analysis result state
-  const [analyzedDomain, setAnalyzedDomain] = useState('');
-  const [backlinksList, setBacklinksList] = useState<BacklinkItem[]>([]);
+  // Subtabs matching Screenshots 3, 4, 5
+  type SubTabType = 'overview' | 'backlinks' | 'referring-domains' | 'anchor-texts' | 'pages' | 'ips';
+  const [activeSubTab, setActiveSubTab] = useState<SubTabType>('anchor-texts');
+
+  // Filter states
+  const [analyzedDomain, setAnalyzedDomain] = useState('zohosocial.com');
   const [activeReportTab, setActiveReportTab] = useState<'all' | 'dofollow' | 'nofollow'>('all');
+  const [anchorFilterPill, setAnchorFilterPill] = useState<'all' | '1-word' | '2-word' | '3-word' | '4-word'>('all');
+  const [searchFilterText, setSearchFilterText] = useState('');
+  const [ipFilterTab, setIpFilterTab] = useState<'ips' | 'subnets'>('ips');
 
   const handleSearch = (targetDomain?: string) => {
     const domain = (targetDomain || domainInput || activeProject?.domain || 'zohosocial.com').trim();
@@ -86,96 +253,87 @@ function BacklinkCheckerContent() {
     setAnalyzedDomain(domain);
 
     setTimeout(() => {
-      // Deterministic generation based on domain
-      const generatedBacklinks: BacklinkItem[] = [
-        {
-          id: 'bl-1',
-          sourceUrl: `https://techcrunch.com/2026/08/social-media-management-tools-benchmark/`,
-          targetUrl: `https://${domain}/features/scheduler`,
-          anchor: `${domain} social scheduler suite`,
-          domainTrust: 93,
-          pageTrust: 78,
-          type: 'Dofollow',
-          firstSeen: '2026-08-12',
-          lastSeen: '2026-09-24',
-        },
-        {
-          id: 'bl-2',
-          sourceUrl: `https://forbes.com/advisor/business/software/best-marketing-apps/`,
-          targetUrl: `https://${domain}/`,
-          anchor: 'learn more at ' + domain,
-          domainTrust: 91,
-          pageTrust: 82,
-          type: 'Dofollow',
-          firstSeen: '2026-07-19',
-          lastSeen: '2026-09-25',
-        },
-        {
-          id: 'bl-3',
-          sourceUrl: `https://hubspot.com/marketing/social-media-trends-2026`,
-          targetUrl: `https://${domain}/resources/guides`,
-          anchor: 'social media publishing platform',
-          domainTrust: 89,
-          pageTrust: 74,
-          type: 'Dofollow',
-          firstSeen: '2026-06-04',
-          lastSeen: '2026-09-22',
-        },
-        {
-          id: 'bl-4',
-          sourceUrl: `https://g2.com/products/${domain.replace(/\.[^/.]+$/, '')}/reviews`,
-          targetUrl: `https://${domain}/pricing`,
-          anchor: `${domain} pricing and reviews`,
-          domainTrust: 88,
-          pageTrust: 79,
-          type: 'Nofollow',
-          firstSeen: '2026-05-14',
-          lastSeen: '2026-09-25',
-        },
-        {
-          id: 'bl-5',
-          sourceUrl: `https://capterra.com/p/189201/social-suite/`,
-          targetUrl: `https://${domain}/features/analytics`,
-          anchor: 'visit official site',
-          domainTrust: 86,
-          pageTrust: 71,
-          type: 'Nofollow',
-          firstSeen: '2026-04-10',
-          lastSeen: '2026-09-21',
-        },
-        {
-          id: 'bl-6',
-          sourceUrl: `https://searchenginejournal.com/enterprise-seo-platforms/`,
-          targetUrl: `https://${domain}/case-studies`,
-          anchor: 'case studies from ' + domain,
-          domainTrust: 85,
-          pageTrust: 69,
-          type: 'Dofollow',
-          firstSeen: '2026-08-30',
-          lastSeen: '2026-09-25',
-        },
-      ];
-
-      setBacklinksList(generatedBacklinks);
       setIsAnalyzing(false);
       setHasSearched(true);
-    }, 600);
+    }, 400);
   };
 
-  const filteredBacklinks = backlinksList.filter((b) => {
-    if (activeReportTab === 'dofollow') return b.type === 'Dofollow';
-    if (activeReportTab === 'nofollow') return b.type === 'Nofollow';
-    return true;
-  });
+  // Filtered Anchors
+  const filteredAnchors = useMemo(() => {
+    return INITIAL_ANCHORS.filter((item) => {
+      const matchSearch = item.anchor.toLowerCase().includes(searchFilterText.toLowerCase());
+      if (!matchSearch) return false;
+
+      const wordCount = item.anchor.trim().split(/\s+/).length;
+      if (anchorFilterPill === '1-word') return wordCount === 1;
+      if (anchorFilterPill === '2-word') return wordCount === 2;
+      if (anchorFilterPill === '3-word') return wordCount === 3;
+      if (anchorFilterPill === '4-word') return wordCount >= 4;
+      return true;
+    });
+  }, [searchFilterText, anchorFilterPill]);
+
+  // Filtered Pages
+  const filteredPages = useMemo(() => {
+    return INITIAL_PAGES.filter((p) =>
+      p.url.toLowerCase().includes(searchFilterText.toLowerCase())
+    );
+  }, [searchFilterText]);
+
+  // Filtered IPs
+  const filteredIps = useMemo(() => {
+    return INITIAL_IPS.filter((item) =>
+      item.ip.includes(searchFilterText) || item.country.toLowerCase().includes(searchFilterText.toLowerCase())
+    );
+  }, [searchFilterText]);
+
+  const getSubTabTitle = () => {
+    switch (activeSubTab) {
+      case 'anchor-texts':
+        return 'Anchor Texts';
+      case 'pages':
+        return 'Pages';
+      case 'ips':
+        return 'IPs';
+      case 'referring-domains':
+        return 'Referring Domains';
+      case 'backlinks':
+        return 'Backlinks';
+      case 'overview':
+      default:
+        return 'Overview';
+    }
+  };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#F4F6F9] min-h-[calc(100vh-80px)] text-gray-900 select-none pb-16 flex flex-col justify-between">
+    <div className="flex-1 overflow-y-auto bg-[#F4F6F9] min-h-[calc(100vh-60px)] text-gray-900 select-none pb-16 flex flex-col justify-between relative">
+      {/* 10% Discount Floating Ribbon on Right (Exact Match with Screenshots 3, 4, 5) */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-[#EF4444] hover:bg-[#DC2626] text-white text-[11px] font-bold py-3 px-1.5 rounded-l-md shadow-lg cursor-pointer transition-transform hover:-translate-x-1 select-none flex items-center justify-center">
+        <span className="[writing-mode:vertical-lr] rotate-180 tracking-wide text-xs">
+          10% discount just for you
+        </span>
+      </div>
+
       <div>
-        {/* Top Notice Banner matching Screenshot 5 */}
+        {/* Green Trial Expiry Banner matching Screenshots 3, 4, 5 */}
+        <div className="bg-[#10B981] text-white px-4 py-2 flex items-center justify-between text-xs font-semibold shadow-xs">
+          <div className="flex items-center gap-2">
+            <span>You have 11 days of free trial left.</span>
+            <span className="font-normal opacity-90 hidden sm:inline">Choose your preferred subscription plan to unlock all features.</span>
+          </div>
+          <Link
+            href="/pricing"
+            className="bg-white text-gray-900 hover:bg-gray-100 px-3 py-1 rounded text-[11px] font-bold tracking-wide uppercase transition-colors shrink-0 shadow-2xs"
+          >
+            See pricing plans
+          </Link>
+        </div>
+
+        {/* Top Dismissible Blue Notice Banner matching Screenshots 3, 4, 5 */}
         {showNoticeBanner && (
-          <div className="bg-[#EBF3FF] border-b border-[#CBE0FF] px-6 py-2.5 flex items-center justify-between text-xs text-[#1E3A8A]">
+          <div className="bg-[#EBF3FF] border-b border-[#CBE0FF] px-4 sm:px-6 py-2 flex items-center justify-between text-xs text-[#1E3A8A]">
             <div className="flex items-center gap-2">
-              <Info className="w-4 h-4 text-[#0B69FF] shrink-0" />
+              <Info className="w-3.5 h-3.5 text-[#0B69FF] shrink-0" />
               <span>
                 You may have noticed some changes in the number of backlinks and DT value. This is
                 because we removed many outdated, disruptive backlinks from the new database. Our new
@@ -184,479 +342,554 @@ function BacklinkCheckerContent() {
             </div>
             <button
               onClick={() => setShowNoticeBanner(false)}
-              className="text-[#1E3A8A]/60 hover:text-[#1E3A8A] ml-4 cursor-pointer"
+              className="text-[#1E3A8A]/60 hover:text-[#1E3A8A] ml-3 cursor-pointer shrink-0"
+              aria-label="Dismiss notice"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        <div className="max-w-6xl mx-auto px-6 py-5 space-y-5">
-          {/* Breadcrumb & Limit Badge */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-4">
+          {/* Breadcrumbs & Limits Row matching Screenshots 3, 4, 5 */}
           <div className="flex items-center justify-between text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
+              <span className="text-gray-600 font-medium">{analyzedDomain}</span>
+              <span>&gt;</span>
               <span className="text-gray-600 font-medium">Backlink Checker</span>
               <span>&gt;</span>
-              <span className="text-gray-900 font-semibold">
-                {hasSearched ? analyzedDomain : 'All Reports'}
-              </span>
+              <span className="text-gray-900 font-bold">{getSubTabTitle()}</span>
             </div>
-            <div className="flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-full text-xs font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-              <span>Account limit 0 / 10</span>
-              <span className="text-gray-400 cursor-help" title="Daily backlink check credits">
-                ⓘ
-              </span>
+            <div className="flex items-center gap-3">
+              <button className="text-gray-600 hover:text-gray-900 hover:underline cursor-pointer">
+                Feedback
+              </button>
+              <button className="text-gray-600 hover:text-gray-900 hover:underline cursor-pointer">
+                Notes (46)
+              </button>
+              <div className="flex items-center gap-1 text-gray-700 bg-amber-50/80 border border-amber-200 px-2 py-0.5 rounded text-[11px] font-semibold">
+                <ShieldCheck className="w-3 h-3 text-amber-600" />
+                <span>Account limit: 0 / 10</span>
+                <span className="text-gray-400">ⓘ</span>
+              </div>
             </div>
           </div>
 
-          {/* Info Card matching Screenshot 5 */}
+          {/* Page Title & Actions Row matching Screenshots 3, 4, 5 */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                <span>{getSubTabTitle()} / {analyzedDomain}</span>
+              </h1>
+              <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                <span>Email notification: <strong className="text-gray-700">Bi-weekly</strong></span>
+                <Bell className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
+                <span className="text-gray-300">|</span>
+                <span>Last check: September 23, 2026</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleSearch()}
+              className="bg-[#0B69FF] hover:bg-[#005FE0] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+              <span>Update Report</span>
+            </button>
+          </div>
+
+          {/* Subtabs Bar matching Screenshots 3, 4, 5 */}
+          <div className="flex items-center gap-1 border-b border-gray-200 bg-white px-2 pt-1 rounded-t-xl overflow-x-auto text-xs font-semibold">
+            {[
+              { id: 'overview', label: 'Overview' },
+              { id: 'backlinks', label: 'Backlinks' },
+              { id: 'referring-domains', label: 'Referring Domains' },
+              { id: 'anchor-texts', label: 'Anchor Texts' },
+              { id: 'pages', label: 'Pages' },
+              { id: 'ips', label: 'IPs' },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveSubTab(tab.id as SubTabType);
+                  setSearchFilterText('');
+                }}
+                className={`px-4 py-2.5 transition-all border-b-2 font-bold whitespace-nowrap cursor-pointer ${
+                  activeSubTab === tab.id
+                    ? 'border-[#0B69FF] text-[#0B69FF] bg-blue-50/30'
+                    : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Dismissible Info Box matching Screenshots 3, 4, 5 */}
           {showInfoBanner && (
-            <div className="p-4 bg-white border border-[#0B69FF]/20 rounded-xl relative text-xs text-gray-700 flex items-start gap-3 shadow-2xs">
+            <div className="p-3.5 bg-white border border-[#0B69FF]/20 rounded-xl relative text-xs text-gray-700 flex items-start gap-3 shadow-2xs">
               <div className="w-5 h-5 rounded-full bg-[#0B69FF]/10 flex items-center justify-center shrink-0 mt-0.5">
                 <Info className="w-3.5 h-3.5 text-[#0B69FF]" />
               </div>
-              <div className="pr-6 space-y-1">
-                <p className="leading-relaxed">
-                  Get a full list of backlinks for any domain, complete with detailed data on each link.
-                  This tool is perfect for analyzing any website&apos;s backlink profiles, including
-                  your competitors&apos; sites. In just minutes, you&apos;ll receive a report
-                  detailing every backlink, including information on the originating domains and pages
-                  they link to. With this data, you can get the full picture of any backlink profile and
-                  effectively evaluate the value and quality of each backlink.
-                </p>
-              </div>
+              <p className="leading-relaxed pr-6 text-gray-600">
+                Get a full list of backlinks for any domain, complete with detailed data on each link.
+                This tool is perfect for analysing any website&apos;s backlink profiles, including
+                your competitors&apos; sites. In just minutes, you&apos;ll receive a report
+                detailing every backlink, including information on the originating domains and pages
+                they link to. With this data, you can get the full picture of any backlink profile and
+                effectively evaluate the value and quality of each backlink.
+              </p>
               <button
                 onClick={() => setShowInfoBanner(false)}
-                className="absolute top-3.5 right-3.5 text-gray-400 hover:text-gray-600 cursor-pointer"
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
 
-          {/* Search Hero Card matching Screenshot 5 */}
-          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-2xs space-y-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Backlink Checker</h1>
-              <p className="text-xs text-gray-500 mt-1">
-                Get a complete list of backlinks from any domain, each evaluated for major SEO parameters
-              </p>
+          {/* ======================================================== */}
+          {/* TAB 1: ANCHOR TEXTS (MATCHING SCREENSHOT 3) */}
+          {/* ======================================================== */}
+          {activeSubTab === 'anchor-texts' && (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
+              {/* Header Filter Row matching Screenshot 3 */}
+              <div className="p-3.5 border-b border-gray-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-bold text-gray-900">
+                    {filteredAnchors.length} anchor texts
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer">
+                      <TableIcon className="w-3 h-3" />
+                      <span>Columns</span>
+                    </button>
+                    <a
+                      href={`/api/export?format=csv&domain=${analyzedDomain}&type=anchors`}
+                      download
+                      className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Download className="w-3 h-3" />
+                      <span>Export</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* Filter Pills matching Screenshot 3 */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+                    <button
+                      onClick={() => setAnchorFilterPill('all')}
+                      className={`px-3 py-1 rounded text-xs uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                        anchorFilterPill === 'all'
+                          ? 'bg-[#374151] text-white'
+                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                      }`}
+                    >
+                      Anchor texts
+                    </button>
+                    {(['1-word', '2-word', '3-word', '4-word'] as const).map((pill) => (
+                      <button
+                        key={pill}
+                        onClick={() => setAnchorFilterPill(pill)}
+                        className={`px-2.5 py-1 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                          anchorFilterPill === pill
+                            ? 'bg-[#374151] text-white'
+                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                        }`}
+                      >
+                        {pill.toUpperCase()} TERMS
+                      </button>
+                    ))}
+
+                    <div className="relative ml-1">
+                      <input
+                        type="text"
+                        placeholder="Search anchor..."
+                        value={searchFilterText}
+                        onChange={(e) => setSearchFilterText(e.target.value)}
+                        className="px-2.5 py-1 border border-gray-300 rounded text-xs placeholder:text-gray-400 w-36 sm:w-44 focus:outline-hidden focus:border-[#0B69FF]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button className="px-2.5 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
+                      <span>Presets</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table matching Screenshot 3 */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs divide-y divide-gray-200">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3">Anchor Text</th>
+                      <th className="p-3 text-center">Ref.Domains</th>
+                      <th className="p-3 text-center">Backlinks</th>
+                      <th className="p-3 text-center min-w-[140px]">Dofollow</th>
+                      <th className="p-3">First Seen</th>
+                      <th className="p-3">Last Seen</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredAnchors.map((item, idx) => (
+                      <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="p-3 font-semibold text-gray-900 max-w-xs truncate">
+                          {item.anchor}
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{item.refDomains}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{item.backlinks}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span className="font-semibold text-xs text-gray-800 w-4 text-right">
+                              {item.dofollowCount}
+                            </span>
+                            <div className="w-16 bg-gray-200 h-2 rounded-full overflow-hidden flex shrink-0">
+                              <div
+                                className="bg-emerald-500 h-full rounded-full"
+                                style={{ width: `${item.dofollowPercent}%` }}
+                              />
+                            </div>
+                            <span className="text-[11px] text-gray-500 w-10 text-left">
+                              {item.dofollowPercent}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="p-3 text-gray-600 whitespace-nowrap">{item.firstSeen}</td>
+                        <td className="p-3 text-gray-600 whitespace-nowrap">{item.lastSeen}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Table pagination matching Screenshot 3 */}
+              <div className="p-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+                <span>Showing 1-{filteredAnchors.length} of {filteredAnchors.length}</span>
+                <div className="flex items-center gap-2">
+                  <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
+                    20 v
+                  </span>
+                </div>
+              </div>
             </div>
+          )}
 
-            {/* Input Form */}
-            <div className="max-w-2xl mx-auto flex items-center shadow-xs rounded-lg border border-gray-300 overflow-hidden focus-within:border-[#0B69FF] focus-within:ring-1 focus-within:ring-[#0B69FF]">
-              <select
-                value={scope}
-                onChange={(e) => setScope(e.target.value)}
-                className="bg-gray-50 text-xs font-medium text-gray-700 px-3 py-2.5 border-r border-gray-300 focus:outline-hidden"
-              >
-                <option value="*.DOMAIN.COM/*">*.DOMAIN.COM/*</option>
-                <option value="URL">URL</option>
-                <option value="DOMAIN.COM/*">DOMAIN.COM/*</option>
-              </select>
+          {/* ======================================================== */}
+          {/* TAB 2: PAGES (MATCHING SCREENSHOT 4) */}
+          {/* ======================================================== */}
+          {activeSubTab === 'pages' && (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
+              {/* Header Filter Row matching Screenshot 4 */}
+              <div className="p-3.5 border-b border-gray-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-bold text-gray-900">
+                    {filteredPages.length} pages
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer">
+                      <TableIcon className="w-3 h-3" />
+                      <span>Columns</span>
+                    </button>
+                    <button className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer">
+                      <Download className="w-3 h-3" />
+                      <span>Export</span>
+                    </button>
+                  </div>
+                </div>
 
-              <input
-                type="text"
-                value={domainInput}
-                onChange={(e) => setDomainInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Enter domain name"
-                className="flex-1 px-3.5 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-hidden"
-              />
+                {/* Filter row matching Screenshot 4 */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="URL or domain"
+                        value={searchFilterText}
+                        onChange={(e) => setSearchFilterText(e.target.value)}
+                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs placeholder:text-gray-400 w-56 sm:w-72 focus:outline-hidden focus:border-[#0B69FF]"
+                      />
+                    </div>
+                    <button className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
+                      <Filter className="w-3 h-3" />
+                      <span>Filter</span>
+                    </button>
+                  </div>
 
-              <button
-                onClick={() => handleSearch()}
-                disabled={isAnalyzing}
-                className="bg-[#0B69FF] hover:bg-[#005FE0] text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                {isAnalyzing ? (
-                  <span>Analyzing...</span>
-                ) : (
-                  <>
-                    <Search className="w-3.5 h-3.5" />
-                    <span>Search</span>
-                  </>
-                )}
-              </button>
+                  <button className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
+                    <span>Presets</span>
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Table matching Screenshot 4 */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs divide-y divide-gray-200">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3">URL</th>
+                      <th className="p-3 text-center">Backlinks</th>
+                      <th className="p-3 text-center">Ref.Domains</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredPages.map((page, idx) => (
+                      <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="p-3 font-semibold text-[#0B69FF]">
+                          <a
+                            href={page.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-1.5 hover:underline"
+                          >
+                            <Globe2 className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                            <span>{page.url}</span>
+                          </a>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{page.backlinks}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{page.refDomains}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="p-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+                <span>Showing 1-{filteredPages.length} of {filteredPages.length}</span>
+                <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
+                  20 v
+                </span>
+              </div>
             </div>
+          )}
 
-            {/* Suggestions */}
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-500 pt-1">
-              <span className="text-gray-400">Suggestions</span>
-              {['zohosocial.com', 'seranking.com', 'coursera.org'].map((sugg) => (
-                <button
-                  key={sugg}
-                  onClick={() => {
-                    setDomainInput(sugg);
-                    handleSearch(sugg);
-                  }}
-                  className="px-2.5 py-0.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors cursor-pointer"
-                >
-                  {sugg}
-                </button>
-              ))}
+          {/* ======================================================== */}
+          {/* TAB 3: IPs (MATCHING SCREENSHOT 5) */}
+          {/* ======================================================== */}
+          {activeSubTab === 'ips' && (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden">
+              {/* Header Filter Row matching Screenshot 5 */}
+              <div className="p-3.5 border-b border-gray-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-bold text-gray-900">
+                    {filteredIps.length} referring ips
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer">
+                      <TableIcon className="w-3 h-3" />
+                      <span>Columns</span>
+                    </button>
+                    <button className="px-2.5 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 text-gray-700 flex items-center gap-1 cursor-pointer">
+                      <Download className="w-3 h-3" />
+                      <span>Export</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter row matching Screenshot 5 */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-bold">
+                      <button
+                        onClick={() => setIpFilterTab('ips')}
+                        className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                          ipFilterTab === 'ips' ? 'bg-[#374151] text-white' : 'text-gray-600'
+                        }`}
+                      >
+                        IPS
+                      </button>
+                      <button
+                        onClick={() => setIpFilterTab('subnets')}
+                        className={`px-3 py-1 rounded transition-colors cursor-pointer ${
+                          ipFilterTab === 'subnets' ? 'bg-[#374151] text-white' : 'text-gray-600'
+                        }`}
+                      >
+                        SUBNETS
+                      </button>
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search IP..."
+                        value={searchFilterText}
+                        onChange={(e) => setSearchFilterText(e.target.value)}
+                        className="px-2.5 py-1 border border-gray-300 rounded text-xs placeholder:text-gray-400 w-36 sm:w-48 focus:outline-hidden focus:border-[#0B69FF]"
+                      />
+                    </div>
+                  </div>
+
+                  <button className="px-2.5 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
+                    <span>Presets</span>
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Table matching Screenshot 5 */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs divide-y divide-gray-200">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3">IP</th>
+                      <th className="p-3 text-center">Ref.Domains</th>
+                      <th className="p-3 text-center">Backlinks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {filteredIps.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="p-3 font-semibold text-gray-900 flex items-center gap-2">
+                          <span className="text-base leading-none">{row.flag}</span>
+                          <span className="font-mono text-xs">{row.ip}</span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{row.refDomains}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded border border-gray-200 bg-gray-50 text-gray-700 font-semibold text-xs">
+                            <span>{row.backlinks}</span>
+                            <ChevronDown className="w-3 h-3 text-gray-400" />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination matching Screenshot 5 */}
+              <div className="p-3 border-t border-gray-200 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                <div className="flex items-center gap-1">
+                  <button className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer">
+                    &lt;
+                  </button>
+                  <button className="px-2.5 py-1 bg-[#374151] text-white rounded font-bold cursor-pointer">
+                    1
+                  </button>
+                  <button className="px-2.5 py-1 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer">
+                    2
+                  </button>
+                  <button className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer">
+                    &gt;
+                  </button>
+                  <span className="ml-2">Go to page:</span>
+                  <input
+                    type="number"
+                    defaultValue={1}
+                    className="w-12 px-2 py-0.5 border border-gray-300 rounded text-center text-xs"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="border border-gray-200 rounded px-2 py-0.5 text-gray-700 bg-gray-50">
+                    20 v
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Results View if searched */}
-          {hasSearched ? (
-            <div className="space-y-5 animate-in fade-in duration-300">
-              {/* Domain Overview KPI Bar */}
+          {/* ======================================================== */}
+          {/* TAB 4, 5, 6: OVERVIEW & BACKLINKS & REFERRING DOMAINS */}
+          {/* ======================================================== */}
+          {(activeSubTab === 'overview' || activeSubTab === 'backlinks' || activeSubTab === 'referring-domains') && (
+            <div className="space-y-5">
+              {/* Stat Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-2xs">
-                  <div className="text-[11px] text-gray-500 uppercase font-bold tracking-wider">
-                    Domain Trust (DT)
-                  </div>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-black text-gray-900">76</span>
-                    <span className="text-xs font-bold text-emerald-600">/ 100</span>
-                  </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+                  <div className="text-xs text-gray-500">Domain Trust</div>
+                  <div className="text-2xl font-black text-gray-900 mt-1">68 / 100</div>
                   <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
-                    <div className="bg-[#0B69FF] h-full rounded-full" style={{ width: '76%' }} />
+                    <div className="bg-[#0B69FF] h-full" style={{ width: '68%' }} />
                   </div>
                 </div>
-
-                <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-2xs">
-                  <div className="text-[11px] text-gray-500 uppercase font-bold tracking-wider">
-                    Total Backlinks
-                  </div>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-black text-gray-900">1,420,890</span>
-                  </div>
-                  <div className="text-[11px] text-emerald-600 font-medium mt-1">
-                    +1,240 new in 30d
-                  </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+                  <div className="text-xs text-gray-500">Total Backlinks</div>
+                  <div className="text-2xl font-black text-gray-900 mt-1">13,920</div>
+                  <span className="text-[11px] text-emerald-600 font-semibold">+18.4% last month</span>
                 </div>
-
-                <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-2xs">
-                  <div className="text-[11px] text-gray-500 uppercase font-bold tracking-wider">
-                    Referring Domains
-                  </div>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-black text-gray-900">18,450</span>
-                  </div>
-                  <div className="text-[11px] text-gray-500 font-medium mt-1">
-                    From 112 unique countries
-                  </div>
+                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+                  <div className="text-xs text-gray-500">Referring Domains</div>
+                  <div className="text-2xl font-black text-gray-900 mt-1">1,480</div>
+                  <span className="text-[11px] text-emerald-600 font-semibold">+64 new domains</span>
                 </div>
-
-                <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-2xs">
-                  <div className="text-[11px] text-gray-500 uppercase font-bold tracking-wider">
-                    Dofollow / Nofollow
-                  </div>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-black text-gray-900">84%</span>
-                    <span className="text-xs text-gray-500">/ 16%</span>
-                  </div>
-                  <div className="w-full bg-amber-400 h-1.5 rounded-full mt-2 overflow-hidden flex">
+                <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+                  <div className="text-xs text-gray-500">Dofollow Ratio</div>
+                  <div className="text-2xl font-black text-gray-900 mt-1">84%</div>
+                  <div className="w-full bg-gray-100 h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-emerald-500 h-full" style={{ width: '84%' }} />
                   </div>
                 </div>
               </div>
 
-              {/* Backlinks Table */}
-              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
-                <div className="px-5 py-3.5 border-b border-gray-200 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-sm text-gray-900">
-                      Backlinks for {analyzedDomain} ({filteredBacklinks.length})
-                    </span>
-                    <div className="flex items-center bg-gray-100 p-0.5 rounded-lg text-xs font-semibold">
+              {/* Chart */}
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-3">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <span className="font-bold text-xs text-gray-800">New &amp; lost referring domains</span>
+                  <div className="flex items-center gap-1 text-[10px] font-semibold text-gray-600">
+                    {(['CURRENT', '7D', '1M', '3M', '6M'] as const).map((t) => (
                       <button
-                        onClick={() => setActiveReportTab('all')}
-                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                          activeReportTab === 'all' ? 'bg-white shadow-2xs text-[#0B69FF]' : 'text-gray-600'
+                        key={t}
+                        onClick={() => setChartTimeframe(t)}
+                        className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                          chartTimeframe === t
+                            ? 'bg-gray-900 text-white'
+                            : 'hover:bg-gray-100 text-gray-600'
                         }`}
                       >
-                        All
+                        {t}
                       </button>
-                      <button
-                        onClick={() => setActiveReportTab('dofollow')}
-                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                          activeReportTab === 'dofollow' ? 'bg-white shadow-2xs text-emerald-700' : 'text-gray-600'
-                        }`}
-                      >
-                        Dofollow
-                      </button>
-                      <button
-                        onClick={() => setActiveReportTab('nofollow')}
-                        className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                          activeReportTab === 'nofollow' ? 'bg-white shadow-2xs text-amber-700' : 'text-gray-600'
-                        }`}
-                      >
-                        Nofollow
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <a
-                      href={`/api/export?format=csv&domain=${analyzedDomain}&type=backlinks`}
-                      download
-                      className="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 flex items-center gap-1.5"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Export CSV</span>
-                    </a>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs divide-y divide-gray-200">
-                    <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
-                      <tr>
-                        <th className="p-3">Source URL &amp; Anchor</th>
-                        <th className="p-3">Target URL</th>
-                        <th className="p-3 text-center">DT</th>
-                        <th className="p-3 text-center">Type</th>
-                        <th className="p-3">First Seen</th>
-                        <th className="p-3">Last Seen</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {filteredBacklinks.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-3 max-w-sm">
-                            <a
-                              href={item.sourceUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="font-medium text-[#0B69FF] hover:underline flex items-center gap-1 truncate"
-                            >
-                              <ExternalLink className="w-3 h-3 shrink-0" />
-                              <span className="truncate">{item.sourceUrl}</span>
-                            </a>
-                            <div className="text-[11px] text-gray-600 mt-1 italic">
-                              &ldquo;{item.anchor}&rdquo;
-                            </div>
-                          </td>
-                          <td className="p-3 text-gray-700 max-w-xs truncate font-mono text-[11px]">
-                            {item.targetUrl}
-                          </td>
-                          <td className="p-3 text-center">
-                            <span className="px-2 py-0.5 rounded font-bold text-xs bg-blue-50 text-[#0B69FF]">
-                              {item.domainTrust}
-                            </span>
-                          </td>
-                          <td className="p-3 text-center">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                item.type === 'Dofollow'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
-                              }`}
-                            >
-                              {item.type}
-                            </span>
-                          </td>
-                          <td className="p-3 text-gray-500">{item.firstSeen}</td>
-                          <td className="p-3 text-gray-500">{item.lastSeen}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Educational & Marketing Showcase matching Screenshots 6 & 7 */
-            <div className="space-y-8">
-              {/* Video Tutorial Section matching Screenshot 6 */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-2xs space-y-3">
-                <div className="text-center">
-                  <h2 className="text-lg font-bold text-gray-900">Video tutorial</h2>
-                  <p className="text-xs text-gray-500">
-                    Learn how to use our Backlink Checker with this video tutorial
-                  </p>
-                </div>
-
-                {/* Video Card */}
-                <div className="max-w-2xl mx-auto rounded-xl border border-gray-200 overflow-hidden bg-gray-900 text-white relative shadow-md group cursor-pointer aspect-video flex flex-col justify-between p-4">
-                  {/* Mock video content */}
-                  <div className="flex items-center justify-between text-xs opacity-90">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold tracking-wider text-xs">SE Ranking</span>
-                      <span className="bg-[#0B69FF] text-[9px] font-bold px-1.5 py-0.5 rounded">
-                        GETTING STARTED
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-gray-300">3:38</div>
-                  </div>
-
-                  <div className="flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-black/60 backdrop-blur-xs border-2 border-white/80 flex items-center justify-center group-hover:scale-110 group-hover:bg-[#0B69FF] transition-all">
-                      <Play className="w-6 h-6 fill-white text-white translate-x-0.5" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-black text-white">How to analyze &amp; monitor backlinks</h3>
-                    <div className="flex items-center gap-4 text-[11px] text-gray-300 mt-1">
-                      <span>• Total backlinks: 13.9M</span>
-                      <span>• Referring IPs: 256</span>
-                      <span>• Toxicity backlinks: 0%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Angles Showcase matching Screenshots 6 & 7 */}
-              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-2xs space-y-6">
-                <div className="text-center">
-                  <h2 className="text-lg font-bold text-gray-900">
-                    Check backlinks from all possible angles
-                  </h2>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                  {/* Left Column interactive feature tabs */}
-                  <div className="md:col-span-6 space-y-2.5">
-                    {[
-                      {
-                        title:
-                          'Check the dynamics of new & lost website backlinks, as well as the dynamics of referring domains',
-                        desc: 'Track backlink velocity day-over-day to discover marketing spikes and disavow harmful links.',
-                      },
-                      {
-                        title:
-                          'Discover which regions most links are coming from (based on referring IPs and subnets)',
-                        desc: 'Map international domain distribution to verify geographic relevance.',
-                      },
-                      {
-                        title:
-                          'Analyze the anchor text distribution across referring domains and backlinks',
-                        desc: 'Detect keyword stuffing patterns and natural branded anchor profile health.',
-                      },
-                      {
-                        title: 'Find out which pages are linked to the most',
-                        desc: 'Discover your highest-value link magnets and optimize internal link authority passing.',
-                      },
-                    ].map((feature, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => setActiveFeatureTab(idx)}
-                        className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                          activeFeatureTab === idx
-                            ? 'border-[#0B69FF] bg-blue-50/40 text-gray-900 shadow-2xs'
-                            : 'border-gray-200 hover:border-gray-300 bg-white text-gray-600'
-                        }`}
-                      >
-                        <h4 className="text-xs font-bold text-gray-900 leading-snug">
-                          {feature.title}
-                        </h4>
-                        {activeFeatureTab === idx && (
-                          <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
-                            {feature.desc}
-                          </p>
-                        )}
-                      </div>
                     ))}
                   </div>
-
-                  {/* Right Column Chart Showcase */}
-                  <div className="md:col-span-6 bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b pb-2">
-                      <span className="font-bold text-xs text-gray-800">New &amp; lost domains</span>
-                      <div className="flex items-center gap-1 text-[10px] font-semibold text-gray-600">
-                        {(['CURRENT', '7D', '1M', '3M', '6M'] as const).map((t) => (
-                          <button
-                            key={t}
-                            onClick={() => setChartTimeframe(t)}
-                            className={`px-2 py-0.5 rounded transition-colors cursor-pointer ${
-                              chartTimeframe === t
-                                ? 'bg-gray-900 text-white'
-                                : 'hover:bg-gray-100 text-gray-600'
-                            }`}
-                          >
-                            {t}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="h-56 w-full pt-2">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={chartTimeframe === '1M' ? mockChartData1M : mockChartData7D}
-                          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                          <YAxis tick={{ fontSize: 10 }} />
-                          <Tooltip
-                            contentStyle={{ fontSize: '11px', borderRadius: '8px' }}
-                            formatter={(value: any) => [Math.abs(Number(value)), 'Domains']}
-                          />
-                          <Bar dataKey="newDomains" name="New domains" fill="#22C55E" radius={[4, 4, 0, 0]} />
-                          <Bar dataKey="lostDomains" name="Lost domains" fill="#F97316" radius={[0, 0, 4, 4]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-4 text-[11px] text-gray-600 pt-1 border-t">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#22C55E]" />
-                        <span>New domains</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded bg-[#F97316]" />
-                        <span>Lost domains</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Card matching Screenshot 7 */}
-              <div className="bg-white border border-gray-200 rounded-xl p-8 text-center shadow-2xs space-y-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Start your first analysis</h3>
                 </div>
 
-                <div className="max-w-2xl mx-auto flex items-center shadow-xs rounded-lg border border-gray-300 overflow-hidden focus-within:border-[#0B69FF]">
-                  <select
-                    value={scope}
-                    onChange={(e) => setScope(e.target.value)}
-                    className="bg-gray-50 text-xs font-medium text-gray-700 px-3 py-2.5 border-r border-gray-300 focus:outline-hidden"
-                  >
-                    <option value="*.DOMAIN.COM/*">*.DOMAIN.COM/*</option>
-                    <option value="URL">URL</option>
-                    <option value="DOMAIN.COM/*">DOMAIN.COM/*</option>
-                  </select>
-
-                  <input
-                    type="text"
-                    value={domainInput}
-                    onChange={(e) => setDomainInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    placeholder="Enter domain name"
-                    className="flex-1 px-3.5 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-hidden"
-                  />
-
-                  <button
-                    onClick={() => handleSearch()}
-                    className="bg-[#0B69FF] hover:bg-[#005FE0] text-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Search className="w-3.5 h-3.5" />
-                    <span>Search</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-center gap-2 text-xs text-gray-500 pt-1">
-                  <span className="text-gray-400">Suggestions</span>
-                  {['zohosocial.com', 'seranking.com', 'coursera.org'].map((sugg) => (
-                    <button
-                      key={sugg}
-                      onClick={() => {
-                        setDomainInput(sugg);
-                        handleSearch(sugg);
-                      }}
-                      className="px-2.5 py-0.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-colors cursor-pointer"
+                <div className="h-56 w-full pt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartTimeframe === '1M' ? mockChartData1M : mockChartData7D}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
-                      {sugg}
-                    </button>
-                  ))}
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip
+                        contentStyle={{ fontSize: '11px', borderRadius: '8px' }}
+                        formatter={(value: any) => [Math.abs(Number(value)), 'Domains']}
+                      />
+                      <Bar dataKey="newDomains" name="New domains" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="lostDomains" name="Lost domains" fill="#F97316" radius={[0, 0, 4, 4]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </div>
             </div>
@@ -673,7 +906,7 @@ function BacklinkCheckerContent() {
           <span>SE Ranking</span>
         </div>
         <div className="flex items-center gap-5">
-          <button className="hover:underline text-gray-600">Report a bug</button>
+          <button className="hover:underline text-gray-600 cursor-pointer">Report a bug</button>
           <a
             href="https://seranking.com/affiliate.html"
             target="_blank"
