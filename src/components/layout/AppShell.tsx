@@ -44,10 +44,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, and Local Marketing) */}
+        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, Local Marketing, and Report Builder) */}
         {!pathname.startsWith('/smm') &&
           !pathname.startsWith('/content-marketing') &&
-          !pathname.startsWith('/local-marketing') && (
+          !pathname.startsWith('/local-marketing') &&
+          !pathname.startsWith('/reports') && (
             <div className="hidden lg:flex">
               <SecondarySidebar />
             </div>

@@ -13,8 +13,7 @@ import {
   X,
   CheckCircle2,
   AlertTriangle,
-  ArrowUp,
-  ArrowDown,
+  ArrowRight,
   Check,
   Search,
   ExternalLink,
@@ -25,6 +24,9 @@ import {
   Navigation,
   Globe,
   Star,
+  ThumbsUp,
+  ThumbsDown,
+  HelpCircle,
   Eye,
 } from 'lucide-react';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
@@ -65,6 +67,26 @@ interface LocationData {
     directionRequests: number;
     phoneCalls: number;
     messages: number;
+  };
+  listings: {
+    found: number;
+    totalDirectories: number;
+    missingCount: number;
+    napErrors: number;
+    nameErrors: number;
+    addressErrors: number;
+    phoneErrors: number;
+  };
+  reviewsData: {
+    avgRating: number;
+    totalReviews: number;
+    positive: number;
+    neutral: number;
+    negative: number;
+    notRated: number;
+    recommended: number;
+    notRecommended: number;
+    sources: { name: string; rating: number; count: number; icon: string }[];
   };
 }
 
@@ -111,6 +133,30 @@ const LOCATIONS: LocationData[] = [
       phoneCalls: 746,
       messages: 1352,
     },
+    listings: {
+      found: 57,
+      totalDirectories: 59,
+      missingCount: 2,
+      napErrors: 6,
+      nameErrors: 2,
+      addressErrors: 2,
+      phoneErrors: 2,
+    },
+    reviewsData: {
+      avgRating: 3.8,
+      totalReviews: 60,
+      positive: 35,
+      neutral: 4,
+      negative: 10,
+      notRated: 11,
+      recommended: 7,
+      notRecommended: 2,
+      sources: [
+        { name: 'Google', rating: 3.56, count: 16, icon: 'G' },
+        { name: 'Tripadvisor', rating: 3.78, count: 16, icon: '🦉' },
+        { name: 'Facebook', rating: 4.33, count: 9, icon: 'f' },
+      ],
+    },
   },
   {
     id: 'apex-dental',
@@ -154,69 +200,50 @@ const LOCATIONS: LocationData[] = [
       phoneCalls: 1890,
       messages: 2150,
     },
-  },
-  {
-    id: 'city-auto',
-    name: 'City Auto Repair, Austin, TX',
-    address: '1400 S Congress Ave, Austin, TX 78704',
-    category: 'Auto Repair Service',
-    updatedDate: 'Sep-22,2026',
-    avgPosition: 14.8,
-    positionChange: -0.4,
-    topDistribution: {
-      top1_3: { count: 32, change: -2 },
-      top4_5: { count: 38, change: 3 },
-      top7_10: { count: 49, change: 4 },
-      top11_15: { count: 65, change: 8 },
-      top16_19: { count: 58, change: 5 },
-      top20_plus: { count: 72, change: 11 },
+    listings: {
+      found: 58,
+      totalDirectories: 59,
+      missingCount: 1,
+      napErrors: 2,
+      nameErrors: 1,
+      addressErrors: 1,
+      phoneErrors: 0,
     },
-    auditScore: 78,
-    auditIssues: {
-      gbp: { red: 1, yellow: 1, blue: 3 },
-      listings: { red: 24, yellow: 4, blue: 6 },
-      reviews: { red: 12, yellow: 3, blue: 38 },
-      total: 92,
-    },
-    gbp: {
-      totalViews: 145890,
-      mobileSearchViews: 48900,
-      mobileMapsViews: 52400,
-      desktopSearchViews: 39100,
-      desktopMapsViews: 5490,
-      totalSearches: 118400,
-      topKeywords: [
-        { keyword: 'oil change austin', count: 9800 },
-        { keyword: 'brake repair', count: 8400 },
-        { keyword: 'mechanic south congress', count: 5100 },
-        { keyword: 'transmission check', count: 3100 },
-        { keyword: 'car battery replace', count: 2400 },
+    reviewsData: {
+      avgRating: 4.6,
+      totalReviews: 142,
+      positive: 118,
+      neutral: 14,
+      negative: 5,
+      notRated: 5,
+      recommended: 32,
+      notRecommended: 1,
+      sources: [
+        { name: 'Google', rating: 4.8, count: 94, icon: 'G' },
+        { name: 'Yelp', rating: 4.4, count: 28, icon: 'Y' },
+        { name: 'Healthgrades', rating: 4.7, count: 20, icon: 'H' },
       ],
-      websiteVisits: 4120,
-      directionRequests: 1890,
-      phoneCalls: 1450,
-      messages: 640,
     },
   },
 ];
 
-export default function LocalMarketingPage() {
+export default function LocalMarketingSuitePage() {
   const [selectedLocationId, setSelectedLocationId] = useState('folk-osteria');
   const [selectedDateRange, setSelectedDateRange] = useState('All dates');
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
   const [isConnectBannerDismissed, setIsConnectBannerDismissed] = useState(false);
 
-  // Modals
+  // Modals & Popovers
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+  const [isListingsModalOpen, setIsListingsModalOpen] = useState(false);
+  const [isReviewsModalOpen, setIsReviewsModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Form State for Add Location
-  const [newBizName, setNewBizName] = useState('');
-  const [newBizCategory, setNewBizCategory] = useState('');
-  const [newBizAddress, setNewBizAddress] = useState('');
+  // Review Timeline Filter
+  const [timelineFilter, setTimelineFilter] = useState<'ALL' | '7D' | '1M' | '3M' | '6M' | '1Y'>('ALL');
 
   const currentLoc = LOCATIONS.find((l) => l.id === selectedLocationId) || LOCATIONS[0];
 
@@ -237,12 +264,10 @@ export default function LocalMarketingPage() {
       `Audit Score,${currentLoc.auditScore}/100\n` +
       `Total GBP Views,${currentLoc.gbp.totalViews}\n` +
       `Total GBP Searches,${currentLoc.gbp.totalSearches}\n` +
-      `Website Visits,${currentLoc.gbp.websiteVisits}\n` +
-      `Direction Requests,${currentLoc.gbp.directionRequests}\n` +
-      `Phone Calls,${currentLoc.gbp.phoneCalls}\n` +
-      `Messages,${currentLoc.gbp.messages}\n\n` +
-      'Top Searches Keywords,Count\n' +
-      currentLoc.gbp.topKeywords.map((k) => `"${k.keyword}",${k.count}`).join('\n');
+      `Business Listings Found,${currentLoc.listings.found}/${currentLoc.listings.totalDirectories}\n` +
+      `NAP Errors,${currentLoc.listings.napErrors}\n` +
+      `Average Review Rating,${currentLoc.reviewsData.avgRating}/5\n` +
+      `Total Reviews,${currentLoc.reviewsData.totalReviews}\n`;
 
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
@@ -252,10 +277,39 @@ export default function LocalMarketingPage() {
     link.click();
   };
 
+  // Review Scatter Plot Sources
+  const scatterSources = [
+    { name: 'City squares', color: '#9333EA' },
+    { name: 'EZlocal', color: '#059669' },
+    { name: 'Facebook', color: '#2563EB' },
+    { name: 'FindOpen', color: '#0284C7' },
+    { name: 'Google', color: '#16A34A' },
+    { name: "Judy's Book", color: '#991B1B' },
+    { name: 'N49', color: '#4B5563' },
+    { name: 'ShowMeLocal', color: '#06B6D4' },
+    { name: 'Tripadvisor', color: '#DB2777' },
+    { name: 'WhereTo', color: '#4F46E5' },
+  ];
+
+  const timelineMonths = [
+    'Oct 2025',
+    'Nov 2025',
+    'Dec 2025',
+    'Jan 2026',
+    'Feb 2026',
+    'Mar 2026',
+    'Apr 2026',
+    'May 2026',
+    'Jun 2026',
+    'Jul 2026',
+    'Aug 2026',
+    'Sep 2026',
+  ];
+
   return (
     <div className="flex-1 flex flex-col bg-[#F4F6F9] text-gray-900 min-h-screen">
-      {/* Top Blue Secondary Navigation Sub-bar */}
-      <div className="bg-[#0B69FF] px-4 py-1.5 flex items-center justify-between border-t border-blue-400/20 text-white text-xs">
+      {/* Top Blue Secondary Navigation Sub-bar matching Screenshot 5 & Screenshot 1 */}
+      <div className="bg-[#0B69FF] px-4 py-1.5 flex items-center justify-between border-t border-blue-400/20 text-white text-xs select-none">
         <div className="flex items-center gap-1 overflow-x-auto">
           <Link
             href="/rankings"
@@ -304,7 +358,7 @@ export default function LocalMarketingPage() {
           </div>
           <button
             onClick={() => setIsBannerDismissed(true)}
-            className="text-gray-400 hover:text-gray-700 ml-4 p-0.5"
+            className="text-gray-400 hover:text-gray-700 ml-4 p-0.5 cursor-pointer"
             aria-label="Dismiss banner"
           >
             <X className="w-4 h-4" />
@@ -322,8 +376,8 @@ export default function LocalMarketingPage() {
 
         <div className="flex items-center gap-4">
           <button
-            onClick={() => alert('Feedback submitted! Thank you for sharing your thoughts on Local Marketing.')}
-            className="text-gray-500 hover:text-[#0B69FF] transition-colors"
+            onClick={() => alert('Feedback modal: Thank you for sharing your thoughts on Local Marketing!')}
+            className="text-gray-500 hover:text-[#0B69FF] transition-colors cursor-pointer"
           >
             Feedback
           </button>
@@ -377,7 +431,7 @@ export default function LocalMarketingPage() {
                           setSelectedLocationId(loc.id);
                           setIsLocationDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-gray-50 ${
+                        className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-gray-50 cursor-pointer ${
                           loc.id === currentLoc.id ? 'bg-blue-50/70 font-semibold text-[#0B69FF]' : 'text-gray-700'
                         }`}
                       >
@@ -394,7 +448,7 @@ export default function LocalMarketingPage() {
                           setIsLocationDropdownOpen(false);
                           setIsAddLocationModalOpen(true);
                         }}
-                        className="w-full text-center text-xs font-bold text-[#0B69FF] hover:bg-blue-50 py-1.5 rounded transition-colors"
+                        className="w-full text-center text-xs font-bold text-[#0B69FF] hover:bg-blue-50 py-1.5 rounded transition-colors cursor-pointer"
                       >
                         + Add New Location
                       </button>
@@ -423,7 +477,7 @@ export default function LocalMarketingPage() {
                           setSelectedDateRange(range);
                           setIsDateDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-1.5 hover:bg-gray-50 ${
+                        className={`w-full text-left px-3 py-1.5 hover:bg-gray-50 cursor-pointer ${
                           range === selectedDateRange ? 'bg-blue-50 text-[#0B69FF] font-semibold' : 'text-gray-700'
                         }`}
                       >
@@ -488,7 +542,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top1_3.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Orange) */}
                     <svg className="w-full h-5 text-amber-500 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,15 Q25,8 50,14 T100,5"
@@ -509,7 +562,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top4_5.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Blue) */}
                     <svg className="w-full h-5 text-blue-500 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,8 Q30,18 60,10 T100,16"
@@ -530,7 +582,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top7_10.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Green) */}
                     <svg className="w-full h-5 text-lime-500 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,16 Q25,18 55,7 T100,12"
@@ -553,7 +604,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top11_15.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Purple) */}
                     <svg className="w-full h-5 text-purple-500 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,12 Q30,6 60,15 T100,8"
@@ -576,7 +626,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top16_19.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Peach) */}
                     <svg className="w-full h-5 text-orange-400 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,14 Q30,16 65,8 T100,15"
@@ -599,7 +648,6 @@ export default function LocalMarketingPage() {
                         ▲ {currentLoc.topDistribution.top20_plus.change}
                       </span>
                     </div>
-                    {/* SVG Sparkline (Magenta) */}
                     <svg className="w-full h-5 text-pink-500 overflow-visible" viewBox="0 0 100 20">
                       <path
                         d="M0,10 Q25,5 60,16 T100,9"
@@ -636,15 +684,12 @@ export default function LocalMarketingPage() {
                   </span>
                 </div>
 
-                {/* Line Chart Component */}
                 <div className="h-28 w-full relative flex flex-col justify-end">
                   <svg className="w-full h-20 text-blue-500 overflow-visible" viewBox="0 0 500 80">
-                    {/* Grid horizontal guidelines */}
                     <line x1="0" y1="10" x2="500" y2="10" stroke="#F1F5F9" strokeWidth="1" />
                     <line x1="0" y1="40" x2="500" y2="40" stroke="#F1F5F9" strokeWidth="1" />
                     <line x1="0" y1="70" x2="500" y2="70" stroke="#F1F5F9" strokeWidth="1" />
 
-                    {/* Position Line Path */}
                     <path
                       d="M0,45 L100,42 L200,40 L300,46 L400,43 L500,41"
                       fill="none"
@@ -652,7 +697,6 @@ export default function LocalMarketingPage() {
                       strokeWidth="2.5"
                     />
 
-                    {/* Data dots */}
                     <circle cx="0" cy="45" r="3.5" fill="#0B69FF" />
                     <circle cx="100" cy="42" r="3.5" fill="#0B69FF" />
                     <circle cx="200" cy="40" r="3.5" fill="#0B69FF" />
@@ -661,7 +705,6 @@ export default function LocalMarketingPage() {
                     <circle cx="500" cy="41" r="3.5" fill="#0B69FF" />
                   </svg>
 
-                  {/* Dates underneath line chart */}
                   <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono pt-2">
                     <span>Aug-30 2026</span>
                     <span>Sep-03 2026</span>
@@ -718,7 +761,6 @@ export default function LocalMarketingPage() {
               </div>
               <span className="text-xs font-extrabold text-emerald-600 mt-2 tracking-wide uppercase">HEALTHY</span>
 
-              {/* Dot Indicators */}
               <div className="flex items-center gap-1.5 mt-2">
                 {[...Array(9)].map((_, i) => (
                   <span
@@ -814,7 +856,7 @@ export default function LocalMarketingPage() {
           <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <button
               onClick={() => setIsConnectBannerDismissed(true)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer"
               aria-label="Dismiss banner"
             >
               <X className="w-4 h-4" />
@@ -841,63 +883,19 @@ export default function LocalMarketingPage() {
         <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs space-y-6">
           <h2 className="text-sm font-bold text-gray-900">Google Business Profile</h2>
 
-          {/* Row 1: Views by Platform Donut & Searches by Keywords */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 border-b border-gray-200 pb-6">
-            {/* Views by Platform and Device */}
             <div className="lg:col-span-7 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200 pb-4 lg:pb-0 lg:pr-6">
               <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                 VIEWS BY PLATFORM AND DEVICE ⓘ
               </span>
 
               <div className="flex flex-col sm:flex-row items-center gap-6 py-2">
-                {/* Donut graphic */}
                 <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
                   <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    {/* 4 Donut Segments */}
-                    {/* Mobile Search (Red/Orange): 29.5% -> 88.5 deg */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#FF5722"
-                      strokeWidth="10"
-                      strokeDasharray="74 251"
-                      strokeDashoffset="0"
-                      fill="none"
-                    />
-                    {/* Mobile Maps (Green): 27.1% */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#10B981"
-                      strokeWidth="10"
-                      strokeDasharray="68 251"
-                      strokeDashoffset="-74"
-                      fill="none"
-                    />
-                    {/* Desktop Search (Blue): 39.1% */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#3B82F6"
-                      strokeWidth="10"
-                      strokeDasharray="98 251"
-                      strokeDashoffset="-142"
-                      fill="none"
-                    />
-                    {/* Desktop Maps (Yellow): 4.2% */}
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="40"
-                      stroke="#FBBF24"
-                      strokeWidth="10"
-                      strokeDasharray="11 251"
-                      strokeDashoffset="-240"
-                      fill="none"
-                    />
+                    <circle cx="50" cy="50" r="40" stroke="#FF5722" strokeWidth="10" strokeDasharray="74 251" strokeDashoffset="0" fill="none" />
+                    <circle cx="50" cy="50" r="40" stroke="#10B981" strokeWidth="10" strokeDasharray="68 251" strokeDashoffset="-74" fill="none" />
+                    <circle cx="50" cy="50" r="40" stroke="#3B82F6" strokeWidth="10" strokeDasharray="98 251" strokeDashoffset="-142" fill="none" />
+                    <circle cx="50" cy="50" r="40" stroke="#FBBF24" strokeWidth="10" strokeDasharray="11 251" strokeDashoffset="-240" fill="none" />
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-sm font-bold text-gray-900 font-mono">
@@ -906,7 +904,6 @@ export default function LocalMarketingPage() {
                   </div>
                 </div>
 
-                {/* Legend matching Screenshot 5 */}
                 <div className="space-y-2 text-xs flex-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -963,7 +960,6 @@ export default function LocalMarketingPage() {
               </div>
             </div>
 
-            {/* Searches by Keywords */}
             <div className="lg:col-span-5 flex flex-col justify-between">
               <div>
                 <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">
@@ -988,7 +984,7 @@ export default function LocalMarketingPage() {
             </div>
           </div>
 
-          {/* Row 2: 8 Metric Grid Cards matching Screenshot 5 */}
+          {/* Row 2: 8 Metric Grid Cards matching Screenshot 1 */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             {/* 1. VIEWS */}
             <div className="border border-gray-200 rounded-lg p-4 space-y-2 bg-white flex flex-col justify-between">
@@ -998,18 +994,11 @@ export default function LocalMarketingPage() {
                   {currentLoc.gbp.totalViews.toLocaleString()}
                 </div>
               </div>
-              {/* Stacked multi-color micro bar */}
               <div className="h-10 flex items-end gap-1">
                 {[...Array(12)].map((_, i) => (
                   <div key={i} className="flex-1 flex flex-col gap-0.5">
-                    <div
-                      className="bg-emerald-400 rounded-xs"
-                      style={{ height: `${Math.sin(i) * 8 + 10}px` }}
-                    />
-                    <div
-                      className="bg-purple-500 rounded-xs"
-                      style={{ height: `${Math.cos(i) * 6 + 12}px` }}
-                    />
+                    <div className="bg-emerald-400 rounded-xs" style={{ height: `${Math.sin(i) * 8 + 10}px` }} />
+                    <div className="bg-purple-500 rounded-xs" style={{ height: `${Math.cos(i) * 6 + 12}px` }} />
                   </div>
                 ))}
               </div>
@@ -1023,7 +1012,6 @@ export default function LocalMarketingPage() {
                   {currentLoc.gbp.totalSearches.toLocaleString()}
                 </div>
               </div>
-              {/* Blue sparkline wave */}
               <svg className="w-full h-10 text-blue-500 overflow-visible" viewBox="0 0 100 30">
                 <path
                   d="M0,15 Q20,5 40,20 T80,10 T100,18"
@@ -1163,11 +1151,520 @@ export default function LocalMarketingPage() {
               </div>
             </div>
           </div>
+
+          <div className="pt-2">
+            <button
+              onClick={() => alert('Opening full Google Business Profile analytics and insights...')}
+              className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
+            >
+              <span>➔ VIEW ALL</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* CARD 4: BUSINESS LISTINGS (Exact match of Screenshot 1)   */}
+        {/* ======================================================== */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs space-y-4">
+          <h2 className="text-sm font-bold text-gray-900">Business Listings</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Card 1: Mentions Found */}
+            <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                  MENTIONS FOUND ⓘ
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-[#0B69FF] font-mono">{currentLoc.listings.found}</span>
+                  <span className="text-lg text-gray-400 font-mono">/{currentLoc.listings.totalDirectories}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => setIsListingsModalOpen(true)}
+                  className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span>VIEW WHOLE LIST</span>
+                </button>
+                <span className="text-xs text-gray-400 font-medium">
+                  in {currentLoc.listings.missingCount} missing directories
+                </span>
+              </div>
+            </div>
+
+            {/* Card 2: NAP Errors */}
+            <div className="border border-gray-200 rounded-lg p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                  NAP ERRORS ⓘ
+                </span>
+                <div className="flex items-center gap-8">
+                  <span className="text-3xl font-bold text-gray-900 font-mono">
+                    {currentLoc.listings.napErrors}
+                  </span>
+
+                  <div className="flex items-center gap-6 text-xs">
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase">
+                        <span>T</span>
+                        <span>NAME</span>
+                      </div>
+                      <span className="text-sm font-bold text-blue-600 font-mono">
+                        {currentLoc.listings.nameErrors}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase">
+                        <span>📍</span>
+                        <span>ADDRESS</span>
+                      </div>
+                      <span className="text-sm font-bold text-blue-600 font-mono">
+                        {currentLoc.listings.addressErrors}
+                      </span>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-400 text-[10px] font-bold uppercase">
+                        <span>📞</span>
+                        <span>PHONE</span>
+                      </div>
+                      <span className="text-sm font-bold text-blue-600 font-mono">
+                        {currentLoc.listings.phoneErrors}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                <button
+                  onClick={() => setIsListingsModalOpen(true)}
+                  className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span>VIEW ERRORS</span>
+                </button>
+                <span className="text-xs text-gray-400 font-medium">in 57 directories</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* CARD 5: REVIEWS (Exact match of Screenshot 1)            */}
+        {/* ======================================================== */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-xs space-y-6">
+          <h2 className="text-sm font-bold text-gray-900">Reviews</h2>
+
+          {/* Row 1: Overview & Top Sources */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 border-b border-gray-200 pb-6">
+            {/* Overview Box */}
+            <div className="lg:col-span-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200 pb-4 lg:pb-0 lg:pr-6">
+              <div>
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">
+                  OVERVIEW ⓘ
+                </span>
+
+                <div className="flex items-start gap-6 py-2">
+                  {/* Rating Big Number */}
+                  <div className="space-y-1">
+                    <span className="text-4xl font-black text-[#0B69FF] font-mono leading-none">
+                      {currentLoc.reviewsData.avgRating.toFixed(1)}
+                    </span>
+                    <div className="flex items-center text-amber-400 text-xs">
+                      ★★★★☆
+                    </div>
+                    <span className="text-[10px] text-gray-400 block uppercase font-medium">
+                      NUMBER OF REVIEWS: {currentLoc.reviewsData.totalReviews}
+                    </span>
+                  </div>
+
+                  {/* Horizontal Bar Meters */}
+                  <div className="flex-1 space-y-1.5 text-xs">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">POSITIVE</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '60%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.positive}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">NEUTRAL</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-blue-400 h-1.5 rounded-full" style={{ width: '15%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.neutral}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">NEGATIVE</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-red-500 h-1.5 rounded-full" style={{ width: '25%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.negative}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">NOT RATED</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-gray-400 h-1.5 rounded-full" style={{ width: '20%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.notRated}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">RECOMMENDED</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-teal-500 h-1.5 rounded-full" style={{ width: '18%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.recommended}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] text-gray-400 uppercase w-28">NOT RECOMMENDED</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-1.5">
+                        <div className="bg-red-400 h-1.5 rounded-full" style={{ width: '8%' }} />
+                      </div>
+                      <span className="font-mono text-gray-700 text-xs font-semibold w-6 text-right">
+                        {currentLoc.reviewsData.notRecommended}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsReviewsModalOpen(true)}
+                  className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span>VIEW ALL</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Top Sources Box */}
+            <div className="lg:col-span-6 flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-3 block">
+                  TOP SOURCES ⓘ
+                </span>
+
+                <div className="flex flex-wrap items-center gap-4 py-2">
+                  {currentLoc.reviewsData.sources.map((s, i) => (
+                    <div
+                      key={i}
+                      className="border border-gray-200 rounded-lg px-3 py-2 bg-gray-50/50 flex items-center gap-3 text-xs"
+                    >
+                      <div className="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center font-bold text-xs shadow-2xs">
+                        {s.icon}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-gray-800 flex items-center gap-1">
+                          <span className="text-amber-400">★</span> {s.rating}
+                        </span>
+                        <span className="text-gray-400 flex items-center gap-0.5">
+                          <span>🏳️</span> {s.count}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => setIsReviewsModalOpen(true)}
+                  className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                >
+                  <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                  <span>VIEW ALL</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Insights - What customers say about your business */}
+          <div className="space-y-4 border-b border-gray-200 pb-6">
+            <div>
+              <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                INSIGHTS ⓘ
+              </span>
+              <p className="text-xs text-gray-600 font-medium">What customers say about your business</p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {/* 5.0 ★ */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs pb-1 border-b border-gray-100">
+                  <span className="font-bold text-gray-800 flex items-center gap-1">
+                    5.0 <span className="text-amber-400">★</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400">Frequency in reviews</span>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { term: 'italian', freq: 7 },
+                    { term: 'servicio', freq: 3 },
+                    { term: 'breakfast', freq: 2 },
+                    { term: 'calidad', freq: 2 },
+                    { term: 'vista', freq: 1 },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded text-xs flex items-center justify-between"
+                    >
+                      <span className="truncate">{item.term}</span>
+                      <span className="font-mono font-bold text-[11px]">{item.freq}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 4.0 ★ */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs pb-1 border-b border-gray-100">
+                  <span className="font-bold text-gray-800 flex items-center gap-1">
+                    4.0 <span className="text-amber-400">★</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400">Frequency in reviews</span>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { term: 'restaurant', freq: 6 },
+                    { term: 'waiter', freq: 4 },
+                    { term: 'waiters', freq: 4 },
+                    { term: 'order', freq: 4 },
+                    { term: 'experience', freq: 3 },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-lime-50 text-lime-800 px-2.5 py-1 rounded text-xs flex items-center justify-between"
+                    >
+                      <span className="truncate">{item.term}</span>
+                      <span className="font-mono font-bold text-[11px]">{item.freq}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 3.0 ★ */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs pb-1 border-b border-gray-100">
+                  <span className="font-bold text-gray-800 flex items-center gap-1">
+                    3.0 <span className="text-amber-400">★</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400">Frequency in reviews</span>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { term: 'food', freq: 10 },
+                    { term: 'pasta', freq: 6 },
+                    { term: 'place', freq: 5 },
+                    { term: 'service', freq: 5 },
+                    { term: 'people', freq: 3 },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-amber-50 text-amber-800 px-2.5 py-1 rounded text-xs flex items-center justify-between"
+                    >
+                      <span className="truncate">{item.term}</span>
+                      <span className="font-mono font-bold text-[11px]">{item.freq}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2.0 ★ */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs pb-1 border-b border-gray-100">
+                  <span className="font-bold text-gray-800 flex items-center gap-1">
+                    2.0 <span className="text-amber-400">★</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400">Frequency in reviews</span>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { term: 'customer service', freq: 2 },
+                    { term: 'recepcionista', freq: 1 },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-orange-50 text-orange-800 px-2.5 py-1 rounded text-xs flex items-center justify-between"
+                    >
+                      <span className="truncate">{item.term}</span>
+                      <span className="font-mono font-bold text-[11px]">{item.freq}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 1.0 ★ */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs pb-1 border-b border-gray-100">
+                  <span className="font-bold text-gray-800 flex items-center gap-1">
+                    1.0 <span className="text-amber-400">★</span>
+                  </span>
+                  <span className="text-[10px] text-gray-400">Frequency in reviews</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="bg-red-50 text-red-800 px-2.5 py-1 rounded text-xs flex items-center justify-between">
+                    <span className="truncate">more than an hour</span>
+                    <span className="font-mono font-bold text-[11px]">1</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button
+                onClick={() => setIsReviewsModalOpen(true)}
+                className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                <span>VIEW ALL</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Row 3: Reviews Timeline / Scatter Plot matching Screenshot 1 */}
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">
+                  REVIEWS ⓘ
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 text-xs">
+                {/* Time Range Pills */}
+                <div className="flex items-center gap-1 font-semibold text-gray-600">
+                  {(['ALL', '7D', '1M', '3M', '6M', '1Y'] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setTimelineFilter(r)}
+                      className={`px-2 py-0.5 rounded cursor-pointer ${
+                        timelineFilter === r
+                          ? 'bg-blue-50 text-[#0B69FF] font-bold'
+                          : 'hover:text-gray-900'
+                      }`}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="text-gray-300">|</div>
+
+                <div className="text-gray-600 flex items-center gap-1">
+                  <span>GROUPED BY:</span>
+                  <button className="text-[#0B69FF] font-semibold flex items-center gap-0.5">
+                    MONTHS <ChevronDown className="w-3 h-3" />
+                  </button>
+                </div>
+
+                {/* Sources Filter */}
+                <div className="border border-gray-300 rounded px-2.5 py-1 bg-white flex items-center gap-1.5 shadow-2xs">
+                  <span className="bg-gray-900 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold">
+                    10
+                  </span>
+                  <span className="font-semibold text-gray-800">All Sources Selected</span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Scatter Matrix Grid */}
+            <div className="border border-gray-200 rounded-lg p-4 bg-white overflow-x-auto">
+              <div className="min-w-[700px] space-y-4">
+                {/* Scatter Rows (5.0, 4.0, 3.0, 2.0, 1.0, Thumbs Up, Thumbs Down, Neutral) */}
+                {[
+                  { label: '5.0 ★', dots: [1, 2, 4, 6, 8, 10, 11] },
+                  { label: '4.0 ★', dots: [2, 5, 6, 7, 9, 10, 11] },
+                  { label: '3.0 ★', dots: [0, 4, 7, 11] },
+                  { label: '2.0 ★', dots: [1, 2, 3, 5, 8] },
+                  { label: '1.0 ★', dots: [6, 7, 8, 11] },
+                  { label: '👍', dots: [0, 1, 5, 6, 8, 10] },
+                  { label: '👎', dots: [0, 8, 9] },
+                  { label: '★ ?', dots: [1, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+                ].map((row, rIdx) => (
+                  <div key={rIdx} className="flex items-center gap-4 text-xs">
+                    <span className="w-10 font-bold text-gray-600 text-right shrink-0">{row.label}</span>
+                    <div className="flex-1 flex items-center justify-between relative h-6 border-b border-gray-100">
+                      {timelineMonths.map((m, mIdx) => {
+                        const hasDot = row.dots.includes(mIdx);
+                        const source = scatterSources[(mIdx + rIdx) % scatterSources.length];
+                        return (
+                          <div key={mIdx} className="flex-1 flex items-center justify-center">
+                            {hasDot && (
+                              <span
+                                className="w-2.5 h-2.5 rounded-full shadow-2xs hover:scale-125 transition-transform cursor-pointer"
+                                style={{ backgroundColor: source.color }}
+                                title={`${row.label} review from ${source.name} in ${m}`}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+
+                {/* X Axis Months */}
+                <div className="flex items-center gap-4 text-[11px] text-gray-400 font-mono pt-2">
+                  <span className="w-10 shrink-0" />
+                  <div className="flex-1 flex items-center justify-between">
+                    {timelineMonths.map((m, idx) => (
+                      <span key={idx} className="flex-1 text-center truncate">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Sources Color Legend matching Screenshot 1 */}
+                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-100 text-[11px]">
+                  {scatterSources.map((s, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-xs" style={{ backgroundColor: s.color }} />
+                      <span className="text-gray-600">{s.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setIsReviewsModalOpen(true)}
+                className="text-gray-700 hover:text-[#0B69FF] text-xs font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <ArrowRight className="w-3.5 h-3.5 text-gray-400" />
+                <span>VIEW ALL (119)</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* ======================================================== */}
-      {/* ADD LOCATION MODAL                                       */}
+      {/* MODALS: ADD LOCATION, AUDIT, LISTINGS, REVIEWS           */}
       {/* ======================================================== */}
       {isAddLocationModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
@@ -1177,7 +1674,7 @@ export default function LocalMarketingPage() {
                 <MapPin className="w-5 h-5 text-[#0B69FF]" />
                 <h3 className="font-bold text-base text-gray-900">Add New Business Location</h3>
               </div>
-              <button onClick={() => setIsAddLocationModalOpen(false)} className="text-gray-400 hover:text-gray-700">
+              <button onClick={() => setIsAddLocationModalOpen(false)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1191,8 +1688,6 @@ export default function LocalMarketingPage() {
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Business Name</label>
                 <input
                   type="text"
-                  value={newBizName}
-                  onChange={(e) => setNewBizName(e.target.value)}
                   placeholder="e.g. Bella Italia Bistro"
                   className="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-1 focus:ring-[#0B69FF]"
                 />
@@ -1202,8 +1697,6 @@ export default function LocalMarketingPage() {
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Primary Business Category</label>
                 <input
                   type="text"
-                  value={newBizCategory}
-                  onChange={(e) => setNewBizCategory(e.target.value)}
                   placeholder="e.g. Italian Restaurant, Dental Clinic, Law Firm"
                   className="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-1 focus:ring-[#0B69FF]"
                 />
@@ -1213,8 +1706,6 @@ export default function LocalMarketingPage() {
                 <label className="block text-xs font-semibold text-gray-700 mb-1">Full Street Address</label>
                 <input
                   type="text"
-                  value={newBizAddress}
-                  onChange={(e) => setNewBizAddress(e.target.value)}
                   placeholder="e.g. 123 Main Street, Suite 400, Chicago, IL"
                   className="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-1 focus:ring-[#0B69FF]"
                 />
@@ -1224,20 +1715,16 @@ export default function LocalMarketingPage() {
             <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
               <button
                 onClick={() => setIsAddLocationModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => {
-                  if (!newBizName.trim()) {
-                    alert('Please enter a business name.');
-                    return;
-                  }
-                  alert(`Success! Location "${newBizName}" added to SE Ranking Local Marketing.`);
+                  alert('Success! New location connected to SE Ranking Local Marketing.');
                   setIsAddLocationModalOpen(false);
                 }}
-                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#0957DB] text-white text-xs font-bold rounded shadow-xs"
+                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#0957DB] text-white text-xs font-bold rounded shadow-xs cursor-pointer"
               >
                 CONNECT LOCATION
               </button>
@@ -1246,9 +1733,7 @@ export default function LocalMarketingPage() {
         </div>
       )}
 
-      {/* ======================================================== */}
-      {/* AUDIT ISSUES MODAL                                       */}
-      {/* ======================================================== */}
+      {/* Audit Modal */}
       {isAuditModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
           <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95">
@@ -1256,7 +1741,7 @@ export default function LocalMarketingPage() {
               <h3 className="font-bold text-base text-gray-900">
                 Local Marketing Audit Issues ({currentLoc.auditIssues.total})
               </h3>
-              <button onClick={() => setIsAuditModalOpen(false)} className="text-gray-400 hover:text-gray-700">
+              <button onClick={() => setIsAuditModalOpen(false)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1272,7 +1757,7 @@ export default function LocalMarketingPage() {
                 </p>
                 <button
                   onClick={() => alert('Citation auto-sync dispatched to 40+ directory aggregators.')}
-                  className="text-xs font-bold text-red-700 underline pt-1"
+                  className="text-xs font-bold text-red-700 underline pt-1 cursor-pointer"
                 >
                   Auto-sync directory citations →
                 </button>
@@ -1288,7 +1773,7 @@ export default function LocalMarketingPage() {
                 </p>
                 <button
                   onClick={() => alert('Generating AI response drafts for unanswered reviews...')}
-                  className="text-xs font-bold text-amber-700 underline pt-1"
+                  className="text-xs font-bold text-amber-700 underline pt-1 cursor-pointer"
                 >
                   Generate AI review responses →
                 </button>
@@ -1308,7 +1793,7 @@ export default function LocalMarketingPage() {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setIsAuditModalOpen(false)}
-                className="px-4 py-2 bg-gray-900 text-white rounded text-xs font-bold hover:bg-gray-800"
+                className="px-4 py-2 bg-gray-900 text-white rounded text-xs font-bold hover:bg-gray-800 cursor-pointer"
               >
                 Close Audit Report
               </button>
@@ -1317,13 +1802,114 @@ export default function LocalMarketingPage() {
         </div>
       )}
 
-      {/* Bottom Footer Bar matching Screenshot 5 */}
+      {/* Listings Modal */}
+      {isListingsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
+          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+              <h3 className="font-bold text-base text-gray-900">
+                Directory Citations &amp; Mentions ({currentLoc.listings.found} / {currentLoc.listings.totalDirectories})
+              </h3>
+              <button onClick={() => setIsListingsModalOpen(false)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-2 pr-1 text-xs divide-y divide-gray-100">
+              {[
+                { name: 'Google Business Profile', status: 'Synced', nap: 'Consistent' },
+                { name: 'Apple Maps', status: 'Synced', nap: 'Consistent' },
+                { name: 'Bing Places', status: 'Synced', nap: 'Consistent' },
+                { name: 'Yelp', status: 'Inconsistent Address', nap: 'Error' },
+                { name: 'YellowPages', status: 'Inconsistent Phone', nap: 'Error' },
+                { name: 'Tripadvisor', status: 'Synced', nap: 'Consistent' },
+                { name: 'Foursquare', status: 'Missing', nap: 'Not Found' },
+                { name: 'Better Business Bureau', status: 'Synced', nap: 'Consistent' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-gray-800">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        item.nap === 'Consistent'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : item.nap === 'Error'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setIsListingsModalOpen(false)}
+                className="px-4 py-2 bg-gray-900 text-white rounded text-xs font-bold hover:bg-gray-800 cursor-pointer"
+              >
+                Close Listings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reviews Modal */}
+      {isReviewsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
+          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-2xl w-full p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-2 border-b border-gray-200">
+              <h3 className="font-bold text-base text-gray-900">
+                Customer Reviews Feed (119 Reviews)
+              </h3>
+              <button onClick={() => setIsReviewsModalOpen(false)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+              {[
+                { author: 'Marco Rossi', rating: 5, source: 'Google', text: 'Exceptional authentic Italian pasta and warm ambiance! The waiter was attentive and polite.', date: 'Yesterday' },
+                { author: 'Sarah Jenkins', rating: 4, source: 'Tripadvisor', text: 'Great dinner downtown. Wine selection is extensive, though wait times can be slightly long on weekends.', date: '3 days ago' },
+                { author: 'David Kim', rating: 1, source: 'Facebook', text: 'Waited more than an hour for our main course without updates from the staff.', date: 'Sep 12, 2026' },
+              ].map((rev, i) => (
+                <div key={i} className="p-3 bg-gray-50 rounded-lg border border-gray-200 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-gray-900">{rev.author}</span>
+                    <span className="text-[10px] text-gray-400 font-mono">{rev.date} • {rev.source}</span>
+                  </div>
+                  <div className="text-amber-400 text-xs">
+                    {'★'.repeat(rev.rating)}{'☆'.repeat(5 - rev.rating)}
+                  </div>
+                  <p className="text-gray-600 leading-relaxed">{rev.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setIsReviewsModalOpen(false)}
+                className="px-4 py-2 bg-gray-900 text-white rounded text-xs font-bold hover:bg-gray-800 cursor-pointer"
+              >
+                Close Reviews
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Footer Bar matching Screenshot 1 */}
       <footer className="bg-white border-t border-gray-200 mt-auto py-3 px-6 flex flex-wrap items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-2">
           <SeRankingLogo variant="color" width={90} height={20} />
         </div>
         <div className="flex items-center gap-4 text-[11px]">
-          <button onClick={() => alert('Bug report dialog opened.')} className="hover:text-gray-800">
+          <button onClick={() => alert('Bug report dialog opened.')} className="hover:text-gray-800 cursor-pointer">
             Report a bug
           </button>
           <Link href="/landing" className="hover:text-gray-800">
@@ -1332,7 +1918,7 @@ export default function LocalMarketingPage() {
           <Link href="/api-docs" className="hover:text-gray-800">
             API
           </Link>
-          <button onClick={() => alert('Release notes for SE Ranking 2026.')} className="hover:text-gray-800">
+          <button onClick={() => alert('Release notes for SE Ranking 2026.')} className="hover:text-gray-800 cursor-pointer">
             What's new
           </button>
           <a href="https://help.seranking.com" target="_blank" rel="noreferrer" className="hover:text-gray-800">
