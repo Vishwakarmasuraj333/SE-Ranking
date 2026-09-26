@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  role      String    @default("user")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model Project {
+  id          String     @id @default(cuid())
+  name        String
+  domain      String
+  brandName   String?
+  country     String     @default("India")
+  countryCode String     @default("in")
+  isArchived  Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  analyses    Analysis[]
+}
+
+model Analysis {
+  id             String           @id @default(cuid())
+  projectId      String?
+  project        Project?         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  domain         String
+  scope          String           @default("*.domain.com/*")
+  brandName      String?
+  country        String           @default("India")
+  countryCode    String           @default("in")
+  searchType     String           @default("ai-search") // "ai-search" or "google-search"
+  aiPresence     Float?
+  brandPresence  Float?
+  domainPresence Float?
+  avgPosition    Float?
+  traffic        Int?
+  mentions       Int?
+  links          Int?
+  citationShare  Float?
+  status         String           @default("completed")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  competitors    Competitor[]
+  engines        AnalysisEngine[]
+  prompts        Prompt[]
+  citations      Citation[]
+}
+
+model Competitor {
+  id            String   @id @default(cuid())
+  analysisId    String
+  analysis      Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  domain        String
+  brandName     String?
+  aiPresence    Float?
+  domainPresence Float?
+  brandPresence Float?
+  avgPosition   Float?
+  shareOfVoice  Float?
+  createdAt     DateTime @default(now())
+}
+
+model AnalysisEngine {
+  id           String   @id @default(cuid())
+  analysisId   String
+  analysis     Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  engineId     String   // ai-overview, ai-mode, chatgpt, gemini, perplexity
+  name         String
+  mentions     Int      @default(0)
+  linkPresence Float    @default(0)
+  presence     Float    @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+}
+
+model Prompt {
+  id          String    @id @default(cuid())
+  analysisId  String
+  analysis    Analysis  @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  prompt      String
+  topic       String
+  engine      String    // ai-overview, ai-mode, chatgpt, gemini, perplexity
+  mention     Boolean   @default(false)
+  link        Boolean   @default(false)
+  ads         Boolean   @default(false)
+  competitors String?   // JSON string
+  fullAnswer  String?
+  answerDate  DateTime?
+  visibility  String    @default("Visible")
+  createdAt   DateTime  @default(now())
+}
+
+model Citation {
+  id             String   @id @default(cuid())
+  analysisId     String
+  analysis       Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  domain         String
+  url            String
+  citationShare  Float?
+  visibility     Float?
+  topics         String?
+  domainTrust    Int?
+  pageTrust      Int?
+  organicTraffic Int?
+  createdAt      DateTime @default(now())
+}
+
+model ApiUsage {
+  id          String   @id @default(cuid())
+  endpoint    String
+  creditsUsed Int      @default(1)
+  status      String   @default("success")
+  createdAt   DateTime @default(now())
+}
