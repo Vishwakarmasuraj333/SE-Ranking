@@ -44,12 +44,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM Suite page) */}
-        {!pathname.startsWith('/smm') && (
-          <div className="hidden lg:flex">
-            <SecondarySidebar />
-          </div>
-        )}
+        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, and Local Marketing) */}
+        {!pathname.startsWith('/smm') &&
+          !pathname.startsWith('/content-marketing') &&
+          !pathname.startsWith('/local-marketing') && (
+            <div className="hidden lg:flex">
+              <SecondarySidebar />
+            </div>
+          )}
 
         {/* Mobile Drawer */}
         <MobileDrawer />
