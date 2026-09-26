@@ -44,6 +44,7 @@ import {
   Smile,
   Tag,
   DollarSign,
+  MousePointerClick,
 } from 'lucide-react';
 import {
   LineChart,
@@ -77,14 +78,14 @@ const languages = [
   { code: 'あ', label: '日本語', href: 'https://seranking.com/jp/' },
 ];
 
-// Mock chart data for SEO Rankings
+// Mock chart data for SEO Rankings - wavy curves matching reference screenshot
 const mockRankingsTrend = [
-  { date: 'Jun 24', top1: 18, top3: 42, top10: 110 },
-  { date: 'Jun 25', top1: 22, top3: 48, top10: 125 },
-  { date: 'Jun 26', top1: 28, top3: 56, top10: 142 },
-  { date: 'Jun 27', top1: 34, top3: 65, top10: 168 },
-  { date: 'Jun 28', top1: 39, top3: 74, top10: 189 },
-  { date: 'Jun 29', top1: 46, top3: 86, top10: 215 },
+  { date: 'Jun 24', pink: 72, blue: 70, teal: 35, purple: 28 },
+  { date: 'Jun 25', pink: 98, blue: 45, teal: 68, purple: 64 },
+  { date: 'Jun 26', pink: 82, blue: 68, teal: 52, purple: 56 },
+  { date: 'Jun 27', pink: 88, blue: 85, teal: 80, purple: 70 },
+  { date: 'Jun 28', pink: 62, blue: 60, teal: 45, purple: 40 },
+  { date: 'Jun 29', pink: 78, blue: 88, teal: 84, purple: 75 },
 ];
 
 // Case studies data (7 items) - Exact screenshot match
@@ -227,56 +228,56 @@ const agencyCatalogItems = [
   },
 ];
 
-// Testimonials data (7 items) - Screenshot 5 exact match
+// Testimonials data (7 items) - Exact screenshot match
 const testimonials = [
   {
     quote:
       '“I’ve been using SE Ranking MCP server for months and it’s fantastic. My keyword research involves classifying keywords with a lot of ambiguity into families and locations. This MCP has saved me days of manual work — my research now takes a few hours instead of days”',
     name: 'Gus Pelogia',
     role: 'Senior SEO Product Manager (R&D) Indeed',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+    avatar: '/images/testimonials/gus.png',
   },
   {
     quote:
       '“The AI Visibility and GEO tracking in SE Ranking gave us early clarity on LLM citations across ChatGPT and Perplexity. We turned AI answers into our #1 referral channel in under 6 months.”',
-    name: 'Marta Alonso',
-    role: 'Head of Organic Growth, Softonic',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80',
-  },
-  {
-    quote:
-      '“SE Ranking has outpaced traditional suites by building native MCP integrations and AI SEO monitoring directly into their platform. It’s what modern search practitioners actually need.”',
-    name: 'Kevin Indig',
-    role: 'Strategic SEO Advisor (ex-Shopify, G2)',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80',
+    name: 'Dana DiTomaso',
+    role: 'Founder & Lead Instructor, Kick Point Playbook',
+    avatar: '/images/testimonials/dana.png',
   },
   {
     quote:
       '“Accurate rank tracking across 188 country DBs and mobile SERPs without hidden fees makes SE Ranking our default recommendation for international enterprise audits.”',
     name: 'Aleyda Solis',
     role: 'International SEO Consultant & Founder, Orainti',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&auto=format&fit=crop&q=80',
+    avatar: '/images/testimonials/aleyda.png',
+  },
+  {
+    quote:
+      '“SE Ranking has outpaced traditional suites by building native MCP integrations and AI SEO monitoring directly into their platform. It’s what modern search practitioners actually need.”',
+    name: 'Alex Moss',
+    role: 'SEO Director, Yoast & FireCask',
+    avatar: '/images/testimonials/alex.png',
   },
   {
     quote:
       '“The Agency Pack is a game changer for client retention. Automated white-label reporting and client seats shaved 15 hours off each team lead\'s week.”',
-    name: 'Luke Jordan',
-    role: 'Director of SEO, Kaida Agency',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=120&auto=format&fit=crop&q=80',
+    name: 'John Doherty',
+    role: 'CEO & Founder, Credo & EditorNinja',
+    avatar: '/images/testimonials/john.png',
   },
   {
     quote:
       '“Combining rank intelligence with social publishing in Planable streamlined our cross-channel marketing. Our team executes twice as fast without switching apps.”',
-    name: 'Sarah Prescott',
-    role: 'VP Digital Marketing, Wiser IT',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=120&auto=format&fit=crop&q=80',
+    name: 'Giannis Karampatsos',
+    role: 'Head of Growth, Productiv',
+    avatar: '/images/testimonials/giannis.png',
   },
   {
     quote:
       '“We replaced three disparate tools with SE Ranking\'s unified studio. The depth of competitive gap analysis and API reliability is best-in-class.”',
-    name: 'Marcus Vance',
-    role: 'Chief Growth Officer, Tailor Brands',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&auto=format&fit=crop&q=80',
+    name: 'Erin Sparks',
+    role: 'President, Site-Strategics & Edge of the Web Host',
+    avatar: '/images/testimonials/erin.png',
   },
 ];
 
@@ -341,8 +342,8 @@ export default function LandingPage() {
     >
       {/* 1. Green HelloBar at Top (Exact screenshot match) */}
       {showHelloBar && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-1">
-          <div className="bg-[#008871] text-white py-2.5 px-6 rounded-xl text-center text-sm font-semibold tracking-wide flex items-center justify-between relative shadow-xs">
+        <div className="w-[calc(100%-24px)] sm:w-[calc(100%-48px)] max-w-7xl mx-auto mt-2.5 mb-1">
+          <div className="bg-[#0b8465] text-white py-2 px-6 rounded-xl text-center text-sm font-semibold tracking-wide flex items-center justify-between relative shadow-xs">
             <div className="flex-1 text-center">
               <Link
                 href="https://visible.seranking.com/?utm_source=seranking&utm_medium=hellobar&utm_campaign=visible"
@@ -369,10 +370,10 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* 2. Main Navigation Header (Sleek, Compact, Crisp) */}
-      <header className="border-b border-gray-100 sticky top-0 bg-white/95 backdrop-blur-md z-40 transition-all">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-[68px] flex items-center justify-between">
-          <div className="flex items-center gap-5 sm:gap-7 h-full">
+      {/* 2. Main Navigation Header (Exact screenshot match) */}
+      <header className="sticky top-0 bg-white z-40 transition-all border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[64px] flex items-center justify-between">
+          <div className="flex items-center gap-4 sm:gap-6 h-full">
             {/* 9-Dots Suite Switcher Button & Dropdown */}
             <div
               className="relative py-2"
@@ -383,10 +384,10 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => setActiveMenu(activeMenu === 'suite' ? null : 'suite')}
-                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-lg bg-[#f3f4f6] hover:bg-gray-200 border border-gray-200/50 flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="App Switcher"
               >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
                   <rect x="1" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
                   <rect x="7.25" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
                   <rect x="13.5" y="1" width="3.5" height="3.5" rx="0.8" fill="#4B5563" />
@@ -465,13 +466,13 @@ export default function LandingPage() {
               )}
             </div>
 
-            {/* SE Ranking Logo */}
+            {/* SE Ranking Logo: Dark text + blue spark logo */}
             <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-              <SeRankingLogo variant="brand" width={135} height={30} />
+              <SeRankingLogo variant="dark" width={130} height={28} />
             </Link>
 
             {/* Desktop Navigation Links & Dropdowns */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-7 text-sm font-semibold text-gray-800 h-full">
+            <nav className="flex items-center gap-5 xl:gap-6 text-[14px] font-medium text-gray-900 h-full">
               {/* 1. Solutions Dropdown */}
               <div
                 className="relative h-full flex items-center"
@@ -1271,31 +1272,34 @@ export default function LandingPage() {
             </nav>
           </div>
 
-          {/* Right Header Navigation Items */}
-          <div className="flex items-center gap-3.5 sm:gap-4.5 h-full">
-            {/* 10-Language Selector Dropdown */}
-            <div
-              className="relative h-full flex items-center hidden md:flex"
-              onMouseEnter={() => setActiveMenu('lang')}
-              onMouseLeave={() => setActiveMenu(null)}
-              onClick={(e) => e.stopPropagation()}
-            >
+          {/* Right Header Navigation Items (Exact screenshot match) */}
+          <div className="flex items-center gap-3 sm:gap-4 h-full">
+            {/* Language Switcher */}
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => setActiveMenu(activeMenu === 'lang' ? null : 'lang')}
-                className="px-2 py-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1 text-xs font-bold text-gray-800 transition-colors cursor-pointer"
+                className="px-2 py-1.5 rounded-lg hover:bg-gray-100 flex items-center gap-1 text-[13px] font-semibold text-gray-900 transition-colors cursor-pointer"
               >
-                <span className="uppercase text-xs font-bold tracking-wide">
+                <span className="uppercase text-[13px] font-bold tracking-wide">
                   {selectedLang}
                 </span>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                <ChevronDown
+                  className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-150 ${
+                    activeMenu === 'lang' ? 'rotate-180' : ''
+                  }`}
+                />
               </button>
 
               {activeMenu === 'lang' && (
-                <div className="absolute right-0 top-full pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
-                  <div className="w-40 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5">
-                    <div className="space-y-0.5">
-                      {languages.map((l) => (
+                <div
+                  className="absolute right-0 top-full pt-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="w-[155px] bg-white rounded-xl shadow-xl border border-gray-200 py-1.5 px-1.5 space-y-0.5">
+                    {languages.map((l) => {
+                      const isActive = selectedLang.toLowerCase() === l.code.toLowerCase();
+                      return (
                         <button
                           key={l.code}
                           type="button"
@@ -1303,166 +1307,114 @@ export default function LandingPage() {
                             setSelectedLang(l.code);
                             setActiveMenu(null);
                           }}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center gap-2 text-xs font-medium transition-colors cursor-pointer ${
-                            selectedLang === l.code
-                              ? 'bg-[#E0F2FE] text-[#0B69FF] font-bold'
-                              : 'text-gray-700 hover:bg-gray-50'
+                          className={`w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2.5 text-xs transition-colors cursor-pointer ${
+                            isActive
+                              ? 'bg-[#EBF5FF] text-[#1351d8] font-bold'
+                              : 'text-[#374151] hover:bg-gray-50 font-medium'
                           }`}
                         >
-                          <span className="uppercase font-bold text-[10px] w-5 text-center bg-gray-100 rounded py-0.5">
+                          <span
+                            className={`uppercase font-bold text-[10px] w-6 h-4 flex items-center justify-center rounded ${
+                              isActive
+                                ? 'bg-[#1351d8] text-white'
+                                : 'bg-[#E5E7EB] text-[#4B5563]'
+                            }`}
+                          >
                             {l.code}
                           </span>
                           <span className="text-xs">{l.label}</span>
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* "Sign in" link matching Screenshot */}
-            <Link
-              href="/login"
-              className="hidden sm:inline-block text-xs sm:text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors"
-            >
-              Sign in
-            </Link>
-
             {/* "See product tour" button matching Screenshot */}
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
-              className="hidden sm:inline-flex items-center justify-center px-3.5 py-1.5 border border-gray-900 text-gray-900 rounded-lg text-xs font-bold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span>See product tour</span>
             </button>
 
-            {/* "Start free trial" Blue Button matching Screenshot */}
+            {/* "Projects" Solid Blue Button matching Screenshot */}
             <Link
-              href="/signup"
-              className="px-4 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer"
+              href="/projects"
+              className="px-5 py-2 bg-[#1351d8] hover:bg-[#0f46bd] text-white rounded-lg text-[13px] font-bold tracking-normal transition-colors cursor-pointer shadow-xs"
             >
-              <span>Start free trial</span>
+              <span>Projects</span>
             </Link>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer"
-              aria-label="Toggle Mobile Navigation"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
           </div>
         </div>
-
-        {/* Mobile Navigation Drawer */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden bg-white border-b border-gray-200 px-6 py-5 space-y-4 shadow-xl">
-            <div className="grid grid-cols-2 gap-3 text-sm font-bold text-gray-800">
-              <Link href="/rankings" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">Rank Tracker</Link>
-              <Link href="/website-audit" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">Website Audit</Link>
-              <Link href="/research/ai-search" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">AI Visibility</Link>
-              <Link href="/backlinks" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">Backlinks</Link>
-              <Link href="/agency-pack" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">Agency Pack</Link>
-              <Link href="/api-docs" onClick={() => setIsMobileMenuOpen(false)} className="p-2.5 rounded-xl bg-gray-50">API &amp; MCP</Link>
-            </div>
-            <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsTourOpen(true);
-                  setIsMobileMenuOpen(false);
-                }}
-                className="text-sm font-bold text-gray-800"
-              >
-                See product tour
-              </button>
-              <Link
-                href="/signup"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="px-5 py-2.5 bg-[#0B69FF] text-white rounded-xl text-sm font-bold"
-              >
-                Start free trial
-              </Link>
-            </div>
-          </div>
-        )}
       </header>
 
-      {/* 3. Hero Section (Spacious, Big Bold Typography matching Screenshot) */}
-      <section className="pt-16 sm:pt-24 pb-12 sm:pb-16 px-6 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
-        <h1 className="text-4xl sm:text-6xl md:text-[68px] font-extrabold text-gray-900 tracking-[-0.03em] leading-[1.08]">
+      {/* 3. Hero Section (Exact visual match to Screenshot) */}
+      <section className="pt-20 sm:pt-24 pb-12 px-4 sm:px-6 max-w-5xl mx-auto text-center">
+        <h1 className="text-[36px] sm:text-[48px] md:text-[52px] lg:text-[54px] font-extrabold text-[#111827] tracking-tight leading-[1.12]">
           Don’t just track visibility. Validate&nbsp;it.
         </h1>
 
-        <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
+        <p className="mt-5 text-[#4b5563] text-base sm:text-[18px] max-w-[740px] mx-auto leading-relaxed font-normal">
           Give your team the cross-channel context to prove the value of every decision across<br className="hidden sm:inline" /> SEO, GEO, and social.
         </p>
 
-        {/* Hero CTAs matching Screenshot: Start free trial & See product tour */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+        {/* Hero CTAs: Projects & See product tour */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/signup"
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-base font-bold rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
+            href="/projects"
+            className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-medium rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
           >
-            <span>Start free trial</span>
+            <span>Projects</span>
           </Link>
           <button
             type="button"
             onClick={() => setIsTourOpen(true)}
-            className="w-full sm:w-auto px-8 py-3.5 bg-white border border-gray-900 hover:bg-gray-50 text-gray-900 text-base font-bold rounded-lg transition-colors cursor-pointer shadow-2xs"
+            className="w-full sm:w-auto px-8 py-3.5 sm:px-9 sm:py-4 bg-white border border-[#111827] hover:bg-gray-50 text-[#111827] text-[16px] sm:text-[17px] font-medium rounded-xl transition-all cursor-pointer shadow-2xs"
           >
             <span>See product tour</span>
           </button>
         </div>
 
-        {/* Micro copy under buttons */}
-        <div className="text-xs text-gray-400 font-normal">
-          No credit card required
-        </div>
-
-        {/* Social Proof: Cycling 3 Agency Avatars with Smooth Transition + Trusted by 40,000+ agencies */}
-        <div className="pt-6 flex items-center justify-center">
+        {/* Social Proof: 1-by-1 sliding avatars + Trusted by 40,000+ agencies */}
+        <div className="mt-12">
           <HeroAvatarSlider />
         </div>
 
-        {/* Static 6 Partner Logos row matching screenshot (NO MOVING MARQUEE SLIDER) */}
-        <div className="pt-8 pb-4 flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-14 text-gray-600 select-none">
+        {/* Static 6 Partner Logos row matching screenshot */}
+        <div className="mt-12 max-w-4xl mx-auto flex flex-wrap items-center justify-center gap-8 sm:gap-11 md:gap-14 text-[#596372] select-none">
           {/* soapbox */}
           <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
             <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
               <path d="M16 2L3 26H29L16 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
               <path d="M16 9L8 23H24L16 9Z" fill="currentColor" opacity="0.3" />
             </svg>
-            <span className="font-black text-base sm:text-lg tracking-tight lowercase">soapbox</span>
+            <span className="font-black text-base sm:text-lg tracking-tight lowercase text-[#4b5563]">soapbox</span>
           </div>
 
           {/* Nex Brand Marketing */}
           <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
-            <div className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-current" />
-            </div>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3.6 9h16.8M3.6 15h16.8" />
+              <ellipse cx="12" cy="12" rx="4" ry="9" />
+            </svg>
             <div className="text-left leading-none">
-              <span className="font-extrabold text-xs tracking-wider uppercase block">Nex Brand</span>
-              <span className="text-[8px] font-semibold text-gray-500 uppercase tracking-widest block">Marketing</span>
+              <span className="font-extrabold text-[12px] tracking-wider uppercase block text-[#4b5563]">NEX BRAND</span>
+              <span className="text-[8px] font-bold text-[#6b7280] uppercase tracking-widest block mt-0.5">MARKETING</span>
             </div>
           </div>
 
           {/* Tailor Brands */}
           <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" />
-              <path d="M2 17L12 22L22 17" />
-              <path d="M2 12L12 17L22 12" />
+              <path d="M12 3a2 2 0 0 0-2 2c0 1.1.9 2 2 2v2L3 17a2 2 0 0 0 1 3h16a2 2 0 0 0 1-3L12 9" />
             </svg>
             <div className="text-left leading-none">
-              <span className="font-extrabold text-xs tracking-wider uppercase block">Tailor</span>
-              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">Brands</span>
+              <span className="font-extrabold text-[12px] tracking-wider uppercase block text-[#4b5563]">TAILOR</span>
+              <span className="text-[8px] font-bold text-[#6b7280] uppercase tracking-widest block mt-0.5">BRANDS</span>
             </div>
           </div>
 
@@ -1472,38 +1424,39 @@ export default function LandingPage() {
               <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V17a1 1 0 0 1-2 0v-.07A8 8 0 0 1 4.07 10H5a1 1 0 0 1 0 2 6 6 0 0 0 6 6 1 1 0 0 1 2 0 6 6 0 0 0 6-6 1 1 0 0 1 2 0 8 8 0 0 1-6.93 6.93z" />
             </svg>
             <div className="text-left leading-none">
-              <span className="font-black text-xs tracking-wider uppercase block">Wiser IT</span>
-              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">SEO Company</span>
+              <span className="font-black text-[12px] tracking-wider uppercase block text-[#4b5563]">WISER IT</span>
+              <span className="text-[8px] font-bold text-[#6b7280] uppercase tracking-widest block mt-0.5">SEO COMPANY</span>
             </div>
           </div>
 
           {/* Kaida */}
           <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
-            <div className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center">
-              <div className="w-1.5 h-1.5 rounded-full border border-current" />
-            </div>
-            <span className="font-black text-sm tracking-widest uppercase">Kaida</span>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 6l8 6-8 6V6z" />
+              <path d="M20 6l-8 6 8 6V6z" />
+            </svg>
+            <span className="font-black text-[14px] tracking-widest uppercase text-[#4b5563]">KAIDA</span>
           </div>
 
           {/* Neary Hayes */}
           <div className="text-left leading-none hover:text-gray-900 transition-colors">
-            <span className="font-serif italic font-bold text-sm block">neary</span>
-            <span className="font-serif italic font-bold text-sm block pl-2">hayes</span>
+            <span className="font-serif italic font-bold text-[13px] block text-[#4b5563]">neary</span>
+            <span className="font-serif italic font-bold text-[13px] block pl-2 text-[#4b5563]">hayes</span>
           </div>
         </div>
       </section>
 
-      {/* 4. Complete AI SEO platform for every challenge (Spacious & Clean matching Screenshot) */}
+      {/* 4. Complete AI SEO platform for every challenge (Exact Match to User Reference Screenshots) */}
       <section className="pt-12 pb-20 sm:pt-16 sm:pb-24 bg-white px-6 sm:px-8">
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#101423] tracking-tight leading-tight">
               Complete AI SEO platform for every challenge
             </h2>
           </div>
 
           {/* Interactive Navigation Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-sm">
             {[
               { id: 'ai-visibility', label: 'AI Visibility' },
               { id: 'seo-research', label: 'SEO Research' },
@@ -1518,10 +1471,10 @@ export default function LandingPage() {
                 <button
                   key={tab.id}
                   onClick={() => setPlatformTab(tab.id as any)}
-                  className={`px-5 py-2 rounded-full text-sm font-bold transition-all cursor-pointer ${
+                  className={`px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-[15px] transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#1D2533] text-white shadow-xs'
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                      ? 'bg-[#101423] text-white font-normal shadow-xs'
+                      : 'text-[#667085] hover:text-[#101423] font-normal hover:bg-gray-50'
                   }`}
                 >
                   {tab.label}
@@ -1530,17 +1483,17 @@ export default function LandingPage() {
             })}
           </div>
 
-          {/* 2-Column Section Layout matching Screenshot */}
+          {/* 2-Column Section Layout matching Screenshots */}
 
-          {/* TAB 1: AI Visibility (Exact Screenshot 1 & 2 Match) */}
+          {/* TAB 1: AI Visibility (Exact Screenshot Match: uploaded_media_1790446897464.png) */}
           {platformTab === 'ai-visibility' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Interactive Mockup Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-4">
                 {/* Header Bar with AI Engines */}
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200/70 pb-3">
-                  <span className="text-base font-black text-gray-900">AI Visibility</span>
-                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-bold text-gray-800">
+                <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-2xl border border-gray-200/70 shadow-2xs">
+                  <span className="text-base font-bold text-gray-900">AI Visibility</span>
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-semibold text-gray-800">
                     <span className="flex items-center gap-1.5 hover:text-black transition-colors cursor-pointer">
                       <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-black">
                         ✦
@@ -1567,17 +1520,20 @@ export default function LandingPage() {
 
                 {/* 4 Metric Boxes */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {/* Visibility */}
-                  <div className="p-3.5 bg-[#D5F5EE] rounded-2xl border border-[#A7E8D8] relative overflow-hidden">
-                    <div className="flex items-center justify-between text-xs font-semibold text-gray-700">
+                  {/* Visibility (Mint Green Box with binoculars) */}
+                  <div className="p-3.5 bg-[#C6F5E6] rounded-2xl border border-[#9BE3CE] relative overflow-hidden">
+                    <svg className="absolute inset-0 w-full h-full opacity-25 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M-20 20 Q 30 60, 80 20 T 180 20 T 280 20" fill="none" stroke="#0D9488" strokeWidth="2" />
+                    </svg>
+                    <div className="flex items-center justify-between text-xs font-semibold text-gray-800 relative z-10">
                       <span>Visibility</span>
-                      <span className="text-[10px] bg-white text-gray-700 font-bold px-1.5 py-0.5 rounded-full shadow-2xs">
-                        6d
+                      <span className="w-5 h-5 rounded-full bg-white/80 flex items-center justify-center text-[10px]">
+                        👓
                       </span>
                     </div>
-                    <div className="flex items-baseline gap-1.5 mt-2">
-                      <span className="text-2xl font-black text-gray-900">99%</span>
-                      <span className="text-[11px] text-emerald-800 font-bold bg-[#A7E8D8] px-1.5 py-0.2 rounded">
+                    <div className="flex items-baseline gap-1.5 mt-2 relative z-10">
+                      <span className="text-2xl font-bold text-gray-900">99%</span>
+                      <span className="text-[11px] text-teal-800 font-bold bg-[#A3EAD4] px-1.5 py-0.2 rounded">
                         ↗ 8,4
                       </span>
                     </div>
@@ -1589,7 +1545,7 @@ export default function LandingPage() {
                       <span>Rank</span>
                       <Award className="w-4 h-4 text-gray-400" />
                     </div>
-                    <div className="text-2xl font-black text-gray-900 mt-2">#1</div>
+                    <div className="text-2xl font-bold text-gray-900 mt-2">#1</div>
                   </div>
 
                   {/* Avg. position */}
@@ -1599,8 +1555,8 @@ export default function LandingPage() {
                       <BarChart3 className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-baseline gap-1.5 mt-2">
-                      <span className="text-2xl font-black text-gray-900">2.61</span>
-                      <span className="text-[11px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.2 rounded">
+                      <span className="text-2xl font-bold text-gray-900">2.61</span>
+                      <span className="text-[11px] text-teal-800 font-bold bg-teal-50 px-1.5 py-0.2 rounded border border-teal-100">
                         ↘ 1,3
                       </span>
                     </div>
@@ -1613,8 +1569,8 @@ export default function LandingPage() {
                       <Smile className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-baseline gap-1.5 mt-2">
-                      <span className="text-2xl font-black text-gray-900">+78</span>
-                      <span className="text-[11px] text-pink-700 font-bold bg-pink-100 px-1.5 py-0.2 rounded">
+                      <span className="text-2xl font-bold text-gray-900">+78</span>
+                      <span className="text-[11px] text-pink-700 font-bold bg-pink-50 px-1.5 py-0.2 rounded border border-pink-100">
                         ↘ 1,5
                       </span>
                     </div>
@@ -1628,24 +1584,41 @@ export default function LandingPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-gray-900">Visibility</span>
                       <div className="flex items-center gap-1.5 text-[11px]">
-                        <span className="bg-gray-100 px-2.5 py-1 rounded-md font-bold text-gray-900 shadow-2xs">
+                        <span className="bg-gray-100 px-2 py-0.5 rounded font-bold text-gray-900 shadow-2xs">
                           Visibility score
                         </span>
-                        <span className="text-gray-400 font-semibold px-1.5">Avg position</span>
+                        <span className="text-gray-400 font-semibold px-1">Avg position</span>
                       </div>
                     </div>
-                    <div className="h-44 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={mockRankingsTrend}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                          <YAxis tick={{ fontSize: 10 }} domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} />
-                          <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '8px' }} />
-                          <Line type="monotone" dataKey="top1" stroke="#1864FF" strokeWidth={2.5} dot={false} />
-                          <Line type="monotone" dataKey="top3" stroke="#10B981" strokeWidth={2.5} dot={false} />
-                          <Line type="monotone" dataKey="top10" stroke="#D946EF" strokeWidth={2.5} dot={false} />
-                        </LineChart>
-                      </ResponsiveContainer>
+                    <div className="h-40 w-full relative">
+                      <div className="absolute left-0 top-0 bottom-4 text-[9px] text-gray-400 flex flex-col justify-between">
+                        <span>100%</span>
+                        <span>75%</span>
+                        <span>50%</span>
+                        <span>25%</span>
+                        <span>0</span>
+                      </div>
+                      <div className="ml-7 h-32">
+                        <svg viewBox="0 0 160 80" className="w-full h-full overflow-visible">
+                          <line x1="0" y1="0" x2="160" y2="0" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="20" x2="160" y2="20" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="40" x2="160" y2="40" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="60" x2="160" y2="60" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="80" x2="160" y2="80" stroke="#F1F5F9" strokeWidth="1" />
+                          <path d="M 0 35 C 20 8, 40 10, 60 40 C 90 75, 120 40, 160 30" fill="none" stroke="#F43F5E" strokeWidth="1.5" />
+                          <path d="M 0 45 C 30 15, 60 25, 90 45 C 120 18, 140 22, 160 15" fill="none" stroke="#2563EB" strokeWidth="1.5" />
+                          <path d="M 0 30 C 25 70, 50 65, 80 40 C 110 20, 130 50, 160 12" fill="none" stroke="#0D9488" strokeWidth="1.5" />
+                          <path d="M 0 65 C 25 35, 50 35, 80 55 C 110 40, 135 60, 160 25" fill="none" stroke="#7C3AED" strokeWidth="1.5" />
+                        </svg>
+                      </div>
+                      <div className="flex justify-between text-[8px] text-gray-400 ml-7 pt-1">
+                        <span>Jun 24</span>
+                        <span>Jun 25</span>
+                        <span>Jun 26</span>
+                        <span>Jun 27</span>
+                        <span>Jun 28</span>
+                        <span>Jun 29</span>
+                      </div>
                     </div>
                   </div>
 
@@ -1660,45 +1633,45 @@ export default function LandingPage() {
                           <th className="font-bold py-1">#</th>
                           <th className="font-bold py-1">Visibility</th>
                           <th className="font-bold py-1">Avg position</th>
-                          <th className="font-bold py-1">Net sentiment</th>
+                          <th className="font-bold py-1 text-right">Net sentiment</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-100">
+                      <tbody className="divide-y divide-gray-100 font-medium">
                         <tr>
                           <td className="py-2 flex items-center gap-1.5 font-bold text-blue-600">
                             <span>1</span>
-                            <span className="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-[10px]">b</span>
+                            <span className="w-4 h-4 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-[10px]">b.</span>
                           </td>
                           <td className="py-2 font-bold text-gray-900">99%</td>
-                          <td className="py-2 text-gray-600 font-medium">2.61</td>
-                          <td className="py-2 font-bold text-gray-900">+78</td>
+                          <td className="py-2 text-gray-600">2.61</td>
+                          <td className="py-2 text-right font-bold text-emerald-600">+78</td>
                         </tr>
                         <tr>
                           <td className="py-2 flex items-center gap-1.5 font-bold text-blue-600">
                             <span>2</span>
-                            <span className="w-4 h-4 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]">Q</span>
+                            <span className="w-4 h-4 rounded bg-sky-50 text-sky-600 flex items-center justify-center text-[10px]">🔍</span>
                           </td>
                           <td className="py-2 font-bold text-gray-900">83%</td>
-                          <td className="py-2 text-gray-600 font-medium">2.75</td>
-                          <td className="py-2 font-bold text-gray-900">+44</td>
+                          <td className="py-2 text-gray-600">2.75</td>
+                          <td className="py-2 text-right font-bold text-emerald-600">+44</td>
                         </tr>
                         <tr>
                           <td className="py-2 flex items-center gap-1.5 font-bold text-purple-600">
                             <span>3</span>
-                            <span className="w-4 h-4 rounded bg-purple-100 text-purple-700 flex items-center justify-center text-[10px]">E</span>
+                            <span className="w-4 h-4 rounded bg-indigo-50 text-indigo-700 flex items-center justify-center text-[10px]">🌐</span>
                           </td>
                           <td className="py-2 font-bold text-gray-900">80%</td>
-                          <td className="py-2 text-gray-600 font-medium">5.11</td>
-                          <td className="py-2 font-bold text-gray-900">+40</td>
+                          <td className="py-2 text-gray-600">5.11</td>
+                          <td className="py-2 text-right font-bold text-emerald-600">+40</td>
                         </tr>
                         <tr>
-                          <td className="py-2 flex items-center gap-1.5 font-bold text-emerald-600">
+                          <td className="py-2 flex items-center gap-1.5 font-bold text-teal-600">
                             <span>4</span>
-                            <span className="w-4 h-4 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px]">*</span>
+                            <span className="w-4 h-4 rounded bg-teal-50 text-teal-700 flex items-center justify-center text-[10px]">⚙️</span>
                           </td>
                           <td className="py-2 font-bold text-gray-900">72%</td>
-                          <td className="py-2 text-gray-600 font-medium">5.87</td>
-                          <td className="py-2 font-bold text-gray-900">+39</td>
+                          <td className="py-2 text-gray-600">5.87</td>
+                          <td className="py-2 text-right font-bold text-emerald-600">+39</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1706,24 +1679,30 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Right Column: Title, Explanations & CTAs */}
+              {/* Right Column: Title, Copy & CTA */}
               <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-xl sm:text-2xl lg:text-[27px] font-black text-gray-900 leading-snug">
-                  Analyze your brand&apos;s visibility across major AI search engines with SE Visible by SE Ranking — track mentions, sentiment, and share of voice, and benchmark competitors to grow your AI presence.
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
+                  Track where your brand appears across ChatGPT, Gemini, Perplexity, and AI Overviews, see how it&apos;s described, and learn which sources matter most.
                 </h3>
 
-                <ul className="space-y-3.5 text-sm text-gray-800">
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
-                    <span><strong>Comprehensive visibility analysis</strong> across 5 major AI engines</span>
+                <ul className="space-y-4 text-sm sm:text-[15px] text-gray-700">
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                    <span className="leading-relaxed">
+                      <strong className="font-semibold text-[#101423]">Brand mentions and sentiment tracking</strong> across the top 5 AI engines
+                    </span>
                   </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
-                    <span><strong>Competitive benchmarks for AI visibility</strong>, share of voice, and the gaps to close</span>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                    <span className="leading-relaxed">
+                      <strong className="font-semibold text-[#101423]">Prompt intelligence</strong> that reveals the queries your audience is using
+                    </span>
                   </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="text-[#1864FF] text-lg leading-none font-black">•</span>
-                    <span><strong>In-depth analysis</strong> of the prompts and sources behind AI answers</span>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                    <span className="leading-relaxed">
+                      <strong className="font-semibold text-[#101423]">In-depth analysis</strong> of the prompts and sources behind AI answers
+                    </span>
                   </li>
                 </ul>
 
@@ -1732,7 +1711,7 @@ export default function LandingPage() {
                     href="https://visible.seranking.com/"
                     target="_blank"
                     rel="noreferrer"
-                    className="px-8 py-3.5 bg-[#1864FF] hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-xs hover:shadow-md cursor-pointer inline-block"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-lg shadow-sm transition-colors cursor-pointer"
                   >
                     Try SE Visible
                   </a>
@@ -1741,170 +1720,170 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 2: SEO Research (Exact Screenshot 3 Match) */}
+          {/* TAB 2: SEO Research (Exact Screenshot Match) */}
           {platformTab === 'seo-research' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: SEO Research Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-                  {/* Left Column of Left Card: Organic & Paid Traffic Cards */}
+                  {/* Left Column: Organic & Paid Traffic Cards */}
                   <div className="md:col-span-5 space-y-3">
                     {/* Organic Traffic */}
-                    <div className="p-4 bg-white rounded-2xl border border-gray-200">
+                    <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
                           ORGANIC TRAFFIC
                         </span>
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px]">
+                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">
                           🍃
                         </div>
                       </div>
                       <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-2xl font-black text-gray-900">11.3M</span>
+                        <span className="text-2xl font-bold text-gray-900">11.3M</span>
                         <span className="text-xs text-emerald-600 font-bold">▲ 215.9K</span>
                       </div>
                       <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
                     </div>
 
                     {/* Paid Traffic */}
-                    <div className="p-4 bg-white rounded-2xl border border-gray-200">
+                    <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs">
                       <div className="flex items-center justify-between">
                         <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
                           PAID TRAFFIC
                         </span>
-                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-bold">
+                        <div className="w-6 h-6 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold">
                           $
                         </div>
                       </div>
                       <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-2xl font-black text-gray-900">12.9K</span>
+                        <span className="text-2xl font-bold text-gray-900">12.9K</span>
                         <span className="text-xs text-emerald-600 font-bold">▲ 41.7K</span>
                       </div>
                       <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
                     </div>
                   </div>
 
-                  {/* Right Column of Left Card: Traffic Chart with Google Update Badge */}
-                  <div className="md:col-span-7 p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
+                  {/* Right Column: Traffic Chart with Google Update Badge */}
+                  <div className="md:col-span-7 p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
                     <div className="flex items-center justify-between border-b border-gray-100 pb-2 text-xs">
                       <span className="font-bold text-[#1864FF] border-b-2 border-[#1864FF] pb-1.5 cursor-pointer">
                         TOTAL TRAFFIC
                       </span>
-                      <span className="font-bold text-gray-500 hover:text-gray-900 cursor-pointer">KEYWORDS</span>
-                      <span className="font-bold text-gray-500 hover:text-gray-900 cursor-pointer">BACKLINKS</span>
+                      <span className="font-semibold text-gray-500 hover:text-gray-900 cursor-pointer">KEYWORDS</span>
+                      <span className="font-semibold text-gray-500 hover:text-gray-900 cursor-pointer">BACKLINKS</span>
                     </div>
 
                     <div className="flex items-center justify-end gap-1.5 text-[10px] font-bold text-gray-400">
-                      <span className="hover:text-gray-900 cursor-pointer">6M</span>
+                      <span className="text-[#1864FF] border-b border-[#1864FF] cursor-pointer">6M</span>
                       <span className="hover:text-gray-900 cursor-pointer">12M</span>
                       <span className="hover:text-gray-900 cursor-pointer">18M</span>
                       <span className="hover:text-gray-900 cursor-pointer">24M</span>
                       <span className="hover:text-gray-900 cursor-pointer">30M</span>
                       <span className="hover:text-gray-900 cursor-pointer">36M</span>
-                      <span className="text-[#1864FF] bg-blue-50 px-1.5 py-0.5 rounded cursor-pointer">ALL</span>
+                      <span className="hover:text-gray-900 cursor-pointer">ALL</span>
                     </div>
 
-                    <div className="h-36 w-full relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={[
-                            { month: 'Mar', organic: 38000, paid: 52000 },
-                            { month: 'Apr', organic: 52000, paid: 46000 },
-                            { month: 'May', organic: 45000, paid: 72000 },
-                            { month: 'Jun', organic: 62000, paid: 38000 },
-                            { month: 'Jul', organic: 58000, paid: 45000 },
-                            { month: 'Aug', organic: 68000, paid: 50000 },
-                            { month: 'Sep', organic: 82000, paid: 64000 },
-                          ]}
-                        >
-                          <defs>
-                            <linearGradient id="orgGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.25} />
-                              <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
-                            </linearGradient>
-                            <linearGradient id="paidGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#1864FF" stopOpacity={0.25} />
-                              <stop offset="95%" stopColor="#1864FF" stopOpacity={0} />
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                          <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                          <YAxis tick={{ fontSize: 10 }} domain={[0, 100000]} ticks={[0, 25000, 50000, 75000, 100000]} />
-                          <Area type="monotone" dataKey="organic" stroke="#10B981" strokeWidth={2} fill="url(#orgGrad)" />
-                          <Area type="monotone" dataKey="paid" stroke="#1864FF" strokeWidth={2} fill="url(#paidGrad)" />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-1 border-t border-gray-100">
-                      <div className="flex items-center gap-4 text-xs font-semibold">
-                        <span className="flex items-center gap-1.5 text-gray-700">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500" /> Organic
-                        </span>
-                        <span className="flex items-center gap-1.5 text-gray-700">
-                          <span className="w-2 h-2 rounded-full bg-blue-600" /> Paid
-                        </span>
+                    <div className="h-32 w-full relative">
+                      <div className="absolute left-0 top-0 bottom-4 text-[9px] text-gray-400 flex flex-col justify-between">
+                        <span>100K</span>
+                        <span>75K</span>
+                        <span>50K</span>
+                        <span>25K</span>
+                        <span>0</span>
                       </div>
-                      <button type="button" className="p-1 rounded bg-gray-50 text-gray-500 hover:bg-gray-100">
-                        <ChevronRight className="w-3.5 h-3.5 rotate-[-90deg]" />
+                      <div className="ml-7 h-28">
+                        <svg viewBox="0 0 200 80" className="w-full h-full overflow-visible">
+                          <line x1="0" y1="0" x2="200" y2="0" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="20" x2="200" y2="20" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="40" x2="200" y2="40" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="60" x2="200" y2="60" stroke="#F1F5F9" strokeWidth="1" />
+
+                          {/* Organic Green Curve & Area */}
+                          <path d="M 0 55 C 30 45, 60 50, 95 30 C 130 5, 160 35, 200 15 L 200 80 L 0 80 Z" fill="#10B981" fillOpacity="0.1" />
+                          <path d="M 0 55 C 30 45, 60 50, 95 30 C 130 5, 160 35, 200 15" fill="none" stroke="#10B981" strokeWidth="2" />
+                          <circle cx="95" cy="30" r="2.5" fill="#10B981" />
+                          <circle cx="200" cy="15" r="2.5" fill="#10B981" />
+
+                          {/* Paid Blue Curve */}
+                          <path d="M 0 25 C 30 40, 60 15, 95 38 C 130 65, 165 60, 200 35" fill="none" stroke="#2563EB" strokeWidth="2" />
+                          <circle cx="0" cy="25" r="2.5" fill="#2563EB" />
+                          <circle cx="60" cy="15" r="2.5" fill="#2563EB" />
+                          <circle cx="95" cy="38" r="2.5" fill="#2563EB" />
+                          <circle cx="200" cy="35" r="2.5" fill="#2563EB" />
+                        </svg>
+                      </div>
+                      <div className="flex justify-between text-[8px] text-gray-400 ml-7 pt-1">
+                        <span>Mar</span>
+                        <span>Apr</span>
+                        <span>May</span>
+                        <span className="flex items-center gap-0.5 font-bold text-gray-800">
+                          Jun <span className="w-2.5 h-2.5 rounded-full bg-blue-600 text-white text-[6px] inline-flex items-center justify-center">G</span>
+                        </span>
+                        <span>Jul</span>
+                        <span>Aug</span>
+                        <span>Sep</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-gray-600 pt-2 border-t border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Organic</span>
+                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-600" /> Paid</span>
+                      </div>
+                      <button type="button" className="w-5 h-5 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-xs">
+                        ↑
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Wide Tile: Referring Domains, Backlinks, Domain Trust */}
-                <div className="p-4 bg-white rounded-2xl border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                {/* Bottom Row: Referring Domains, Backlinks, Domain/Page Trust */}
+                <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                   <div>
-                    <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase flex items-center gap-1">
-                      REFFERING DOMAINS <span className="text-[10px] text-gray-400">ⓘ</span>
-                    </span>
-                    <span className="text-xl font-black text-gray-900 block mt-1">962.8K</span>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 domains</span>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">REFERRING DOMAINS</span>
+                    <span className="text-2xl font-bold text-gray-900 block mt-1">962.8K</span>
+                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 domains ⓘ</span>
                   </div>
-
-                  <div>
-                    <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase flex items-center gap-1">
-                      BACKLINKS <span className="text-[10px] text-gray-400">ⓘ</span>
-                    </span>
-                    <span className="text-xl font-black text-gray-900 block mt-1">13.9M</span>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 backlinks</span>
+                  <div className="border-l border-gray-100 pl-4">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">BACKLINKS</span>
+                    <span className="text-2xl font-bold text-gray-900 block mt-1">13.9M</span>
+                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 backlinks ⓘ</span>
                   </div>
-
-                  <div className="space-y-1.5 border-l border-gray-100 pl-4">
+                  <div className="border-l border-gray-100 pl-4 space-y-1 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-600 uppercase text-[10px]">DOMAIN TRUST</span>
-                      <span className="font-black text-gray-900 text-sm">96</span>
+                      <span className="font-bold text-gray-700">DOMAIN TRUST</span>
+                      <span className="text-lg font-bold text-gray-900">96</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-600 uppercase text-[10px]">PAGE TRUST</span>
-                      <span className="font-black text-gray-900 text-sm">72</span>
+                    <div className="border-t border-gray-100 pt-1 flex items-center justify-between">
+                      <span className="font-bold text-gray-700">PAGE TRUST</span>
+                      <span className="text-lg font-bold text-gray-900">72</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Title, Links & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
-                  Build winning SEO strategies with unique traffic, keyword, and backlink datasets powered by advanced AI and ML technologies!
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
+                  Get the most accurate keyword and competitor data to uncover high-impact growth opportunities and outrank your rivals
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
-                  <Link href="/research/keyword-research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
-                    <span>Keyword Suggestion Tool</span>
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
+                  <Link href="/research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Competitive Research</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
-                  <Link href="/research/competitive-research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
-                    <span>Competitive Research</span>
+                  <Link href="/research" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Keyword Research</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
                   <Link href="/backlinks" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Backlink Checker</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
-                  <Link href="/research/competitive-research" className="flex items-center gap-2 text-[#1864FF] underline underline-offset-4 cursor-pointer group">
+                  <Link href="/competitors" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>SERP Checker</span>
-                    <span className="group-hover:translate-x-1 transition-transform no-underline">→</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
                 </div>
 
@@ -1920,70 +1899,68 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 3: SEO Monitoring (Exact Screenshot 4 Match) */}
+          {/* TAB 3: SEO Monitoring (Exact Screenshot Match) */}
           {platformTab === 'seo-monitoring' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: Monitoring Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
-                {/* Top Row: 3 KPI Cards */}
+              {/* Left Column: 3 Top Sparkline Cards + 3 Bottom Cards */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                {/* Top Row: 3 Metric Cards with Blue Sparkline Curves */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Average Position */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">AVERAGE POSITION</span>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-black text-gray-900">34</span>
-                      <span className="text-xs text-emerald-600 font-bold">- 51</span>
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-1">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">AVERAGE POSITION</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-gray-900">34</span>
+                      <span className="text-xs text-emerald-600 font-bold">▲ 51</span>
                     </div>
-                    {/* Blue wave sparkline */}
-                    <div className="h-7 w-full mt-2">
-                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
-                        <path d="M0 20 Q 20 5, 40 18 T 80 8 T 100 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    <div className="h-6 w-full pt-1">
+                      <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#2563EB] stroke-2">
+                        <path d="M 0 18 Q 15 5, 30 14 T 60 8 T 85 16 T 100 6" strokeLinecap="round" />
                       </svg>
                     </div>
                   </div>
 
-                  {/* Traffic Forecast */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">TRAFIC FORECAST</span>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-black text-gray-900">520</span>
-                      <span className="text-xs text-pink-600 font-bold">- 245</span>
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-1">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">TRAFIC FORECAST</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-gray-900">520</span>
+                      <span className="text-xs text-rose-500 font-bold">▼ 245</span>
                     </div>
-                    <div className="h-7 w-full mt-2">
-                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
-                        <path d="M0 15 Q 30 22, 60 10 T 100 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    <div className="h-6 w-full pt-1">
+                      <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#2563EB] stroke-2">
+                        <path d="M 0 16 Q 20 8, 40 18 T 70 12 T 100 8" strokeLinecap="round" />
                       </svg>
                     </div>
                   </div>
 
-                  {/* Search Visibility */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">SEARCH VISIBILITY</span>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-black text-gray-900">0.66</span>
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-1">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">SEARCH VISIBILITY</span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-gray-900">0.66</span>
                       <span className="text-xs text-emerald-600 font-bold">▲ 0.34</span>
                     </div>
-                    <div className="h-7 w-full mt-2">
-                      <svg viewBox="0 0 100 25" className="w-full h-full text-blue-500" fill="none">
-                        <path d="M0 22 Q 25 8, 50 18 T 100 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    <div className="h-6 w-full pt-1">
+                      <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#2563EB] stroke-2">
+                        <path d="M 0 16 Q 15 6, 30 18 T 60 10 T 85 16 T 100 4" strokeLinecap="round" />
                       </svg>
                     </div>
                   </div>
                 </div>
 
-                {/* Bottom Row: Health Score Semi-Gauge, Backlinks Chart, Page Quality Score Polar */}
+                {/* Bottom Row: Health Score, Backlinks Area, Page Quality Score Rose Chart */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Health Score Gauge */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between text-center">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block text-left">HEALTH SCORE</span>
-                    <div className="py-2 flex flex-col items-center justify-center">
-                      <div className="relative w-28 h-16 flex items-end justify-center">
-                        <svg viewBox="0 0 100 60" className="w-28 h-16">
-                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#E2E8F0" strokeWidth="10" strokeLinecap="round" />
+                  {/* Health Score Speedometer */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs flex flex-col justify-between text-center">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider text-left block">
+                      HEALTH SCORE
+                    </span>
+                    <div className="py-2 flex items-center justify-center">
+                      <div className="relative w-28 h-16 overflow-hidden">
+                        <svg viewBox="0 0 100 55" className="w-full h-full">
+                          <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#E5E7EB" strokeWidth="10" strokeLinecap="round" />
                           <path d="M 10 50 A 40 40 0 0 1 78 22" fill="none" stroke="#10B981" strokeWidth="10" strokeLinecap="round" />
                         </svg>
                         <div className="absolute inset-x-0 bottom-0 text-center leading-none">
-                          <span className="text-2xl font-black text-gray-900 block">87</span>
+                          <span className="text-2xl font-bold text-gray-900 block">87</span>
                           <span className="text-[10px] text-gray-500 font-bold">Strong</span>
                         </div>
                       </div>
@@ -2005,52 +1982,81 @@ export default function LandingPage() {
                   </div>
 
                   {/* Backlinks Trend Area */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between">
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-gray-500 uppercase">BACKLINKS</span>
-                        <span className="text-[9px] text-gray-400 font-bold">3M 6M 12M</span>
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="font-bold text-gray-500 uppercase tracking-wider">BACKLINKS</span>
+                        <div className="flex items-center gap-1 font-bold text-gray-400">
+                          <span className="text-[#1864FF] border-b border-[#1864FF]">3M</span>
+                          <span>6M</span>
+                          <span>12M</span>
+                        </div>
                       </div>
-                      <div className="h-28 w-full mt-2">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart
-                            data={[
-                              { period: 'Apr 23', links: 20 },
-                              { period: 'May 24', links: 30 },
-                              { period: 'Jun 25', links: 10 },
-                            ]}
-                          >
-                            <defs>
-                              <linearGradient id="blGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#1864FF" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#1864FF" stopOpacity={0} />
-                              </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="#F1F5F9" />
-                            <XAxis dataKey="period" tick={{ fontSize: 9 }} />
-                            <YAxis tick={{ fontSize: 9 }} domain={[0, 40]} ticks={[10, 20, 30]} />
-                            <Area type="monotone" dataKey="links" stroke="#1864FF" strokeWidth={2} fill="url(#blGrad)" />
-                          </AreaChart>
-                        </ResponsiveContainer>
+                      <div className="h-24 w-full mt-2 relative">
+                        <div className="absolute left-0 top-0 bottom-3 text-[8px] text-gray-400 flex flex-col justify-between">
+                          <span>30</span>
+                          <span>20</span>
+                          <span>10</span>
+                        </div>
+                        <div className="ml-5 h-20">
+                          <svg viewBox="0 0 100 60" className="w-full h-full overflow-visible">
+                            <line x1="0" y1="10" x2="100" y2="10" stroke="#F1F5F9" strokeWidth="1" />
+                            <line x1="0" y1="35" x2="100" y2="35" stroke="#F1F5F9" strokeWidth="1" />
+                            <line x1="0" y1="60" x2="100" y2="60" stroke="#F1F5F9" strokeWidth="1" />
+                            <path d="M 0 45 C 25 35, 45 40, 65 15 C 80 18, 90 35, 100 20 L 100 60 L 0 60 Z" fill="#2563EB" fillOpacity="0.15" />
+                            <path d="M 0 45 C 25 35, 45 40, 65 15 C 80 18, 90 35, 100 20" fill="none" stroke="#2563EB" strokeWidth="2" />
+                            <circle cx="0" cy="45" r="2" fill="#2563EB" />
+                            <circle cx="25" cy="35" r="2" fill="#2563EB" />
+                            <circle cx="45" cy="40" r="2" fill="#2563EB" />
+                            <circle cx="65" cy="15" r="2" fill="#2563EB" />
+                            <circle cx="100" cy="20" r="2" fill="#2563EB" />
+                          </svg>
+                        </div>
+                        <div className="flex justify-between text-[8px] text-gray-400 ml-5">
+                          <span>Apr 23</span>
+                          <span>May 24</span>
+                          <span>Jun 25</span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Page Quality Score Polar Radar */}
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 flex flex-col justify-between">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">PAGE QUALITY SCORE</span>
+                  {/* Page Quality Score Rose Chart */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs flex flex-col justify-between">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">
+                      PAGE QUALITY SCORE
+                    </span>
                     <div className="py-2 flex items-center justify-center relative">
-                      <div className="w-24 h-24 rounded-full border-4 border-dashed border-gray-100 flex items-center justify-center relative">
-                        {/* Colorful segmented petals */}
+                      <div className="w-24 h-24 rounded-full border border-dashed border-gray-200 flex items-center justify-center relative">
+                        {/* Segmented Petals */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-20 h-20 rounded-full border-4 border-emerald-500 border-t-purple-600 border-r-blue-600 border-b-gray-800" />
+                          <svg viewBox="0 0 100 100" className="w-full h-full">
+                            {/* Segment 1: Dark green top */}
+                            <path d="M 50 50 L 50 15 A 35 35 0 0 1 75 25 Z" fill="#14532D" />
+                            {/* Segment 2: Light lime green */}
+                            <path d="M 50 50 L 75 25 A 35 35 0 0 1 85 50 Z" fill="#BBF7D0" />
+                            {/* Segment 3: Light gray blue */}
+                            <path d="M 50 50 L 85 50 A 35 35 0 0 1 75 75 Z" fill="#CBD5E1" />
+                            {/* Segment 4: Vibrant purple */}
+                            <path d="M 50 50 L 75 75 A 35 35 0 0 1 50 85 Z" fill="#A855F7" />
+                            {/* Segment 5: Dark violet */}
+                            <path d="M 50 50 L 50 85 A 35 35 0 0 1 35 80 Z" fill="#3B0764" />
+                            {/* Segment 6: Light sky */}
+                            <path d="M 50 50 L 35 80 A 35 35 0 0 1 20 60 Z" fill="#BAE6FD" />
+                            {/* Segment 7: Blue */}
+                            <path d="M 50 50 L 20 60 A 35 35 0 0 1 20 40 Z" fill="#2563EB" />
+                            {/* Segment 8: Mint */}
+                            <path d="M 50 50 L 20 40 A 35 35 0 0 1 50 15 Z" fill="#86EFAC" />
+                            {/* Center circle */}
+                            <circle cx="50" cy="50" r="16" fill="white" />
+                          </svg>
                         </div>
-                        <span className="text-xl font-black text-gray-900 relative z-10">78</span>
+                        <span className="text-xl font-bold text-gray-900 relative z-10">78</span>
                       </div>
                     </div>
-                    <div className="text-[9px] text-gray-400 flex flex-wrap justify-between pt-1 border-t border-gray-100 font-semibold">
-                      <span>Usability</span>
-                      <span>Indexing</span>
+                    <div className="text-[8px] text-gray-400 flex flex-wrap justify-between pt-1 border-t border-gray-100 font-medium">
+                      <span>External links</span>
+                      <span>Page UX</span>
                       <span>Domain</span>
                     </div>
                   </div>
@@ -2058,12 +2064,12 @@ export default function LandingPage() {
               </div>
 
               {/* Right Column: Title, Links & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
                   Track your SEO progress and make timely adjustments to your strategy based on actionable insights
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
                   <Link href="/rankings" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Rank Tracker</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -2094,14 +2100,14 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 4: Content Marketing (Exact Screenshot 5 Match) */}
+          {/* TAB 4: Content Marketing (Exact Screenshot Match) */}
           {platformTab === 'content-marketing' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Content Editor Mockup Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs">
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
                   {/* Left Column: Rich Text Document View */}
-                  <div className="md:col-span-7 bg-white rounded-2xl border border-gray-200 p-4 space-y-3">
+                  <div className="md:col-span-7 bg-white rounded-2xl border border-gray-200 p-4 space-y-3 shadow-2xs">
                     {/* Editor Toolbar */}
                     <div className="flex items-center gap-2 text-gray-600 text-xs border-b border-gray-100 pb-2">
                       <button type="button" className="p-1 hover:bg-gray-100 rounded">↶</button>
@@ -2109,7 +2115,7 @@ export default function LandingPage() {
                       <span className="text-gray-300">|</span>
                       <span className="font-semibold text-gray-800">Paragraph ▾</span>
                       <span className="text-gray-300">|</span>
-                      <span className="font-black text-gray-900">B</span>
+                      <span className="font-bold text-gray-900">B</span>
                       <span className="italic font-bold text-gray-800">I</span>
                       <span className="underline font-bold text-gray-800">U</span>
                       <span className="line-through text-gray-500">S</span>
@@ -2122,7 +2128,7 @@ export default function LandingPage() {
                         <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-100 text-gray-500 rounded uppercase shrink-0 mt-0.5">
                           H1
                         </span>
-                        <h4 className="font-black text-gray-900 text-sm leading-tight">
+                        <h4 className="font-bold text-gray-900 text-sm leading-tight">
                           Scientifically Tested Search Engine Optimization
                         </h4>
                       </div>
@@ -2149,7 +2155,7 @@ export default function LandingPage() {
                         <span className="font-bold text-blue-600 text-[11px]">Plain text</span>
                       </div>
                       <div className="flex items-baseline gap-2 mt-1">
-                        <span className="text-xl font-black text-gray-900">62</span>
+                        <span className="text-xl font-bold text-gray-900">62</span>
                         <span className="text-xs text-emerald-600 font-bold">▲ 1</span>
                       </div>
                       <div className="w-full bg-gray-100 h-1.5 rounded-full mt-1.5 overflow-hidden">
@@ -2165,9 +2171,9 @@ export default function LandingPage() {
                   {/* Right Column: Content Score, Brief Progress, Quality Score Radar */}
                   <div className="md:col-span-5 space-y-3">
                     {/* Content Score Donut */}
-                    <div className="p-3 bg-white rounded-2xl border border-gray-200 flex items-center gap-3">
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 shadow-2xs flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full border-4 border-emerald-500 flex items-center justify-center shrink-0">
-                        <span className="text-base font-black text-gray-900">80</span>
+                        <span className="text-base font-bold text-gray-900">80</span>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold text-gray-500 uppercase block">CONTENT SCORE</span>
@@ -2178,7 +2184,7 @@ export default function LandingPage() {
                     </div>
 
                     {/* Brief Progress */}
-                    <div className="p-3 bg-white rounded-2xl border border-gray-200 space-y-1.5 text-xs">
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-1.5 text-xs">
                       <span className="text-[10px] font-bold text-gray-500 uppercase block">BRIEF PROGRESS</span>
                       <div className="flex items-center gap-3 text-[11px] font-semibold text-gray-700">
                         <span className="px-1.5 py-0.5 bg-emerald-100 text-emerald-800 font-bold rounded text-[10px]">
@@ -2190,38 +2196,38 @@ export default function LandingPage() {
                     </div>
 
                     {/* Quality Score Radar */}
-                    <div className="p-3 bg-white rounded-2xl border border-gray-200 text-center">
+                    <div className="p-3 bg-white rounded-2xl border border-gray-200 shadow-2xs text-center">
                       <span className="text-[10px] font-bold text-gray-500 uppercase block text-left">QUALITY SCORE</span>
                       <div className="py-1 flex items-center justify-center">
                         <div className="relative w-20 h-20 rounded-full border border-dashed border-gray-200 flex items-center justify-center">
-                          <span className="text-lg font-black text-gray-900">72</span>
+                          <span className="text-lg font-bold text-gray-900">72</span>
                         </div>
                       </div>
                       <div className="flex justify-between text-[9px] text-gray-400 font-medium">
-                        <span>Grammar</span>
-                        <span>Punctuation</span>
-                        <span>Stop words</span>
+                        <span className="text-emerald-600">● Grammar</span>
+                        <span className="text-amber-500">● Punctuation</span>
+                        <span className="text-emerald-600">● Stop words</span>
                       </div>
                     </div>
 
                     {/* One Click Article Generation */}
-                    <div className="p-2.5 bg-white rounded-xl border border-gray-200 flex items-center justify-between text-xs font-bold text-gray-800">
+                    <div className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs flex items-center justify-between text-xs font-bold text-gray-800">
                       <span>One click article generation</span>
-                      <button type="button" className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center text-xs">
+                      <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xs shadow-xs">
                         ✦
-                      </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Right Column: Title, Links & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
                   Create new content faster and get AI-powered optimization tips to help your existing pages rock the SERP
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
                   <Link href="/content-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Content Marketing Tool</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -2248,77 +2254,221 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 5: Local Marketing */}
+          {/* TAB 5: Local Marketing (Exact Screenshot Match: Map + Business Listings + Reviews + Avg Pos) */}
           {platformTab === 'local-marketing' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: Local Marketing Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">LOCAL RANKINGS</span>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-2xl font-black text-gray-900">86%</span>
-                      <span className="text-xs text-emerald-600 font-bold">▲ 8.2%</span>
+              {/* Left Column: Local Marketing Detailed Mockup Card */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+                {/* Top Row: Map (Left) + Business Listings (Right) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Map Card */}
+                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-2">
+                    {/* Filters Row */}
+                    <div className="flex items-center gap-1.5 text-[10px]">
+                      <span className="border border-gray-200 px-2 py-1 rounded-md text-gray-700 font-medium bg-white">
+                        All keywords ▾
+                      </span>
+                      <span className="bg-[#101423] text-white px-2 py-1 rounded-md flex items-center gap-1 font-semibold text-[9px]">
+                        <span className="w-3.5 h-3.5 rounded-full bg-gray-700 flex items-center justify-center text-[8px]">49</span>
+                        4517 Wash... ▾
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-400 block mt-1">Local 3-Pack Presence</span>
+
+                    {/* Geo-Grid Map Simulation */}
+                    <div className="h-44 w-full bg-[#EBF3ED] rounded-xl relative overflow-hidden border border-emerald-100 flex items-center justify-center">
+                      {/* Subtle map road grid */}
+                      <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 200 150">
+                        <line x1="20" y1="0" x2="20" y2="150" stroke="#CBD5E1" strokeWidth="1.5" />
+                        <line x1="80" y1="0" x2="80" y2="150" stroke="#CBD5E1" strokeWidth="2" />
+                        <line x1="140" y1="0" x2="140" y2="150" stroke="#CBD5E1" strokeWidth="1.5" />
+                        <line x1="0" y1="40" x2="200" y2="40" stroke="#CBD5E1" strokeWidth="1.5" />
+                        <line x1="0" y1="90" x2="200" y2="90" stroke="#CBD5E1" strokeWidth="2" />
+                      </svg>
+
+                      {/* Pins Matrix matching screenshot */}
+                      <div className="relative z-10 grid grid-cols-4 gap-2 text-[8px] font-bold text-white text-center">
+                        <span className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shadow-xs">4.3</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-600 ring-2 ring-white flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center shadow-xs text-[7px]">21+</span>
+
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shadow-xs">1.1</span>
+                        <span className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center shadow-xs">7.5</span>
+                      </div>
+
+                      {/* Red Target Pin */}
+                      <div className="absolute bottom-4 left-1/3 flex flex-col items-center">
+                        <span className="w-3.5 h-3.5 bg-rose-600 rounded-full border-2 border-white shadow-md animate-pulse" />
+                        <span className="text-[7px] font-bold text-gray-700 bg-white/90 px-1 rounded shadow-2xs mt-0.5">Woodinville</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">REVIEWS &amp; RATING</span>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl font-black text-gray-900">4.8</span>
-                      <span className="text-amber-500 font-bold">★</span>
-                    </div>
-                    <span className="text-[10px] text-gray-400 block mt-1">1,420 total reviews</span>
-                  </div>
-
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">NAP CONSISTENCY</span>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <span className="text-2xl font-black text-gray-900">98%</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-600 font-bold block mt-1">57 Directories synced</span>
+                  {/* Business Listings Card */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                    <span className="text-xs font-bold text-gray-900 block pb-1 border-b border-gray-100">
+                      Business Listings
+                    </span>
+                    <table className="w-full text-left text-[11px]">
+                      <thead>
+                        <tr className="text-[9px] text-gray-400 border-b border-gray-100 pb-1">
+                          <th className="font-bold py-1">DIRECTORY</th>
+                          <th className="font-bold py-1">PRESENCE</th>
+                          <th className="font-bold py-1 text-right">ISSUES</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 font-medium">
+                        <tr>
+                          <td className="py-2.5 flex items-center gap-1.5 text-gray-800">
+                            <span className="w-4 h-4 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">🏪</span>
+                            Google
+                          </td>
+                          <td className="py-2.5 text-emerald-600 font-semibold">Listed</td>
+                          <td className="py-2.5 text-right text-gray-400">—</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 flex items-center gap-1.5 text-gray-800">
+                            <span className="w-4 h-4 rounded bg-blue-50 text-blue-700 flex items-center justify-center text-[10px] font-black">f</span>
+                            Facebook
+                          </td>
+                          <td className="py-2.5 text-emerald-600 font-semibold">Listed</td>
+                          <td className="py-2.5 text-right text-rose-500 font-bold flex items-center justify-end gap-1">
+                            <span>📍</span> <span>📞</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 flex items-center gap-1.5 text-gray-800">
+                            <span className="w-4 h-4 rounded bg-pink-100 text-pink-600 flex items-center justify-center text-[10px]">F</span>
+                            Foursquare
+                          </td>
+                          <td className="py-2.5 text-gray-900 font-semibold">Not Listed</td>
+                          <td className="py-2.5 text-right text-gray-400">—</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
-                <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-gray-900 pb-1 border-b border-gray-100">
-                    <span>Geo-Grid Google Maps Rankings</span>
-                    <span className="text-emerald-600 font-bold text-[10px]">9x9 Grid Active</span>
+                {/* Bottom Row: Reviews (Left) + Top 1-3 & 4-6 (Center) + Overall Avg Position (Right) */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+                  {/* Reviews Card */}
+                  <div className="md:col-span-5 p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-2">
+                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">REVIEWS</span>
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <span className="text-[9px] text-gray-400 uppercase font-semibold block">OVERVIEW</span>
+                        <span className="text-3xl font-bold text-gray-900 block leading-tight">4.8</span>
+                        <div className="flex text-amber-500 text-xs">★★★★★</div>
+                        <span className="text-[8px] text-gray-400 font-mono mt-0.5 block">301 REVIEWS</span>
+                      </div>
+                      <div className="flex-1 space-y-1 text-[8.5px] font-semibold text-gray-600">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="w-12 text-gray-500">POSITIVE</span>
+                          <div className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-emerald-500 h-full w-[80%]" />
+                          </div>
+                          <span className="text-gray-900 w-5 text-right">143</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="w-12 text-gray-500">NEUTRAL</span>
+                          <div className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-amber-500 h-full w-[45%]" />
+                          </div>
+                          <span className="text-gray-900 w-5 text-right">75</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="w-12 text-gray-500">NEGATIVE</span>
+                          <div className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-rose-500 h-full w-[15%]" />
+                          </div>
+                          <span className="text-gray-900 w-5 text-right">21</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="w-12 text-gray-500">NOT RATED</span>
+                          <div className="flex-1 bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                            <div className="bg-blue-300 h-full w-[35%]" />
+                          </div>
+                          <span className="text-gray-900 w-5 text-right">62</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-5 gap-2 text-center text-xs font-bold py-2">
-                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
-                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
-                    <span className="p-2 rounded-lg bg-emerald-100 text-emerald-800">#1</span>
-                    <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">#2</span>
-                    <span className="p-2 rounded-lg bg-emerald-50 text-emerald-700">#2</span>
+
+                  {/* Middle Column: Top 1-3 & Top 4-6 */}
+                  <div className="md:col-span-3 space-y-2">
+                    <div className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs">
+                      <span className="text-[9px] font-bold text-gray-500 uppercase block">TOP 1-3</span>
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        <span className="text-xl font-bold text-gray-900">49</span>
+                        <span className="text-[10px] text-emerald-600 font-bold">▲ 10</span>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-white rounded-xl border border-gray-200 shadow-2xs">
+                      <span className="text-[9px] font-bold text-gray-500 uppercase block">TOP 4-6</span>
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        <span className="text-xl font-bold text-gray-900">86</span>
+                        <span className="text-[10px] text-emerald-600 font-bold">▲ 32</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Overall Avg Position */}
+                  <div className="md:col-span-4 p-3 bg-white rounded-2xl border border-gray-200 shadow-2xs flex flex-col justify-between">
+                    <div>
+                      <span className="text-[9px] font-bold text-gray-500 uppercase block">OVERALL AVG. POSITION</span>
+                      <div className="flex items-center gap-1.5 text-[9px] font-bold text-gray-400 mt-1">
+                        <span className="text-[#1864FF] border-b border-[#1864FF]">3M</span>
+                        <span>6M</span>
+                        <span>12M</span>
+                      </div>
+                      <div className="h-16 w-full mt-1 relative">
+                        <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
+                          <line x1="0" y1="10" x2="100" y2="10" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="30" x2="100" y2="30" stroke="#F1F5F9" strokeWidth="1" />
+                          <path d="M 0 35 C 25 30, 45 35, 65 20 C 80 15, 90 10, 100 12 L 100 50 L 0 50 Z" fill="#2563EB" fillOpacity="0.15" />
+                          <path d="M 0 35 C 25 30, 45 35, 65 20 C 80 15, 90 10, 100 12" fill="none" stroke="#2563EB" strokeWidth="2" />
+                          <circle cx="0" cy="35" r="1.5" fill="#2563EB" />
+                          <circle cx="25" cy="30" r="1.5" fill="#2563EB" />
+                          <circle cx="65" cy="20" r="1.5" fill="#2563EB" />
+                          <circle cx="100" cy="12" r="1.5" fill="#2563EB" />
+                        </svg>
+                      </div>
+                      <div className="flex justify-between text-[7px] text-gray-400 pt-0.5">
+                        <span>Apr 23</span>
+                        <span>May 24</span>
+                        <span>Jun 25</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Title, Links & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
-                  Dominate Google Maps and local search for all your business locations with complete local SEO tools
+              {/* Right Column: Title, Exact User Links & Button */}
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
+                  Take control of your online local presence and put your business on the map, attracting clients right to your doorstep
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
-                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
+                  <a href="https://seranking.com/local-marketing-tool.html" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Local Marketing Tool</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
-                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
-                    <span>Google Business Profile Optimization</span>
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
-                  <Link href="/rankings" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                  </a>
+                  <a href="https://seranking.com/local-rank-tracker.html" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Local Rank Tracker</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
-                  <Link href="/local-marketing" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
-                    <span>Listing &amp; NAP Management</span>
+                  </a>
+                  <a href="https://online.seranking.com/admin.dashboard.html" target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
+                    <span>Projects</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </Link>
+                  </a>
                 </div>
 
                 <div className="pt-2">
@@ -2333,127 +2483,67 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 6: Agency Success Kit (Exact Screenshot 6 Match) */}
+          {/* TAB 6: Agency Success Kit (Exact Screenshot Match: My Logo + SEO Report + Circular Wheel) */}
           {platformTab === 'agency-kit' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Agency Kit Card */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
-                {/* Top Row: Report Setup & Gauge */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Left: Schedule & Format Options */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3 text-xs">
-                    <div>
-                      <span className="text-[11px] font-bold text-gray-500 uppercase block mb-1.5">Export format:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-1 bg-red-50 text-red-700 font-bold rounded border border-red-100">PDF</span>
-                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">XLS</span>
-                        <span className="px-2.5 py-1 bg-blue-50 text-blue-700 font-bold rounded border border-blue-100">HTML</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="font-semibold text-gray-700">Shedule report</span>
-                      <div className="w-8 h-4.5 bg-cyan-400 rounded-full relative cursor-pointer">
-                        <div className="w-3.5 h-3.5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-xs" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 pt-1">
-                      <div className="flex items-center justify-between text-gray-600">
-                        <span>Set shedule:</span>
-                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Daily ▾</span>
-                      </div>
-                      <div className="flex items-center justify-between text-gray-600">
-                        <span>Set time:</span>
-                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">Not selected ▾</span>
-                      </div>
-                      <div className="flex items-center justify-between text-gray-600">
-                        <span>Timezone:</span>
-                        <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">GMT +1:00 ▾</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: SEO Report Preview */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 text-center flex flex-col justify-between">
-                    <div className="flex justify-end">
-                      <span className="text-[10px] font-bold px-2 py-1 bg-gray-900 text-white rounded-md cursor-pointer">
-                        + My Logo
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-base font-black text-gray-900 block">SEO Report</span>
-                      <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">JAN - 19   JAN - 25</span>
-                    </div>
-                    <div className="py-2 flex justify-center">
-                      <div className="w-28 h-14 overflow-hidden relative">
-                        <svg viewBox="0 0 100 50" className="w-28 h-14">
-                          <path d="M 10 50 A 40 40 0 0 1 35 15" fill="none" stroke="#00B8D9" strokeWidth="16" />
-                          <path d="M 35 15 A 40 40 0 0 1 65 15" fill="none" stroke="#FF5630" strokeWidth="16" />
-                          <path d="M 65 15 A 40 40 0 0 1 90 50" fill="none" stroke="#0052CC" strokeWidth="16" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center text-center">
+                {/* My Logo pill badge */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#101423] text-white rounded-md text-xs font-semibold shadow-xs mb-4">
+                  <span className="text-xs">✱</span>
+                  <span>My Logo</span>
                 </div>
 
-                {/* Middle Bar: Account Type (Owner, Client, Manager) */}
-                <div className="p-3 bg-white rounded-2xl border border-gray-200 flex items-center justify-between text-xs font-bold text-gray-700">
-                  <span className="text-gray-400 font-semibold uppercase text-[10px]">ACCOUNT TYPE</span>
-                  <div className="flex items-center gap-6">
-                    <span className="flex items-center gap-1.5 text-gray-900">🛡 Owner</span>
-                    <span className="flex items-center gap-1.5 text-gray-700">👤 Client</span>
-                    <span className="flex items-center gap-1.5 text-gray-700">💬 Manager</span>
-                  </div>
+                {/* Report Title */}
+                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                  SEO Report
+                </h3>
+
+                {/* Date range */}
+                <div className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1.5 mb-6">
+                  JAN-19 2025 <span className="mx-2 text-gray-300">|</span> JAN-25 2025
                 </div>
 
-                {/* Bottom Row: Leads & Conversion Rate */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase block mb-1">LEADS</span>
-                    <div className="grid grid-cols-3 gap-2 text-left">
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">12</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">TODAY</span>
-                      </div>
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">197</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">PER MONTH</span>
-                      </div>
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">9</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">AVG. PER DAY</span>
-                      </div>
-                    </div>
-                  </div>
+                {/* Semicircular / Segmented Color Wheel */}
+                <div className="relative w-72 h-40 overflow-hidden flex items-end justify-center">
+                  <svg viewBox="0 0 200 100" className="w-72 h-40 overflow-visible">
+                    {/* Concentric radar arcs */}
+                    <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <path d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <path d="M 50 100 A 50 50 0 0 1 150 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <path d="M 70 100 A 30 30 0 0 1 130 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
 
-                  <div className="p-3.5 bg-white rounded-2xl border border-gray-200">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase block mb-1">CONVERSION RATE</span>
-                    <div className="grid grid-cols-3 gap-2 text-left">
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">1.3%</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">TODAY</span>
-                      </div>
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">0.6%</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">PER MONTH</span>
-                      </div>
-                      <div>
-                        <span className="text-xl font-black text-gray-900 block">0.9%</span>
-                        <span className="text-[9px] text-gray-400 font-bold uppercase">AVG. PER DAY</span>
-                      </div>
-                    </div>
-                  </div>
+                    {/* Radial grid lines */}
+                    <line x1="100" y1="100" x2="30" y2="35" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <line x1="100" y1="100" x2="65" y2="15" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <line x1="100" y1="100" x2="100" y2="10" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <line x1="100" y1="100" x2="135" y2="15" stroke="#DBEAFE" strokeWidth="1.5" />
+                    <line x1="100" y1="100" x2="170" y2="35" stroke="#DBEAFE" strokeWidth="1.5" />
+
+                    {/* Sector 1: Lime Green */}
+                    <path d="M 100 100 L 25 80 A 80 80 0 0 1 45 45 Z" fill="#4ADE80" />
+                    {/* Sector 2: Deep Blue */}
+                    <path d="M 100 100 L 45 45 A 80 80 0 0 1 75 25 Z" fill="#0018A8" />
+                    {/* Sector 3: Bright Magenta / Red */}
+                    <path d="M 100 100 L 75 25 A 80 80 0 0 1 125 25 Z" fill="#F43F5E" />
+                    {/* Sector 4: Royal Blue */}
+                    <path d="M 100 100 L 125 25 A 80 80 0 0 1 165 45 Z" fill="#1D4ED8" />
+                    {/* Sector 5: Dark Navy */}
+                    <path d="M 100 100 L 165 45 A 80 80 0 0 1 178 75 Z" fill="#0F172A" />
+
+                    {/* Inner cutout hub */}
+                    <circle cx="100" cy="100" r="18" fill="#EEF3F8" />
+                  </svg>
                 </div>
               </div>
 
               {/* Right Column: Title, Links & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
                   Get support at every stage of the client management cycle: from lead gen to winning clients&apos; loyalty
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
                   <Link href="/reports" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
                     <span>Scheduled SEO reports</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -2480,101 +2570,118 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* TAB 7: Integrations (Exact Screenshot 7 Match) */}
+          {/* TAB 7: Integrations (Exact Screenshot Match: 5 Category Boxes) */}
           {platformTab === 'integrations' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: 5 Integrations Boxes */}
-              <div className="lg:col-span-7 bg-[#F0F4F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
+              {/* Left Column: 5 Integrations Boxes matching exact screenshot */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Analytics */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">ANALYTICS</span>
-                    <div className="flex items-center gap-3">
+                  {/* Category 1: Analytics */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
+                      ANALYTICS
+                    </span>
+                    <div className="flex items-center gap-2.5">
                       {/* GA */}
-                      <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center p-2 border border-amber-100">
-                        <div className="w-full h-full bg-amber-500 rounded-sm" />
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center p-2 border border-gray-100 shadow-2xs">
+                        <div className="flex items-end gap-0.5 h-6">
+                          <span className="w-1.5 h-2 bg-amber-500 rounded-2xs" />
+                          <span className="w-1.5 h-4 bg-amber-500 rounded-2xs" />
+                          <span className="w-1.5 h-6 bg-amber-500 rounded-2xs" />
+                        </div>
                       </div>
                       {/* GSC */}
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center p-2 border border-blue-100">
-                        <div className="w-full h-full bg-blue-500 rounded-sm" />
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs text-lg">
+                        <span className="text-blue-500">🔍</span>
                       </div>
                       {/* Ads */}
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center p-2 border border-emerald-100">
-                        <div className="w-full h-full bg-emerald-500 rounded-sm" />
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs">
+                        <div className="w-6 h-6 flex items-center justify-center">
+                          <span className="w-2 h-5 bg-blue-600 rounded-full rotate-45 transform -translate-x-1" />
+                          <span className="w-2 h-5 bg-emerald-500 rounded-full -rotate-45 transform translate-x-1" />
+                        </div>
                       </div>
-                      {/* Looker */}
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center p-2 border border-purple-100">
-                        <div className="w-full h-full bg-purple-500 rounded-sm" />
+                      {/* Matomo */}
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs">
+                        <span className="text-[#0052CC] font-black text-sm">M</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Reporting */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">REPORTING</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-100">
+                  {/* Category 2: Reporting */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
+                      REPORTING
+                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-100 shadow-2xs">
                         8
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600 font-bold text-xs border border-red-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-rose-500 font-bold text-sm border border-gray-100 shadow-2xs">
                         W
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-700 font-black text-xs border border-blue-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-black text-sm border border-gray-100 shadow-2xs">
                         A
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center text-cyan-600 font-bold text-xs border border-cyan-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-cyan-500 font-bold text-sm border border-gray-100 shadow-2xs">
                         R
                       </div>
                     </div>
                   </div>
 
-                  {/* Automation */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">AUTOMATION</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-600 font-bold text-xs border border-pink-100">
+                  {/* Category 3: Automation */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
+                      AUTOMATION
+                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-rose-500 font-bold text-sm border border-gray-100 shadow-2xs">
                         ⚯
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-bold text-xs border border-emerald-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-emerald-600 font-bold text-sm border border-gray-100 shadow-2xs">
                         ⊞
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-500 font-bold text-sm border border-orange-100">
-                        *
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-orange-500 font-bold text-base border border-gray-100 shadow-2xs">
+                        ✱
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 font-bold text-xs border border-purple-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-purple-600 font-bold text-sm border border-gray-100 shadow-2xs">
                         III
                       </div>
                     </div>
                   </div>
 
-                  {/* Business Profile */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
-                    <span className="text-[11px] font-bold text-gray-500 uppercase block">BUSINESS PROFILE</span>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs border border-blue-100">
-                        G
+                  {/* Category 4: Business Profile */}
+                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
+                      BUSINESS PROFILE
+                    </span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-100 shadow-2xs">
+                        🏪
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-800 font-bold text-xs border border-blue-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-700 font-bold text-sm border border-gray-100 shadow-2xs">
                         f
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-900 font-bold text-xs border border-gray-200">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-900 font-bold text-sm border border-gray-100 shadow-2xs">
                         
                       </div>
-                      <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 font-bold text-xs border border-teal-100">
+                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-teal-600 font-bold text-sm border border-gray-100 shadow-2xs">
                         b
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Website Builder (Full Width) */}
-                <div className="p-4 bg-white rounded-2xl border border-gray-200 space-y-3">
-                  <span className="text-[11px] font-bold text-gray-500 uppercase block">WEBSITE BUILDER</span>
+                {/* Category 5: Website Builder (Full Width) */}
+                <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
+                  <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
+                    WEBSITE BUILDER
+                  </span>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800 font-black text-xs border border-gray-200">
+                    <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-800 font-black text-sm border border-gray-100 shadow-2xs">
                       W
                     </div>
-                    <div className="px-3 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-900 font-black text-xs tracking-wider border border-gray-200">
+                    <div className="px-4 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-900 font-bold text-sm tracking-wider border border-gray-100 shadow-2xs">
                       WiX
                     </div>
                   </div>
@@ -2582,14 +2689,14 @@ export default function LandingPage() {
               </div>
 
               {/* Right Column: Title, Link & Button */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-gray-900 leading-tight">
+              <div className="lg:col-span-5 space-y-7 text-left">
+                <h3 className="text-xl sm:text-2xl lg:text-[25px] font-normal text-[#101423] leading-[1.38]">
                   Connect SE Ranking to GA4, GSC, Data Studio, Make.com, n8n, and other tools your workflows run on
                 </h3>
 
-                <div className="space-y-3.5 text-base font-bold text-gray-900">
+                <div className="space-y-3.5 text-base font-medium text-gray-900">
                   <Link href="/api-docs" className="flex items-center gap-2 hover:text-[#1864FF] transition-colors cursor-pointer group">
-                    <span>Inegrations</span>
+                    <span>Integrations</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
                   </Link>
                 </div>
@@ -2608,10 +2715,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 5. Power up your stack, workflows, and reporting with SE Ranking data (Spacious & Clean) */}
-      <section className="py-20 sm:py-28 px-6 sm:px-8 max-w-6xl mx-auto space-y-12">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <h2 className="text-3xl sm:text-5xl font-black text-gray-900 leading-tight">
+      {/* 5. Power up your stack, workflows, and reporting with SE Ranking data (Exact Screenshot Match) */}
+      <section className="py-16 sm:py-24 px-6 sm:px-8 max-w-7xl mx-auto space-y-12">
+        <div className="text-center max-w-4xl mx-auto space-y-3">
+          <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#101423] tracking-tight leading-tight">
             Power up your stack, workflows, and reporting with SE Ranking data
           </h2>
           <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
@@ -2619,926 +2726,914 @@ export default function LandingPage() {
           </p>
         </div>
 
-        {/* 4 Feature Points */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 text-sm">
-          <div className="space-y-1.5">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#0B69FF]" /> Data on your terms
-            </h3>
-            <p className="text-gray-600 pl-4 leading-relaxed">
-              Access rankings, keywords, backlinks, and AI visibility insights directly via SE Ranking API. No manual exports.
-            </p>
+        {/* 2-Column Section Layout matching Screenshot */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          {/* Left Column: Official Diagram Image */}
+          <div className="lg:col-span-6 flex items-center justify-center">
+            <img
+              src="/images/seranking/api-diagram.png"
+              alt="SE Ranking API & Integrations Architecture"
+              className="w-full h-auto rounded-3xl"
+            />
           </div>
 
-          <div className="space-y-1.5">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#0B69FF]" /> Reporting built around your logic
-            </h3>
-            <p className="text-gray-600 pl-4 leading-relaxed">
-              Connect SE Ranking to Data Studio, Whatagraph, Agency Analytics, and more to build dashboards that reflect your workflows.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#0B69FF]" /> Workflows that run without you
-            </h3>
-            <p className="text-gray-600 pl-4 leading-relaxed">
-              Automate complex processes across multiple client projects via Make.com, n8n, or Zapier without coding.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-[#0B69FF]" /> Live data inside your AI assistant
-            </h3>
-            <p className="text-gray-600 pl-4 leading-relaxed">
-              Connect via MCP and get structured SE Ranking data inside Claude, ChatGPT, or any other AI chatbot.
-            </p>
-          </div>
-        </div>
-
-        <div className="text-left">
-          <Link
-            href="/projects"
-            className="px-6 py-3 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-sm font-bold rounded-xl transition-all shadow-xs inline-block"
-          >
-            Start free trial
-          </Link>
-        </div>
-
-        {/* Stack Flow Diagram matching exact screenshot */}
-        <div className="space-y-4 pt-4">
-          {/* Top Sources Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm font-bold text-gray-700">
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" /> Analytics
-            </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2">
-              <Database className="w-5 h-5 text-blue-600" /> Search Console
-            </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2">
-              <Sparkles className="w-5 h-5 text-purple-600" /> AI Visibility
-            </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-600" /> Social Data
-            </div>
-          </div>
-
-          {/* Center Banner: SE Ranking API */}
-          <div className="p-6 bg-gradient-to-r from-emerald-100/70 to-emerald-50 rounded-3xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="text-xl font-black text-gray-900">SE Ranking API</div>
-            <div className="p-4 bg-white/95 rounded-2xl border border-emerald-200 font-mono text-xs space-y-1.5 text-gray-800 shadow-2xs">
-              <div><strong className="text-purple-600">POST</strong> https://api4.seranking.com/audit/create...</div>
-              <div><strong className="text-blue-600">GET</strong> https://api4.seranking.com/backlinks...</div>
-              <div><strong className="text-purple-600">POST</strong> https://api4.seranking.com/key-volume...</div>
-              <div><strong className="text-blue-600">GET</strong> https://api4.seranking.com/site...</div>
-            </div>
-          </div>
-
-          {/* Connectors Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center text-sm font-bold text-gray-700">
-            <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200">n8n</div>
-            <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200">make</div>
-            <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200">zapier</div>
-            <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2">
-              <Bot className="w-4 h-4 text-[#0B69FF]" /> MCP
-            </div>
-          </div>
-
-          {/* Bottom Destinations Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center text-sm font-bold text-gray-700">
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2.5">
-              <BarChart3 className="w-5 h-5 text-gray-500" /> Live Dashboards
-            </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2.5">
-              <Zap className="w-5 h-5 text-gray-500" /> Automated Alerts
-            </div>
-            <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 flex items-center justify-center gap-2.5">
-              <FileText className="w-5 h-5 text-gray-500" /> PDF Reports
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Precise. Credible. AI-Ready. It's all about our unique data (5 Bento Cards Spacious) */}
-      <section className="py-20 sm:py-28 bg-white border-t border-gray-200 px-6 sm:px-8">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 leading-tight">
-              Precise. Credible. AI-Ready. It&apos;s all about our unique data
-            </h2>
-            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-              The SE Ranking AI SEO platform relies on advanced data processing algorithms to deliver unique insights. We regularly expand our databases and securely store them.
-            </p>
-          </div>
-
-          {/* 5 Distinct Bento Data Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Card 1: 188 Country Databases (Mint Green) */}
-            <div className="p-8 bg-[#BBF7D0]/60 rounded-3xl flex flex-col justify-between h-52 sm:h-56 shadow-2xs">
-              <div className="flex justify-end">
-                <div className="w-10 h-10 rounded-full border-2 border-gray-800 flex items-center justify-center">
-                  <span className="w-4 h-4 bg-gray-800 rounded-xs" />
+          {/* Right Column: 4 Feature Points + Projects CTA */}
+          <div className="lg:col-span-6 space-y-6 text-left">
+            <div className="space-y-6 text-sm text-[#101423]">
+              {/* Bullet 1 */}
+              <div className="flex items-start gap-3">
+                <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#101423]">Data on your terms</h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">
+                    Access rankings, keywords, backlinks, and AI visibility insights directly via SE Ranking API. No manual exports.
+                  </p>
                 </div>
               </div>
-              <div>
-                <div className="text-4xl sm:text-5xl font-black text-gray-900">188</div>
-                <div className="text-xs font-black uppercase tracking-wider text-gray-800 mt-1">
-                  Country Databases
+
+              {/* Bullet 2 */}
+              <div className="flex items-start gap-3">
+                <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#101423]">Reporting built around your logic</h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">
+                    Connect SE Ranking to Data Studio, Whatagraph, Agency Analytics, and more to build dashboards that reflect your workflows and client priorities.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bullet 3 */}
+              <div className="flex items-start gap-3">
+                <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#101423]">Workflows that run without you</h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">
+                    Automate complex processes across multiple client projects via Make.com, n8n, or Zapier without coding.
+                  </p>
+                </div>
+              </div>
+
+              {/* Bullet 4 */}
+              <div className="flex items-start gap-3">
+                <span className="text-[#1351d8] text-xl leading-none select-none font-bold">•</span>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-[#101423]">Live data inside your AI assistant</h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">
+                    Connect via MCP and get structured SE Ranking data inside Claude, ChatGPT, or any other AI chatbot by simply describing what you need.
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Card 2: AI Powered Algorithms (Vibrant Purple) */}
-            <div className="p-8 bg-[#6366F1] text-white rounded-3xl flex flex-col justify-between h-52 sm:h-56 shadow-2xs">
-              <div className="flex justify-end">
-                <Sparkles className="w-9 h-9 text-white/90" />
-              </div>
-              <div>
-                <div className="text-4xl sm:text-5xl font-black text-white">AI</div>
-                <div className="text-xs font-black uppercase tracking-wider text-white/90 mt-1">
-                  Powered Algorithms
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: 5.5B Keyword Database (Deep Dark Navy) */}
-            <div className="p-8 bg-[#1E1B4B] text-white rounded-3xl flex flex-col justify-between h-52 sm:h-56 shadow-2xs">
-              <div className="flex justify-end">
-                <Database className="w-9 h-9 text-indigo-300" />
-              </div>
-              <div>
-                <div className="text-4xl sm:text-5xl font-black text-white">5.5B</div>
-                <div className="text-xs font-black uppercase tracking-wider text-indigo-200 mt-1">
-                  Keyword Database
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: 2.2B Domain Profiles (Light Ice Gray) */}
-            <div className="p-8 bg-[#F1F5F9] rounded-3xl flex flex-col justify-between h-52 sm:h-56 shadow-2xs sm:col-span-1">
-              <div className="flex justify-end">
-                <div className="w-12 h-12 rounded-full border border-gray-300 flex flex-col items-center justify-center gap-1 bg-white/70">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-900" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-900" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-900" />
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl sm:text-5xl font-black text-gray-900">2.2B</div>
-                <div className="text-xs font-black uppercase tracking-wider text-gray-600 mt-1">
-                  Domain Profiles
-                </div>
-              </div>
-            </div>
-
-            {/* Card 5: 100% Accurate Keyword Rankings (Light Cyan Sky) */}
-            <div className="p-8 bg-[#E0F2FE] rounded-3xl flex flex-col justify-between h-52 sm:h-56 shadow-2xs sm:col-span-2">
-              <div className="flex justify-end">
-                <div className="w-12 h-12 flex items-center justify-center text-[#0B69FF]">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                  </svg>
-                </div>
-              </div>
-              <div>
-                <div className="text-4xl sm:text-5xl font-black text-gray-900">100%</div>
-                <div className="text-xs font-black uppercase tracking-wider text-gray-700 mt-1">
-                  Accurate Keyword Rankings
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* G2 Awards Strip (Screenshot 2 Exact Match) */}
-          <div className="p-8 sm:p-10 bg-gray-50 rounded-3xl border border-gray-200 text-center space-y-6">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Highly rated by large teams running SEO at scale
-            </h3>
-            <p className="text-sm text-gray-500 max-w-xl mx-auto">
-              Don&apos;t just take our word for it, check out our latest awards from G2
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-              {[
-                { name: 'Leader', color: '#FF492C', trim: 'border-b-[#FF492C]' },
-                { name: 'Most Implementable', color: '#0B69FF', trim: 'border-b-[#0B69FF]' },
-                { name: 'Best Results', color: '#8B5CF6', trim: 'border-b-[#8B5CF6]' },
-                { name: 'Momentum Leader', color: '#F97316', trim: 'border-b-[#F97316]' },
-                { name: 'Best Relationship', color: '#06B6D4', trim: 'border-b-[#06B6D4]' },
-              ].map((badge) => (
-                <div
-                  key={badge.name}
-                  className="w-24 sm:w-28 bg-white border border-gray-200 rounded-lg p-2.5 shadow-sm text-center flex flex-col justify-between h-32 hover:scale-105 transition-transform"
-                >
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-1.5">
-                    <span className="text-[7px] font-black uppercase text-gray-400">SPRING 2024</span>
-                    <span className="w-3.5 h-3.5 bg-[#FF492C] text-white rounded-xs text-[8px] font-black flex items-center justify-center">
-                      G
-                    </span>
-                  </div>
-                  <div className="my-auto py-1">
-                    <span className="text-[11px] font-extrabold text-gray-900 leading-tight block">
-                      {badge.name}
-                    </span>
-                  </div>
-                  {/* Colored Ribbon Tail Accent */}
-                  <div className="pt-1 border-t border-gray-100">
-                    <div
-                      className="h-1.5 w-full rounded-full"
-                      style={{ backgroundColor: badge.color }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
             <div className="pt-2">
               <Link
                 href="/projects"
-                className="px-7 py-3 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-sm font-bold rounded-xl transition-colors inline-block shadow-xs"
+                className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-lg shadow-sm transition-colors cursor-pointer"
               >
-                Start free trial
+                Projects
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 7. Brand visibility across the ecosystem (Screenshots 3 & 4 Exact Match) */}
-      <section className="py-16 sm:py-24 bg-[#F0FDF4]/30 border-t border-gray-200 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto space-y-12">
+      {/* 6. Precise. Credible. AI-Ready. It's all about our unique data (Exact Screenshot Match) */}
+      <section className="py-16 sm:py-24 bg-white px-4 sm:px-8 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-[#101423] tracking-tight leading-tight">
+              Precise. Credible. AI-Ready. It&apos;s all about our unique data
+            </h2>
+            <p className="text-sm sm:text-base text-[#4B5563] leading-relaxed">
+              The SE Ranking AI SEO platform relies on advanced data processing algorithms to deliver unique insights. We regularly expand our databases and securely store them.
+            </p>
+          </div>
+
+          {/* 5 Cards Row matching screenshot */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
+            {/* 188 Country Databases */}
+            <div className="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-[210px] sm:h-[235px] shadow-xs" style={{ backgroundColor: '#C4FFC4', color: '#101423' }}>
+              <div className="flex justify-end">
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+                  <path d="M75 26V30H53V26H75ZM75 4H53V30L52.7939 29.9951C50.7488 29.8913 49.1087 28.2512 49.0049 26.2061L49 26V4C49 1.79086 50.7909 1.12745e-07 53 0H75C77.2091 0 79 1.79086 79 4V26C79 28.14 77.3194 29.8879 75.2061 29.9951L75 30V4Z" fill="#101423" />
+                  <path opacity="0.25" d="M75 61V65H53V61H75ZM75 39H53V65L52.7939 64.9951C50.7488 64.8913 49.1087 63.2512 49.0049 61.2061L49 61V39C49 36.7909 50.7909 35 53 35H75C77.2091 35 79 36.7909 79 39V61C79 63.14 77.3194 64.8879 75.2061 64.9951L75 65V39Z" fill="#101423" />
+                  <circle cx="26" cy="48" r="20" stroke="#101423" strokeWidth="4.5" />
+                  <path d="M26 28V68M6 48H46" stroke="#101423" strokeWidth="3.5" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-none tracking-tight">188</div>
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-2.5">Country databases</div>
+              </div>
+            </div>
+
+            {/* AI Powered Algorithms */}
+            <div className="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-[210px] sm:h-[235px] shadow-xs" style={{ backgroundColor: '#5F31EC', color: '#ffffff' }}>
+              <div className="flex justify-end">
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+                  <rect x="25" y="25" width="30" height="30" rx="4" transform="rotate(45 40 40)" stroke="#ffffff" strokeWidth="4.5" />
+                  <circle cx="40" cy="12" r="3.5" fill="#ffffff" />
+                  <circle cx="40" cy="68" r="3.5" fill="#ffffff" />
+                  <circle cx="12" cy="40" r="3.5" fill="#ffffff" />
+                  <circle cx="68" cy="40" r="3.5" fill="#ffffff" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-none tracking-tight">AI</div>
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-2.5 opacity-95">Powered algorithms</div>
+              </div>
+            </div>
+
+            {/* 5.5B Keyword Database */}
+            <div className="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-[210px] sm:h-[235px] shadow-xs" style={{ backgroundColor: '#240659', color: '#ffffff' }}>
+              <div className="flex justify-end">
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+                  <rect x="18" y="28" width="22" height="34" rx="3" stroke="#ffffff" strokeWidth="4" />
+                  <rect x="44" y="16" width="20" height="20" rx="3" stroke="#ffffff" strokeWidth="4" />
+                  <rect x="44" y="44" width="20" height="20" rx="3" stroke="#ffffff" strokeWidth="4" opacity="0.35" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-none tracking-tight">5.5B</div>
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-2.5 opacity-95">Keyword database</div>
+              </div>
+            </div>
+
+            {/* 2.2B Domain Profiles */}
+            <div className="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-[210px] sm:h-[235px] shadow-xs" style={{ backgroundColor: '#ECF1F9', color: '#101423' }}>
+              <div className="flex justify-end">
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+                  <circle cx="40" cy="40" r="26" stroke="#101423" strokeWidth="3.5" opacity="0.25" />
+                  <circle cx="40" cy="22" r="5.5" fill="#101423" />
+                  <circle cx="40" cy="40" r="5.5" fill="#101423" />
+                  <circle cx="40" cy="58" r="5.5" fill="#101423" />
+                  <line x1="40" y1="22" x2="40" y2="58" stroke="#101423" strokeWidth="3" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-none tracking-tight">2.2B</div>
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-2.5">Domain profiles</div>
+              </div>
+            </div>
+
+            {/* 100% Accurate Keyword Rankings */}
+            <div className="rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col justify-between h-[210px] sm:h-[235px] col-span-2 sm:col-span-1 shadow-xs" style={{ backgroundColor: '#D8F7FF', color: '#101423' }}>
+              <div className="flex justify-end">
+                <svg width="50" height="50" viewBox="0 0 80 80" fill="none">
+                  <path d="M22 22L36 36M22 22H34M22 22V34" stroke="#101423" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+                  <path d="M58 22L44 36M58 22H46M58 22V34" stroke="#101423" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M22 58L36 44M22 58H34M22 58V46" stroke="#101423" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+                  <path d="M58 58L44 44M58 58H46M58 58V46" stroke="#101423" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-none tracking-tight">100%</div>
+                <div className="text-[11px] sm:text-xs font-black uppercase tracking-wider mt-2.5">Accurate keyword rankings</div>
+              </div>
+            </div>
+          </div>
+
+          {/* G2 Awards Box (Exact Screenshot Match) */}
+          <div className="bg-[#F8FAFC] rounded-3xl p-6 sm:p-9 border border-gray-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6 sm:gap-8">
+            <div className="space-y-1.5 max-w-lg">
+              <h3 className="text-xl sm:text-2xl font-black text-[#101423] tracking-tight">
+                Highly rated by large teams running SEO at scale
+              </h3>
+              <p className="text-xs sm:text-sm text-[#4B5563]">
+                Don&apos;t just take our word for it, check out our latest awards from G2
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-5">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <img
+                  key={num}
+                  src={`/images/seranking/g2-${num}.svg`}
+                  alt={`G2 Award ${num}`}
+                  className="h-14 sm:h-18 w-auto object-contain hover:scale-105 transition-transform"
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Centered Blue Projects Button */}
+          <div className="text-center pt-2">
+            <Link
+              href="/projects"
+              className="inline-flex items-center justify-center px-10 py-3.5 bg-[#1351d8] hover:bg-[#0f46bd] text-white font-bold text-sm sm:text-base rounded-lg transition-colors shadow-xs"
+            >
+              <span>Projects</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Brand visibility across the ecosystem (Exact Match to User Reference Screenshots) */}
+      <section className="py-20 sm:py-28 bg-[#EBF8FE] border-t border-blue-100/50 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Section Header */}
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
+          <div className="text-center max-w-3xl mx-auto space-y-3.5">
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#101423] tracking-tight leading-tight">
               Brand visibility across the ecosystem
             </h2>
-            <p className="text-gray-500 text-xs sm:text-sm md:text-base leading-relaxed">
+            <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
               Don&apos;t stop at SEO. Add AI search intelligence and social performance to see the full picture.
             </p>
           </div>
 
-          {/* Card 1: SE Ranking (SEO & GEO) - Screenshot 3 Exact */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-[#0B69FF] flex items-center justify-center text-white">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L3 9V20C3 20.5523 3.44772 21 4 21H20C20.5523 21 21 20.5523 21 20V9L12 2Z" fill="none" stroke="white" strokeWidth="2" />
-                    <path d="M9 12L11 14L15 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <span className="font-bold text-lg sm:text-xl text-gray-900">SE Ranking</span>
-              </div>
-              <span className="text-[11px] font-black uppercase tracking-wider bg-[#E0F2FE] text-[#0284C7] px-3 py-1 rounded-md">
-                SEO&amp;GEO
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-3xl">
-              Track rankings, research competitors, analyze brand mentions, and pull SEO and GEO data into your own workflows and reporting systems with API access.
-            </p>
-
-            {/* 4 Metric Cards with Mini Sparklines */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs sm:text-sm pt-2">
-              {/* Metric 1 */}
-              <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
-                  Average Position
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">34</span>
-                  <span className="text-xs font-bold text-emerald-600 flex items-center">
-                    ▲ 51
-                  </span>
-                </div>
-                {/* Sparkline wave */}
-                <div className="h-6 w-full pt-1">
-                  <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#0B69FF] stroke-2">
-                    <path d="M 0 18 Q 15 5, 30 14 T 60 8 T 85 16 T 100 6" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Metric 2 */}
-              <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
-                  Trafic Forecast
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">520</span>
-                  <span className="text-xs font-bold text-rose-500 flex items-center">
-                    ▼ 245
-                  </span>
-                </div>
-                {/* Sparkline wave */}
-                <div className="h-6 w-full pt-1">
-                  <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#0B69FF] stroke-2">
-                    <path d="M 0 14 Q 20 20, 40 10 T 70 18 T 100 8" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Metric 3 */}
-              <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
-                  Search Visibility
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">0.66</span>
-                  <span className="text-xs font-bold text-emerald-600 flex items-center">
-                    ▲ 0.34
-                  </span>
-                </div>
-                {/* Sparkline wave */}
-                <div className="h-6 w-full pt-1">
-                  <svg viewBox="0 0 100 24" className="w-full h-full fill-none stroke-[#0B69FF] stroke-2">
-                    <path d="M 0 16 Q 25 6, 50 16 T 80 6 T 100 12" strokeLinecap="round" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Metric 4 */}
-              <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-200/80 space-y-2">
-                <span className="text-[10px] text-gray-500 uppercase font-bold tracking-wider block">
-                  SERP Features
-                </span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">2</span>
-                  <span className="text-xs font-bold text-emerald-600 flex items-center">
-                    ▲ 1
-                  </span>
-                </div>
-                {/* Sparkline bar bars */}
-                <div className="h-6 w-full flex items-end gap-1.5 pt-1">
-                  <span className="w-2.5 h-3 bg-blue-300 rounded-xs" />
-                  <span className="w-2.5 h-5 bg-blue-600 rounded-xs" />
-                  <span className="w-2.5 h-2 bg-blue-300 rounded-xs" />
-                  <span className="w-2.5 h-4 bg-blue-500 rounded-xs" />
-                  <span className="w-2.5 h-6 bg-blue-700 rounded-xs" />
-                  <span className="w-2.5 h-3 bg-blue-400 rounded-xs" />
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Filter Bar matching Screenshot 3 */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-gray-100 text-xs font-bold text-gray-600">
-              {/* Time tabs */}
-              <div className="flex items-center gap-4">
-                {(['CURRENT', '7D', '1M', '3M', '6M'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setEcoRankingTimeTab(tab)}
-                    className={`pb-1 transition-colors cursor-pointer ${
-                      ecoRankingTimeTab === tab
-                        ? 'text-gray-900 border-b-2 border-gray-900 font-extrabold'
-                        : 'text-gray-400 hover:text-gray-700'
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-
-                {/* Group By dropdown */}
-                <div className="relative ml-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsEcoGroupByOpen(!isEcoGroupByOpen)}
-                    className="flex items-center gap-1 text-gray-700 hover:text-gray-900 uppercase tracking-wider font-bold"
-                  >
-                    <span>GROUP BY: {ecoRankingGroupBy}</span>
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
-                  {isEcoGroupByOpen && (
-                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg p-1.5 z-20 w-32 space-y-1">
-                      {(['DAYS', 'WEEKS', 'MONTHS'] as const).map((g) => (
-                        <button
-                          key={g}
-                          type="button"
-                          onClick={() => {
-                            setEcoRankingGroupBy(g);
-                            setIsEcoGroupByOpen(false);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold ${
-                            ecoRankingGroupBy === g ? 'bg-blue-50 text-[#0B69FF]' : 'hover:bg-gray-50 text-gray-700'
-                          }`}
-                        >
-                          {g}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* View filters on right */}
-              <div className="flex items-center gap-4">
-                {(['ALL', 'WEBSITES', 'GROUPS'] as const).map((view) => (
-                  <button
-                    key={view}
-                    type="button"
-                    onClick={() => setEcoRankingView(view)}
-                    className={`pb-1 transition-colors cursor-pointer ${
-                      ecoRankingView === view
-                        ? 'text-gray-900 border-b-2 border-gray-900 font-extrabold'
-                        : 'text-gray-400 hover:text-gray-700'
-                    }`}
-                  >
-                    {view}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Multi-line curve chart (Sep 23 - Sep 29) */}
-            <div className="h-64 sm:h-72 w-full pt-4">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
-                AVERAGE RANK
-              </div>
-              <ResponsiveContainer width="100%" height="90%">
-                <LineChart data={ecoRankingsData}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                  <YAxis
-                    domain={[10, 35]}
-                    ticks={[10, 20, 30]}
-                    tick={{ fontSize: 11, fill: '#64748B' }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '12px', border: '1px solid #E2E8F0' }} />
-                  <Line type="monotone" dataKey="rank1" stroke="#84CC16" strokeWidth={2.5} dot={{ r: 4, fill: '#84CC16' }} />
-                  <Line type="monotone" dataKey="rank2" stroke="#06B6D4" strokeWidth={2.5} dot={{ r: 4, fill: '#06B6D4' }} />
-                  <Line type="monotone" dataKey="rank3" stroke="#8B5CF6" strokeWidth={2.5} dot={{ r: 4, fill: '#8B5CF6' }} />
-                  <Line type="monotone" dataKey="rank4" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 4, fill: '#2563EB' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            <Link href="/projects" className="text-xs sm:text-sm font-bold text-[#0B69FF] hover:underline inline-flex items-center gap-1.5 pt-2">
-              <span>Explore SE Ranking</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Card 2: SE Visible (AI VISIBILITY) - Screenshot 4 Exact */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-[#0F766E] flex items-center justify-center text-white">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M4 18L10 6L14 14L20 6" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <span className="font-bold text-lg sm:text-xl text-gray-900">SE Visible</span>
-              </div>
-              <span className="text-[11px] font-black uppercase tracking-wider bg-[#CCFBF1] text-[#0F766E] px-3 py-1 rounded-md">
-                AI VISIBILITY
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-3xl">
-              Monitor where your brand appears and how AI platforms describe it across ChatGPT, Gemini, Perplexity, AI Overviews, AI Mode, and other emerging search experiences.
-            </p>
-
-            {/* 4-Box Grid inside SE Visible */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
-              {/* Top Left: Visibility Chart */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80 space-y-4">
+          {/* 3 Columns Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
+            {/* Card 1: SE Ranking (SEO & GEO) */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-blue-100/60 flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-900">Visibility</span>
-                  <div className="flex items-center gap-1.5 text-xs bg-gray-200/70 p-1 rounded-lg">
-                    <button
-                      type="button"
-                      onClick={() => setEcoVisibleMetric('score')}
-                      className={`px-3 py-1 rounded-md font-bold transition-all ${
-                        ecoVisibleMetric === 'score' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500'
-                      }`}
-                    >
-                      Visibility score
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEcoVisibleMetric('avg_pos')}
-                      className={`px-3 py-1 rounded-md font-bold transition-all ${
-                        ecoVisibleMetric === 'avg_pos' ? 'bg-white shadow-xs text-gray-900' : 'text-gray-500'
-                      }`}
-                    >
-                      Avg position
-                    </button>
-                  </div>
-                </div>
-
-                <div className="h-48 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={ecoVisibleData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#64748B' }} />
-                      <YAxis
-                        domain={[0, 100]}
-                        ticks={[0, 25, 50, 75, 100]}
-                        tickFormatter={(v) => `${v}%`}
-                        tick={{ fontSize: 10, fill: '#64748B' }}
-                      />
-                      <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '10px' }} />
-                      <Line type="monotone" dataKey="you" stroke="#14B8A6" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="smx" stroke="#1E293B" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="pubcon" stroke="#8B5CF6" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="techSeo" stroke="#3B82F6" strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="competitors" stroke="#10B981" strokeWidth={2.5} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-
-                {/* Legend matching Screenshot 4 */}
-                <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-gray-600 pt-1">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#14B8A6]" /> You</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#1E293B]" /> Smx</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#8B5CF6]" /> Pubcon</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#3B82F6]" /> Tech SEO connect</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#10B981]" /> Competitors</span>
-                </div>
-              </div>
-
-              {/* Top Right: Competitors Table */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80 space-y-3">
-                <span className="text-sm font-bold text-gray-900 block">Competitors</span>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="text-gray-400 border-b border-gray-200/80 pb-2">
-                        <th className="font-bold py-2 w-8">#</th>
-                        <th className="font-bold py-2">Brand</th>
-                        <th className="font-bold py-2">Visibility</th>
-                        <th className="font-bold py-2">Avg position</th>
-                        <th className="font-bold py-2">Net sentiment</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200/60 font-medium">
-                      <tr>
-                        <td className="py-2.5 font-bold text-gray-400">1</td>
-                        <td className="py-2.5 font-bold text-gray-900 flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-sm bg-blue-600 text-white text-[9px] flex items-center justify-center font-black">b</span>
-                          Brighto...
-                        </td>
-                        <td className="py-2.5 font-bold text-gray-900">99%</td>
-                        <td className="py-2.5 text-gray-700">2.61</td>
-                        <td className="py-2.5 font-bold text-emerald-600">+78</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2.5 font-bold text-gray-400">2</td>
-                        <td className="py-2.5 font-bold text-gray-900 flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-sm bg-sky-500 text-white text-[9px] flex items-center justify-center font-black">Q</span>
-                          Smx
-                        </td>
-                        <td className="py-2.5 font-bold text-gray-900">83%</td>
-                        <td className="py-2.5 text-gray-700">2.75</td>
-                        <td className="py-2.5 font-bold text-emerald-600">+44</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2.5 font-bold text-gray-400">3</td>
-                        <td className="py-2.5 font-bold text-gray-900 flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-sm bg-purple-600 text-white text-[9px] flex items-center justify-center font-black">V</span>
-                          Pubcon
-                        </td>
-                        <td className="py-2.5 font-bold text-gray-900">80%</td>
-                        <td className="py-2.5 text-gray-700">5.11</td>
-                        <td className="py-2.5 font-bold text-emerald-600">+40</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2.5 font-bold text-gray-400">4</td>
-                        <td className="py-2.5 font-bold text-gray-900 flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-sm bg-teal-500 text-white text-[9px] flex items-center justify-center font-black">✱</span>
-                          Tech SE...
-                        </td>
-                        <td className="py-2.5 font-bold text-gray-900">72%</td>
-                        <td className="py-2.5 text-gray-700">5.87</td>
-                        <td className="py-2.5 font-bold text-emerald-600">+39</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Bottom Left: Net sentiment Donut Gauge */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80 space-y-4">
-                <span className="text-sm font-bold text-gray-900 block">Net sentiment</span>
-                <div className="flex items-center gap-6">
-                  {/* Circular progress meter */}
-                  <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
-                    <svg className="w-28 h-28 transform -rotate-90" viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="40" stroke="#E2E8F0" strokeWidth="12" fill="none" />
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke="#14B8A6"
-                        strokeWidth="12"
-                        strokeDasharray="251.2"
-                        strokeDashoffset="52.7"
-                        strokeLinecap="round"
-                        fill="none"
-                      />
+                  <div className="flex items-center gap-2.5">
+                    <svg className="w-5 h-5 text-[#0052FF]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 2.2l6 3.75v7.85l-6 3.75-6-3.75V7.95l6-3.75z" />
                     </svg>
-                    <div className="absolute text-2xl font-black text-gray-900">+79</div>
+                    <span className="font-bold text-lg text-[#101423]">SE Ranking</span>
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-[#38E0F7] text-[#101423] px-3 py-1 rounded-md">
+                    SEO&amp;GEO
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-600 leading-relaxed min-h-[4rem]">
+                  Track rankings, research competitors, analyze brand mentions, and pull SEO and GEO data into your own workflows and reporting systems with API access.
+                </p>
+
+                {/* Card Mockup: SEO & GEO Analytics Exact Screenshot Match */}
+                <div className="bg-[#FAFBFD] border border-gray-100 rounded-2xl p-4 sm:p-5 shadow-2xs space-y-3.5 text-xs">
+                  {/* Top 4 Metric Pills */}
+                  <div className="grid grid-cols-4 gap-2 text-left pb-2 border-b border-gray-100">
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">AVERAGE POSITION</div>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base flex items-baseline gap-1 mt-0.5">
+                        34 <span className="text-[10px] text-emerald-600 font-semibold">▲ 51</span>
+                      </div>
+                      <div className="h-4 w-full mt-0.5">
+                        <svg viewBox="0 0 50 15" className="w-full h-full stroke-blue-600 fill-none stroke-[1.8]">
+                          <path d="M 0 12 Q 12 0, 20 8 T 35 14 T 50 4" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">TRAFIC FORECAST</div>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base flex items-baseline gap-1 mt-0.5">
+                        520 <span className="text-[10px] text-rose-500 font-semibold">▼ 245</span>
+                      </div>
+                      <div className="h-4 w-full mt-0.5">
+                        <svg viewBox="0 0 50 15" className="w-full h-full stroke-blue-600 fill-none stroke-[1.8]">
+                          <path d="M 0 10 Q 15 5, 25 11 T 40 4 T 50 10" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">SEARCH VISIBILITY</div>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base flex items-baseline gap-1 mt-0.5">
+                        0.66 <span className="text-[10px] text-emerald-600 font-semibold">▲ 0.34</span>
+                      </div>
+                      <div className="h-4 w-full mt-0.5">
+                        <svg viewBox="0 0 50 15" className="w-full h-full stroke-blue-600 fill-none stroke-[1.8]">
+                          <path d="M 0 11 Q 12 3, 22 12 T 38 6 T 50 12" />
+                        </svg>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase tracking-wider text-gray-500 font-bold">SERP FEATURES</div>
+                      <div className="font-bold text-gray-900 text-sm sm:text-base flex items-baseline gap-1 mt-0.5">
+                        2 <span className="text-[10px] text-emerald-600 font-semibold">▲ 1</span>
+                      </div>
+                      <div className="flex items-end justify-center gap-0.5 h-4 mt-0.5">
+                        <span className="w-1 h-2 bg-blue-600 rounded-2xs" />
+                        <span className="w-1 h-3 bg-blue-300 rounded-2xs" />
+                        <span className="w-1 h-4 bg-blue-600 rounded-2xs" />
+                        <span className="w-1 h-2 bg-blue-300 rounded-2xs" />
+                        <span className="w-1 h-3 bg-blue-600 rounded-2xs" />
+                        <span className="w-1 h-5 bg-blue-300 rounded-2xs" />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-2 text-xs">
-                    <div className="text-gray-500 leading-tight">
-                      Analyzed 71 sentiment-bearing mentions
+                  {/* Filters Bar */}
+                  <div className="flex items-center justify-between text-[9px] font-bold text-gray-500 pt-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900">CURRENT</span>
+                      <span className="text-[#1864FF] border-b-2 border-[#1864FF] pb-0.5">7D</span>
+                      <span>1M</span>
+                      <span>3M</span>
+                      <span>6M</span>
+                      <span className="ml-1 text-gray-400">GROUP BY: <strong className="text-gray-800">DAYS ∨</strong></span>
                     </div>
-                    <div className="space-y-1.5 font-bold pt-1">
-                      <div className="flex items-center gap-2 text-gray-800">
-                        <span className="w-2.5 h-2.5 rounded-sm bg-[#14B8A6]" />
-                        <span>79% Positive</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[#1864FF] border-b-2 border-[#1864FF] pb-0.5">ALL</span>
+                      <span>WEBSITES</span>
+                      <span>GROUPS</span>
+                    </div>
+                  </div>
+
+                  {/* Multi-Line Chart with Y-axis and 5 lines */}
+                  <div className="relative pt-2 pb-1">
+                    <div className="h-32 w-full relative">
+                      {/* Y-axis */}
+                      <div className="absolute left-0 top-0 bottom-4 text-[8px] text-gray-400 flex flex-col justify-between items-start">
+                        <span>30</span>
+                        <span className="flex items-center gap-1">
+                          <span>20</span>
+                          <span className="text-[7px] text-gray-400 -rotate-90 origin-left uppercase tracking-tighter">AVERAGE RANK</span>
+                        </span>
+                        <span>10</span>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <span className="w-2.5 h-2.5 rounded-sm bg-gray-400" />
-                        <span>61% Neutral</span>
+
+                      <div className="ml-8 h-28">
+                        <svg viewBox="0 0 280 100" className="w-full h-full overflow-visible">
+                          {/* Grid lines */}
+                          <line x1="0" y1="10" x2="280" y2="10" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="50" x2="280" y2="50" stroke="#F1F5F9" strokeWidth="1" />
+                          <line x1="0" y1="90" x2="280" y2="90" stroke="#F1F5F9" strokeWidth="1" />
+
+                          {/* Line 1: Blue (Top) */}
+                          <path
+                            d="M 0 65 C 35 48, 70 38, 95 32 C 120 28, 140 25, 175 35 C 210 40, 240 38, 280 25"
+                            fill="none"
+                            stroke="#0052FF"
+                            strokeWidth="2.5"
+                          />
+                          <circle cx="0" cy="65" r="2.5" fill="#0052FF" />
+                          <circle cx="45" cy="52" r="2.5" fill="#0052FF" />
+                          <circle cx="95" cy="32" r="2.5" fill="#0052FF" />
+                          <circle cx="140" cy="25" r="2.5" fill="#0052FF" />
+                          <circle cx="175" cy="35" r="2.5" fill="#0052FF" />
+                          <circle cx="230" cy="38" r="2.5" fill="#0052FF" />
+                          <circle cx="280" cy="25" r="2.5" fill="#0052FF" />
+
+                          {/* Line 2: Purple */}
+                          <path
+                            d="M 0 72 C 35 58, 70 50, 95 48 C 120 42, 140 40, 175 42 C 210 50, 240 48, 280 35"
+                            fill="none"
+                            stroke="#9333EA"
+                            strokeWidth="2"
+                          />
+                          <circle cx="0" cy="72" r="2" fill="#9333EA" />
+                          <circle cx="45" cy="60" r="2" fill="#9333EA" />
+                          <circle cx="95" cy="48" r="2" fill="#9333EA" />
+                          <circle cx="140" cy="40" r="2" fill="#9333EA" />
+                          <circle cx="175" cy="42" r="2" fill="#9333EA" />
+                          <circle cx="230" cy="48" r="2" fill="#9333EA" />
+                          <circle cx="280" cy="35" r="2" fill="#9333EA" />
+
+                          {/* Line 3: Cyan */}
+                          <path
+                            d="M 0 78 C 35 68, 70 65, 95 62 C 120 52, 140 48, 175 52 C 210 65, 240 60, 280 45"
+                            fill="none"
+                            stroke="#06B6D4"
+                            strokeWidth="2"
+                          />
+                          <circle cx="0" cy="78" r="2" fill="#06B6D4" />
+                          <circle cx="45" cy="68" r="2" fill="#06B6D4" />
+                          <circle cx="95" cy="62" r="2" fill="#06B6D4" />
+                          <circle cx="140" cy="48" r="2" fill="#06B6D4" />
+                          <circle cx="175" cy="52" r="2" fill="#06B6D4" />
+                          <circle cx="230" cy="62" r="2" fill="#06B6D4" />
+                          <circle cx="280" cy="45" r="2" fill="#06B6D4" />
+
+                          {/* Line 4: Dark Navy */}
+                          <path
+                            d="M 0 85 C 35 72, 70 75, 95 72 C 120 62, 140 55, 175 50 C 210 75, 240 70, 280 55"
+                            fill="none"
+                            stroke="#0F172A"
+                            strokeWidth="2"
+                          />
+                          <circle cx="0" cy="85" r="2" fill="#0F172A" />
+                          <circle cx="45" cy="72" r="2" fill="#0F172A" />
+                          <circle cx="95" cy="72" r="2" fill="#0F172A" />
+                          <circle cx="140" cy="55" r="2" fill="#0F172A" />
+                          <circle cx="175" cy="50" r="2" fill="#0F172A" />
+                          <circle cx="230" cy="70" r="2" fill="#0F172A" />
+                          <circle cx="280" cy="55" r="2" fill="#0F172A" />
+
+                          {/* Line 5: Light Lime Green */}
+                          <path
+                            d="M 0 92 C 35 82, 70 85, 95 85 C 120 70, 140 60, 175 55 C 210 82, 240 78, 280 62"
+                            fill="none"
+                            stroke="#4ADE80"
+                            strokeWidth="2"
+                          />
+                          <circle cx="0" cy="92" r="2" fill="#4ADE80" />
+                          <circle cx="45" cy="80" r="2" fill="#4ADE80" />
+                          <circle cx="95" cy="85" r="2" fill="#4ADE80" />
+                          <circle cx="140" cy="68" r="2" fill="#4ADE80" />
+                          <circle cx="175" cy="55" r="2" fill="#4ADE80" />
+                          <circle cx="230" cy="80" r="2" fill="#4ADE80" />
+                          <circle cx="280" cy="62" r="2" fill="#4ADE80" />
+                        </svg>
                       </div>
-                      <div className="flex items-center gap-2 text-gray-500">
-                        <span className="w-2.5 h-2.5 rounded-sm bg-pink-400" />
-                        <span>0% Negative</span>
+
+                      {/* X-axis dates */}
+                      <div className="flex justify-between text-[8px] text-gray-400 ml-8 pt-1">
+                        <span>Sep 23</span>
+                        <span>Sep 24</span>
+                        <span>Sep 25</span>
+                        <span>Sep 26</span>
+                        <span>Sep 27</span>
+                        <span>Sep 28</span>
+                        <span>Sep 29</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Right: Sources Table */}
-              <div className="p-5 bg-gray-50/70 rounded-2xl border border-gray-200/80 space-y-3">
+              {/* Card 1 Button */}
+              <div className="pt-5">
+                <a
+                  href="https://seranking.com/sign-up.html"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[#1351d8] hover:text-[#0f46bd] font-medium text-sm transition-colors group cursor-pointer"
+                >
+                  <span>Explore SE Ranking</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </div>
+            </div>
+
+            {/* Card 2: SE Visible (AI VISIBILITY) */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-blue-100/60 flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-gray-900">Sources</span>
-                    <div className="flex items-center gap-1 text-[11px] bg-gray-200/70 p-0.5 rounded-md font-bold">
-                      <button
-                        type="button"
-                        onClick={() => setEcoVisibleSourceTab('domains')}
-                        className={`px-2 py-0.5 rounded-sm transition-all ${
-                          ecoVisibleSourceTab === 'domains' ? 'bg-white shadow-2xs text-gray-900' : 'text-gray-500'
-                        }`}
-                      >
-                        Domains
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEcoVisibleSourceTab('urls')}
-                        className={`px-2 py-0.5 rounded-sm transition-all ${
-                          ecoVisibleSourceTab === 'urls' ? 'bg-white shadow-2xs text-gray-900' : 'text-gray-500'
-                        }`}
-                      >
-                        URLs
-                      </button>
+                  <div className="flex items-center gap-2">
+                    {/* SE Visible green wave logo */}
+                    <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M3 14c2-4 4-6 6-6s4 8 6 8 4-5 6-9" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <span className="font-bold text-lg text-[#101423]">SE Visible</span>
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-[#38E0F7] text-[#101423] px-3 py-1 rounded-md">
+                    AI VISIBILITY
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-600 leading-relaxed min-h-[4rem]">
+                  Monitor where your brand appears and how AI platforms describe it across ChatGPT, Gemini, Perplexity, AI Overviews, AI Mode, and other emerging search experiences.
+                </p>
+
+                {/* Card Mockup: 2x2 Grid Exact Match */}
+                <div className="bg-[#FAFBFD] border border-gray-100 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3.5 text-xs">
+                  {/* Top Row: Visibility Chart (Left) + Competitors Table (Right) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 border-b border-gray-100">
+                    {/* Visibility Chart */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-gray-900 text-xs">Visibility</span>
+                        <div className="flex items-center gap-1 text-[9px] bg-gray-100/80 p-0.5 rounded-md">
+                          <span className="bg-white text-gray-900 font-semibold px-1.5 py-0.5 rounded shadow-2xs">Visibility score</span>
+                          <span className="text-gray-500 px-1.5 py-0.5">Avg position</span>
+                        </div>
+                      </div>
+
+                      {/* Line chart with axis */}
+                      <div className="h-20 w-full relative">
+                        <div className="absolute left-0 top-0 bottom-0 text-[8px] text-gray-400 flex flex-col justify-between">
+                          <span>100%</span>
+                          <span>75%</span>
+                          <span>50%</span>
+                          <span>25%</span>
+                          <span>0</span>
+                        </div>
+                        <div className="ml-7 h-full">
+                          <svg viewBox="0 0 160 80" className="w-full h-full overflow-visible">
+                            <line x1="0" y1="0" x2="160" y2="0" stroke="#f1f5f9" strokeWidth="1" />
+                            <line x1="0" y1="20" x2="160" y2="20" stroke="#f1f5f9" strokeWidth="1" />
+                            <line x1="0" y1="40" x2="160" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                            <line x1="0" y1="60" x2="160" y2="60" stroke="#f1f5f9" strokeWidth="1" />
+
+                            <path d="M 0 35 C 20 8, 40 10, 60 40 C 90 75, 120 40, 160 30" fill="none" stroke="#F43F5E" strokeWidth="1.5" />
+                            <path d="M 0 45 C 30 15, 60 25, 90 45 C 120 18, 140 22, 160 15" fill="none" stroke="#2563EB" strokeWidth="1.5" />
+                            <path d="M 0 30 C 25 70, 50 65, 80 40 C 110 20, 130 50, 160 12" fill="none" stroke="#0D9488" strokeWidth="1.5" />
+                            <path d="M 0 65 C 25 35, 50 35, 80 55 C 110 40, 135 60, 160 25" fill="none" stroke="#7C3AED" strokeWidth="1.5" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Dates */}
+                      <div className="flex justify-between text-[8px] text-gray-400 ml-6">
+                        <span>Aug 24</span>
+                        <span>Aug 25</span>
+                        <span>Aug 26</span>
+                        <span>Aug 27</span>
+                        <span>Aug 28</span>
+                        <span>Aug 29</span>
+                      </div>
+
+                      {/* Legend */}
+                      <div className="flex flex-wrap items-center gap-1.5 text-[8px] pt-0.5">
+                        <span className="flex items-center gap-1 text-gray-700 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-[#0D9488]" />You</span>
+                        <span className="flex items-center gap-1 text-gray-700 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />Smx</span>
+                        <span className="flex items-center gap-1 text-gray-700 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-[#F43F5E]" />Pubcon</span>
+                        <span className="flex items-center gap-1 text-gray-700 font-medium"><span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />Tech SEO</span>
+                        <span className="flex items-center gap-1 text-emerald-600 font-medium">✓ Competitors</span>
+                      </div>
+                    </div>
+
+                    {/* Competitors Table */}
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-gray-900 text-xs block">Competitors</span>
+                      <div className="overflow-hidden">
+                        <table className="w-full text-left text-[9px]">
+                          <thead>
+                            <tr className="text-gray-400 border-b border-gray-100">
+                              <th className="pb-1 font-normal">#</th>
+                              <th className="pb-1 font-normal">Brand</th>
+                              <th className="pb-1 font-normal">Visibility</th>
+                              <th className="pb-1 font-normal">Avg pos</th>
+                              <th className="pb-1 font-normal text-right">Net</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50 font-medium">
+                            <tr>
+                              <td className="py-1 text-gray-400">1</td>
+                              <td className="py-1 flex items-center gap-1 text-gray-800">
+                                <span className="w-3.5 h-3.5 rounded bg-blue-600 text-white font-black text-[7px] flex items-center justify-center">b.</span>
+                                Brighto..
+                              </td>
+                              <td className="py-1 font-bold text-gray-900">99%</td>
+                              <td className="py-1 text-gray-800">2.61</td>
+                              <td className="py-1 text-right text-emerald-600 font-bold">+78</td>
+                            </tr>
+                            <tr>
+                              <td className="py-1 text-gray-400">2</td>
+                              <td className="py-1 flex items-center gap-1 text-gray-800">
+                                <span className="w-3.5 h-3.5 rounded bg-sky-500 text-white font-black text-[7px] flex items-center justify-center">🔍</span>
+                                Smx
+                              </td>
+                              <td className="py-1 font-bold text-gray-900">83%</td>
+                              <td className="py-1 text-gray-800">2.75</td>
+                              <td className="py-1 text-right text-emerald-600 font-bold">+44</td>
+                            </tr>
+                            <tr>
+                              <td className="py-1 text-gray-400">3</td>
+                              <td className="py-1 flex items-center gap-1 text-gray-800">
+                                <span className="w-3.5 h-3.5 rounded bg-gray-500 text-white font-black text-[7px] flex items-center justify-center">🌐</span>
+                                Pubcon
+                              </td>
+                              <td className="py-1 font-bold text-gray-900">80%</td>
+                              <td className="py-1 text-gray-800">5.11</td>
+                              <td className="py-1 text-right text-emerald-600 font-bold">+40</td>
+                            </tr>
+                            <tr>
+                              <td className="py-1 text-gray-400">4</td>
+                              <td className="py-1 flex items-center gap-1 text-gray-800">
+                                <span className="w-3.5 h-3.5 rounded bg-teal-500 text-white font-black text-[7px] flex items-center justify-center">⚙️</span>
+                                Tech SE..
+                              </td>
+                              <td className="py-1 font-bold text-gray-900">72%</td>
+                              <td className="py-1 text-gray-800">5.87</td>
+                              <td className="py-1 text-right text-emerald-600 font-bold">+39</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Category Dropdown */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsEcoCategoryOpen(!isEcoCategoryOpen)}
-                      className="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1 font-semibold"
-                    >
-                      <span>Category: {ecoVisibleCategory}</span>
-                      <ChevronDown className="w-3 h-3" />
-                    </button>
-                    {isEcoCategoryOpen && (
-                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-md p-1 z-20 w-36 space-y-0.5 text-xs">
-                        {['All', 'Conferences', 'News', 'Blogs'].map((c) => (
-                          <button
-                            key={c}
-                            type="button"
-                            onClick={() => {
-                              setEcoVisibleCategory(c);
-                              setIsEcoCategoryOpen(false);
-                            }}
-                            className="w-full text-left px-2.5 py-1 rounded hover:bg-gray-50 text-gray-700"
-                          >
-                            {c}
-                          </button>
-                        ))}
+                  {/* Bottom Row: Net Sentiment Donut (Left) + Sources Table (Right) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {/* Net Sentiment */}
+                    <div className="space-y-1.5">
+                      <span className="font-bold text-gray-900 text-xs block">Net sentiment</span>
+                      <div className="flex items-center gap-2.5">
+                        {/* Donut Chart */}
+                        <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                          <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                            <path
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="#E5E7EB"
+                              strokeWidth="3.5"
+                            />
+                            <path
+                              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                              fill="none"
+                              stroke="#0D9488"
+                              strokeWidth="3.8"
+                              strokeDasharray="79, 100"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <span className="absolute font-black text-xs text-gray-900">+79</span>
+                        </div>
+
+                        {/* Breakdown text */}
+                        <div className="space-y-0.5 text-[8.5px]">
+                          <div className="text-[8px] text-gray-400">Analyzed 71 mentions</div>
+                          <div className="flex items-center gap-1 font-semibold text-gray-800">
+                            <span className="w-1.5 h-1.5 rounded-xs bg-[#0D9488]" /> 79% Positive
+                          </div>
+                          <div className="flex items-center gap-1 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-xs bg-gray-300" /> 61% Neutral
+                          </div>
+                          <div className="flex items-center gap-1 text-gray-500">
+                            <span className="w-1.5 h-1.5 rounded-xs bg-rose-500" /> 0% Negative
+                          </div>
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Sources Table */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-gray-900 text-xs">Sources</span>
+                        <div className="flex items-center gap-1 text-[8px]">
+                          <span className="bg-gray-100 text-gray-800 font-semibold px-1 rounded">Domains</span>
+                          <span className="text-gray-400">URLs</span>
+                          <span className="border border-gray-200 rounded px-1 text-gray-600">Cat: All ▾</span>
+                        </div>
+                      </div>
+                      <table className="w-full text-left text-[8.5px]">
+                        <thead>
+                          <tr className="text-gray-400 border-b border-gray-100">
+                            <th className="pb-1 font-normal">Source</th>
+                            <th className="pb-1 font-normal">Category</th>
+                            <th className="pb-1 font-normal text-right">Used</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50 font-medium">
+                          <tr>
+                            <td className="py-1 text-gray-800 flex items-center gap-1">
+                              <span className="text-xs">📰</span> Emryo.com
+                            </td>
+                            <td className="py-1">
+                              <span className="bg-gray-100 text-gray-700 px-1 py-0.5 rounded-xs text-[7.5px]">SEO conf</span>
+                            </td>
+                            <td className="py-1 text-right text-gray-900 font-bold">100%</td>
+                          </tr>
+                          <tr>
+                            <td className="py-1 text-gray-800 flex items-center gap-1">
+                              <span className="text-xs">🤖</span> Writesonic
+                            </td>
+                            <td className="py-1">
+                              <span className="bg-gray-100 text-gray-700 px-1 py-0.5 rounded-xs text-[7.5px]">SEO conf</span>
+                            </td>
+                            <td className="py-1 text-right text-gray-900 font-bold">88%</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="text-gray-400 border-b border-gray-200/80 pb-2">
-                      <th className="font-bold py-2">Source</th>
-                      <th className="font-bold py-2">Category</th>
-                      <th className="font-bold py-2 text-right">Used</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200/60 font-medium">
-                    <tr>
-                      <td className="py-2.5 font-bold text-gray-800 flex items-center gap-2">
-                        <Globe className="w-3.5 h-3.5 text-gray-400" />
-                        Emryo.com
-                      </td>
-                      <td className="py-2.5">
-                        <span className="px-2 py-0.5 bg-gray-200/60 text-gray-700 rounded-md text-[10px] font-semibold">
-                          SEO conferences
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-right font-bold text-gray-900">100%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 font-bold text-gray-800 flex items-center gap-2">
-                        <Globe className="w-3.5 h-3.5 text-gray-400" />
-                        Writesonic
-                      </td>
-                      <td className="py-2.5">
-                        <span className="px-2 py-0.5 bg-gray-200/60 text-gray-700 rounded-md text-[10px] font-semibold">
-                          SEO conferences
-                        </span>
-                      </td>
-                      <td className="py-2.5 text-right font-bold text-gray-900">88%</td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* Card 2 Button */}
+              <div className="pt-5">
+                <a
+                  href="https://visible.seranking.com/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[#1351d8] hover:text-[#0f46bd] font-medium text-sm transition-colors group cursor-pointer"
+                >
+                  <span>Explore SE Visible</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </a>
               </div>
             </div>
 
-            <a href="https://visible.seranking.com/" target="_blank" rel="noreferrer" className="text-xs sm:text-sm font-bold text-[#0F766E] hover:underline inline-flex items-center gap-1.5 pt-2">
-              <span>Explore SE Visible</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
+            {/* Card 3: Planable (Social) */}
+            <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-xs border border-blue-100/60 flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Planable multi-color flower logo */}
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      <div className="w-4 h-4 grid grid-cols-2 gap-0.5 rotate-45">
+                        <span className="bg-emerald-400 rounded-xs" />
+                        <span className="bg-amber-400 rounded-xs" />
+                        <span className="bg-purple-500 rounded-xs" />
+                        <span className="bg-pink-500 rounded-xs" />
+                      </div>
+                    </div>
+                    <span className="font-bold text-lg text-[#101423]">planable</span>
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-[#38E0F7] text-[#101423] px-3 py-1 rounded-md">
+                    Social
+                  </span>
+                </div>
+
+                <p className="text-sm text-gray-600 leading-relaxed min-h-[4rem]">
+                  Plan, collaborate, publish, and track social performance in one workflow. Use automations and API access to keep scheduling, approvals, reporting, and integrations running.
+                </p>
+
+                {/* Card Mockup: Social Performance Stacked Waves & Metrics */}
+                <div className="bg-[#FAFBFD] border border-gray-100 rounded-2xl p-3.5 sm:p-4 shadow-2xs space-y-3.5 text-xs">
+                  {/* Social Channel Pills */}
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-[8.5px] text-gray-600 pb-1">
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-xs bg-[#FB923C]" /> Instagram</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-xs bg-[#4ADE80]" /> TikTok</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-xs bg-[#818CF8]" /> Facebook</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-xs bg-[#60A5FA]" /> YouTube</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-xs bg-[#F472B6]" /> LinkedIn</span>
+                    <span className="text-gray-400">-- Incomplete data</span>
+                  </div>
+
+                  {/* 3 Metric Cards Row */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="p-2 rounded-xl bg-white border-2 border-blue-500 shadow-2xs">
+                      <div className="flex items-center justify-between text-[8px] text-gray-500 mb-0.5">
+                        <span>Followers</span>
+                        <Users className="w-2.5 h-2.5 text-gray-400" />
+                      </div>
+                      <div className="font-bold text-gray-900 text-xs sm:text-sm">150,716</div>
+                      <div className="inline-block mt-0.5 px-1 py-0.2 bg-emerald-100 text-emerald-700 text-[8px] font-semibold rounded">
+                        ↑ 1,416
+                      </div>
+                    </div>
+
+                    <div className="p-2 rounded-xl bg-white border border-gray-200/80 shadow-2xs">
+                      <div className="flex items-center justify-between text-[8px] text-gray-500 mb-0.5">
+                        <span>Impressions</span>
+                        <Eye className="w-2.5 h-2.5 text-gray-400" />
+                      </div>
+                      <div className="font-bold text-gray-900 text-xs sm:text-sm">2,154,703</div>
+                      <div className="inline-block mt-0.5 px-1 py-0.2 bg-rose-100 text-rose-700 text-[8px] font-semibold rounded">
+                        ↓ 27%
+                      </div>
+                    </div>
+
+                    <div className="p-2 rounded-xl bg-white border border-gray-200/80 shadow-2xs">
+                      <div className="flex items-center justify-between text-[8px] text-gray-500 mb-0.5">
+                        <span>Engagements</span>
+                        <MousePointerClick className="w-2.5 h-2.5 text-gray-400" />
+                      </div>
+                      <div className="font-bold text-gray-900 text-xs sm:text-sm">41,967</div>
+                      <div className="inline-block mt-0.5 px-1 py-0.2 bg-gray-100 text-gray-700 text-[8px] font-semibold rounded">
+                        → 0
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stacked Waves Chart with Jusco Juice Tooltip */}
+                  <div className="relative pt-2">
+                    <div className="h-28 w-full relative">
+                      <svg viewBox="0 0 320 120" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id="gradOrange" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#FB923C" stopOpacity="0.75" />
+                            <stop offset="100%" stopColor="#FDBA74" stopOpacity="0.4" />
+                          </linearGradient>
+                          <linearGradient id="gradGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#4ADE80" stopOpacity="0.7" />
+                            <stop offset="100%" stopColor="#86EFAC" stopOpacity="0.4" />
+                          </linearGradient>
+                          <linearGradient id="gradPurple" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.65" />
+                            <stop offset="100%" stopColor="#C4B5FD" stopOpacity="0.35" />
+                          </linearGradient>
+                          <linearGradient id="gradPink" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#F472B6" stopOpacity="0.6" />
+                            <stop offset="100%" stopColor="#FBCFE8" stopOpacity="0.3" />
+                          </linearGradient>
+                        </defs>
+
+                        {/* Layer 1: Orange Top Curve */}
+                        <path
+                          d="M 0 75 C 60 70, 110 30, 160 30 C 210 30, 240 70, 320 70 L 320 120 L 0 120 Z"
+                          fill="url(#gradOrange)"
+                        />
+                        {/* Layer 2: Green Curve */}
+                        <path
+                          d="M 0 82 C 60 78, 110 50, 160 50 C 210 50, 240 80, 320 78 L 320 120 L 0 120 Z"
+                          fill="url(#gradGreen)"
+                        />
+                        {/* Layer 3: Purple Curve */}
+                        <path
+                          d="M 0 92 C 60 88, 110 70, 160 70 C 210 70, 240 92, 320 90 L 320 120 L 0 120 Z"
+                          fill="url(#gradPurple)"
+                        />
+                        {/* Layer 4: Pink Curve */}
+                        <path
+                          d="M 0 98 C 60 95, 110 82, 160 82 C 210 82, 240 98, 320 96 L 320 120 L 0 120 Z"
+                          fill="url(#gradPink)"
+                        />
+
+                        {/* Top Wave Outlines */}
+                        <path d="M 0 75 C 60 70, 110 30, 160 30 C 210 30, 240 70, 320 70" fill="none" stroke="#F97316" strokeWidth="1.5" />
+                        <path d="M 0 82 C 60 78, 110 50, 160 50 C 210 50, 240 80, 320 78" fill="none" stroke="#22C55E" strokeWidth="1.5" />
+                        <path d="M 0 92 C 60 88, 110 70, 160 70 C 210 70, 240 92, 320 90" fill="none" stroke="#8B5CF6" strokeWidth="1.5" />
+                      </svg>
+
+                      {/* Tooltip for Jusco Juice at Oct 11, 2025 */}
+                      <div className="absolute right-4 top-4 bg-white/95 backdrop-blur-xs border border-gray-200/90 rounded-xl p-2.5 shadow-lg text-[9px] z-10 space-y-1">
+                        <div className="text-[8px] text-gray-400 font-medium">Oct 11, 2025</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-gray-900 flex items-center gap-1">
+                            <span className="w-2.5 h-2.5 rounded-full bg-black text-white flex items-center justify-center text-[6px]">♪</span>
+                            Jusco Juice
+                          </span>
+                          <span className="font-bold text-gray-800">32,718</span>
+                        </div>
+                      </div>
+
+                      {/* Mouse cursor pointer pointing at tooltip */}
+                      <div className="absolute right-12 top-14 z-20 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-900 fill-white drop-shadow-md" viewBox="0 0 24 24">
+                          <path d="M3 3l7 18 3-7 7-3L3 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* X-axis dates */}
+                    <div className="flex justify-between text-[8px] text-gray-400 pt-1">
+                      <span>Oct 7</span>
+                      <span>Oct 8</span>
+                      <span>Oct 9</span>
+                      <span>Oct 10</span>
+                      <span>Oct 11</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 Button */}
+              <div className="pt-5">
+                <a
+                  href="https://planable.io/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[#1351d8] hover:text-[#0f46bd] font-medium text-sm transition-colors group cursor-pointer"
+                >
+                  <span>Explore Planable</span>
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </a>
+              </div>
+            </div>
           </div>
 
-          {/* Card 3: Planable (SOCIAL) - Screenshot 4 Exact */}
-          <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 shadow-xs space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-linear-to-tr from-amber-400 via-rose-500 to-indigo-600 flex items-center justify-center text-white">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="7" r="3" />
-                    <circle cx="7" cy="15" r="3" />
-                    <circle cx="17" cy="15" r="3" />
-                  </svg>
+          {/* Bottom Card: 3 Pillars with Cyan Checkmarks */}
+          <div className="bg-white rounded-3xl p-7 sm:p-9 shadow-xs border border-blue-100/50">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Feature 1 */}
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#38E0F7] text-gray-900 flex items-center justify-center shrink-0 shadow-xs">
+                  <Check className="w-5 h-5 stroke-[3]" />
                 </div>
-                <span className="font-bold text-lg sm:text-xl text-gray-900">planable</span>
-              </div>
-              <span className="text-[11px] font-black uppercase tracking-wider bg-[#E0F2FE] text-[#0284C7] px-3 py-1 rounded-md">
-                SOCIAL
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed max-w-3xl">
-              Plan, collaborate, publish, and track social performance in one workflow. Use automations and API access to keep scheduling, approvals, reporting, and integrations running.
-            </p>
-
-            {/* Channel Legend Pills */}
-            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-gray-700 pt-1">
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#FB923C]" /> Instagram</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#2DD4BF]" /> TikTok</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#3B82F6]" /> Facebook</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#60A5FA]" /> YouTube</span>
-              <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-[#F43F5E]" /> LinkedIn</span>
-              <span className="flex items-center gap-1.5 text-gray-400 border-b border-dashed border-gray-400">-- Incomplete data</span>
-            </div>
-
-            {/* 3 Big KPI Boxes */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              <div className="p-5 bg-white border border-gray-200 rounded-2xl shadow-2xs space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                  <span>Followers</span>
-                  <Users className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">150,716</span>
-                  <span className="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded flex items-center">
-                    ↑ 1,416
-                  </span>
+                <div className="space-y-1.5">
+                  <h3 className="font-bold text-[#101423] text-base sm:text-lg leading-snug">
+                    More context for your visibility
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                    See how your brand performs across organic search, LLMs, and social to get a fuller visibility picture.
+                  </p>
                 </div>
               </div>
 
-              <div className="p-5 bg-white border border-gray-200 rounded-2xl shadow-2xs space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                  <span>Impressions</span>
-                  <Eye className="w-4 h-4 text-gray-400" />
+              {/* Feature 2 */}
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#38E0F7] text-gray-900 flex items-center justify-center shrink-0 shadow-xs">
+                  <Check className="w-5 h-5 stroke-[3]" />
                 </div>
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">2,154,703</span>
-                  <span className="text-xs bg-rose-100 text-rose-700 font-extrabold px-1.5 py-0.5 rounded flex items-center">
-                    ↓ 27%
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-5 bg-white border border-gray-200 rounded-2xl shadow-2xs space-y-2">
-                <div className="flex items-center justify-between text-xs font-semibold text-gray-500">
-                  <span>Engagements</span>
-                  <BarChart3 className="w-4 h-4 text-gray-400" />
-                </div>
-                <div className="flex items-baseline gap-2.5">
-                  <span className="text-2xl sm:text-3xl font-black text-gray-900">41,967</span>
-                  <span className="text-xs bg-gray-100 text-gray-600 font-extrabold px-1.5 py-0.5 rounded flex items-center">
-                    → 0
-                  </span>
+                <div className="space-y-1.5">
+                  <h3 className="font-bold text-[#101423] text-base sm:text-lg leading-snug">
+                    AI workflows on real brand data
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                    Link search performance, GEO insights, and social analytics to Claude, Cursor, or any other AI tool via MCP and API.
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Stacked Multi-layer Wave Area Chart */}
-            <div className="h-60 sm:h-72 w-full pt-4 relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={ecoPlanableData}>
-                  <defs>
-                    <linearGradient id="colorYt" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#FB923C" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#FB923C" stopOpacity={0.05}/>
-                    </linearGradient>
-                    <linearGradient id="colorTiktok" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2DD4BF" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#2DD4BF" stopOpacity={0.05}/>
-                    </linearGradient>
-                    <linearGradient id="colorFb" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#818CF8" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#818CF8" stopOpacity={0.05}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748B' }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '12px' }} />
-                  <Area type="monotone" dataKey="tiktok" stackId="1" stroke="#FB923C" fill="url(#colorYt)" />
-                  <Area type="monotone" dataKey="ig" stackId="1" stroke="#2DD4BF" fill="url(#colorTiktok)" />
-                  <Area type="monotone" dataKey="fb" stackId="1" stroke="#818CF8" fill="url(#colorFb)" />
-                </AreaChart>
-              </ResponsiveContainer>
-
-              {/* Floating Tooltip Card matching Screenshot 4 */}
-              <div className="absolute right-8 top-8 bg-white/95 backdrop-blur-xs border border-gray-200 rounded-xl shadow-lg p-3 text-xs space-y-1 z-10 hidden sm:block">
-                <div className="text-[10px] text-gray-400 font-semibold">Oct 11, 2025</div>
-                <div className="flex items-center gap-4 justify-between font-bold text-gray-900">
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-sm">♪</span> Jusco Juice
-                  </span>
-                  <span className="font-mono">32,718</span>
+              {/* Feature 3 */}
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-[#38E0F7] text-gray-900 flex items-center justify-center shrink-0 shadow-xs">
+                  <Check className="w-5 h-5 stroke-[3]" />
+                </div>
+                <div className="space-y-1.5">
+                  <h3 className="font-bold text-[#101423] text-base sm:text-lg leading-snug">
+                    Cross-channel performance
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                    Find connections between channels, analyze dependencies, and act on the right signals instead of isolated metrics
+                  </p>
                 </div>
               </div>
-            </div>
-
-            <a href="https://planable.io/" target="_blank" rel="noreferrer" className="text-xs sm:text-sm font-bold text-[#0B69FF] hover:underline inline-flex items-center gap-1.5 pt-2">
-              <span>Explore Planable</span>
-              <ArrowRight className="w-4 h-4" />
-            </a>
-          </div>
-
-          {/* 3 Cyan Value Props below Planable (Screenshot 5 Exact Match) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-            <div className="p-6 bg-white border border-gray-200/80 rounded-2xl shadow-2xs space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-[#38BDF8] text-white flex items-center justify-center font-bold">
-                <Check className="w-5 h-5 stroke-[3]" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                More context for your visibility
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                See how your brand performs across organic search, LLMs, and social to get a fuller visibility picture.
-              </p>
-            </div>
-
-            <div className="p-6 bg-white border border-gray-200/80 rounded-2xl shadow-2xs space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-[#38BDF8] text-white flex items-center justify-center font-bold">
-                <Check className="w-5 h-5 stroke-[3]" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                AI workflows on real brand data
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                Link search performance, GEO insights, and social analytics to Claude, Cursor, or any other AI tool via MCP and API.
-              </p>
-            </div>
-
-            <div className="p-6 bg-white border border-gray-200/80 rounded-2xl shadow-2xs space-y-3">
-              <div className="w-8 h-8 rounded-lg bg-[#38BDF8] text-white flex items-center justify-center font-bold">
-                <Check className="w-5 h-5 stroke-[3]" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-sm sm:text-base">
-                Cross-channel performance
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                Find connections between channels, analyze dependencies, and act on the right signals instead of isolated metrics
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 8. Brand, grow, and win more clients with the Agency Pack (Screenshot 5 Exact Match) */}
-      <section className="py-16 sm:py-24 bg-white border-t border-gray-200 px-4 sm:px-8">
-        <div className="max-w-6xl mx-auto space-y-10">
+      {/* 8. Brand, grow, and win more clients with the Agency Pack (Exact Screenshot Match) */}
+      <section className="py-16 sm:py-24 bg-white border-t border-gray-100 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-10">
           <div className="text-center max-w-3xl mx-auto space-y-3">
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-tight">
+            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#101423] tracking-tight leading-tight">
               Brand, grow, and win more clients with the Agency Pack
             </h2>
-            <p className="text-gray-500 text-xs sm:text-sm md:text-base leading-relaxed">
+            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
               Take control of your agency&apos;s client cycle with tools that help you attract prospects, deliver results, and build loyalty.
             </p>
           </div>
 
           {/* 5 Agency Pack Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-sm">
             {(
               [
                 { id: 'catalog', label: 'Agency Catalog' },
@@ -3552,10 +3647,10 @@ export default function LandingPage() {
                 key={t.id}
                 type="button"
                 onClick={() => setAgencyPackTab(t.id)}
-                className={`px-4 sm:px-5 py-2.5 rounded-full transition-all cursor-pointer ${
+                className={`px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-[15px] transition-all cursor-pointer ${
                   agencyPackTab === t.id
-                    ? 'bg-[#1E293B] text-white shadow-xs'
-                    : 'bg-transparent text-gray-600 hover:bg-gray-100'
+                    ? 'bg-[#101423] text-white font-normal shadow-xs'
+                    : 'text-[#667085] hover:text-[#101423] font-normal hover:bg-gray-50'
                 }`}
               >
                 {t.label}
@@ -3563,12 +3658,71 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Active Tab: Agency Catalog */}
+          {/* 1. Tab: Agency Catalog */}
           {agencyPackTab === 'catalog' && (
-            <div className="space-y-8 animate-in fade-in duration-200">
-              <div className="space-y-3 max-w-4xl">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">Agency Catalog</h3>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: 4 Agency Cards in Mockup */}
+              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-5 sm:p-6 shadow-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {agencyCatalogItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-4 bg-white border border-gray-200/80 rounded-2xl space-y-3 shadow-2xs"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 text-gray-400">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                            <circle cx="9" cy="9" r="2" />
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                          </svg>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-bold text-gray-900 truncate">{item.name}</div>
+                          <span className="text-[11px] text-[#1351d8] hover:underline block truncate">
+                            {item.url}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-[11px] text-gray-600 pt-2 border-t border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="text-gray-400 w-14">Location</span>
+                          <span className="font-medium text-gray-800 truncate">{item.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Sliders className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="text-gray-400 w-14">Services</span>
+                          <span className="font-medium text-gray-800 truncate">{item.services}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="text-gray-400 w-14">Industries</span>
+                          <span className="font-medium text-gray-800 truncate">{item.industries}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="text-gray-400 w-14">Budget</span>
+                          <span className="font-medium text-gray-800 truncate">{item.budget}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users className="w-3 h-3 text-gray-400 shrink-0" />
+                          <span className="text-gray-400 w-14">Team size</span>
+                          <span className="font-medium text-gray-800 truncate">{item.teamSize}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  Agency Catalog
+                </h3>
+                <p className="text-base text-gray-600 leading-relaxed font-normal">
                   Jump into the spotlight with SE Ranking&apos;s Agency Pack! Secure a spot in our expert Agency Catalog, where your services take center stage in front of new prospects. Watch your leads soar, trust surge, and your agency thrive and grow.
                 </p>
                 <div className="pt-2">
@@ -3576,119 +3730,347 @@ export default function LandingPage() {
                     href="https://seranking.com/agency-catalog.html"
                     target="_blank"
                     rel="noreferrer"
-                    className="px-5 py-2.5 bg-[#1E293B] hover:bg-black text-white text-xs sm:text-sm font-bold rounded-xl transition-all inline-block shadow-xs"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
                   >
                     Browse catalog
                   </a>
                 </div>
               </div>
+            </div>
+          )}
 
-              {/* 4 Agency Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                {agencyCatalogItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-6 bg-gray-50/70 border border-gray-200/80 rounded-2xl hover:border-gray-300 transition-all space-y-4 shadow-2xs"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-400">
-                        <Briefcase className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <div className="text-base font-bold text-gray-900">{item.name}</div>
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-[#0B69FF] hover:underline block truncate"
-                        >
-                          {item.url}
-                        </a>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 text-xs text-gray-600 pt-2 border-t border-gray-200/60">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <span className="text-gray-500 w-16">Location</span>
-                        <span className="font-semibold text-gray-800">{item.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <span className="text-gray-500 w-16">Services</span>
-                        <span className="font-semibold text-gray-800 truncate">{item.services}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Briefcase className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <span className="text-gray-500 w-16">Industries</span>
-                        <span className="font-semibold text-gray-800 truncate">{item.industries}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <span className="text-gray-500 w-16">Budget</span>
-                        <span className="font-semibold text-gray-800">{item.budget}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        <span className="text-gray-500 w-16">Team size</span>
-                        <span className="font-semibold text-gray-800">{item.teamSize}</span>
-                      </div>
-                    </div>
+          {/* 2. Tab: White Label Reporting */}
+          {agencyPackTab === 'reporting' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: SEO Report Card with Gauge */}
+              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-8 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[380px] relative overflow-hidden">
+                <div className="w-full max-w-sm bg-white rounded-3xl border border-gray-200 p-6 shadow-sm text-center space-y-3 relative overflow-hidden">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#101423] text-white rounded-md text-xs font-semibold">
+                    <span>*</span>
+                    <span>My Logo</span>
                   </div>
-                ))}
+                  <div>
+                    <h4 className="text-2xl font-bold text-[#101423]">SEO Report</h4>
+                    <p className="text-[11px] text-gray-400 tracking-wider uppercase font-medium mt-0.5">
+                      JAN-19 2025 | JAN-25 2025
+                    </p>
+                  </div>
+
+                  {/* Multi-color gauge arch */}
+                  <div className="pt-4 flex justify-center">
+                    <svg width="220" height="120" viewBox="0 0 200 110" className="overflow-visible">
+                      <path
+                        d="M 20 100 A 80 80 0 0 1 180 100"
+                        fill="none"
+                        stroke="#F1F5F9"
+                        strokeWidth="24"
+                        strokeDasharray="4 2"
+                      />
+                      <path
+                        d="M 20 100 A 80 80 0 0 1 65 38"
+                        fill="none"
+                        stroke="#10B981"
+                        strokeWidth="24"
+                      />
+                      <path
+                        d="M 68 35 A 80 80 0 0 1 125 32"
+                        fill="none"
+                        stroke="#F43F5E"
+                        strokeWidth="24"
+                      />
+                      <path
+                        d="M 128 35 A 80 80 0 0 1 180 100"
+                        fill="none"
+                        stroke="#1351D8"
+                        strokeWidth="24"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  White Label Reporting
+                </h3>
+                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                  Keep your customer in the loop with compelling reporting. Design customizable automated reports to effortlessly showcase the value of your SEO services to clients.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                  >
+                    Projects
+                  </Link>
+                </div>
               </div>
             </div>
           )}
 
-          {/* Dynamic previews for other Agency Pack tabs */}
-          {agencyPackTab !== 'catalog' && (
-            <div className="p-8 bg-gray-50/70 border border-gray-200 rounded-3xl space-y-4 animate-in fade-in duration-200">
-              <h3 className="text-xl font-bold text-gray-900 capitalize">
-                {agencyPackTab.replace('-', ' ')}
-              </h3>
-              <p className="text-sm text-gray-600 max-w-2xl leading-relaxed">
-                {agencyPackTab === 'reporting' &&
-                  'Generate and send automated, custom-branded PDF reports to your clients with live ranking deltas, competitors, and KPI summaries on scheduled dates.'}
-                {agencyPackTab === 'lead-gen' &&
-                  'Embed a high-converting, custom SEO audit widget onto your agency website to capture qualified prospect contact information automatically.'}
-                {agencyPackTab === 'white-label' &&
-                  'Host SE Ranking under your own custom domain, logo, and brand color palette with zero third-party branding visible to clients.'}
-                {agencyPackTab === 'seats' &&
-                  'Invite unlimited client and contractor accounts with read-only or customizable role permissions tailored to each project.'}
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/agency-pack"
-                  className="px-6 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-xs font-bold rounded-xl transition-all inline-block"
-                >
-                  Configure {agencyPackTab.replace('-', ' ')}
-                </Link>
+          {/* 3. Tab: Lead Generator */}
+          {agencyPackTab === 'lead-gen' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Leads Mockup Card */}
+              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <h4 className="text-base font-bold text-[#101423]">Leads</h4>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-white rounded-xl border border-gray-200">
+                    <div className="text-2xl font-bold text-[#101423]">72</div>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">TODAY</div>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-gray-200">
+                    <div className="text-2xl font-bold text-[#101423]">1798</div>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">PER MONTH</div>
+                  </div>
+                  <div className="p-3 bg-white rounded-xl border border-gray-200">
+                    <div className="text-2xl font-bold text-[#101423]">58</div>
+                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">AVG. PER DAY</div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-100 text-[10px] text-gray-400 uppercase font-semibold">
+                        <th className="py-2.5 px-3">AUDIT PAGE URL</th>
+                        <th className="py-2.5 px-3">LEAD INFO</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-gray-700">
+                      <tr>
+                        <td className="py-3 px-3 flex items-center gap-2">
+                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
+                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.g2.com/products/se-rankin...</span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-gray-900">Dianne Russell</div>
+                          <div className="text-gray-400 text-[11px]">dianne.russel@outlook.com</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 flex items-center gap-2">
+                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
+                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.capterra.com/p/142169/SE...</span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-gray-900">Megan Smith</div>
+                          <div className="text-gray-400 text-[11px]">megan.design@gmail.com</div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 flex items-center gap-2">
+                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
+                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.getapp.com/marketing-soft...</span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="font-semibold text-gray-900">Dianne Russell</div>
+                          <div className="text-gray-400 text-[11px]">dianne.russel@outlook.com</div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  Lead Generator
+                </h3>
+                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                  Expand your email list and generate new quality leads. Embed our customizable lead gen solutions to your website and convert visitors into new customers.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                  >
+                    Projects
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. Tab: White Label */}
+          {agencyPackTab === 'white-label' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: White Label Customization Mockup Card */}
+              <div className="lg:col-span-7 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
+                {/* Mint green header bar */}
+                <div className="p-4 bg-[#C4FFC4]/50 border-b border-gray-200/60 flex items-center gap-2">
+                  <div className="px-3 py-1 bg-white text-[#101423] border border-gray-200 rounded-md text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs">
+                    <span>*</span>
+                    <span>My Logo</span>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-5">
+                  {/* UI Color */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono text-gray-500 uppercase">UI Color</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-[#C4FFC4] border-2 border-gray-900 cursor-pointer shadow-2xs" />
+                      <div className="w-7 h-7 rounded-lg bg-[#7C3AED] cursor-pointer hover:scale-105 transition-transform" />
+                      <div className="w-7 h-7 rounded-lg bg-[#F59E0B] cursor-pointer hover:scale-105 transition-transform" />
+                      <div className="w-7 h-7 rounded-lg bg-[#1351D8] cursor-pointer hover:scale-105 transition-transform" />
+                      <div className="w-7 h-7 rounded-lg bg-[#EC4899] cursor-pointer hover:scale-105 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Company Logo */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-xs font-mono text-gray-500">Company logo</span>
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 bg-white border border-gray-200 rounded-md text-xs font-semibold text-gray-800">
+                        * My Logo
+                      </span>
+                      <button type="button" className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                          <circle cx="9" cy="9" r="2" />
+                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                        </svg>
+                        Update logo
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Footer Logo */}
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-xs font-mono text-gray-500">Footer logo</span>
+                    <button type="button" className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-xs font-medium text-gray-700 flex items-center gap-1.5">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      </svg>
+                      Upload logo
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  White Label
+                </h3>
+                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                  Enhance credibility and strengthen customer trust. Create a seamless client experience by providing access to our SEO platform customized to your brand book and domain name.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                  >
+                    Projects
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 5. Tab: Client Seats */}
+          {agencyPackTab === 'seats' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+              {/* Left Column: Users Table Mockup Card */}
+              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <h4 className="text-base font-bold text-[#101423]">Users</h4>
+
+                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-100 text-[10px] text-gray-400 uppercase font-semibold">
+                        <th className="py-2.5 px-3">NAME</th>
+                        <th className="py-2.5 px-3">ACCOUNT TYPE</th>
+                        <th className="py-2.5 px-3">EMAIL</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      <tr className="bg-[#E6F7FF]/80">
+                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
+                          <span className="text-gray-400">›</span>
+                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">7</span>
+                          <span>Devon Lane</span>
+                        </td>
+                        <td className="py-3 px-3 font-medium text-gray-800">
+                          <span className="inline-flex items-center gap-1">🛡 Owner</span>
+                        </td>
+                        <td className="py-3 px-3 text-gray-600">ewaters@comcast.net</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
+                          <span className="text-gray-400">›</span>
+                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">51</span>
+                          <span>Harry Leddington</span>
+                        </td>
+                        <td className="py-3 px-3 font-medium text-gray-800">
+                          <span className="inline-flex items-center gap-1">👤 Client</span>
+                        </td>
+                        <td className="py-3 px-3 text-gray-600">yeedancer@gmail.c...</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
+                          <span className="text-gray-400">›</span>
+                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">65</span>
+                          <span>Mark Kleiner</span>
+                        </td>
+                        <td className="py-3 px-3 font-medium text-gray-800">
+                          <span className="inline-flex items-center gap-1">👤 Manager</span>
+                        </td>
+                        <td className="py-3 px-3 text-gray-600">m.klnr@outlook.com</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="lg:col-span-5 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  Client Seats
+                </h3>
+                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                  Get extra client seats to openly communicate your progress. Choose which SEO tools your clients will have access to and adjust access settings at any time.
+                </p>
+                <div className="pt-2">
+                  <Link
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                  >
+                    Projects
+                  </Link>
+                </div>
               </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* 9. Why SEO pros from 150+ countries choose us (Screenshot 5 Exact Match) */}
-      <section className="py-16 sm:py-24 bg-white border-t border-gray-200 px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto space-y-8 text-center">
-          <h2 className="text-2xl sm:text-4xl font-black text-gray-900 leading-tight">
+      {/* 9. Why SEO pros from 150+ countries choose us (Exact Screenshot Match) */}
+      <section className="py-20 sm:py-28 bg-white border-t border-gray-100 px-4 sm:px-8">
+        <div className="max-w-4xl mx-auto space-y-10 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-bold text-[#101423] tracking-tight">
             Why SEO pros from 150+ countries choose us
           </h2>
 
-          {/* Pagination arrows */}
-          <div className="flex items-center justify-center gap-3">
+          {/* Interactive Pagination < 1 / 7 > matching screenshot */}
+          <div className="flex items-center justify-center gap-2">
             <button
               type="button"
               onClick={() =>
                 setTestimonialIdx((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1))
               }
-              className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-600 cursor-pointer transition-colors"
+              className="w-9 h-9 rounded-xl border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-700 cursor-pointer transition-colors shadow-2xs"
               aria-label="Previous testimonial"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-mono text-xs font-bold text-gray-600 px-2">
+            <span className="font-mono text-sm font-semibold text-gray-700 px-3">
               {testimonialIdx + 1} / {testimonials.length}
             </span>
             <button
@@ -3696,40 +4078,37 @@ export default function LandingPage() {
               onClick={() =>
                 setTestimonialIdx((prev) => (prev + 1) % testimonials.length)
               }
-              className="w-8 h-8 rounded-lg border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-600 cursor-pointer transition-colors"
+              className="w-9 h-9 rounded-xl border border-gray-200 hover:bg-gray-50 flex items-center justify-center text-gray-700 cursor-pointer transition-colors shadow-2xs"
               aria-label="Next testimonial"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Monospace Quote Box */}
-          <div className="p-8 sm:p-10 bg-gray-50/70 border border-gray-200/80 rounded-3xl space-y-6 text-center max-w-3xl mx-auto">
-            <p className="font-mono text-xs sm:text-sm md:text-base text-gray-800 leading-relaxed">
+          {/* Quote display */}
+          <div className="min-h-[160px] flex flex-col justify-center px-4">
+            <p className="text-xl sm:text-2xl lg:text-[26px] font-normal text-[#101423] leading-relaxed max-w-3xl mx-auto font-mono sm:font-sans">
               {testimonials[testimonialIdx].quote}
             </p>
+          </div>
 
-            <div className="flex items-center justify-center gap-3 pt-2">
-              {/* Avatar */}
-              <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-gray-200 shrink-0">
-                <img
-                  src={testimonials[testimonialIdx].avatar}
-                  alt={testimonials[testimonialIdx].name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="text-left">
-                <div className="font-bold text-sm text-gray-900">
-                  {testimonials[testimonialIdx].name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {testimonials[testimonialIdx].role}
-                </div>
-              </div>
+          {/* Author avatar & info */}
+          <div className="flex flex-col items-center gap-2 pt-2">
+            <img
+              src={testimonials[testimonialIdx].avatar}
+              alt={testimonials[testimonialIdx].name}
+              className="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-2xs"
+            />
+            <div className="text-base font-bold text-[#101423]">
+              {testimonials[testimonialIdx].name}
+            </div>
+            <div className="text-sm text-gray-500 font-normal">
+              {testimonials[testimonialIdx].role}
             </div>
           </div>
         </div>
       </section>
+
 
       {/* 10. Pricing & Add-ons (Screenshot 6 Exact Match) */}
       <section id="pricing" className="py-16 sm:py-24 bg-white border-t border-gray-200 px-4 sm:px-8">
