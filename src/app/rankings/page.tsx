@@ -64,9 +64,6 @@ export default function RankingsPage() {
   const [keywordInput, setKeywordInput] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
 
-  // Floating discount tab modal
-  const [isDiscountModalOpen, setIsDiscountModalOpen] = useState(false);
-
   // Keywords state - starts empty as shown in screenshot, or populated when user adds
   const [keywords, setKeywords] = useState<KeywordItem[]>([]);
 
@@ -159,14 +156,6 @@ export default function RankingsPage() {
 
   return (
     <div className="flex-1 bg-[#F5F7FB] min-h-screen text-gray-800 relative pb-16 select-none overflow-x-hidden">
-      {/* Floating Vertical 10% Discount Tab on Right Edge (Screenshot 2 exact match) */}
-      <button
-        onClick={() => setIsDiscountModalOpen(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-[#FF5757] hover:bg-[#E84343] text-white text-[11px] font-bold py-2.5 px-1.5 rounded-l-md shadow-lg transition-transform hover:-translate-x-0.5 cursor-pointer flex items-center justify-center [writing-mode:vertical-rl] rotate-180 tracking-wide"
-        title="10% discount just for you"
-      >
-        10% discount just for you
-      </button>
 
       {/* Top Breadcrumb & Metadata Header Row (Screenshot 1) */}
       <div className="bg-white border-b border-gray-200 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
@@ -728,56 +717,6 @@ export default function RankingsPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* 10% Discount Just For You Modal */}
-      {isDiscountModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-150">
-            <div className="px-6 py-4 bg-gradient-to-r from-[#FF5757] to-[#FF7575] text-white flex items-center justify-between">
-              <h3 className="text-sm font-bold flex items-center gap-2">
-                <span>🎁</span>
-                Personal 10% Discount Just For You
-              </h3>
-              <button
-                onClick={() => setIsDiscountModalOpen(false)}
-                className="text-white/80 hover:text-white text-lg cursor-pointer"
-              >
-                &times;
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4 text-xs text-gray-700 leading-relaxed">
-              <p>
-                Congratulations! As an active SE Ranking trial member for <strong>zohosocial.com</strong>, you qualify for an exclusive 10% lifetime discount on any annual subscription plan.
-              </p>
-
-              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl space-y-1">
-                <div className="text-[11px] text-rose-800 font-semibold">Your Discount Promo Code:</div>
-                <div className="text-xl font-black text-rose-600 font-mono tracking-wider select-all">
-                  SERANKING10
-                </div>
-                <div className="text-[10px] text-rose-700">Applies automatically on checkout or subscription renewal.</div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  onClick={() => setIsDiscountModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
-                >
-                  Close
-                </button>
-                <Link
-                  href="/settings"
-                  onClick={() => setIsDiscountModalOpen(false)}
-                  className="px-5 py-2 bg-[#FF5757] hover:bg-[#E84343] text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
-                >
-                  Upgrade With 10% Off
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       )}

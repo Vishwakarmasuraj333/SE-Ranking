@@ -3,11 +3,9 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
-import { TrialBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
-import { BonusDiscountTab } from '@/components/ui/BonusDiscountTab';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,9 +32,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Top Blue Header */}
       <TopHeader />
 
-      {/* Side 10% Discount Tab */}
-      <BonusDiscountTab />
-
       {/* Main App Workspace */}
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Left Icon Rail */}
@@ -57,10 +52,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Mobile Drawer */}
         <MobileDrawer />
 
-        {/* Dynamic Center Work Area with Green Trial Banner inside */}
+        {/* Dynamic Center Work Area */}
         <div className="flex-1 flex flex-col overflow-y-auto min-w-0 bg-white">
-          {/* Green Trial Banner sitting beside sidebars, exactly matching screenshot */}
-          <TrialBanner />
           <main className="flex-1 flex flex-col min-w-0">
             {children}
           </main>

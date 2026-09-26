@@ -819,18 +819,50 @@ export function SecondarySidebar() {
                 </Link>
 
                 <Link
-                  href="/index-status-checker"
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
-                    pathname === '/index-status-checker'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
-                  }`}
+                  href="/research/keyword-research/suggestions"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-gray-400" />
-                    <span>Index Status Checker</span>
-                  </div>
+                  <SearchIcon className="w-4 h-4 text-gray-400" />
+                  <span>Search Engine Autocomplete</span>
                 </Link>
+
+                <Link
+                  href="/research/keyword-research"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <BarChart2 className="w-4 h-4 text-gray-400" />
+                  <span>Search Volume Checker</span>
+                </Link>
+
+                {/* Index Status Checker with Results matching Screenshot 1 */}
+                <div>
+                  <div
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                      pathname.startsWith('/index-status-checker')
+                        ? 'bg-[#394757] text-white font-medium'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Link href="/index-status-checker" className="flex items-center gap-2.5 flex-1">
+                      <CheckCircle2 className="w-4 h-4 text-gray-400" />
+                      <span>Index Status Checker</span>
+                    </Link>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                  </div>
+                  <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
+                    <Link
+                      href="/index-status-checker?tab=results"
+                      className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
+                        pathname.startsWith('/index-status-checker')
+                          ? 'text-white font-semibold bg-[#2C3848]'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="mr-2 text-gray-500">•</span>
+                      <span>Results</span>
+                    </Link>
+                  </div>
+                </div>
               </>
             )}
           </div>

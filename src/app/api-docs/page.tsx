@@ -134,28 +134,6 @@ export default function ApiDashboardPage() {
       </div>
 
       <div className="p-6 max-w-7xl mx-auto space-y-6">
-        {/* Trial ends banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-2xs">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-amber-900">
-                You have 12 days of free trial left.
-              </p>
-              <p className="text-xs text-amber-700">
-                You currently have trial access to the Data API only. Upgrade to unlock full Project API capabilities.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/api-docs/wallet"
-            className="px-3.5 py-1.5 bg-white border border-amber-300 hover:bg-amber-100/50 rounded-lg text-xs font-semibold text-amber-900 shadow-2xs transition-colors shrink-0"
-          >
-            Buy Credits
-          </Link>
-        </div>
 
         {/* Top Cards: Credits Usage & Full API Access */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

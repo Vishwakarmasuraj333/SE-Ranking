@@ -307,28 +307,7 @@ function BacklinkCheckerContent() {
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#F4F6F9] min-h-[calc(100vh-60px)] text-gray-900 select-none pb-16 flex flex-col justify-between relative">
-      {/* 10% Discount Floating Ribbon on Right (Exact Match with Screenshots 3, 4, 5) */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-[#EF4444] hover:bg-[#DC2626] text-white text-[11px] font-bold py-3 px-1.5 rounded-l-md shadow-lg cursor-pointer transition-transform hover:-translate-x-1 select-none flex items-center justify-center">
-        <span className="[writing-mode:vertical-lr] rotate-180 tracking-wide text-xs">
-          10% discount just for you
-        </span>
-      </div>
-
       <div>
-        {/* Green Trial Expiry Banner matching Screenshots 3, 4, 5 */}
-        <div className="bg-[#10B981] text-white px-4 py-2 flex items-center justify-between text-xs font-semibold shadow-xs">
-          <div className="flex items-center gap-2">
-            <span>You have 11 days of free trial left.</span>
-            <span className="font-normal opacity-90 hidden sm:inline">Choose your preferred subscription plan to unlock all features.</span>
-          </div>
-          <Link
-            href="/pricing"
-            className="bg-white text-gray-900 hover:bg-gray-100 px-3 py-1 rounded text-[11px] font-bold tracking-wide uppercase transition-colors shrink-0 shadow-2xs"
-          >
-            See pricing plans
-          </Link>
-        </div>
-
         {/* Top Dismissible Blue Notice Banner matching Screenshots 3, 4, 5 */}
         {showNoticeBanner && (
           <div className="bg-[#EBF3FF] border-b border-[#CBE0FF] px-4 sm:px-6 py-2 flex items-center justify-between text-xs text-[#1E3A8A]">

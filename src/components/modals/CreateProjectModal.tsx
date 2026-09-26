@@ -110,7 +110,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Zoho Social Project"
+              placeholder="e.g. My Website Project"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF]"
             />
           </div>
@@ -126,7 +126,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
                 type="text"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                placeholder="e.g. Zoho"
+                placeholder="e.g. Acme Corp"
                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF]"
               />
             </div>
