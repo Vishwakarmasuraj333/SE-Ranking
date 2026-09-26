@@ -341,27 +341,31 @@ export default function LandingPage() {
     >
       {/* 1. Green HelloBar at Top (Exact screenshot match) */}
       {showHelloBar && (
-        <div className="bg-[#008f72] text-white py-2.5 px-6 text-center text-sm font-medium tracking-wide flex items-center justify-center relative z-50">
-          <Link
-            href="https://visible.seranking.com/?utm_source=seranking&utm_medium=hellobar&utm_campaign=visible"
-            className="flex items-center gap-2 hover:underline text-white font-semibold mx-auto"
-          >
-            <span>Start doing more with your AI Visibility Data</span>
-            <span className="font-bold">→</span>
-          </Link>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowHelloBar(false);
-            }}
-            className="absolute right-6 text-white/80 hover:text-white transition-opacity p-1 cursor-pointer"
-            aria-label="Close Announcement"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2.5 pb-1">
+          <div className="bg-[#008871] text-white py-2.5 px-6 rounded-xl text-center text-sm font-semibold tracking-wide flex items-center justify-between relative shadow-xs">
+            <div className="flex-1 text-center">
+              <Link
+                href="https://visible.seranking.com/?utm_source=seranking&utm_medium=hellobar&utm_campaign=visible"
+                className="hover:underline text-white font-semibold inline-flex items-center gap-1.5"
+              >
+                <span>Start doing more with your AI Visibility Data</span>
+                <span className="font-bold">→</span>
+              </Link>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowHelloBar(false);
+              }}
+              className="text-white/80 hover:text-white transition-opacity p-1 cursor-pointer shrink-0"
+              aria-label="Close Announcement"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
 
@@ -1291,21 +1295,29 @@ export default function LandingPage() {
               )}
             </div>
 
+            {/* "Sign in" link matching Screenshot */}
+            <Link
+              href="/login"
+              className="hidden sm:inline-block text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors"
+            >
+              Sign in
+            </Link>
+
             {/* "See product tour" button matching Screenshot */}
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
-              className="hidden sm:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-xl text-xs sm:text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="hidden sm:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-xs sm:text-sm font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span>See product tour</span>
             </button>
 
-            {/* "Projects" Blue Button matching Screenshot */}
+            {/* "Start free trial" Blue Button matching Screenshot */}
             <Link
-              href="/projects"
-              className="px-5 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-xl text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer"
+              href="/signup"
+              className="px-5 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-lg text-xs sm:text-sm font-bold tracking-wide transition-all shadow-xs hover:shadow-md cursor-pointer"
             >
-              <span>Projects</span>
+              <span>Start free trial</span>
             </Link>
 
             {/* Mobile Menu Toggle */}
@@ -1345,7 +1357,7 @@ export default function LandingPage() {
                 See product tour
               </button>
               <Link
-                href="/projects"
+                href="/signup"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="px-5 py-2.5 bg-[#0B69FF] text-white rounded-xl text-sm font-bold"
               >
@@ -1356,41 +1368,121 @@ export default function LandingPage() {
         )}
       </header>
 
-      {/* 3. Hero Section (Spacious, Big Bold Typography matching Screenshot 1) */}
-      <section className="pt-20 sm:pt-28 pb-16 sm:pb-22 px-6 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
+      {/* 3. Hero Section (Spacious, Big Bold Typography matching Screenshot) */}
+      <section className="pt-16 sm:pt-24 pb-12 sm:pb-16 px-6 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
         <h1 className="text-4xl sm:text-6xl md:text-[68px] font-extrabold text-gray-900 tracking-[-0.03em] leading-[1.08]">
           Don’t just track visibility. Validate&nbsp;it.
         </h1>
 
-        <p className="text-gray-600 text-sm sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
+        <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
           Give your team the cross-channel context to prove the value of every decision across<br className="hidden sm:inline" /> SEO, GEO, and social.
         </p>
 
-        {/* Hero CTAs matching Screenshot: Projects & See product tour */}
+        {/* Hero CTAs matching Screenshot: Start free trial & See product tour */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
           <Link
-            href="/projects"
-            className="w-full sm:w-auto px-8 py-3 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-sm sm:text-base font-bold rounded-xl shadow-xs hover:shadow-md transition-all cursor-pointer"
+            href="/signup"
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-base font-bold rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer"
           >
-            <span>Projects</span>
+            <span>Start free trial</span>
           </Link>
           <button
             type="button"
             onClick={() => setIsTourOpen(true)}
-            className="w-full sm:w-auto px-7 py-3 bg-white border border-gray-900 hover:bg-gray-50 text-gray-900 text-sm sm:text-base font-bold rounded-xl transition-colors cursor-pointer"
+            className="w-full sm:w-auto px-8 py-3.5 bg-white border border-gray-900 hover:bg-gray-50 text-gray-900 text-base font-bold rounded-lg transition-colors cursor-pointer shadow-2xs"
           >
             <span>See product tour</span>
           </button>
         </div>
 
-        {/* Social Proof: Dynamic 3-Avatar In-Place Slider + Trusted by 40,000+ agencies */}
-        <div className="pt-3 flex items-center justify-center">
-          <HeroAvatarSlider />
+        {/* Micro copy under buttons */}
+        <div className="text-xs text-gray-400 font-normal">
+          No credit card required
         </div>
 
-        {/* Infinite auto-sliding partner logos carousel */}
-        <div className="pt-6">
-          <PartnerLogos />
+        {/* Social Proof: Static 3 Real Avatars + Trusted by 40,000+ agencies (NO ROTATING SLIDER) */}
+        <div className="pt-6 flex items-center justify-center gap-3">
+          <div className="flex -space-x-2">
+            <img
+              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+              alt="Customer 1"
+              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80"
+              alt="Customer 2"
+              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
+            />
+            <img
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80"
+              alt="Customer 3"
+              className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-2xs"
+            />
+          </div>
+          <span className="text-gray-800 text-sm sm:text-base font-normal">
+            Trusted by <strong className="font-bold text-gray-900">40,000+ agencies</strong>
+          </span>
+        </div>
+
+        {/* Static 6 Partner Logos row matching screenshot (NO MOVING MARQUEE SLIDER) */}
+        <div className="pt-8 pb-4 flex flex-wrap items-center justify-center gap-8 sm:gap-12 md:gap-14 text-gray-600 select-none">
+          {/* soapbox */}
+          <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
+            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+              <path d="M16 2L3 26H29L16 2Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
+              <path d="M16 9L8 23H24L16 9Z" fill="currentColor" opacity="0.3" />
+            </svg>
+            <span className="font-black text-base sm:text-lg tracking-tight lowercase">soapbox</span>
+          </div>
+
+          {/* Nex Brand Marketing */}
+          <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
+            <div className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center">
+              <div className="w-2 h-2 rounded-full bg-current" />
+            </div>
+            <div className="text-left leading-none">
+              <span className="font-extrabold text-xs tracking-wider uppercase block">Nex Brand</span>
+              <span className="text-[8px] font-semibold text-gray-500 uppercase tracking-widest block">Marketing</span>
+            </div>
+          </div>
+
+          {/* Tailor Brands */}
+          <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+              <path d="M2 17L12 22L22 17" />
+              <path d="M2 12L12 17L22 12" />
+            </svg>
+            <div className="text-left leading-none">
+              <span className="font-extrabold text-xs tracking-wider uppercase block">Tailor</span>
+              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">Brands</span>
+            </div>
+          </div>
+
+          {/* Wiser IT SEO Company */}
+          <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V17a1 1 0 0 1-2 0v-.07A8 8 0 0 1 4.07 10H5a1 1 0 0 1 0 2 6 6 0 0 0 6 6 1 1 0 0 1 2 0 6 6 0 0 0 6-6 1 1 0 0 1 2 0 8 8 0 0 1-6.93 6.93z" />
+            </svg>
+            <div className="text-left leading-none">
+              <span className="font-black text-xs tracking-wider uppercase block">Wiser IT</span>
+              <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest block">SEO Company</span>
+            </div>
+          </div>
+
+          {/* Kaida */}
+          <div className="flex items-center gap-2 hover:text-gray-900 transition-colors">
+            <div className="w-5 h-5 rounded-full border-2 border-current flex items-center justify-center">
+              <div className="w-1.5 h-1.5 rounded-full border border-current" />
+            </div>
+            <span className="font-black text-sm tracking-widest uppercase">Kaida</span>
+          </div>
+
+          {/* Neary Hayes */}
+          <div className="text-left leading-none hover:text-gray-900 transition-colors">
+            <span className="font-serif italic font-bold text-sm block">neary</span>
+            <span className="font-serif italic font-bold text-sm block pl-2">hayes</span>
+          </div>
         </div>
       </section>
 
