@@ -259,17 +259,14 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/api-docs/mcp"
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
                     pathname === '/api-docs/mcp' || pathname === '/api/mcp'
                       ? 'bg-[#394757] text-white font-medium'
                       : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Cpu className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                    <span>MCP</span>
-                  </div>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                  <Cpu className="w-4 h-4 text-gray-400 group-hover:text-white" />
+                  <span>MCP</span>
                 </Link>
               </>
             ) : effectiveSection === 'projects' ? (
