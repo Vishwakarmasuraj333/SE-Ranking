@@ -32,8 +32,10 @@ export function TopHeader() {
   const tabs = [
     { label: 'Rankings', href: '/rankings' },
     { label: 'Website Audit (Projects)', href: '/website-audit' },
-    { label: 'Competitive Research', href: '/research/ai-search' },
-    { label: 'Keyword Research', href: '/research/keyword-research' },
+    { label: 'Keyword Manager', href: '/research/keyword-research' },
+    { label: 'All Locations', href: '/local-marketing' },
+    { label: 'All Projects', href: '/projects' },
+    { label: 'Backlink Gap Analyzer', href: '/backlinks' },
   ];
 
   return (

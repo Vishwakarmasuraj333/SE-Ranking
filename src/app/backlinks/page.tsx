@@ -73,7 +73,7 @@ interface IpItem {
 
 const INITIAL_ANCHORS: AnchorTextItem[] = [
   {
-    anchor: 'zohosocial.com',
+    anchor: 'Zohosocial.com',
     refDomains: 26,
     backlinks: 33,
     dofollowCount: 10,
@@ -82,7 +82,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '12 Sep 2026',
   },
   {
-    anchor: 'Zoho Social',
+    anchor: 'Social',
     refDomains: 7,
     backlinks: 8,
     dofollowCount: 4,
@@ -91,7 +91,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '23 Sep 2026',
   },
   {
-    anchor: 'http://zohosocial.com',
+    anchor: 'Zoho Social',
     refDomains: 3,
     backlinks: 7,
     dofollowCount: 6,
@@ -348,33 +348,34 @@ function BacklinkCheckerContent() {
               </button>
               <div className="flex items-center gap-1 text-gray-700 bg-amber-50/80 border border-amber-200 px-2 py-0.5 rounded text-[11px] font-semibold">
                 <ShieldCheck className="w-3 h-3 text-amber-600" />
-                <span>Account limit: 0 / 10</span>
+                <span>Account limit 0 / 10</span>
                 <span className="text-gray-400">ⓘ</span>
               </div>
             </div>
           </div>
 
-          {/* Page Title & Actions Row matching Screenshots 3, 4, 5 */}
+          {/* Page Title & Actions Row matching Screenshot */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-gray-200 shadow-2xs">
             <div>
-              <h1 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
                 <span>{getSubTabTitle()} / {analyzedDomain}</span>
               </h1>
               <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                <span>Email notification: <strong className="text-gray-700">Bi-weekly</strong></span>
-                <Bell className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
-                <span className="text-gray-300">|</span>
-                <span>Last check: September 23, 2026</span>
+                <span>Email notification: <strong className="text-gray-700 font-semibold">Bi-weekly</strong></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D6A] shadow-xs inline-block" />
               </div>
             </div>
 
-            <button
-              onClick={() => handleSearch()}
-              className="bg-[#0B69FF] hover:bg-[#005FE0] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
-              <span>Update Report</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500 font-medium">Last check: September 23, 2026</span>
+              <button
+                onClick={() => handleSearch()}
+                className="bg-[#0B69FF] hover:bg-[#005FE0] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+                <span>UPDATE REPORT</span>
+              </button>
+            </div>
           </div>
 
           {/* Subtabs Bar matching Screenshots 3, 4, 5 */}
@@ -455,64 +456,73 @@ function BacklinkCheckerContent() {
                   </div>
                 </div>
 
-                {/* Filter Pills matching Screenshot 3 */}
+                {/* Filter Pills matching Screenshot */}
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                   <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
                     <button
                       onClick={() => setAnchorFilterPill('all')}
-                      className={`px-3 py-1 rounded text-xs uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                      className={`px-3 py-1.5 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
                         anchorFilterPill === 'all'
                           ? 'bg-[#374151] text-white'
-                          : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700'
                       }`}
                     >
-                      Anchor texts
+                      ANCHOR TEXTS
                     </button>
                     {(['1-word', '2-word', '3-word', '4-word'] as const).map((pill) => (
                       <button
                         key={pill}
                         onClick={() => setAnchorFilterPill(pill)}
-                        className={`px-2.5 py-1 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
+                        className={`px-2.5 py-1.5 rounded text-[11px] uppercase font-bold tracking-wide transition-colors cursor-pointer ${
                           anchorFilterPill === pill
                             ? 'bg-[#374151] text-white'
-                            : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                            : 'bg-white border border-gray-200 hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         {pill.toUpperCase()} TERMS
                       </button>
                     ))}
 
-                    <div className="relative ml-1">
-                      <input
-                        type="text"
-                        placeholder="Search anchor..."
-                        value={searchFilterText}
-                        onChange={(e) => setSearchFilterText(e.target.value)}
-                        className="px-2.5 py-1 border border-gray-300 rounded text-xs placeholder:text-gray-400 w-36 sm:w-44 focus:outline-hidden focus:border-[#0B69FF]"
-                      />
-                    </div>
+                    <button
+                      onClick={() => {
+                        const q = prompt('Filter anchor texts by keyword:', searchFilterText);
+                        if (q !== null) setSearchFilterText(q);
+                      }}
+                      className="px-2.5 py-1.5 border border-gray-200 rounded text-[11px] uppercase font-bold text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <span>+ FILTER</span>
+                      {searchFilterText && (
+                        <span className="bg-blue-100 text-blue-800 px-1 rounded text-[10px]">
+                          &quot;{searchFilterText}&quot;
+                        </span>
+                      )}
+                    </button>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <button className="px-2.5 py-1 border border-gray-300 rounded text-xs text-gray-600 hover:bg-gray-50 flex items-center gap-1 cursor-pointer">
-                      <span>Presets</span>
-                      <ChevronDown className="w-3 h-3" />
+                    <button className="px-3 py-1.5 border border-gray-200 rounded text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer font-semibold uppercase text-[11px]">
+                      <span>PRESETS</span>
+                      <ChevronDown className="w-3 h-3 text-gray-500" />
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Table matching Screenshot 3 */}
+              {/* Table matching Screenshot */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs divide-y divide-gray-200">
-                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px]">
+                  <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10px] tracking-wider">
                     <tr>
-                      <th className="p-3">Anchor Text</th>
-                      <th className="p-3 text-center">Ref.Domains</th>
-                      <th className="p-3 text-center">Backlinks</th>
-                      <th className="p-3 text-center min-w-[140px]">Dofollow</th>
-                      <th className="p-3">First Seen</th>
-                      <th className="p-3">Last Seen</th>
+                      <th className="p-3">ANCHOR TEXT</th>
+                      <th className="p-3 text-center">
+                        <span className="inline-flex items-center gap-1 cursor-pointer">
+                          REF.DOMAINS <ChevronDown className="w-3 h-3 text-gray-400" />
+                        </span>
+                      </th>
+                      <th className="p-3 text-center">BACKLINKS</th>
+                      <th className="p-3 text-center min-w-[140px]">DOFOLLOW</th>
+                      <th className="p-3">FIRST SEEN</th>
+                      <th className="p-3">LAST SEEN</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">

@@ -35,7 +35,8 @@ export function LeftRail() {
     pathname === '/insights' ||
     pathname === '/marketing-plan' ||
     pathname === '/page-changes' ||
-    pathname === '/backlinks-monitor';
+    pathname === '/backlinks-monitor' ||
+    pathname.startsWith('/backlinks');
 
   const railItems: Array<{
     id: RailSection;

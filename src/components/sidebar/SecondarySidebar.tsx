@@ -93,7 +93,7 @@ export function SecondarySidebar() {
   // Determine active section
   const effectiveSection = (() => {
     if (pathname.startsWith('/api') || pathname.startsWith('/api-docs')) return 'api';
-    if (pathname.startsWith('/backlinks')) return 'backlinks';
+    if (pathname.startsWith('/backlinks')) return 'projects';
     if (pathname.startsWith('/website-audit')) return 'audit';
     if (pathname.startsWith('/reports')) return 'reports';
     if (
