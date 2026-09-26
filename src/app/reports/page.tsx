@@ -157,40 +157,20 @@ export default function ReportBuilderPage() {
 
   return (
     <div className="flex-1 flex flex-col bg-[#F4F6F9] text-gray-900 min-h-screen">
-      {/* Top Blue Suite Navigation Bar matching Screenshot 2 */}
-      <div className="bg-[#0B69FF] px-4 py-1.5 flex items-center justify-between border-t border-blue-400/20 text-white text-xs select-none">
-        <div className="flex items-center gap-1 overflow-x-auto">
-          <Link
-            href="/rankings"
-            className="px-3 py-1 rounded text-white/80 hover:text-white hover:bg-white/10 font-medium shrink-0"
-          >
-            Rankings
-          </Link>
-          <Link
-            href="/website-audit"
-            className="px-3 py-1 rounded text-white/80 hover:text-white hover:bg-white/10 font-medium shrink-0"
-          >
-            Website Audit (Projects)
-          </Link>
-          <Link
-            href="/research/ai-search"
-            className="px-3 py-1 rounded text-white/80 hover:text-white hover:bg-white/10 font-medium shrink-0"
-          >
-            Competitive Research
-          </Link>
-          <Link
-            href="/keyword-manager"
-            className="px-3 py-1 rounded text-white/80 hover:text-white hover:bg-white/10 font-medium shrink-0"
-          >
-            Keyword Manager
-          </Link>
-          <Link
-            href="/local-marketing"
-            className="px-3 py-1 rounded text-white/80 hover:text-white hover:bg-white/10 font-medium shrink-0"
-          >
-            All Locations
-          </Link>
+      {/* Top Green Trial Banner matching Screenshot 2 */}
+      <div className="bg-[#10B981] px-4 py-2 text-white flex items-center justify-between text-xs select-none shadow-2xs">
+        <div className="flex items-center gap-2">
+          <span>You have 11 days of free trial left.</span>
+          <span className="opacity-90 hidden sm:inline">
+            Choose your preferred subscription plan to unlock all features.
+          </span>
         </div>
+        <button
+          onClick={() => alert('Opening pricing plans...')}
+          className="px-3 py-1 bg-white hover:bg-gray-100 text-gray-900 rounded font-bold text-[11px] uppercase transition-colors shrink-0 shadow-2xs cursor-pointer"
+        >
+          SEE PRICING PLANS
+        </button>
       </div>
 
       {/* Top Modular Approach Info Alert Banner matching Screenshot 2 */}

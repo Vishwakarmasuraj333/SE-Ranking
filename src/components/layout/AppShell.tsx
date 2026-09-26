@@ -43,7 +43,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {!pathname.startsWith('/smm') &&
           !pathname.startsWith('/content-marketing') &&
           !pathname.startsWith('/local-marketing') &&
-          !pathname.startsWith('/reports') && (
+          !pathname.startsWith('/reports') &&
+          !pathname.startsWith('/agency-pack') && (
             <div className="hidden lg:flex">
               <SecondarySidebar />
             </div>
