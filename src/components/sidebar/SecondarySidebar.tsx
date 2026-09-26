@@ -31,6 +31,9 @@ import {
   Cpu,
   Wallet,
   LayoutDashboard,
+  Store,
+  Star,
+  MapPin,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
@@ -92,6 +95,7 @@ export function SecondarySidebar() {
 
   // Determine active section
   const effectiveSection = (() => {
+    if (pathname.startsWith('/local-marketing')) return 'local-marketing';
     if (pathname.startsWith('/api') || pathname.startsWith('/api-docs')) return 'api';
     if (pathname.startsWith('/backlinks')) return 'projects';
     if (pathname.startsWith('/website-audit')) return 'audit';
@@ -116,6 +120,8 @@ export function SecondarySidebar() {
 
   const getSectionTitle = () => {
     switch (effectiveSection) {
+      case 'local-marketing':
+        return 'Local Marketing';
       case 'api':
         return 'API';
       case 'backlinks':
@@ -149,8 +155,8 @@ export function SecondarySidebar() {
             </button>
           </div>
 
-          {/* Project Selector Card (Hidden on API routes) */}
-          {effectiveSection !== 'api' && (
+          {/* Project Selector Card (Hidden on API & Local Marketing routes) */}
+          {effectiveSection !== 'api' && effectiveSection !== 'local-marketing' && (
           <div className="p-2.5 relative border-b border-[#2C374A]/60">
             <button
               onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
@@ -230,7 +236,128 @@ export function SecondarySidebar() {
 
           {/* Navigation Links List */}
           <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 no-scrollbar">
-            {effectiveSection === 'api' ? (
+            {effectiveSection === 'local-marketing' ? (
+              /* Local Marketing Mode Menu (Exact match to Screenshot 2) */
+              <>
+                <Link
+                  href="/local-marketing"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <FolderTree className="w-4 h-4 text-gray-400" />
+                  <span>All Locations</span>
+                </Link>
+
+                <Link
+                  href="/local-marketing"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                    pathname === '/local-marketing'
+                      ? 'bg-[#394757] text-white font-medium'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <LayoutDashboard className="w-4 h-4 text-gray-300" />
+                  <span>Overview</span>
+                </Link>
+
+                <Link
+                  href="/local-marketing?tab=rankings"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                >
+                  <LayoutGrid className="w-4 h-4 text-gray-400" />
+                  <span>Local Rankings</span>
+                </Link>
+
+                <Link
+                  href="/local-marketing/audit"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                    pathname.startsWith('/local-marketing/audit')
+                      ? 'bg-[#394757] text-white font-medium'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <CheckCircle2 className="w-4 h-4 text-gray-400" />
+                  <span>Local Marketing Audit</span>
+                </Link>
+
+                <div>
+                  <button
+                    onClick={() => toggleSection('gbp')}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Store className="w-4 h-4 text-gray-400" />
+                      <span>Google Business Profile</span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${expandedSections.gbp ? 'rotate-180' : ''}`} />
+                  </button>
+                  {expandedSections.gbp && (
+                    <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
+                      <Link href="/local-marketing#gbp-stats" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5">
+                        • Performance &amp; Views
+                      </Link>
+                      <Link href="/local-marketing#gbp-keywords" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5">
+                        • Searches by Keywords
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                <Link
+                  href="/local-marketing/business-listings"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                    pathname.startsWith('/local-marketing/business-listings')
+                      ? 'bg-[#394757] text-white font-medium'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <Files className="w-4 h-4 text-gray-300" />
+                  <span>Business Listings</span>
+                </Link>
+
+                <div>
+                  <button
+                    onClick={() => toggleSection('reviews')}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                      <span>Reviews</span>
+                    </div>
+                    <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${expandedSections.reviews === false ? '' : 'rotate-180'}`} />
+                  </button>
+                  {expandedSections.reviews !== false && (
+                    <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
+                      <Link
+                        href="/local-marketing/reviews/review-list"
+                        className={`block px-2 py-1.5 rounded text-xs transition-colors ${
+                          pathname.includes('/review-list') || pathname === '/local-marketing/reviews'
+                            ? 'bg-white/10 text-white font-medium'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                        }`}
+                      >
+                        • Review List
+                      </Link>
+                      <Link
+                        href="/local-marketing/reviews/analytics"
+                        className={`block px-2 py-1.5 rounded text-xs transition-colors ${
+                          pathname.includes('/analytics')
+                            ? 'bg-white/10 text-white font-medium'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                        }`}
+                      >
+                        • Analytics
+                      </Link>
+                      <Link
+                        href="/local-marketing/reviews/analytics#insights"
+                        className="block px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                      >
+                        • Insights
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : effectiveSection === 'api' ? (
               /* API Mode Menu (Exact match to SE Ranking API screenshot) */
               <>
                 <Link

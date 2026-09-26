@@ -30,11 +30,21 @@ import {
   ThumbsDown,
   HelpCircle,
   Eye,
+  EyeOff,
   Layers,
   Filter,
+  CheckSquare,
+  Square,
+  Sparkles,
+  Share2,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  MapPin,
+  Compass,
 } from 'lucide-react';
 
-export type LocalMarketingTab = 'overview' | 'audit' | 'reviews';
+export type LocalMarketingTab = 'overview' | 'audit' | 'reviews' | 'analytics' | 'listings';
 
 interface ReviewItem {
   id: string;
@@ -49,6 +59,21 @@ interface ReviewItem {
   reply?: string;
 }
 
+interface DirectoryListing {
+  id: string;
+  name: string;
+  icon: string;
+  type: 'Local Directory' | 'Social Media' | 'Map' | 'Digital Assistant' | 'Navigation System';
+  syncStatus: 'Synced' | 'Submitted' | 'Sync unavailable' | 'Sync not started' | 'Updating';
+  presence: 'Listed' | 'Not listed' | 'Not monitored';
+  errors: {
+    name?: boolean;
+    address?: boolean;
+    phone?: boolean;
+    url?: boolean;
+  };
+}
+
 export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { initialTab?: LocalMarketingTab }) {
   const [activeTab, setActiveTab] = useState<LocalMarketingTab>(initialTab);
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
@@ -61,10 +86,31 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Business Listings State
+  const [listingsSearch, setListingsSearch] = useState('');
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [listingsPerPage, setListingsPerPage] = useState('100');
+
   // Review Scatter Matrix Filter (Overview)
   const [scatterTimelineFilter, setScatterTimelineFilter] = useState<'ALL' | '7D' | '1M' | '3M' | '6M' | '1Y'>('ALL');
+  const [selectedKeywordsPeriod, setSelectedKeywordsPeriod] = useState<'3M' | '6M' | '1Y'>('3M');
+  const [selectedActivityPeriod, setSelectedActivityPeriod] = useState<'ALL' | '7D' | '1M' | '3M' | '6M' | '1Y'>('ALL');
 
-  // Audit View State (Screenshot 1 / Screenshot 4)
+  // Analytics State (Screenshot 1 / 5:38)
+  const [analyticsGroupBy, setAnalyticsGroupBy] = useState<'MONTHS' | 'WEEKS' | 'DAYS'>('MONTHS');
+  const [stackedChartFilter, setStackedChartFilter] = useState('All Sources Selected');
+  const [activeRatingsInFilter, setActiveRatingsInFilter] = useState<Record<string, boolean>>({
+    '5': true,
+    '4': true,
+    '3': true,
+    '2': true,
+    '1': true,
+    rec: true,
+    not_rec: true,
+    not_rated: true,
+  });
+
+  // Audit View State (Screenshot 1 & 3)
   const [selectedAuditSection, setSelectedAuditSection] = useState<'gbp' | 'listings' | 'reviews'>('gbp');
   const [auditFilter, setAuditFilter] = useState<'all' | 'errors' | 'warnings' | 'notices' | 'passed' | 'unchecked'>('all');
   const [expandedChecklistItems, setExpandedChecklistItems] = useState<Record<string, boolean>>({
@@ -83,13 +129,13 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
     'reviews-30-days': false,
   });
 
-  // Review List State (Screenshot 2 & 3)
+  // Review List State (Screenshot 2)
   const [selectedSourceFilter, setSelectedSourceFilter] = useState('All sources');
   const [activeReviewModal, setActiveReviewModal] = useState<ReviewItem | null>(null);
   const [reviewReplyText, setReviewReplyText] = useState('');
   const [reviewListSearch, setReviewListSearch] = useState('');
 
-  // 10 Exact Reviews matching Screenshot 2 & 3
+  // 10 Exact Reviews matching Screenshot 2
   const [reviewsList, setReviewsList] = useState<ReviewItem[]>([
     {
       id: 'rev-1',
@@ -108,11 +154,11 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       sourceIcon: 'G',
       rating: 5,
       date: 'Sep 25 2026',
-      text: 'It was absolutely incredible. There was amazing service, absolutely delicious food, and the handmade pasta is out of this world.',
+      text: 'It was absolutely incredible. There was amazing service, absolutely delicious food, and wonderful wines to pair.',
       author: 'Sabrina Taylor',
       status: 'Answered',
       language: 'EN',
-      reply: 'Thank you Sabrina! We take tremendous pride in crafting our handmade pasta every morning.',
+      reply: 'Thank you Sabrina! We look forward to hosting you again for your next celebration.',
     },
     {
       id: 'rev-3',
@@ -120,7 +166,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       sourceIcon: '📖',
       rating: 2,
       date: 'Sep 23 2026',
-      text: 'The atmosphere was great. Location seemed convenient. The Philly sandwich i ordered was soggy and cold upon arrival unfortunately.',
+      text: 'The atmosphere was great. Location seemed convenient. The Philly sandwich I ordered, however, was quite greasy and cold when brought out.',
       author: 'George Kent',
       status: 'Needs attention',
       language: 'EN',
@@ -131,7 +177,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       sourceIcon: '📍',
       rating: 4,
       date: 'Sep 23 2026',
-      text: 'Super popular place. We even had to stand in the line to get in. Food was great overall and drinks arrived swiftly.',
+      text: 'Super popular place. We even had to stand in the line to get in. Food was great overall, especially the handmade pasta.',
       author: 'Minka Lawson',
       status: 'Read',
       language: 'EN',
@@ -139,10 +185,10 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
     {
       id: 'rev-5',
       source: 'EZlocal',
-      sourceIcon: '⚡',
+      sourceIcon: '🌐',
       rating: 3,
       date: 'Sep 21 2026',
-      text: "First time here. Tried the pasta on pasta Friday. It was okay... didn't taste much flavor in the white truffle cream sauce.",
+      text: "First time here. Tried the pasta on pasta Friday. It was okay... didn't taste much like true Italian seasoning.",
       author: 'Emma Conte',
       status: 'Needs attention',
       language: 'EN',
@@ -164,7 +210,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       sourceIcon: '🏙️',
       rating: 5,
       date: 'Sep 19 2026',
-      text: 'The food is delicious and full of flavor. The only complaint I have this time around that parking was a bit tight during dinner rush.',
+      text: 'The food is delicious and full of flavor. The only complaint I have this time around that it was a bit loud inside.',
       author: 'Alan Pascot',
       status: 'Read',
       language: 'EN',
@@ -173,9 +219,9 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       id: 'rev-8',
       source: "Judy's Book",
       sourceIcon: '📖',
-      rating: null,
+      rating: null, // Not rated in screenshot
       date: 'Sep 18 2026',
-      text: 'Es el tipico asador castellano, donde puedes degustar un delicioso cordero. Y claro, sin olvidar los postres caseros de primera.',
+      text: 'Es el tipico asador castellano, donde puedes degustar un delicioso cordero. Y claro, sin olvidar las tapas tradicionales.',
       author: 'spain_girl',
       status: 'Read',
       language: 'ES',
@@ -186,7 +232,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
       sourceIcon: '📍',
       rating: 3,
       date: 'Sep 14 2026',
-      text: 'The food was average overall. The mac and cheese tasted artificial. However, the wings were quite crispy and enjoyable.',
+      text: 'The food was average overall. The mac and cheese tasted artificial. However, the wings were quite tasty.',
       author: 'Mark Steiner',
       status: 'Needs attention',
       language: 'EN',
@@ -194,70 +240,85 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
     {
       id: 'rev-10',
       source: 'ShowMeLocal',
-      sourceIcon: '🗺️',
+      sourceIcon: '🏷️',
       rating: 5,
       date: 'Sep 12 2026',
-      text: 'Reasonable prices, amazing food, fast service. Very clean, friendly staff, a chili oil dip that was simply unforgettable!',
+      text: 'Reasonable prices, amazing food, fast service. Very clean, friendly staff, a chill vibe all around.',
       author: 'Monica Dalton',
       status: 'Read',
       language: 'EN',
     },
   ]);
 
-  const toggleAccordion = (key: string) => {
-    setExpandedChecklistItems((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleUpdate = () => {
-    setIsUpdating(true);
-    setTimeout(() => {
-      setIsUpdating(false);
-      alert('Location metrics and reviews synced successfully!');
-    }, 700);
-  };
-
-  const handleSaveReply = (id: string) => {
-    if (!reviewReplyText.trim()) return;
-    setReviewsList((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: 'Answered', reply: reviewReplyText } : r))
-    );
-    setReviewReplyText('');
-    setActiveReviewModal(null);
-    alert('Reply sent to customer!');
-  };
-
-  // Scatter plot source dots (Overview)
-  const scatterMonths = [
-    'Oct 2025',
-    'Nov 2025',
-    'Dec 2025',
-    'Jan 2026',
-    'Feb 2026',
-    'Mar 2026',
-    'Apr 2026',
-    'May 2026',
-    'Jun 2026',
-    'Jul 2026',
-    'Aug 2026',
-    'Sep 2026',
+  // Full 56+ Directories Matching Screenshot 3 & 4
+  const directoryListings: DirectoryListing[] = [
+    { id: 'd-1', name: 'Google', icon: '🔍', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-2', name: 'Facebook', icon: '📘', type: 'Social Media', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-3', name: 'Yelp', icon: '🔴', type: 'Local Directory', syncStatus: 'Sync unavailable', presence: 'Listed', errors: { address: true, phone: true } },
+    { id: 'd-4', name: 'Foursquare', icon: '📍', type: 'Local Directory', syncStatus: 'Submitted', presence: 'Listed', errors: {} },
+    { id: 'd-5', name: 'Here', icon: '🗺️', type: 'Map', syncStatus: 'Submitted', presence: 'Not monitored', errors: {} },
+    { id: 'd-6', name: 'Bing', icon: '🅱️', type: 'Map', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-7', name: 'Apple Maps', icon: '🍎', type: 'Map', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-8', name: 'TomTom', icon: '🧭', type: 'Map', syncStatus: 'Submitted', presence: 'Listed', errors: {} },
+    { id: 'd-9', name: 'Hotfrog', icon: '🐸', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-10', name: 'MapQuest', icon: '🗺️', type: 'Map', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-11', name: 'Better Business Bureau', icon: '🏛️', type: 'Local Directory', syncStatus: 'Submitted', presence: 'Not monitored', errors: {} },
+    { id: 'd-12', name: 'Tripadvisor', icon: '🦉', type: 'Local Directory', syncStatus: 'Sync unavailable', presence: 'Listed', errors: { name: true, url: true } },
+    { id: 'd-13', name: 'Uber Eats', icon: '🍔', type: 'Local Directory', syncStatus: 'Sync unavailable', presence: 'Not listed', errors: {} },
+    { id: 'd-14', name: 'Just Landed', icon: '🛬', type: 'Local Directory', syncStatus: 'Sync unavailable', presence: 'Not listed', errors: {} },
+    { id: 'd-15', name: 'Yellow Pages', icon: '📒', type: 'Local Directory', syncStatus: 'Sync not started', presence: 'Not listed', errors: {} },
+    { id: 'd-16', name: 'Waze', icon: '🚗', type: 'Map', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-17', name: 'ShowMeLocal', icon: '🏷️', type: 'Local Directory', syncStatus: 'Updating', presence: 'Not monitored', errors: {} },
+    { id: 'd-18', name: 'Nextdoor', icon: '🏡', type: 'Social Media', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-19', name: 'FindOpen', icon: '📍', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-20', name: 'Siri', icon: '🎙️', type: 'Digital Assistant', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-21', name: 'Navmii', icon: '📍', type: 'Map', syncStatus: 'Updating', presence: 'Listed', errors: { name: true, address: true, phone: true } },
+    { id: 'd-22', name: 'WhereTo', icon: '🧭', type: 'Map', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-23', name: 'Acompio', icon: '🏢', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-24', name: 'Tupalo', icon: '🏢', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-25', name: 'Cylex', icon: '🏢', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-26', name: 'iGlobal', icon: '🌐', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-27', name: 'Google Assistant', icon: '🤖', type: 'Digital Assistant', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-28', name: 'Melocal services', icon: '🔧', type: 'Local Directory', syncStatus: 'Updating', presence: 'Listed', errors: {} },
+    { id: 'd-29', name: 'Microsoft Cortana', icon: '⭕', type: 'Digital Assistant', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-30', name: 'N49', icon: '🍁', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-31', name: 'Pages24', icon: '📄', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-32', name: 'Ezlocal', icon: '🌐', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-33', name: "Judy's Book", icon: '📖', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-34', name: 'USCity', icon: '🏙️', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-35', name: 'City squares', icon: '🏙️', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-36', name: 'Elocal', icon: '🌐', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-37', name: 'Us info com', icon: 'ℹ️', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-38', name: 'Insider pages', icon: '📑', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-39', name: 'Citysearch', icon: '🔍', type: 'Local Directory', syncStatus: 'Submitted', presence: 'Not monitored', errors: {} },
+    { id: 'd-40', name: 'Dex knows', icon: '📖', type: 'Local Directory', syncStatus: 'Submitted', presence: 'Not monitored', errors: {} },
+    { id: 'd-41', name: 'Super pages', icon: '📄', type: 'Local Directory', syncStatus: 'Submitted', presence: 'Not monitored', errors: {} },
+    { id: 'd-42', name: 'Apple apps', icon: '📱', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-43', name: 'Audi', icon: '🚗', type: 'Navigation System', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-44', name: 'BMW', icon: '🚙', type: 'Navigation System', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-45', name: 'Chamber of commerce', icon: '🏛️', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-46', name: 'Consumer affairs', icon: '⚖️', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-47', name: 'Credit karma', icon: '💳', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-48', name: 'Delivery', icon: '📦', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-49', name: 'Fiat', icon: '🚗', type: 'Navigation System', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-50', name: 'Ford', icon: '🚙', type: 'Navigation System', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-51', name: 'Glassdoor', icon: '🚪', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-52', name: 'GM', icon: '🚗', type: 'Navigation System', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-53', name: 'Grubhub', icon: '🍔', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-54', name: 'Indeed', icon: '💼', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-55', name: 'Lending tree', icon: '🌲', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
+    { id: 'd-56', name: 'Manta', icon: '🐟', type: 'Local Directory', syncStatus: 'Synced', presence: 'Listed', errors: {} },
   ];
 
-  const scatterLegendSources = [
-    { name: 'City squares', color: '#9333EA' },
-    { name: 'EZlocal', color: '#059669' },
-    { name: 'Facebook', color: '#2563EB' },
-    { name: 'FindOpen', color: '#0284C7' },
-    { name: 'Google', color: '#16A34A' },
-    { name: "Judy's Book", color: '#991B1B' },
-    { name: 'N49', color: '#4B5563' },
-    { name: 'ShowMeLocal', color: '#06B6D4' },
-    { name: 'Tripadvisor', color: '#DB2777' },
-    { name: 'WhereTo', color: '#4F46E5' },
-  ];
+  const filteredDirectories = directoryListings.filter(
+    (d) =>
+      d.name.toLowerCase().includes(listingsSearch.toLowerCase()) ||
+      d.type.toLowerCase().includes(listingsSearch.toLowerCase())
+  );
 
   return (
     <div className="flex-1 flex flex-col bg-[#F4F6F9] text-gray-900 min-h-screen font-sans">
-      {/* Top Blue Notice Banner (Exact match to Screenshots) */}
+      {/* Top Notice Banner (Exact match to Screenshots) */}
       {!isBannerDismissed && (
         <div className="bg-[#EBF3FC] border-b border-[#CCE0F8] px-4 py-2.5 text-xs text-[#1E40AF] flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -285,7 +346,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
 
       {/* Breadcrumb Bar */}
       <div className="bg-white border-b border-gray-200 px-6 py-2 flex items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => setActiveTab('overview')}
             className="hover:text-gray-900 cursor-pointer"
@@ -293,17 +354,25 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
             Local Marketing
           </button>
           <span>›</span>
-          {activeTab === 'reviews' ? (
+          {activeTab === 'listings' ? (
+            <span className="text-gray-900 font-semibold">Business Listings</span>
+          ) : activeTab === 'audit' ? (
+            <span className="text-gray-900 font-semibold">Local Marketing Audit</span>
+          ) : activeTab === 'analytics' ? (
+            <>
+              <button onClick={() => setActiveTab('reviews')} className="hover:text-gray-900 cursor-pointer">
+                Reviews
+              </button>
+              <span>›</span>
+              <span className="text-gray-900 font-semibold">Analytics</span>
+            </>
+          ) : activeTab === 'reviews' ? (
             <>
               <button onClick={() => setActiveTab('reviews')} className="hover:text-gray-900 cursor-pointer">
                 Reviews
               </button>
               <span>›</span>
               <span className="text-gray-900 font-semibold">Review List</span>
-            </>
-          ) : activeTab === 'audit' ? (
-            <>
-              <span className="text-gray-900 font-semibold">Audit</span>
             </>
           ) : (
             <span className="text-gray-900 font-semibold">Overview</span>
@@ -312,7 +381,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
 
         <div className="flex items-center gap-4">
           <button
-            onClick={() => alert('Feedback modal')}
+            onClick={() => alert('Feedback submitted')}
             className="text-gray-500 hover:text-[#0B69FF] transition-colors cursor-pointer"
           >
             Feedback
@@ -325,55 +394,84 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
         </div>
       </div>
 
-      {/* Sub-Header Row: Tabs + Action Buttons */}
+      {/* Sub-Header Row: Dynamic Heading, Tabs & Action Controls */}
       <div className="bg-white border-b border-gray-200 px-6 py-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <h1 className="text-xl font-bold text-gray-900">
                 {activeTab === 'overview'
                   ? 'Overview'
-                  : activeTab === 'reviews'
-                  ? 'Review List'
-                  : 'Local Marketing Audit'}
+                  : activeTab === 'listings'
+                  ? 'Business Listings'
+                  : activeTab === 'audit'
+                  ? 'Local Marketing Audit'
+                  : activeTab === 'analytics'
+                  ? 'Analytics'
+                  : 'Review List'}
               </h1>
-              <div className="flex items-center gap-1 border border-gray-200 rounded p-0.5 bg-gray-50 text-xs">
+
+              {/* Suite View Switcher Tabs */}
+              <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5 bg-gray-50 text-xs flex-wrap">
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className={`px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
                     activeTab === 'overview'
-                      ? 'bg-white text-gray-900 shadow-2xs'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-white text-[#0B69FF] shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   Overview
                 </button>
                 <button
+                  onClick={() => setActiveTab('listings')}
+                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                    activeTab === 'listings'
+                      ? 'bg-white text-[#0B69FF] shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Business Listings (57)
+                </button>
+                <button
+                  onClick={() => setActiveTab('audit')}
+                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                    activeTab === 'audit'
+                      ? 'bg-white text-[#0B69FF] shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Audit Checklist
+                </button>
+                <button
                   onClick={() => setActiveTab('reviews')}
-                  className={`px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
+                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
                     activeTab === 'reviews'
-                      ? 'bg-white text-gray-900 shadow-2xs'
-                      : 'text-gray-500 hover:text-gray-900'
+                      ? 'bg-white text-[#0B69FF] shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   Review List (60)
                 </button>
                 <button
-                  onClick={() => setActiveTab('audit')}
-                  className={`px-3 py-1 rounded font-semibold transition-colors cursor-pointer ${
-                    activeTab === 'audit'
-                      ? 'bg-white text-gray-900 shadow-2xs'
-                      : 'text-gray-500 hover:text-gray-900'
+                  onClick={() => setActiveTab('analytics')}
+                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                    activeTab === 'analytics'
+                      ? 'bg-white text-[#0B69FF] shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Audit Checklist
+                  Reviews Analytics
                 </button>
               </div>
             </div>
 
-            <div className="text-xs text-gray-500 mt-1 flex items-center gap-4">
+            <div className="text-xs text-gray-500 mt-1 flex items-center gap-4 flex-wrap">
               <span>Location updated on: Sep 26 2026</span>
-              {activeTab === 'reviews' && <span>Reviews updated on: Sep 26 2026</span>}
+              {(activeTab === 'reviews' || activeTab === 'analytics') && (
+                <span>Reviews updated on: Sep 26 2026</span>
+              )}
+              {activeTab === 'audit' && <span>Audit updated on: Sep 26 2026</span>}
             </div>
 
             {/* Location Switcher & Date Range Dropdown */}
@@ -438,8 +536,27 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
                 )}
               </div>
 
-              {/* Integrations Indicators on Review List (Screenshot 2) */}
-              {activeTab === 'reviews' && (
+              {/* Auto-sync Switch on Business Listings */}
+              {activeTab === 'listings' && (
+                <div className="flex items-center gap-2 pl-2">
+                  <span className="text-xs text-gray-600 font-medium">Auto-sync</span>
+                  <button
+                    onClick={() => setAutoSyncEnabled(!autoSyncEnabled)}
+                    className={`w-8 h-4.5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer ${
+                      autoSyncEnabled ? 'bg-[#0B69FF]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`bg-white w-3.5 h-3.5 rounded-full shadow-md transform transition-transform ${
+                        autoSyncEnabled ? 'translate-x-3.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              )}
+
+              {/* Social Source Indicators on Reviews & Analytics */}
+              {(activeTab === 'reviews' || activeTab === 'analytics') && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1 bg-[#1E293B] text-white px-2 py-1 rounded text-[11px] font-semibold">
                     <span>G</span>
@@ -449,7 +566,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
                     <span>f</span>
                     <Check className="w-3 h-3 text-emerald-400" />
                   </div>
-                  <span className="text-[11px] text-gray-400 italic hidden lg:inline">
+                  <span className="text-[11px] text-gray-500 hidden sm:inline">
                     • We check reviews on a daily basis
                   </span>
                 </div>
@@ -458,755 +575,703 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
             <button
               onClick={() => setIsAddLocationModalOpen(true)}
-              className="bg-[#0B69FF] hover:bg-[#0052D4] text-white font-bold text-xs uppercase px-4 py-2 rounded shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer tracking-wider"
+              className="px-3.5 py-1.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-3.5 h-3.5" />
               <span>ADD LOCATION</span>
             </button>
-            {activeTab === 'overview' && (
-              <>
-                <button
-                  onClick={handleUpdate}
-                  disabled={isUpdating}
-                  className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold text-xs px-3 py-2 rounded flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <RefreshCw className={`w-3.5 h-3.5 text-gray-500 ${isUpdating ? 'animate-spin' : ''}`} />
-                  <span>UPDATE</span>
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
-                </button>
-                <button
-                  onClick={() => alert('Exporting Local Marketing report in CSV format...')}
-                  className="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-semibold text-xs px-3 py-2 rounded flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5 text-gray-500" />
-                  <span>EXPORT</span>
-                </button>
-              </>
+
+            {activeTab !== 'analytics' && (
+              <button
+                onClick={() => {
+                  setIsUpdating(true);
+                  setTimeout(() => setIsUpdating(false), 1200);
+                }}
+                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isUpdating ? 'animate-spin text-[#0B69FF]' : ''}`} />
+                <span>UPDATE</span>
+                <ChevronDown className="w-3 h-3 text-gray-400 ml-0.5" />
+              </button>
             )}
+
+            <button
+              onClick={() => alert('Local Marketing suite data export generated.')}
+              className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5 text-gray-500" />
+              <span>EXPORT</span>
+            </button>
           </div>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* TAB 1: OVERVIEW (Screenshots 1, 2, 3 previous)                            */}
+      {/* TAB 1: OVERVIEW DASHBOARD                                                 */}
       {/* ========================================================================= */}
       {activeTab === 'overview' && (
         <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-          {/* 1. Local Rankings Card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-gray-900">Local Rankings</h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-1">
-              {/* Left 6 cols: Rankings Distribution with exact numbers */}
-              <div className="lg:col-span-6 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-200 pb-4 lg:pb-0 lg:pr-6">
-                <div>
-                  <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-4">
-                    RANKINGS DISTRIBUTION
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-y-4 gap-x-3">
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 1-3</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">45</span>
-                        <span className="text-[11px] font-bold text-emerald-600">▲ 6</span>
-                      </div>
-                      <svg className="w-full h-5 text-amber-500 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,15 Q25,8 50,14 T100,5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 4-6</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">46</span>
-                        <span className="text-[11px] font-bold text-red-600">▼ 8</span>
-                      </div>
-                      <svg className="w-full h-5 text-blue-500 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,8 Q30,18 60,10 T100,16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 7-10</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">50</span>
-                        <span className="text-[11px] font-bold text-emerald-600">▲ 2</span>
-                      </div>
-                      <svg className="w-full h-5 text-lime-500 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,16 Q25,18 55,7 T100,12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 11-15</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">78</span>
-                        <span className="text-[11px] font-bold text-emerald-600">▲ 14</span>
-                      </div>
-                      <svg className="w-full h-5 text-purple-500 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,12 Q30,6 60,15 T100,8" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 16-19</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">70</span>
-                        <span className="text-[11px] font-bold text-emerald-600">▲ 2</span>
-                      </div>
-                      <svg className="w-full h-5 text-orange-400 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,14 Q30,16 65,8 T100,15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-gray-500 uppercase">TOP 20+</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-lg font-bold text-gray-900">66</span>
-                        <span className="text-[11px] font-bold text-red-600">▼ 18</span>
-                      </div>
-                      <svg className="w-full h-5 text-pink-500 overflow-visible" viewBox="0 0 100 20">
-                        <path d="M0,10 Q25,5 60,16 T100,9" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                  </div>
+          {/* Top Rankings & Audit Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Local Rankings (7 Cols) */}
+            <div className="lg:col-span-7 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-gray-900">Local Rankings</h3>
+                  <span className="text-gray-400 text-xs cursor-pointer">ⓘ</span>
                 </div>
-
-                <div className="pt-4">
-                  <button
-                    onClick={() => alert('View all rankings distribution')}
-                    className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>→ VIEW ALL</span>
-                  </button>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="font-bold text-gray-900">Overall Avg Position:</span>
+                  <span className="text-base font-extrabold text-gray-900">12.2</span>
+                  <span className="text-emerald-600 font-semibold flex items-center text-[11px]">
+                    ▲ 0.3
+                  </span>
                 </div>
               </div>
 
-              {/* Right 6 cols: Overall Avg Position Line Chart */}
-              <div className="lg:col-span-6 flex flex-col justify-between">
-                <div>
-                  <div className="text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                    OVERALL AVG. POSITION
-                  </div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="text-2xl font-bold text-gray-900">12.2</span>
-                    <span className="text-xs font-bold text-emerald-600">▲ 0.3</span>
-                  </div>
-
-                  <div className="h-28 w-full relative flex flex-col justify-end">
-                    <svg className="w-full h-20 text-blue-500 overflow-visible" viewBox="0 0 500 80">
-                      <line x1="0" y1="10" x2="500" y2="10" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="0" y1="40" x2="500" y2="40" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="0" y1="70" x2="500" y2="70" stroke="#F1F5F9" strokeWidth="1" />
-                      <path d="M0,45 L100,42 L200,40 L300,46 L400,43 L500,41" fill="none" stroke="#0B69FF" strokeWidth="2.5" />
-                      <circle cx="0" cy="45" r="3.5" fill="#0B69FF" />
-                      <circle cx="100" cy="42" r="3.5" fill="#0B69FF" />
-                      <circle cx="200" cy="40" r="3.5" fill="#0B69FF" />
-                      <circle cx="300" cy="46" r="3.5" fill="#0B69FF" />
-                      <circle cx="400" cy="43" r="3.5" fill="#0B69FF" />
-                      <circle cx="500" cy="41" r="3.5" fill="#0B69FF" />
-                    </svg>
-
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 font-mono pt-2">
-                      <span>Aug-30 2026</span>
-                      <span>Sep-03 2026</span>
-                      <span>Sep-07 2026</span>
-                      <span>Sep-11 2026</span>
-                      <span>Sep-15 2026</span>
-                      <span>Sep-19 2026</span>
+              {/* 6 Rank Distribution Tiles */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {[
+                  { label: 'TOP 1-3', count: 45, change: '+6', up: true, bg: 'bg-emerald-50 text-emerald-800 border-emerald-200' },
+                  { label: 'TOP 4-6', count: 46, change: '-8', up: false, bg: 'bg-teal-50 text-teal-800 border-teal-200' },
+                  { label: 'TOP 7-10', count: 50, change: '+2', up: true, bg: 'bg-blue-50 text-blue-800 border-blue-200' },
+                  { label: 'TOP 11-15', count: 78, change: '+14', up: true, bg: 'bg-indigo-50 text-indigo-800 border-indigo-200' },
+                  { label: 'TOP 16-19', count: 70, change: '+2', up: true, bg: 'bg-amber-50 text-amber-800 border-amber-200' },
+                  { label: 'TOP 20+', count: 66, change: '-18', up: false, bg: 'bg-rose-50 text-rose-800 border-rose-200' },
+                ].map((item, idx) => (
+                  <div key={idx} className={`p-2.5 rounded border text-center ${item.bg}`}>
+                    <div className="text-[10px] font-bold opacity-75">{item.label}</div>
+                    <div className="text-lg font-black">{item.count}</div>
+                    <div className={`text-[10px] font-bold ${item.up ? 'text-emerald-700' : 'text-rose-700'}`}>
+                      {item.change}
                     </div>
                   </div>
-                </div>
+                ))}
+              </div>
 
-                <div className="pt-4">
-                  <button
-                    onClick={() => alert('View all position movement')}
-                    className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>→ VIEW ALL</span>
-                  </button>
-                </div>
+              {/* Inverted Position Chart */}
+              <div className="h-28 w-full bg-gray-50/50 rounded border border-gray-100 p-2 flex items-end justify-between gap-1">
+                {[15, 14.8, 14.2, 13.9, 13.5, 13.8, 13.2, 12.9, 12.6, 12.4, 12.2].map((pos, i) => {
+                  const h = ((20 - pos) / 10) * 100;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                      <div className="w-full bg-[#0B69FF]/80 group-hover:bg-[#0B69FF] rounded-t transition-all" style={{ height: `${Math.max(15, h)}%` }} />
+                      <span className="text-[9px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {pos}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
 
-          {/* 2. Local Marketing Audit Card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-gray-900">Local Marketing Audit</h2>
+            {/* Local Marketing Audit Score (5 Cols) */}
+            <div className="lg:col-span-5 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-gray-900">Local Marketing Audit</h3>
+                  <span className="text-gray-400 text-xs cursor-pointer">ⓘ</span>
+                </div>
+                <button onClick={() => setActiveTab('audit')} className="text-xs text-[#0B69FF] font-semibold hover:underline">
+                  View full audit →
+                </button>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-              <div className="md:col-span-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-200 pb-4 md:pb-0 pr-0 md:pr-6">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">SCORE ⓘ</span>
-                <div className="relative w-32 h-32 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" stroke="#E2E8F0" strokeWidth="8" fill="none" />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="42"
-                      stroke="#10B981"
-                      strokeWidth="8"
-                      strokeDasharray="264"
-                      strokeDashoffset={264 - (264 * 85) / 100}
-                      strokeLinecap="round"
+              <div className="flex items-center justify-around py-3">
+                <div className="relative w-28 h-28 flex items-center justify-center">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-gray-100"
+                      strokeWidth="3.5"
+                      stroke="currentColor"
                       fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      className="text-emerald-500"
+                      strokeDasharray="85, 100"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                     />
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-[11px] text-emerald-600 font-bold">▲ 85</span>
-                    <span className="text-2xl font-black text-gray-900 leading-none">85</span>
-                    <span className="text-[9px] text-gray-400 font-medium">OUT OF 100</span>
+                  <div className="absolute flex flex-col items-center">
+                    <span className="text-2xl font-black text-gray-900">85</span>
+                    <span className="text-[8px] font-bold text-emerald-700 tracking-wider">HEALTHY</span>
                   </div>
                 </div>
-                <span className="text-xs font-extrabold text-emerald-600 mt-2 tracking-wide uppercase">HEALTHY</span>
+
+                <div className="space-y-1.5 text-xs">
+                  <div className="font-bold text-gray-700 mb-1">Issues Breakdown:</div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                    <span>Errors: 18</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                    <span>Warnings: 1</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                    <span>Notices: 50</span>
+                  </div>
+                </div>
               </div>
 
-              <div className="md:col-span-8 space-y-4">
-                <div>
-                  <span className="text-xs text-gray-400 font-bold uppercase">ISSUES</span>
-                  <div className="text-xl font-bold text-gray-900">68</div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50/50 space-y-2">
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Store className="w-4 h-4 text-gray-500" />
-                      <span className="text-[11px] font-bold truncate">GOOGLE BUSINESS PROFILE</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs font-mono font-bold">
-                      <span className="text-red-600">● 0</span>
-                      <span className="text-amber-600">▲ 0</span>
-                      <span className="text-blue-600">ⓘ 1</span>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50/50 space-y-2">
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Building className="w-4 h-4 text-gray-500" />
-                      <span className="text-[11px] font-bold truncate">BUSINESS LISTINGS</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs font-mono font-bold">
-                      <span className="text-red-600">● 10</span>
-                      <span className="text-amber-600">▲ 0</span>
-                      <span className="text-blue-600">ⓘ 0</span>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-3 bg-gray-50/50 space-y-2">
-                    <div className="flex items-center gap-1.5 text-gray-700">
-                      <Star className="w-4 h-4 text-gray-500" />
-                      <span className="text-[11px] font-bold truncate">REVIEWS</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs font-mono font-bold">
-                      <span className="text-red-600">● 8</span>
-                      <span className="text-amber-600">▲ 1</span>
-                      <span className="text-blue-600">ⓘ 44</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    onClick={() => setActiveTab('audit')}
-                    className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>→ VIEW ALL</span>
-                  </button>
-                </div>
+              <div className="text-[11px] text-gray-500 text-center border-t border-gray-100 pt-2">
+                Last checked today • 9 checks passed cleanly
               </div>
             </div>
           </div>
 
-          {/* 3. Connect Location Banner */}
+          {/* Connect A Real Location Notice (Exact match to Screenshot 1 & 4) */}
           {!isConnectBannerDismissed && (
-            <div className="bg-white border border-[#D0E2FF] rounded-lg p-5 shadow-2xs relative">
+            <div className="bg-white border-2 border-dashed border-[#CCE0F8] rounded-xl p-5 shadow-xs relative">
               <button
                 onClick={() => setIsConnectBannerDismissed(true)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
-              <h3 className="font-bold text-sm text-gray-900">Connect a real location</h3>
-              <p className="text-xs text-gray-600 mt-1 max-w-3xl leading-relaxed">
-                You&apos;re viewing data for a demo, imaginary business. Add a real local business (e.g. restaurant, car wash, locksmith) to view and manage its data. Start by connecting its Google Business Profile.
+              <h3 className="font-bold text-sm text-gray-900 mb-1">Connect a real location</h3>
+              <p className="text-xs text-gray-600 max-w-3xl leading-relaxed mb-3">
+                You're viewing data for a demo, imaginary business. Add a real local business (e.g., restaurant, car wash, locksmith) to view and manage its data. Start by connecting its Google Business Profile.
               </p>
               <button
                 onClick={() => setIsAddLocationModalOpen(true)}
-                className="mt-3 px-4 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-xs font-bold uppercase rounded shadow-2xs cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded text-xs font-bold shadow-xs cursor-pointer inline-flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>ADD LOCATION</span>
+                <span>+ ADD LOCATION</span>
               </button>
             </div>
           )}
 
-          {/* 4. Google Business Profile Section */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-2xs space-y-6">
-            <h2 className="text-sm font-bold text-gray-900">Google Business Profile</h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              <div className="lg:col-span-6 flex flex-col sm:flex-row items-center gap-6 border-b lg:border-b-0 lg:border-r border-gray-200 pb-6 lg:pb-0 pr-0 lg:pr-6">
-                <div className="relative w-36 h-36 shrink-0 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="38" stroke="#F1F5F9" strokeWidth="8" fill="none" />
-                    <circle cx="50" cy="50" r="38" stroke="#3B82F6" strokeWidth="8" strokeDasharray="238.7" strokeDashoffset="0" fill="none" />
-                    <circle cx="50" cy="50" r="38" stroke="#10B981" strokeWidth="8" strokeDasharray="238.7" strokeDashoffset="145" fill="none" />
-                    <circle cx="50" cy="50" r="38" stroke="#F59E0B" strokeWidth="8" strokeDasharray="238.7" strokeDashoffset="75" fill="none" />
-                    <circle cx="50" cy="50" r="38" stroke="#EF4444" strokeWidth="8" strokeDasharray="238.7" strokeDashoffset="10" fill="none" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-base font-bold text-gray-900">214,538</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-xs flex-1">
-                  <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">
-                    VIEWS BY PLATFORM AND DEVICE ⓘ
-                  </div>
-                  <div className="flex justify-between items-center text-gray-700">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> MOBILE SEARCH VIEWS</span>
-                    <span className="font-mono font-bold">63,381 <span className="text-gray-400 font-normal">29.5%</span></span>
-                  </div>
-                  <div className="flex justify-between items-center text-gray-700">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500" /> MOBILE MAPS VIEWS</span>
-                    <span className="font-mono font-bold">58,190 <span className="text-gray-400 font-normal">27.1%</span></span>
-                  </div>
-                  <div className="flex justify-between items-center text-gray-700">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-600" /> DESKTOP SEARCH VIEWS</span>
-                    <span className="font-mono font-bold">83,912 <span className="text-gray-400 font-normal">39.1%</span></span>
-                  </div>
-                  <div className="flex justify-between items-center text-gray-700">
-                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500" /> DESKTOP MAPS VIEWS</span>
-                    <span className="font-mono font-bold">9,055 <span className="text-gray-400 font-normal">4.2%</span></span>
-                  </div>
-                </div>
+          {/* Google Business Profile Performance & Views (Screenshot 1 / 5:35) */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-5" id="gbp-stats">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="font-bold text-sm text-gray-900">Google Business Profile Performance</h3>
+                <p className="text-xs text-gray-500">Impressions, keyword searches, and customer actions</p>
               </div>
-
-              <div className="lg:col-span-6 space-y-3">
-                <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  SEARCHES BY KEYWORDS
-                </div>
-                <div className="text-lg font-bold text-gray-900">163,761</div>
-                <div className="space-y-1.5 text-xs text-gray-700">
-                  <div className="flex justify-between py-1 border-b border-gray-100">
-                    <span>1. food</span>
-                    <span className="font-mono font-semibold">12381</span>
-                  </div>
-                  <div className="flex justify-between py-1 border-b border-gray-100">
-                    <span>2. pasta</span>
-                    <span className="font-mono font-semibold">11619</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span>3. italian</span>
-                    <span className="font-mono font-semibold">5659</span>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 text-xs font-medium text-gray-500">
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Mobile search</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> Mobile maps</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Desktop search</span>
+                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Desktop maps</span>
               </div>
             </div>
 
-            <div className="pt-2">
-              <button
-                onClick={() => alert('View all GBP insights')}
-                className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
-              >
-                <span>→ VIEW ALL</span>
-              </button>
-            </div>
-          </div>
-
-          {/* 5. Business Listings Card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-2xs space-y-4">
-            <h2 className="text-sm font-bold text-gray-900">Business Listings</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="border border-gray-200 rounded-lg p-4 space-y-3">
-                <div className="text-[11px] font-bold text-gray-400 uppercase">MENTIONS FOUND ⓘ</div>
-                <div className="text-3xl font-extrabold text-[#0B69FF]">
-                  57<span className="text-gray-400 text-lg font-normal">/60</span>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-xs">
-                  <span className="text-gray-500 font-semibold">→ VIEW WHOLE LIST</span>
-                  <span className="text-gray-400">in 3 missing directories</span>
-                </div>
-              </div>
-
-              <div className="border border-gray-200 rounded-lg p-4 space-y-3">
-                <div className="text-[11px] font-bold text-gray-400 uppercase">NAP ERRORS ⓘ</div>
-                <div className="flex items-center gap-6">
-                  <div className="text-3xl font-extrabold text-gray-900">6</div>
-                  <div className="grid grid-cols-3 gap-6 text-xs border-l border-gray-200 pl-6">
-                    <div>
-                      <div className="text-gray-400 text-[10px]">T NAME</div>
-                      <div className="font-bold text-sm text-[#0B69FF]">2</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">📍 ADDRESS</div>
-                      <div className="font-bold text-sm text-[#0B69FF]">2</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-[10px]">📞 PHONE</div>
-                      <div className="font-bold text-sm text-[#0B69FF]">2</div>
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-2 flex items-center justify-between text-xs">
-                  <span className="text-gray-500 font-semibold">→ VIEW ERRORS</span>
-                  <span className="text-gray-400">in 57 directories</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 6. Reviews Overview with link to Review List */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-2xs space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-gray-900">Reviews</h2>
-              <button
-                onClick={() => setActiveTab('reviews')}
-                className="text-xs font-bold text-[#0B69FF] hover:underline flex items-center gap-1"
-              >
-                <span>Go to Review List</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Searches by keywords + Line Chart (Screenshot 1) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5" id="gbp-keywords">
+              {/* Left Keyword Table */}
               <div className="lg:col-span-6 border border-gray-200 rounded-lg p-4 space-y-3">
-                <div className="text-[11px] font-bold text-gray-400 uppercase">OVERVIEW ⓘ</div>
-                <div className="flex items-center gap-4">
-                  <div className="text-3xl font-extrabold text-gray-900">3.8</div>
+                <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex text-amber-400 text-sm">★★★★☆</div>
-                    <div className="text-[11px] text-gray-400">NUMBER OF REVIEWS: 90</div>
+                    <h4 className="font-bold text-xs text-gray-800">Searches by keywords</h4>
+                    <div className="text-lg font-black text-gray-900">163,761</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex border border-gray-200 rounded text-[11px] font-semibold bg-gray-50 p-0.5">
+                      {(['3M', '6M', '1Y'] as const).map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => setSelectedKeywordsPeriod(p)}
+                          className={`px-2 py-0.5 rounded cursor-pointer ${
+                            selectedKeywordsPeriod === p ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => alert('Keywords exported')}
+                      className="px-2.5 py-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Download className="w-3 h-3 text-gray-400" />
+                      <span>EXPORT</span>
+                    </button>
                   </div>
                 </div>
 
-                <div className="space-y-1.5 text-xs pt-2">
-                  <div className="flex items-center justify-between">
-                    <span className="w-24 text-[10px] text-gray-500 uppercase">POSITIVE</span>
-                    <div className="flex-1 mx-3 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-emerald-500 h-full w-[40%]" />
+                <div className="divide-y divide-gray-100 text-xs">
+                  {[
+                    { rank: 1, kw: 'food', count: '12301' },
+                    { rank: 2, kw: 'pasta', count: '11818' },
+                    { rank: 3, kw: 'italian', count: '9659' },
+                    { rank: 4, kw: 'restaurant', count: '8619' },
+                    { rank: 5, kw: 'pizza', count: '7346' },
+                  ].map((row) => (
+                    <div key={row.rank} className="py-2 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-gray-400 font-mono w-4">{row.rank}.</span>
+                        <span className="font-semibold text-gray-900">{row.kw}</span>
+                      </div>
+                      <span className="font-mono text-gray-600 font-medium">{row.count}</span>
                     </div>
-                    <span className="font-mono text-gray-700 text-xs">36</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="w-24 text-[10px] text-gray-500 uppercase">NEUTRAL</span>
-                    <div className="flex-1 mx-3 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-gray-400 h-full w-[8%]" />
-                    </div>
-                    <span className="font-mono text-gray-700 text-xs">4</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="w-24 text-[10px] text-gray-500 uppercase">NEGATIVE</span>
-                    <div className="flex-1 mx-3 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-red-500 h-full w-[14%]" />
-                    </div>
-                    <span className="font-mono text-gray-700 text-xs">10</span>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="pt-2">
-                  <button
-                    onClick={() => setActiveTab('reviews')}
-                    className="text-gray-500 hover:text-[#0B69FF] text-xs font-semibold uppercase flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>→ VIEW ALL (90)</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => alert('Opening full 150 keywords list')}
+                  className="w-full py-1.5 text-center text-xs font-bold text-[#0B69FF] hover:bg-blue-50/50 rounded transition-colors cursor-pointer"
+                >
+                  VIEW ALL KEYWORDS →
+                </button>
               </div>
 
-              <div className="lg:col-span-6 border border-gray-200 rounded-lg p-4 space-y-4">
-                <div className="text-[11px] font-bold text-gray-400 uppercase">TOP SOURCES ⓘ</div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="border border-gray-100 p-3 rounded-lg bg-gray-50/50 space-y-1">
-                    <div className="font-bold text-xs">Google</div>
-                    <div className="font-bold text-sm text-gray-900">★ 3.56</div>
-                    <div className="text-[10px] text-gray-400">16 reviews</div>
+              {/* Right Line Chart */}
+              <div className="lg:col-span-6 border border-gray-200 rounded-lg p-4 flex flex-col justify-between">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-xs text-gray-800">Searches</h4>
+                    <div className="text-lg font-black text-gray-900">163,761</div>
                   </div>
-                  <div className="border border-gray-100 p-3 rounded-lg bg-gray-50/50 space-y-1">
-                    <div className="font-bold text-xs">Tripadvisor</div>
-                    <div className="font-bold text-sm text-gray-900">★ 3.70</div>
-                    <div className="text-[10px] text-gray-400">16 reviews</div>
-                  </div>
-                  <div className="border border-gray-100 p-3 rounded-lg bg-gray-50/50 space-y-1">
-                    <div className="font-bold text-xs">Facebook</div>
-                    <div className="font-bold text-sm text-gray-900">★ 4.33</div>
-                    <div className="text-[10px] text-gray-400">9 reviews</div>
+                  <div className="flex border border-gray-200 rounded text-[11px] font-semibold bg-gray-50 p-0.5">
+                    {(['3M', '6M', '1Y'] as const).map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => setSelectedKeywordsPeriod(p)}
+                        className={`px-2 py-0.5 rounded cursor-pointer ${
+                          selectedKeywordsPeriod === p ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-500'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
                   </div>
                 </div>
+
+                <div className="h-36 w-full flex items-end justify-between pt-4 px-2">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 300 100">
+                    <polyline
+                      fill="none"
+                      stroke="#0D9488"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      points="10,60 40,50 70,35 100,55 130,60 160,50 190,65 220,52 250,48 280,50"
+                    />
+                    {[
+                      { cx: 10, cy: 60 },
+                      { cx: 40, cy: 50 },
+                      { cx: 70, cy: 35 },
+                      { cx: 100, cy: 55 },
+                      { cx: 130, cy: 60 },
+                      { cx: 160, cy: 50 },
+                      { cx: 190, cy: 65 },
+                      { cx: 220, cy: 52 },
+                      { cx: 250, cy: 48 },
+                      { cx: 280, cy: 50 },
+                    ].map((pt, i) => (
+                      <circle key={i} cx={pt.cx} cy={pt.cy} r="3" fill="#0D9488" />
+                    ))}
+                  </svg>
+                </div>
+                <div className="flex justify-between text-[10px] text-gray-400 font-mono pt-2 border-t border-gray-100">
+                  <span>Oct 01 2025</span>
+                  <span>Jan 01 2026</span>
+                  <span>Apr 01 2026</span>
+                  <span>Jul 01 2026</span>
+                </div>
               </div>
+            </div>
+
+            {/* 4 Activity Cards (Screenshot 1) */}
+            <div className="space-y-4 pt-2">
+              {[
+                { title: 'Website visits', count: '5,571', color: '#84CC16', stroke: 'stroke-lime-500' },
+                { title: 'Direction requests', count: '1,148', color: '#EC4899', stroke: 'stroke-pink-500' },
+                { title: 'Phone calls', count: '746', color: '#334155', stroke: 'stroke-slate-600' },
+                { title: 'Messages', count: '1,352', color: '#F97316', stroke: 'stroke-orange-500' },
+              ].map((act, i) => (
+                <div key={i} className="border border-gray-200 rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs font-bold text-gray-700">{act.title}</div>
+                      <div className="text-base font-extrabold text-gray-900">{act.count}</div>
+                    </div>
+                    <div className="flex border border-gray-200 rounded text-[10px] font-semibold bg-gray-50 p-0.5">
+                      {(['ALL', '7D', '1M', '3M', '6M', '1Y'] as const).map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => setSelectedActivityPeriod(t)}
+                          className={`px-1.5 py-0.5 rounded cursor-pointer ${
+                            selectedActivityPeriod === t ? 'bg-white text-gray-900 shadow-2xs' : 'text-gray-400'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Seismograph / Sparkline */}
+                  <div className="h-16 w-full flex items-end">
+                    <svg className="w-full h-full" viewBox="0 0 500 50" preserveAspectRatio="none">
+                      <path
+                        d="M0,35 Q20,10 40,32 T80,30 T120,40 T160,15 T200,32 T240,30 T280,35 T320,28 T360,33 T400,20 T440,35 T480,25 L500,30"
+                        fill="none"
+                        stroke={act.color}
+                        strokeWidth="1.8"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex justify-between text-[9px] text-gray-400 font-mono">
+                    <span>Oct 01 2025</span>
+                    <span>Dec 01 2025</span>
+                    <span>Feb 01 2026</span>
+                    <span>Apr 01 2026</span>
+                    <span>Jun 01 2026</span>
+                    <span>Aug 01 2026</span>
+                    <span>Sep 01 2026</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: REVIEW LIST (Exact match to Screenshots 2 & 3)                     */}
+      {/* TAB 2: BUSINESS LISTINGS (Screenshots 3 & 4)                              */}
       {/* ========================================================================= */}
-      {activeTab === 'reviews' && (
-        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
-          {/* Source Filter Pills Bar matching Screenshot 2 */}
-          <div className="flex flex-wrap items-center gap-2 overflow-x-auto pb-1 text-xs">
-            {/* All sources active pill */}
-            <button
-              onClick={() => setSelectedSourceFilter('All sources')}
-              className={`px-3 py-1.5 rounded-md font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                selectedSourceFilter === 'All sources'
-                  ? 'bg-[#3B4252] text-white shadow-xs'
-                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <Check className="w-3.5 h-3.5" />
-              <span>All sources</span>
-            </button>
-
-            {/* Google */}
-            <button
-              onClick={() => setSelectedSourceFilter('Google')}
-              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 transition-colors cursor-pointer ${
-                selectedSourceFilter === 'Google'
-                  ? 'bg-blue-50 border-[#0B69FF] text-[#0B69FF]'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span className="font-bold text-blue-600">G</span>
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.56</span>
-              <span className="text-gray-400">16</span>
-            </button>
-
-            {/* Facebook */}
-            <button
-              onClick={() => setSelectedSourceFilter('Facebook')}
-              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 transition-colors cursor-pointer ${
-                selectedSourceFilter === 'Facebook'
-                  ? 'bg-blue-50 border-[#0B69FF] text-[#0B69FF]'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span className="font-bold text-blue-800">f</span>
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 4.33</span>
-              <span className="text-gray-400">9</span>
-            </button>
-
-            {/* Tripadvisor */}
-            <button
-              onClick={() => setSelectedSourceFilter('Tripadvisor')}
-              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 transition-colors cursor-pointer ${
-                selectedSourceFilter === 'Tripadvisor'
-                  ? 'bg-blue-50 border-[#0B69FF] text-[#0B69FF]'
-                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              <span>🦉</span>
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.70</span>
-              <span className="text-gray-400">16</span>
-            </button>
-
-            {/* Yelp */}
-            <button
-              onClick={() => setSelectedSourceFilter('Yelp')}
-              className="px-3 py-1.5 rounded-md font-medium border bg-white border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <span className="font-bold text-red-600">Y</span>
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 4.00</span>
-              <span className="text-gray-400">3</span>
-            </button>
-
-            {/* Trustpilot */}
-            <button
-              onClick={() => setSelectedSourceFilter('Trustpilot')}
-              className="px-3 py-1.5 rounded-md font-medium border bg-white border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-            >
-              <span className="font-bold text-emerald-600">★</span>
-              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.67</span>
-              <span className="text-gray-400">3</span>
-            </button>
-
-            {/* More (5) */}
-            <button className="px-3 py-1.5 rounded-md font-medium border bg-white border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-1">
-              <span>More (5)</span>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-            </button>
-          </div>
-
-          {/* Reviews Header Bar: Counter, Filters, Export */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
-            <div>
-              <h2 className="text-base font-bold text-gray-900">Reviews</h2>
-              <div className="text-xs text-gray-500">Showing 1-10 of 60</div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => alert('Filter reviews by star rating, answered status, or date')}
-                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
-              >
-                <Filter className="w-3.5 h-3.5 text-gray-500" />
-                <span>FILTERS (0)</span>
-              </button>
-              <button
-                onClick={() => {
-                  const csv =
-                    'data:text/csv;charset=utf-8,Source,Rating,Date,Author,Review,Status,Language\n' +
-                    reviewsList.map((r) => `"${r.source}","${r.rating || 'None'}","${r.date}","${r.author}","${r.text.replace(/"/g, '""')}","${r.status}","${r.language}"`).join('\n');
-                  const encodedUri = encodeURI(csv);
-                  const link = document.createElement('a');
-                  link.setAttribute('href', encodedUri);
-                  link.setAttribute('download', 'reviews-list.csv');
-                  document.body.appendChild(link);
-                  link.click();
-                }}
-                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5 text-gray-500" />
-                <span>EXPORT</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Exact Reviews Table (Screenshot 2 & 3) */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-2xs overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-[#F8FAFC] border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold text-[11px]">
-                  <tr>
-                    <th className="px-5 py-3">SOURCE</th>
-                    <th className="px-5 py-3">RATING</th>
-                    <th className="px-5 py-3">DATE ⌄</th>
-                    <th className="px-5 py-3">REVIEW</th>
-                    <th className="px-5 py-3">STATUS</th>
-                    <th className="px-5 py-3">LANGUAGE</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-gray-700">
-                  {reviewsList.map((rev) => (
-                    <tr key={rev.id} className="hover:bg-gray-50/70 transition-colors">
-                      {/* Source */}
-                      <td className="px-5 py-4 font-semibold text-gray-900 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="text-base">{rev.sourceIcon}</span>
-                          <span>{rev.source}</span>
-                        </div>
-                      </td>
-
-                      {/* Rating */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        {rev.rating !== null ? (
-                          <div className="flex items-center gap-1 font-bold text-gray-900">
-                            <span>{rev.rating}</span>
-                            <span className="text-amber-400">★</span>
-                          </div>
-                        ) : (
-                          <div className="text-gray-400 text-xs italic">☆ Not rated</div>
-                        )}
-                      </td>
-
-                      {/* Date */}
-                      <td className="px-5 py-4 text-gray-500 whitespace-nowrap">{rev.date}</td>
-
-                      {/* Review text & author */}
-                      <td className="px-5 py-4 max-w-md">
-                        <p className="text-gray-800 text-xs leading-relaxed line-clamp-2">
-                          {rev.text}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1 text-[11px]">
-                          <button
-                            onClick={() => setActiveReviewModal(rev)}
-                            className="text-[#0B69FF] font-semibold hover:underline cursor-pointer"
-                          >
-                            Show more
-                          </button>
-                          <span className="text-gray-400 font-medium">{rev.author}</span>
-                        </div>
-                      </td>
-
-                      {/* Status */}
-                      <td className="px-5 py-4 whitespace-nowrap">
-                        <div className="space-y-1">
-                          <div className="text-xs">
-                            {rev.status === 'Needs attention' ? (
-                              <span className="text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
-                                Needs attention
-                              </span>
-                            ) : rev.status === 'Not read' ? (
-                              <span className="text-rose-700 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-200 text-[11px]">
-                                Not read
-                              </span>
-                            ) : rev.status === 'Answered' ? (
-                              <span className="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]">
-                                Answered
-                              </span>
-                            ) : (
-                              <span className="text-gray-700 font-medium">Read</span>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => setActiveReviewModal(rev)}
-                            className="flex items-center gap-1 text-[11px] text-gray-500 hover:text-blue-600 cursor-pointer pt-0.5"
-                          >
-                            <Eye className="w-3 h-3 text-gray-400" />
-                            <span>View</span>
-                          </button>
-                        </div>
-                      </td>
-
-                      {/* Language */}
-                      <td className="px-5 py-4 whitespace-nowrap text-gray-500 font-bold font-mono">
-                        {rev.language}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination Row matching Screenshot 2 */}
-            <div className="p-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 bg-white">
-              <div className="flex items-center gap-1">
-                <button className="px-2.5 py-1 border border-gray-300 rounded hover:bg-gray-50 text-gray-400 cursor-not-allowed">
-                  &lt;
-                </button>
-                <button className="px-3 py-1 bg-[#0B69FF] text-white rounded font-bold">1</button>
-                <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">2</button>
-                <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">3</button>
-                <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">4</button>
-                <span>...</span>
-                <button className="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">6</button>
-                <button className="px-2.5 py-1 border border-gray-300 rounded hover:bg-gray-50">&gt;</button>
+      {activeTab === 'listings' && (
+        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+          {/* Top Metric Boxes: Overview & NAP */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Box 1: OVERVIEW */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <span>OVERVIEW</span>
+                <span className="cursor-pointer text-gray-400">ⓘ</span>
               </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1">FOUND</div>
+                  <div className="text-2xl font-black text-[#0B69FF] flex items-center gap-1.5">
+                    <Eye className="w-5 h-5 opacity-70" />
+                    <span>57</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1">NOT FOUND</div>
+                  <div className="text-2xl font-black text-[#0B69FF] flex items-center gap-1.5">
+                    <EyeOff className="w-5 h-5 opacity-70" />
+                    <span>3</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1">CORRECT</div>
+                  <div className="text-2xl font-black text-[#0B69FF] flex items-center gap-1.5">
+                    <CheckCircle2 className="w-5 h-5 opacity-70" />
+                    <span>54</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1">WITH MISTAKES</div>
+                  <div className="text-2xl font-black text-[#0B69FF] flex items-center gap-1.5">
+                    <X className="w-5 h-5 opacity-70" />
+                    <span>3</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5">
-                  <span>Go to page:</span>
+            {/* Box 2: NAP */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <span>NAP</span>
+                <span className="cursor-pointer text-gray-400">ⓘ</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                    <span>NAME</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                      ✔ 55
+                    </span>
+                    <span className="flex items-center gap-1 text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                      ⛔ 2
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                    <span>ADDRESS</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                      ✔ 55
+                    </span>
+                    <span className="flex items-center gap-1 text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                      ⛔ 2
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                    <span>PHONE</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                      ✔ 55
+                    </span>
+                    <span className="flex items-center gap-1 text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                      ⛔ 2
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="text-[11px] text-gray-500 font-semibold mb-1 flex items-center gap-1">
+                    <span>URL</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                      ✔ 56
+                    </span>
+                    <span className="flex items-center gap-1 text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                      ⛔ 1
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Connect real location banner */}
+          <div className="bg-white border-2 border-dashed border-[#CCE0F8] rounded-xl p-5 shadow-xs relative">
+            <h3 className="font-bold text-sm text-gray-900 mb-1">Connect a real location</h3>
+            <p className="text-xs text-gray-600 max-w-3xl leading-relaxed mb-3">
+              You're viewing data for a demo, imaginary business. Add a real local business (e.g., restaurant, car wash, locksmith) to view and manage its data. Start by connecting its Google Business Profile.
+            </p>
+            <button
+              onClick={() => setIsAddLocationModalOpen(true)}
+              className="px-4 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded text-xs font-bold shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ ADD LOCATION</span>
+            </button>
+          </div>
+
+          {/* Business Listings Search, Filters & Table */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <h2 className="text-base font-bold text-gray-900">Business Listings</h2>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Search */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
                   <input
-                    type="number"
-                    defaultValue={1}
-                    className="w-12 px-2 py-1 border border-gray-300 rounded text-center"
+                    type="text"
+                    placeholder="Search..."
+                    value={listingsSearch}
+                    onChange={(e) => setListingsSearch(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#0B69FF] bg-white w-48"
                   />
                 </div>
 
-                <div className="flex items-center gap-1.5">
-                  <span>View on page:</span>
-                  <select className="border border-gray-300 rounded px-2 py-1 bg-white">
-                    <option>10</option>
-                    <option>20</option>
-                    <option>50</option>
-                  </select>
-                </div>
+                <button
+                  onClick={() => alert('Filter business listings')}
+                  className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Filter className="w-3.5 h-3.5 text-gray-500" />
+                  <span>FILTERS (0)</span>
+                </button>
+
+                <button
+                  onClick={() => alert('Suggest a directory dialog')}
+                  className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-gray-500" />
+                  <span>+ SUGGEST DIRECTORY</span>
+                </button>
               </div>
+            </div>
+
+            {/* Table */}
+            <div className="bg-white border border-gray-200 rounded-lg shadow-2xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#F8FAFC] border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold text-[11px]">
+                    <tr>
+                      <th className="px-5 py-3">DIRECTORY</th>
+                      <th className="px-5 py-3">TYPE</th>
+                      <th className="px-5 py-3">SYNC STATUS</th>
+                      <th className="px-5 py-3">PRESENCE</th>
+                      <th className="px-5 py-3">ERRORS</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-gray-700">
+                    {filteredDirectories.map((dir) => (
+                      <tr key={dir.id} className="hover:bg-gray-50/70 transition-colors">
+                        <td className="px-5 py-3.5 font-semibold text-gray-900 whitespace-nowrap">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-base">{dir.icon}</span>
+                            <span>{dir.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">{dir.type}</td>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${
+                              dir.syncStatus === 'Synced'
+                                ? 'text-emerald-700 bg-emerald-50'
+                                : dir.syncStatus === 'Submitted'
+                                ? 'text-blue-700 bg-blue-50'
+                                : dir.syncStatus === 'Updating'
+                                ? 'text-amber-700 bg-amber-50'
+                                : 'text-gray-500 bg-gray-100'
+                            }`}
+                          >
+                            {dir.syncStatus === 'Synced' && '✔'}
+                            {dir.syncStatus === 'Submitted' && '✔'}
+                            {dir.syncStatus === 'Updating' && '⚠️'}
+                            {dir.syncStatus.includes('unavailable') && '⟳'}
+                            {dir.syncStatus.includes('not started') && '○'}
+                            <span>{dir.syncStatus}</span>
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          <span
+                            className={`font-semibold ${
+                              dir.presence === 'Listed'
+                                ? 'text-emerald-600'
+                                : 'text-gray-400'
+                            }`}
+                          >
+                            {dir.presence}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-red-500 text-sm">
+                            {dir.errors.name && <span title="Name error">🔤</span>}
+                            {dir.errors.address && <span title="Address error">📍</span>}
+                            {dir.errors.phone && <span title="Phone error">📞</span>}
+                            {dir.errors.url && <span title="URL error">🔗</span>}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+                {/* Pagination footer */}
+                <div className="bg-[#F8FAFC] border-t border-gray-200 px-5 py-3 flex items-center justify-between text-xs text-gray-500">
+                  <span>Showing {filteredDirectories.length} directories</span>
+                  <div className="flex items-center gap-2">
+                    <span>View on page:</span>
+                    <select
+                      value={listingsPerPage}
+                      onChange={(e) => setListingsPerPage(e.target.value)}
+                      className="border border-gray-300 rounded px-2 py-1 bg-white font-semibold"
+                    >
+                      <option>50</option>
+                      <option>100</option>
+                      <option>200</option>
+                    </select>
+                  </div>
+                </div>
             </div>
           </div>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: AUDIT CHECKLIST (Screenshot 1 / Screenshot 4)                      */}
+      {/* TAB 3: AUDIT CHECKLIST (Screenshots 1 & 3)                                */}
       {/* ========================================================================= */}
       {activeTab === 'audit' && (
-        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6">
+        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+          {/* Top Audit Summary Metrics (Screenshot 3 / 5:35) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-5">
+            {/* Errors (3 Cols) */}
+            <div className="lg:col-span-3 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-500 font-bold uppercase">
+                <span>ERRORS</span>
+                <span>ⓘ</span>
+              </div>
+              <div className="text-3xl font-black text-gray-900">22</div>
+              <div className="h-16 w-full flex items-end justify-center pt-2">
+                <div className="w-1.5 h-12 bg-red-500 rounded-t" />
+              </div>
+            </div>
+
+            {/* Warnings (3 Cols) */}
+            <div className="lg:col-span-3 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-2">
+              <div className="flex items-center justify-between text-xs text-gray-500 font-bold uppercase">
+                <span>WARNINGS</span>
+                <span>ⓘ</span>
+              </div>
+              <div className="text-3xl font-black text-gray-900">1</div>
+              <div className="h-16 w-full flex items-end justify-center pt-2">
+                <div className="w-1.5 h-10 bg-amber-400 rounded-t" />
+              </div>
+            </div>
+
+            {/* Score Donut (3 Cols) */}
+            <div className="lg:col-span-3 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs flex flex-col items-center justify-center text-center">
+              <div className="text-xs text-gray-500 font-bold uppercase mb-2">SCORE ⓘ</div>
+              <div className="relative w-24 h-24 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-gray-100"
+                    strokeWidth="3.5"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-emerald-500"
+                    strokeDasharray="85, 100"
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center">
+                  <span className="text-2xl font-black text-gray-900">85</span>
+                  <span className="text-[8px] font-bold text-emerald-700">HEALTHY</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Issues (3 Cols) */}
+            <div className="lg:col-span-3 bg-white rounded-lg border border-gray-200 p-4 shadow-2xs space-y-1.5 text-xs">
+              <div className="font-bold text-gray-500 uppercase text-[11px] mb-1">TOP ISSUES ⓘ</div>
+              {[
+                'Company name contains errors',
+                'Company address contains errors',
+                'Company phone number contains errors',
+                'Company website URL contains errors',
+                "You didn't reply to all negative user reviews",
+                'Company is not added to all active directories',
+              ].map((issue, idx) => (
+                <div key={idx} className="flex items-center justify-between text-gray-800 hover:text-red-600 cursor-pointer py-0.5">
+                  <span className="truncate flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                    <span className="truncate">{issue}</span>
+                  </span>
+                  <ChevronRight className="w-3 h-3 text-gray-400 shrink-0" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Checklist Area (Left Category Rail + Filter Chips + Accordions) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div className="lg:col-span-4 space-y-3">
               <div
@@ -1294,228 +1359,938 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
               </div>
             </div>
 
-            <div className="lg:col-span-8 bg-white border border-gray-200 rounded-lg p-6 shadow-2xs space-y-6">
-              <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 pb-3 text-xs font-semibold">
+            {/* Checklist items */}
+            <div className="lg:col-span-8 space-y-4">
+              {/* Filter Tabs matching Screenshot 1 */}
+              <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-gray-600 border-b border-gray-200 pb-3">
                 <button
                   onClick={() => setAuditFilter('all')}
-                  className={`flex items-center gap-1 cursor-pointer ${
-                    auditFilter === 'all' ? 'text-[#0B69FF] font-bold border-b-2 border-[#0B69FF] pb-1' : 'text-gray-500'
+                  className={`flex items-center gap-1.5 cursor-pointer pb-1 ${
+                    auditFilter === 'all' ? 'text-[#0B69FF] border-b-2 border-[#0B69FF]' : 'hover:text-gray-900'
                   }`}
                 >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>ALL (69)</span>
+                  <span>✔ ALL (71)</span>
                 </button>
                 <button
                   onClick={() => setAuditFilter('errors')}
-                  className={`flex items-center gap-1 cursor-pointer ${
-                    auditFilter === 'errors' ? 'text-red-600 font-bold border-b-2 border-red-500 pb-1' : 'text-gray-500'
+                  className={`flex items-center gap-1.5 cursor-pointer pb-1 text-red-600 ${
+                    auditFilter === 'errors' ? 'font-bold border-b-2 border-red-600' : 'hover:text-red-800'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-red-500" />
-                  <span>ERRORS (18)</span>
+                  <span>⛔ ERRORS (18)</span>
                 </button>
                 <button
                   onClick={() => setAuditFilter('warnings')}
-                  className={`flex items-center gap-1 cursor-pointer ${
-                    auditFilter === 'warnings' ? 'text-amber-600 font-bold border-b-2 border-amber-500 pb-1' : 'text-gray-500'
+                  className={`flex items-center gap-1.5 cursor-pointer pb-1 text-amber-600 ${
+                    auditFilter === 'warnings' ? 'font-bold border-b-2 border-amber-600' : 'hover:text-amber-800'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span>WARNINGS (1)</span>
+                  <span>⚠️ WARNINGS (1)</span>
                 </button>
                 <button
                   onClick={() => setAuditFilter('notices')}
-                  className={`flex items-center gap-1 cursor-pointer ${
-                    auditFilter === 'notices' ? 'text-blue-600 font-bold border-b-2 border-blue-500 pb-1' : 'text-gray-500'
+                  className={`flex items-center gap-1.5 cursor-pointer pb-1 text-blue-600 ${
+                    auditFilter === 'notices' ? 'font-bold border-b-2 border-blue-600' : 'hover:text-blue-800'
                   }`}
                 >
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span>NOTICES (50)</span>
+                  <span>ℹ NOTICES (51)</span>
                 </button>
                 <button
                   onClick={() => setAuditFilter('passed')}
-                  className={`flex items-center gap-1 cursor-pointer ${
-                    auditFilter === 'passed' ? 'text-emerald-600 font-bold border-b-2 border-emerald-500 pb-1' : 'text-gray-500'
+                  className={`flex items-center gap-1.5 cursor-pointer pb-1 text-emerald-600 ${
+                    auditFilter === 'passed' ? 'font-bold border-b-2 border-emerald-600' : 'hover:text-emerald-800'
                   }`}
                 >
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>PASSED CHECKS (9)</span>
+                  <span>✅ PASSED CHECKS (9)</span>
+                </button>
+                <button
+                  onClick={() => setAuditFilter('unchecked')}
+                  className="flex items-center gap-1.5 text-gray-400 cursor-pointer pb-1"
+                >
+                  <span>UNDEFINED (0)</span>
                 </button>
               </div>
 
-              {(selectedAuditSection === 'gbp' || auditFilter === 'all') && (
-                <div className="space-y-3">
-                  <h3 className="font-bold text-sm text-gray-900">Google Business Profile</h3>
-                  <div className="divide-y divide-gray-100 text-xs">
-                    <div className="py-2.5 flex items-center justify-between text-emerald-700 font-medium">
+              {/* Accordion lists */}
+              <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100 shadow-2xs">
+                {/* 1. GBP Section */}
+                <div className="p-4 bg-gray-50/70 font-bold text-sm text-gray-900 flex items-center justify-between">
+                  <span>Google Business Profile</span>
+                </div>
+                <div className="p-3 text-xs space-y-2">
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company category added</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company address added</span>
+                  </div>
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'gbp-service-area': !p['gbp-service-area'] }))
+                      }
+                      className="flex items-center justify-between text-blue-700 font-semibold cursor-pointer"
+                    >
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span>Company category added</span>
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span>Service area not added</span>
                       </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['gbp-service-area'] ? 'rotate-180' : ''
+                        }`}
+                      />
                     </div>
-
-                    <div className="py-2.5 flex items-center justify-between text-emerald-700 font-medium">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span>Company address added</span>
-                      </div>
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                    </div>
-
-                    <div className="py-2.5 space-y-1.5">
-                      <div
-                        onClick={() => toggleAccordion('gbp-service-area')}
-                        className="flex items-center justify-between cursor-pointer text-blue-700 font-medium"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-500" />
-                          <span>Service area not added</span>
-                        </div>
-                        {expandedChecklistItems['gbp-service-area'] ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                        )}
-                      </div>
-                      {expandedChecklistItems['gbp-service-area'] && (
-                        <p className="text-[11.5px] text-gray-500 leading-relaxed pl-4">
-                          Specify the areas in which you deliver goods or provide services to the customer&apos;s address. You can add multiple service areas.
-                        </p>
-                      )}
-                    </div>
+                    {expandedChecklistItems['gbp-service-area'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        Specify the areas in which you deliver goods or provide services to the customer's address. You can add multiple service areas.
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company hours of operation added</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company phone number added</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company website URL added</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-emerald-700 py-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Company description added</span>
                   </div>
                 </div>
-              )}
 
-              {(selectedAuditSection === 'listings' || auditFilter === 'all') && (
-                <div className="space-y-3 pt-4">
-                  <h3 className="font-bold text-sm text-gray-900">Business Listings</h3>
-                  <div className="divide-y divide-gray-100 text-xs">
-                    <div className="py-2.5 space-y-1.5">
-                      <div
-                        onClick={() => toggleAccordion('listings-not-all-active')}
-                        className="flex items-center justify-between cursor-pointer text-red-700 font-medium"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-red-500" />
-                          <span>Company is not added to all active directories</span>
-                        </div>
-                        {expandedChecklistItems['listings-not-all-active'] ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                        )}
+                {/* 2. Business Listings Section */}
+                <div className="p-4 bg-gray-50/70 font-bold text-sm text-gray-900 flex items-center justify-between">
+                  <span>Business Listings</span>
+                </div>
+                <div className="p-3 text-xs space-y-2">
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'listings-not-all-active': !p['listings-not-all-active'] }))
+                      }
+                      className="flex items-center justify-between text-red-700 font-semibold cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        <span>Company is not added to all active directories</span>
                       </div>
-                      {expandedChecklistItems['listings-not-all-active'] && (
-                        <p className="text-[11.5px] text-gray-500 leading-relaxed pl-4">
-                          Being listed in various business directories serves as an additional source of traffic for a business, improves its rankings in local search, and increases its brand awareness.
-                        </p>
-                      )}
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['listings-not-all-active'] ? 'rotate-180' : ''
+                        }`}
+                      />
                     </div>
+                    {expandedChecklistItems['listings-not-all-active'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        Being listed in various business directories serves as an additional source of traffic for a business, improves its rankings in local search, and increases its brand awareness.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'listings-name-errors': !p['listings-name-errors'] }))
+                      }
+                      className="flex items-center justify-between text-red-700 font-semibold cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        <span>Company name contains errors</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['listings-name-errors'] ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                    {expandedChecklistItems['listings-name-errors'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        The company's name has to be the same in all business listings. This makes a company more attractive to clients and search engines.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'listings-address-errors': !p['listings-address-errors'] }))
+                      }
+                      className="flex items-center justify-between text-red-700 font-semibold cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        <span>Company address contains errors</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['listings-address-errors'] ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                    {expandedChecklistItems['listings-address-errors'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        The company's address, including the postal code, has to be real and the same among all business listings.
+                      </p>
+                    )}
                   </div>
                 </div>
-              )}
+
+                {/* 3. Reviews Section */}
+                <div className="p-4 bg-gray-50/70 font-bold text-sm text-gray-900 flex items-center justify-between">
+                  <span>Reviews</span>
+                </div>
+                <div className="p-3 text-xs space-y-2">
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'reviews-unmonitored': !p['reviews-unmonitored'] }))
+                      }
+                      className="flex items-center justify-between text-blue-700 font-semibold cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-blue-500" />
+                        <span>User reviews are not found at least in one monitored review source</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['reviews-unmonitored'] ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                    {expandedChecklistItems['reviews-unmonitored'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        Business reviews build trust with customers and help businesses rank better in search engines. If your business listing doesn't have reviews, ask your customers to leave an honest review about your services.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="py-1">
+                    <div
+                      onClick={() =>
+                        setExpandedChecklistItems((p) => ({ ...p, 'reviews-negative-reply': !p['reviews-negative-reply'] }))
+                      }
+                      className="flex items-center justify-between text-red-700 font-semibold cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500" />
+                        <span>You didn't reply to all negative user reviews</span>
+                      </div>
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform ${
+                          expandedChecklistItems['reviews-negative-reply'] ? 'rotate-180' : ''
+                        }`}
+                      />
+                    </div>
+                    {expandedChecklistItems['reviews-negative-reply'] && (
+                      <p className="mt-1.5 ml-4 text-gray-500 text-[11px] leading-relaxed">
+                        It is important to respond to all negative reviews. Respond to them patiently and professionally, clarify the details and understand the reasons.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Footer Matching All Screenshots */}
-      <footer className="mt-12 py-5 px-6 border-t border-gray-200 bg-white flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 font-bold text-gray-800 text-[13px]">
-            <span className="w-4 h-4 rounded bg-[#0B69FF] flex items-center justify-center text-white text-[10px] font-black">
-              S
-            </span>
-            <span>SE Ranking</span>
+      {/* ========================================================================= */}
+      {/* TAB 4: REVIEWS LIST (Screenshot 2)                                        */}
+      {/* ========================================================================= */}
+      {activeTab === 'reviews' && (
+        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
+          {/* Source Tabs Matching Screenshot 2 */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              onClick={() => setSelectedSourceFilter('All sources')}
+              className={`px-3 py-1.5 rounded-md font-medium border cursor-pointer whitespace-nowrap ${
+                selectedSourceFilter === 'All sources'
+                  ? 'bg-[#3B4252] text-white border-transparent shadow-xs'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              All sources
+            </button>
+
+            <button
+              onClick={() => setSelectedSourceFilter('Google')}
+              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+                selectedSourceFilter === 'Google'
+                  ? 'bg-[#3B4252] text-white border-transparent'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="font-bold text-blue-600">G</span>
+              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.56</span>
+              <span className="text-gray-400">16</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedSourceFilter('Facebook')}
+              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+                selectedSourceFilter === 'Facebook'
+                  ? 'bg-[#3B4252] text-white border-transparent'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span className="font-bold text-blue-700">f</span>
+              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 4.33</span>
+              <span className="text-gray-400">9</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedSourceFilter('Tripadvisor')}
+              className={`px-3 py-1.5 rounded-md font-medium border flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+                selectedSourceFilter === 'Tripadvisor'
+                  ? 'bg-[#3B4252] text-white border-transparent'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <span>🦉</span>
+              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.70</span>
+              <span className="text-gray-400">16</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedSourceFilter('Yelp')}
+              className="px-3 py-1.5 rounded-md font-medium border bg-white border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2 whitespace-nowrap"
+            >
+              <span className="font-bold text-red-600">Y</span>
+              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 4.00</span>
+              <span className="text-gray-400">3</span>
+            </button>
+
+            <button
+              onClick={() => setSelectedSourceFilter('Trustpilot')}
+              className="px-3 py-1.5 rounded-md font-medium border bg-white border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center gap-2 whitespace-nowrap"
+            >
+              <span className="font-bold text-emerald-600">★</span>
+              <span className="flex items-center gap-1 text-amber-500 font-bold">★ 3.67</span>
+              <span className="text-gray-400">3</span>
+            </button>
+          </div>
+
+          {/* Reviews Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <div>
+              <h2 className="text-base font-bold text-gray-900">Reviews</h2>
+              <div className="text-xs text-gray-500">Showing 1-10 of 60</div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => alert('Filter reviews')}
+                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              >
+                <Filter className="w-3.5 h-3.5 text-gray-500" />
+                <span>FILTERS (0)</span>
+              </button>
+              <button
+                onClick={() => alert('Reviews list exported to CSV')}
+                className="px-3 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-gray-500" />
+                <span>EXPORT</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="bg-white border border-gray-200 rounded-lg shadow-2xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#F8FAFC] border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold text-[11px]">
+                  <tr>
+                    <th className="px-5 py-3">SOURCE</th>
+                    <th className="px-5 py-3">RATING</th>
+                    <th className="px-5 py-3">DATE ⌄</th>
+                    <th className="px-5 py-3">REVIEW</th>
+                    <th className="px-5 py-3">STATUS</th>
+                    <th className="px-5 py-3">LANGUAGE</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-gray-700">
+                  {reviewsList.map((rev) => (
+                    <tr key={rev.id} className="hover:bg-gray-50/70 transition-colors">
+                      <td className="px-5 py-4 font-semibold text-gray-900 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">{rev.sourceIcon}</span>
+                          <span>{rev.source}</span>
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        {rev.rating !== null ? (
+                          <div className="flex items-center gap-1 font-bold text-gray-900">
+                            <span>{rev.rating}</span>
+                            <span className="text-amber-400">★</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">☆ Not rated</span>
+                        )}
+                      </td>
+
+                      <td className="px-5 py-4 text-gray-500 whitespace-nowrap font-mono text-[11px]">
+                        {rev.date}
+                      </td>
+
+                      <td className="px-5 py-4 max-w-md">
+                        <p className="line-clamp-2 text-gray-700 leading-relaxed">{rev.text}</p>
+                        <button
+                          onClick={() => setActiveReviewModal(rev)}
+                          className="text-[#0B69FF] font-semibold text-[11px] hover:underline mt-0.5 inline-block cursor-pointer"
+                        >
+                          Show more
+                        </button>
+                        <div className="text-[11px] text-gray-400 mt-1 font-medium">{rev.author}</div>
+                      </td>
+
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <div className="space-y-1.5">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                              rev.status === 'Answered'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : rev.status === 'Needs attention'
+                                ? 'bg-amber-100 text-amber-800'
+                                : rev.status === 'Not read'
+                                ? 'bg-rose-100 text-rose-800'
+                                : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            {rev.status}
+                          </span>
+                          <div>
+                            <button
+                              onClick={() => setActiveReviewModal(rev)}
+                              className="text-gray-500 hover:text-gray-800 text-[11px] flex items-center gap-1 cursor-pointer font-medium"
+                            >
+                              <Eye className="w-3 h-3 text-gray-400" />
+                              <span>View</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td className="px-5 py-4 whitespace-nowrap font-bold text-gray-600">
+                        {rev.language}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            <div className="bg-[#F8FAFC] border-t border-gray-200 px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">
+                  &lt;
+                </button>
+                <button className="px-2.5 py-1 rounded bg-[#0B69FF] text-white font-bold">1</button>
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">2</button>
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">3</button>
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">4</button>
+                <span>...</span>
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">6</button>
+                <button className="px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 cursor-pointer">
+                  &gt;
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <span>Go to page:</span>
+                  <input type="number" defaultValue={1} className="w-12 px-2 py-1 border border-gray-300 rounded text-center bg-white" />
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span>View on page:</span>
+                  <select className="border border-gray-300 rounded px-2 py-1 bg-white font-semibold">
+                    <option>10</option>
+                    <option>20</option>
+                    <option>50</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        <div className="flex items-center gap-5 text-gray-500 text-[11.5px]">
-          <a href="https://help.seranking.com" target="_blank" rel="noreferrer" className="hover:text-gray-900 transition-colors">
-            Report a bug
-          </a>
-          <a href="https://seranking.com/affiliate.html" target="_blank" rel="noreferrer" className="hover:text-gray-900 transition-colors">
-            Affiliates
-          </a>
-          <Link href="/api-docs" className="hover:text-gray-900 transition-colors">
-            API
-          </Link>
-          <a href="https://seranking.com/blog/whats-new/" target="_blank" rel="noreferrer" className="hover:text-gray-900 transition-colors">
-            What&apos;s new
-          </a>
-          <a href="https://help.seranking.com" target="_blank" rel="noreferrer" className="hover:text-gray-900 transition-colors">
-            Help
-          </a>
-        </div>
-      </footer>
+      {/* ========================================================================= */}
+      {/* TAB 5: REVIEWS ANALYTICS (Screenshot 1 / 5:38)                            */}
+      {/* ========================================================================= */}
+      {activeTab === 'analytics' && (
+        <div className="flex-1 max-w-[1400px] w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+          {/* Top Score & Count Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Card 1: Average Rating Score */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                  <span>AVERAGE RATING SCORE</span>
+                  <span className="cursor-pointer text-gray-400">ⓘ</span>
+                </div>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl font-black text-gray-900">3.8</span>
+                  <span className="text-amber-400 text-lg">★★★★☆</span>
+                </div>
+              </div>
+            </div>
 
-      {/* Review View & Reply Modal */}
-      {activeReviewModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            {/* Card 2: Total Number of Reviews */}
+            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+                  <MessageSquare className="w-4 h-4 text-blue-500" />
+                  <span>TOTAL NUMBER OF REVIEWS</span>
+                </div>
+                <div className="text-4xl font-black text-gray-900">60</div>
+              </div>
+              <button
+                onClick={() => setActiveTab('reviews')}
+                className="text-xs font-bold text-[#0B69FF] hover:underline cursor-pointer"
+              >
+                VIEW ALL →
+              </button>
+            </div>
+          </div>
+
+          {/* Chart 1: Reviews Over Time Curve */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xl">{activeReviewModal.sourceIcon}</span>
+                <h3 className="font-bold text-sm text-gray-900">Reviews over time</h3>
+                <span className="text-gray-400 text-xs">ⓘ</span>
+                <span className="text-base font-extrabold text-gray-900 ml-2">60</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-gray-500 font-semibold">GROUP BY:</span>
+                <select
+                  value={analyticsGroupBy}
+                  onChange={(e) => setAnalyticsGroupBy(e.target.value as any)}
+                  className="border border-gray-300 rounded px-2.5 py-1 text-xs font-bold text-gray-800 bg-white"
+                >
+                  <option value="MONTHS">MONTHS</option>
+                  <option value="WEEKS">WEEKS</option>
+                  <option value="DAYS">DAYS</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Smooth SVG Area Curve */}
+            <div className="h-48 w-full pt-4">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 700 150">
+                <defs>
+                  <linearGradient id="reviewsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#0B69FF" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#0B69FF" stopOpacity="0.01" />
+                  </linearGradient>
+                </defs>
+                {/* Horizontal gridlines */}
+                <line x1="0" y1="30" x2="700" y2="30" stroke="#F1F5F9" strokeWidth="1" />
+                <line x1="0" y1="75" x2="700" y2="75" stroke="#F1F5F9" strokeWidth="1" />
+                <line x1="0" y1="120" x2="700" y2="120" stroke="#F1F5F9" strokeWidth="1" />
+
+                <path
+                  d="M20,115 C70,120 120,128 170,128 C220,128 270,105 320,95 C370,88 420,90 470,98 C520,100 570,90 620,96 C650,96 670,40 680,25 L680,140 L20,140 Z"
+                  fill="url(#reviewsAreaGrad)"
+                />
+                <path
+                  d="M20,115 C70,120 120,128 170,128 C220,128 270,105 320,95 C370,88 420,90 470,98 C520,100 570,90 620,96 C650,96 670,40 680,25"
+                  fill="none"
+                  stroke="#0B69FF"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                />
+                {[
+                  { cx: 20, cy: 115 },
+                  { cx: 80, cy: 122 },
+                  { cx: 140, cy: 128 },
+                  { cx: 200, cy: 110 },
+                  { cx: 260, cy: 100 },
+                  { cx: 320, cy: 95 },
+                  { cx: 380, cy: 90 },
+                  { cx: 440, cy: 98 },
+                  { cx: 500, cy: 100 },
+                  { cx: 560, cy: 92 },
+                  { cx: 620, cy: 96 },
+                  { cx: 680, cy: 25 },
+                ].map((pt, i) => (
+                  <circle key={i} cx={pt.cx} cy={pt.cy} r="4" fill="#0B69FF" stroke="#FFFFFF" strokeWidth="1.5" />
+                ))}
+              </svg>
+            </div>
+            <div className="flex justify-between text-[10px] text-gray-400 font-mono pt-2 border-t border-gray-100">
+              <span>Oct 2025</span>
+              <span>Nov 2025</span>
+              <span>Dec 2025</span>
+              <span>Jan 2026</span>
+              <span>Feb 2026</span>
+              <span>Mar 2026</span>
+              <span>Apr 2026</span>
+              <span>May 2026</span>
+              <span>Jun 2026</span>
+              <span>Jul 2026</span>
+              <span>Aug 2026</span>
+              <span>Sep 2026</span>
+            </div>
+          </div>
+
+          {/* Chart 2: Reviews by Rating (Donut) & Reviews by Source (Bar) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Left: Reviews by rating */}
+            <div className="lg:col-span-6 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-xs text-gray-800 uppercase tracking-wider">REVIEWS BY RATING</h3>
+                <span className="text-gray-400 text-xs">ⓘ</span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center justify-around gap-4 pt-2">
+                {/* Donut Chart */}
+                <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#E2E8F0" strokeWidth="3" />
+                    {/* 5 Star */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#22C55E" strokeWidth="3" strokeDasharray="25 75" strokeDashoffset="0" />
+                    {/* 4 Star */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#14B8A6" strokeWidth="3" strokeDasharray="18.3 81.7" strokeDashoffset="-25" />
+                    {/* 3 Star */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#F59E0B" strokeWidth="3" strokeDasharray="6.7 93.3" strokeDashoffset="-43.3" />
+                    {/* 2 Star */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#FB923C" strokeWidth="3" strokeDasharray="10 90" strokeDashoffset="-50" />
+                    {/* 1 Star */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#EF4444" strokeWidth="3" strokeDasharray="6.7 93.3" strokeDashoffset="-60" />
+                    {/* Recommended */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#3B82F6" strokeWidth="3" strokeDasharray="11.7 88.3" strokeDashoffset="-66.7" />
+                    {/* Not Rated */}
+                    <circle cx="18" cy="18" r="15.915" fill="none" stroke="#64748B" strokeWidth="3" strokeDasharray="18.3 81.7" strokeDashoffset="-81.7" />
+                  </svg>
+                </div>
+
+                {/* Rating Breakdown Table (Screenshot 1) */}
+                <div className="space-y-1 text-xs w-full sm:w-auto">
+                  {[
+                    { label: '5 ★★★★★', count: 15, pct: '25%', color: 'bg-emerald-500' },
+                    { label: '4 ★★★★☆', count: 11, pct: '18.3%', color: 'bg-teal-500' },
+                    { label: '3 ★★★☆☆', count: 4, pct: '6.7%', color: 'bg-amber-500' },
+                    { label: '2 ★★☆☆☆', count: 6, pct: '10%', color: 'bg-orange-500' },
+                    { label: '1 ★☆☆☆☆', count: 4, pct: '6.7%', color: 'bg-red-500' },
+                    { label: 'RECOMMENDED', count: 7, pct: '11.7%', color: 'bg-blue-500' },
+                    { label: 'NOT RECOMMENDED', count: 2, pct: '3.3%', color: 'bg-gray-800' },
+                    { label: '☆ NOT RATED', count: 11, pct: '18.3%', color: 'bg-slate-400' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center justify-between gap-4 py-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${item.color}`} />
+                        <span className="font-semibold text-gray-700">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-3 font-mono">
+                        <span className="font-bold text-gray-900">{item.count}</span>
+                        <span className="text-gray-400 w-10 text-right">{item.pct}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Reviews by source bar chart */}
+            <div className="lg:col-span-6 bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4 flex flex-col justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-xs text-gray-800 uppercase tracking-wider">REVIEWS BY SOURCE</h3>
+                <span className="text-gray-400 text-xs">ⓘ</span>
+              </div>
+
+              {/* Bar Chart Matching Screenshot 1 */}
+              <div className="h-44 w-full flex items-end justify-between gap-2 pt-4 px-2">
+                {[
+                  { name: 'Google', pct: 26.7, icon: 'G' },
+                  { name: 'Facebook', pct: 15, icon: 'f' },
+                  { name: 'Tripadvisor', pct: 26.7, icon: '🦉' },
+                  { name: 'ShowMeLocal', pct: 5, icon: '🏷️' },
+                  { name: 'FindOpen', pct: 5, icon: '📍' },
+                  { name: 'WhereTo', pct: 3.3, icon: '🧭' },
+                  { name: 'N49', pct: 3.3, icon: '🍁' },
+                  { name: 'Ezlocal', pct: 5, icon: '🌐' },
+                  { name: 'Judy\'s Book', pct: 3.3, icon: '📖' },
+                  { name: 'City squares', pct: 6.7, icon: '🏙️' },
+                ].map((s, idx) => (
+                  <div key={idx} className="flex-1 flex flex-col items-center gap-1 group">
+                    <span className="text-[10px] text-gray-500 font-bold">{s.pct}%</span>
+                    <div
+                      className="w-full bg-[#0B69FF] rounded-t transition-all group-hover:bg-[#0052D4]"
+                      style={{ height: `${s.pct * 3.5}px` }}
+                    />
+                    <span className="text-xs pt-1">{s.icon}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-gray-100">
+                <span>1 - 10 from 10</span>
+                <div className="flex gap-2">
+                  <button className="cursor-pointer hover:text-gray-700">&lt;</button>
+                  <button className="cursor-pointer hover:text-gray-700">&gt;</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Chart 3: Reviews by source and rating (Stacked Bar Chart with Hover Tooltip) */}
+          <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-xs text-gray-800 uppercase tracking-wider">
+                  REVIEWS BY SOURCE AND RATING
+                </h3>
+                <span className="text-gray-400 text-xs">ⓘ</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="border border-gray-300 rounded px-2.5 py-1 text-xs font-semibold bg-white flex items-center gap-1 text-gray-700">
+                  <span className="bg-gray-800 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                    10
+                  </span>
+                  <span>All Sources Selected</span>
+                  <ChevronDown className="w-3.5 h-3.5 ml-1 text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Stacked Bars with Tooltip Example */}
+            <div className="h-56 w-full flex items-end justify-around gap-4 pt-6 px-4 relative">
+              {[
+                { name: 'Google', icon: 'G', s5: 6, s4: 4, s3: 2, s2: 2, s1: 2, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'Facebook', icon: 'f', s5: 0, s4: 0, s3: 0, s2: 0, s1: 0, rec: 7, nrec: 2, nrat: 0 },
+                { name: 'Tripadvisor', icon: '🦉', s5: 6, s4: 5, s3: 2, s2: 1, s1: 2, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'ShowMeLocal', icon: '🏷️', s5: 1, s4: 1, s3: 1, s2: 0, s1: 0, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'FindOpen', icon: '📍', s5: 0, s4: 1, s3: 1, s2: 0, s1: 1, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'WhereTo', icon: '🧭', s5: 0, s4: 0, s3: 0, s2: 0, s1: 2, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'N49', icon: '🍁', s5: 2, s4: 0, s3: 0, s2: 0, s1: 0, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'Ezlocal', icon: '🌐', s5: 0, s4: 1, s3: 2, s2: 0, s1: 0, rec: 0, nrec: 0, nrat: 0 },
+                { name: 'Judy\'s Book', icon: '📖', s5: 0, s4: 0, s3: 0, s2: 1, s1: 0, rec: 0, nrec: 0, nrat: 1 },
+                { name: 'City squares', icon: '🏙️', s5: 3, s4: 1, s3: 0, s2: 0, s1: 0, rec: 0, nrec: 0, nrat: 0 },
+              ].map((item, idx) => (
+                <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
+                  {/* Tooltip on FindOpen / Tripadvisor */}
+                  {item.name === 'FindOpen' && (
+                    <div className="absolute -top-12 bg-white border border-gray-200 rounded shadow-lg p-2 text-[10px] z-20 whitespace-nowrap pointer-events-none">
+                      <div className="font-bold text-gray-700">RATING / REVIEWS</div>
+                      <div className="flex items-center gap-1 text-red-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" /> 1 ★☆☆☆☆: 1
+                      </div>
+                      <div className="flex items-center gap-1 text-purple-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Not rated: 1
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Stacked bar layers */}
+                  <div className="w-6 flex flex-col-reverse rounded overflow-hidden">
+                    {item.s5 > 0 && <div className="bg-emerald-500" style={{ height: `${item.s5 * 8}px` }} />}
+                    {item.s4 > 0 && <div className="bg-teal-500" style={{ height: `${item.s4 * 8}px` }} />}
+                    {item.s3 > 0 && <div className="bg-amber-400" style={{ height: `${item.s3 * 8}px` }} />}
+                    {item.s2 > 0 && <div className="bg-orange-400" style={{ height: `${item.s2 * 8}px` }} />}
+                    {item.s1 > 0 && <div className="bg-red-500" style={{ height: `${item.s1 * 8}px` }} />}
+                    {item.rec > 0 && <div className="bg-blue-500" style={{ height: `${item.rec * 8}px` }} />}
+                    {item.nrec > 0 && <div className="bg-gray-800" style={{ height: `${item.nrec * 8}px` }} />}
+                    {item.nrat > 0 && <div className="bg-purple-500" style={{ height: `${item.nrat * 8}px` }} />}
+                  </div>
+                  <span className="text-xs pt-1">{item.icon}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Checkbox Legend */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-xs pt-3 border-t border-gray-100 font-semibold text-gray-700">
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-emerald-500" />
+                <span className="text-emerald-700">5 ★★★★★</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-teal-500" />
+                <span className="text-teal-700">4 ★★★★☆</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-amber-500" />
+                <span className="text-amber-700">3 ★★★☆☆</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-orange-500" />
+                <span className="text-orange-700">2 ★★☆☆☆</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-red-500" />
+                <span className="text-red-700">1 ★☆☆☆☆</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-blue-500" />
+                <span className="text-blue-700">Recommended</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-gray-800" />
+                <span className="text-gray-800">Not recommended</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded text-purple-500" />
+                <span className="text-purple-700">Not rated ☆</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Section: Reviews by source - detailed Table */}
+          <div className="bg-white rounded-lg border border-gray-200 shadow-2xs overflow-hidden" id="insights">
+            <div className="p-4 border-b border-gray-200 font-bold text-sm text-gray-900">
+              Reviews by source – detailed
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-[#F8FAFC] border-b border-gray-200 text-gray-500 uppercase tracking-wider font-semibold text-[11px]">
+                  <tr>
+                    <th className="px-5 py-3">SOURCE</th>
+                    <th className="px-5 py-3">RATING</th>
+                    <th className="px-5 py-3">TOTAL REVIEWS</th>
+                    <th className="px-5 py-3">30 DAYS</th>
+                    <th className="px-5 py-3">CURRENT MONTH</th>
+                    <th className="px-5 py-3">LAST MONTH</th>
+                    <th className="px-5 py-3">LAST 3 MONTHS</th>
+                    <th className="px-5 py-3">LAST 6 MONTHS</th>
+                    <th className="px-5 py-3">LAST YEAR</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-gray-700 font-mono text-xs">
+                  {[
+                    { name: 'Google', icon: 'G', rating: '3.56 ★', total: 16, d30: 3, cur: 2, last: 0, m3: 5, m6: 12, y1: 16 },
+                    { name: 'Facebook', icon: 'f', rating: '4.33 ★', total: 9, d30: 1, cur: 0, last: 1, m3: 3, m6: 6, y1: 9 },
+                    { name: 'Tripadvisor', icon: '🦉', rating: '3.7 ★', total: 16, d30: 1, cur: 1, last: 1, m3: 5, m6: 9, y1: 16 },
+                    { name: 'ShowMeLocal', icon: '🏷️', rating: '4 ★', total: 3, d30: 1, cur: 1, last: 0, m3: 1, m6: 1, y1: 3 },
+                    { name: 'FindOpen', icon: '📍', rating: '3.67 ★', total: 3, d30: 2, cur: 2, last: 0, m3: 2, m6: 2, y1: 3 },
+                    { name: 'WhereTo', icon: '🧭', rating: '1 ★', total: 2, d30: 0, cur: 0, last: 0, m3: 0, m6: 2, y1: 2 },
+                    { name: 'N49', icon: '🍁', rating: '5 ★', total: 2, d30: 1, cur: 1, last: 0, m3: 1, m6: 1, y1: 2 },
+                    { name: 'Ezlocal', icon: '🌐', rating: '3 ★', total: 3, d30: 1, cur: 1, last: 1, m3: 2, m6: 2, y1: 3 },
+                    { name: "Judy's Book", icon: '📖', rating: '2 ★', total: 2, d30: 2, cur: 2, last: 0, m3: 2, m6: 2, y1: 2 },
+                    { name: 'City squares', icon: '🏙️', rating: '4.75 ★', total: 4, d30: 2, cur: 2, last: 0, m3: 3, m6: 4, y1: 4 },
+                  ].map((row, i) => (
+                    <tr key={i} className="hover:bg-gray-50/70 transition-colors">
+                      <td className="px-5 py-3 font-semibold text-gray-900 font-sans flex items-center gap-2">
+                        <span>{row.icon}</span>
+                        <span>{row.name}</span>
+                      </td>
+                      <td className="px-5 py-3 text-amber-500 font-bold">{row.rating}</td>
+                      <td className="px-5 py-3 font-bold text-gray-900">{row.total}</td>
+                      <td className="px-5 py-3">{row.d30}</td>
+                      <td className="px-5 py-3">{row.cur}</td>
+                      <td className="px-5 py-3">{row.last}</td>
+                      <td className="px-5 py-3">{row.m3}</td>
+                      <td className="px-5 py-3">{row.m6}</td>
+                      <td className="px-5 py-3">{row.y1}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Detail Modal (`👁 View`) */}
+      {activeReviewModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-xl w-full p-6 space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">{activeReviewModal.sourceIcon}</span>
                 <div>
                   <h3 className="font-bold text-sm text-gray-900">{activeReviewModal.source} Review</h3>
-                  <div className="text-[11px] text-gray-400">By {activeReviewModal.author} on {activeReviewModal.date}</div>
+                  <span className="text-[10px] text-gray-400 font-mono">
+                    {activeReviewModal.date} • {activeReviewModal.author} ({activeReviewModal.language})
+                  </span>
                 </div>
               </div>
               <button onClick={() => setActiveReviewModal(null)} className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center gap-1 font-bold text-amber-500">
-                {activeReviewModal.rating !== null ? (
-                  <>
-                    <span>{activeReviewModal.rating}.0</span>
-                    <span>{'★'.repeat(activeReviewModal.rating)}</span>
-                  </>
-                ) : (
-                  <span className="text-gray-400 font-normal">Not rated</span>
-                )}
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="text-amber-400 text-sm">
+                  {activeReviewModal.rating !== null ? (
+                    <span>{'★'.repeat(activeReviewModal.rating)}{'☆'.repeat(5 - activeReviewModal.rating)}</span>
+                  ) : (
+                    <span className="text-gray-400">☆ Not rated</span>
+                  )}
+                </div>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-800">
+                  {activeReviewModal.status}
+                </span>
               </div>
-              <p className="p-3 bg-gray-50 rounded-lg text-gray-800 leading-relaxed border border-gray-200/60">
-                &ldquo;{activeReviewModal.text}&rdquo;
-              </p>
+
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 leading-relaxed italic">
+                "{activeReviewModal.text}"
+              </div>
+
+              {activeReviewModal.reply && (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 space-y-1">
+                  <div className="font-bold text-blue-900 text-[11px]">Official Business Response:</div>
+                  <p className="text-blue-800 text-xs">{activeReviewModal.reply}</p>
+                </div>
+              )}
+
+              {/* Reply Box */}
+              <div className="space-y-2 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-gray-700">Write or Generate Response:</label>
+                  <button
+                    onClick={() => {
+                      setReviewReplyText(
+                        `Hi ${activeReviewModal.author}, thank you for dining with us at Folk Osteria! We deeply value your feedback and look forward to welcoming you back soon.`
+                      );
+                    }}
+                    className="text-[11px] text-[#0B69FF] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3 text-[#0B69FF]" />
+                    <span>Auto-generate AI Reply</span>
+                  </button>
+                </div>
+                <textarea
+                  value={reviewReplyText}
+                  onChange={(e) => setReviewReplyText(e.target.value)}
+                  placeholder="Type your official reply to this customer..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF] text-xs bg-white"
+                />
+              </div>
             </div>
 
-            {activeReviewModal.reply && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs space-y-1">
-                <div className="font-bold text-emerald-900">Your Response:</div>
-                <p className="text-emerald-800">{activeReviewModal.reply}</p>
-              </div>
-            )}
-
-            <div className="space-y-2 pt-2 border-t border-gray-100 text-xs">
-              <label className="block font-semibold text-gray-700">Reply to customer</label>
-              <textarea
-                rows={3}
-                placeholder="Write a professional reply to post to review source..."
-                value={reviewReplyText}
-                onChange={(e) => setReviewReplyText(e.target.value)}
-                className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF]"
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveReviewModal(null)}
-                  className="px-3.5 py-1.5 border border-gray-300 text-gray-700 rounded-md font-semibold hover:bg-gray-50 cursor-pointer"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSaveReply(activeReviewModal.id)}
-                  className="px-4 py-1.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-md font-semibold shadow-xs cursor-pointer"
-                >
-                  Send Reply
-                </button>
-              </div>
+            <div className="flex justify-end gap-2 pt-3 border-t border-gray-100">
+              <button
+                onClick={() => setActiveReviewModal(null)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded text-xs font-semibold hover:bg-gray-50 cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  alert('Reply published to ' + activeReviewModal.source);
+                  setActiveReviewModal(null);
+                }}
+                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Publish Reply
+              </button>
             </div>
           </div>
         </div>
@@ -1523,10 +2298,10 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
 
       {/* Add Location Modal */}
       {isAddLocationModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <h3 className="font-bold text-sm text-gray-900 flex items-center gap-2">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+              <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
                 <Building className="w-4 h-4 text-[#0B69FF]" />
                 Add New Business Location
               </h3>
@@ -1549,7 +2324,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
                   type="text"
                   required
                   placeholder="e.g. Folk Osteria &amp; Bar"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF] bg-white"
                 />
               </div>
 
@@ -1559,7 +2334,7 @@ export default function LocalMarketingSuitePage({ initialTab = 'overview' }: { i
                   type="text"
                   required
                   placeholder="e.g. 123 Highland Dr, City, State ZIP"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF]"
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF] bg-white"
                 />
               </div>
 

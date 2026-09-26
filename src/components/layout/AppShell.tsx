@@ -39,10 +39,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, Local Marketing, and Report Builder) */}
+        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, and Report Builder) */}
         {!pathname.startsWith('/smm') &&
           !pathname.startsWith('/content-marketing') &&
-          !pathname.startsWith('/local-marketing') &&
           !pathname.startsWith('/reports') &&
           !pathname.startsWith('/agency-pack') &&
           !pathname.startsWith('/settings') && (
