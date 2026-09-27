@@ -607,7 +607,7 @@ export default function LandingPage() {
                       {/* Right Column */}
                       <div className="flex-1 space-y-0.5 pl-0.5">
                         <Link
-                          href="/agency-pack"
+                          href="/for-agencies"
                           onClick={() => setActiveMenu(null)}
                           className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                         >
@@ -620,7 +620,7 @@ export default function LandingPage() {
                         </Link>
 
                         <Link
-                          href="/project-overview"
+                          href="/enterprise"
                           onClick={() => setActiveMenu(null)}
                           className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                         >
@@ -633,7 +633,7 @@ export default function LandingPage() {
                         </Link>
 
                         <Link
-                          href="/projects"
+                          href="/growing-business"
                           onClick={() => setActiveMenu(null)}
                           className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                         >
@@ -766,7 +766,7 @@ export default function LandingPage() {
                         {toolsSubTab === 'core-seo' && (
                           <>
                             <Link
-                              href="/rankings"
+                              href="/keyword-rank-tracker"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -779,7 +779,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/research/keyword-research"
+                              href="/keyword-tool"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -792,7 +792,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/website-audit/on-page"
+                              href="/on-page-seo-checker"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -805,7 +805,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/website-audit"
+                              href="/website-audit-tool"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -818,7 +818,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/research/competitive-research"
+                              href="/competitor-analysis-tool"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -831,7 +831,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/backlinks"
+                              href="/backlink-checker"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1059,7 +1059,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/landing"
+                              href="/podcast"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1072,7 +1072,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/landing"
+                              href="/academy"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1090,10 +1090,10 @@ export default function LandingPage() {
                               href="https://help.seranking.com"
                               target="_blank"
                               rel="noreferrer"
-                              className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
+                              className="px-2.5 py-1.5 rounded-lg hover:bg-gray-50 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
                               <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
-                                <Building className="w-4 h-4" />
+                                <Globe className="w-4 h-4" />
                               </div>
                               <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
                                 Help Center
@@ -1126,9 +1126,8 @@ export default function LandingPage() {
                 onMouseLeave={() => setActiveMenu(null)}
                 onClick={(e) => e.stopPropagation()}
               >
-                <button
-                  type="button"
-                  onClick={() => setActiveMenu(activeMenu === 'pricing' ? null : 'pricing')}
+                <Link
+                  href="/pricing"
                   className={`flex items-center gap-1 py-2 text-sm font-semibold transition-colors cursor-pointer ${
                     activeMenu === 'pricing' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
@@ -1139,13 +1138,13 @@ export default function LandingPage() {
                       activeMenu === 'pricing' ? 'rotate-180 text-[#0B69FF]' : ''
                     }`}
                   />
-                </button>
+                </Link>
 
                 {activeMenu === 'pricing' && (
                   <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 space-y-0.5">
-                      <a
-                        href="#pricing"
+                      <Link
+                        href="/pricing"
                         onClick={() => setActiveMenu(null)}
                         className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                       >
@@ -1155,10 +1154,10 @@ export default function LandingPage() {
                         <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
                           Platform plans
                         </span>
-                      </a>
+                      </Link>
 
                       <Link
-                        href="/api-docs"
+                        href="/pricing"
                         onClick={() => setActiveMenu(null)}
                         className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                       >
@@ -1238,7 +1237,7 @@ export default function LandingPage() {
                         </a>
 
                         <Link
-                          href="/api-docs"
+                          href="/pricing"
                           onClick={() => setActiveMenu(null)}
                           className="w-full text-left px-3 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-between transition-colors cursor-pointer"
                         >
@@ -1260,12 +1259,12 @@ export default function LandingPage() {
                                 <Code2 className="w-4 h-4" />
                               </div>
                               <span className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF]">
-                                API
+                                API Keys &amp; Overview
                               </span>
                             </Link>
 
                             <Link
-                              href="/api-docs"
+                              href="/api-docs/keywords"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1278,7 +1277,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/api-docs"
+                              href="/api-docs/backlinks"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1291,7 +1290,7 @@ export default function LandingPage() {
                             </Link>
 
                             <Link
-                              href="/api-docs"
+                              href="/api-docs/domains"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >
@@ -1306,7 +1305,7 @@ export default function LandingPage() {
                         ) : (
                           <>
                             <Link
-                              href="/api-docs"
+                              href="/api-docs/mcp"
                               onClick={() => setActiveMenu(null)}
                               className="px-2.5 py-1.5 rounded-lg hover:bg-blue-50/70 flex items-center gap-2.5 transition-colors group cursor-pointer"
                             >

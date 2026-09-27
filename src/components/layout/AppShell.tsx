@@ -3,9 +3,12 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
+import { TrialBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
+import { BonusDiscountTab } from '@/components/ui/BonusDiscountTab';
+import Link from 'next/link';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -20,6 +23,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/privacy') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/landing') ||
+    pathname.startsWith('/for-agencies') ||
+    pathname.startsWith('/agencies') ||
+    pathname.startsWith('/enterprise') ||
+    pathname.startsWith('/growing-business') ||
+    pathname.startsWith('/small-business') ||
+    pathname.startsWith('/keyword-rank-tracker') ||
+    pathname.startsWith('/rank-tracker') ||
+    pathname.startsWith('/keyword-tool') ||
+    pathname.startsWith('/keyword-research') ||
+    pathname.startsWith('/on-page-seo-checker') ||
+    pathname.startsWith('/website-audit-tool') ||
+    pathname.startsWith('/competitor-analysis-tool') ||
+    pathname.startsWith('/competitor-analysis') ||
+    pathname.startsWith('/backlink-checker') ||
+    pathname.startsWith('/backlinks-checker') ||
+    pathname.startsWith('/pricing') ||
+    pathname.startsWith('/podcast') ||
+    pathname.startsWith('/academy') ||
+    pathname === '/api-docs/keywords' ||
+    pathname === '/api-docs/backlinks' ||
+    pathname === '/api-docs/domains' ||
     pathname.startsWith('/logout') ||
     pathname === '/settings';
 
@@ -36,6 +60,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Top Blue Header */}
       <TopHeader />
 
+      {/* Trial Green Gradient Banner */}
+      <TrialBanner />
+
       {/* Main App Workspace */}
       <div className="flex-1 flex overflow-hidden">
         {/* Desktop Left Icon Rail */}
@@ -43,10 +70,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (hidden on full-width SMM, Content Marketing, and Report Builder) */}
+        {/* Desktop Secondary Navigation Sidebar (visible on projects, reports, api, etc.) */}
         {!pathname.startsWith('/smm') &&
           !pathname.startsWith('/content-marketing') &&
-          !pathname.startsWith('/reports') &&
           !pathname.startsWith('/agency-pack') &&
           !pathname.startsWith('/settings') && (
             <div className="hidden lg:flex">
@@ -58,10 +84,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <MobileDrawer />
 
         {/* Dynamic Center Work Area */}
-        <div className="flex-1 flex flex-col overflow-y-auto min-w-0 bg-white">
+        <div className="flex-1 flex flex-col overflow-y-auto min-w-0 bg-white relative">
           <main className="flex-1 flex flex-col min-w-0">
             {children}
           </main>
+
+          {/* Floating Vertical 10% Discount Tab & Interactive Modal */}
+          <BonusDiscountTab />
         </div>
       </div>
     </div>

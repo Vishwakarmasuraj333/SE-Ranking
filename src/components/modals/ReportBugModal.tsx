@@ -14,25 +14,50 @@ export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
   const [email, setEmail] = useState(appWrapData.account.email || 'suraj.vishwakarma@gvilab.com');
   const [url, setUrl] = useState(typeof window !== 'undefined' ? window.location.href : 'https://online.seranking.com');
   const [comments, setComments] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!comments.trim()) return;
+    if (!comments.trim()) {
+      setErrorMsg('Please describe the problem.');
+      return;
+    }
 
     setIsSubmitting(true);
-    setTimeout(() => {
+    setErrorMsg('');
+
+    try {
+      const res = await fetch('/api/bug-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bug_name: name,
+          bug_email: email,
+          bug_url: url,
+          bug_comments: comments,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.errors?.[0] || 'Failed to send bug report');
+      }
+
       setIsSubmitting(false);
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
         setComments('');
         onClose();
-      }, 1500);
-    }, 600);
+      }, 1800);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setErrorMsg(err.message || 'Error sending report.');
+    }
   };
 
   return (
@@ -107,6 +132,12 @@ export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
                 required
               />
             </div>
+
+            {errorMsg && (
+              <p className="text-red-600 font-semibold text-[11px] bg-red-50 p-2 rounded border border-red-200">
+                {errorMsg}
+              </p>
+            )}
 
             <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
               <button
