@@ -68,6 +68,7 @@ import {
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 import { PartnerLogos } from '@/components/landing/PartnerLogos';
 import { HeroAvatarSlider } from '@/components/landing/HeroAvatarSlider';
+import { getTranslation } from '@/lib/i18n/translations';
 
 // 10 languages list matching official SE Ranking language-switcher-2025
 const languages = [
@@ -298,6 +299,27 @@ export default function LandingPage() {
   // Mobile drawer & language switcher states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState('en');
+  const t = getTranslation(selectedLang);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('seranking_lang');
+      if (saved) {
+        setSelectedLang(saved);
+        const found = languages.find((l) => l.code.toLowerCase() === saved.toLowerCase());
+        if (found) setFooterLang(found.label);
+      }
+    } catch (e) {}
+  }, []);
+
+  const handleLanguageChange = (code: string) => {
+    setSelectedLang(code);
+    const found = languages.find((l) => l.code.toLowerCase() === code.toLowerCase());
+    if (found) setFooterLang(found.label);
+    try {
+      localStorage.setItem('seranking_lang', code);
+    } catch (e) {}
+  };
 
   // Active Dropdown state for Desktop Navigation
   const [activeMenu, setActiveMenu] = useState<
@@ -500,7 +522,7 @@ export default function LandingPage() {
                     activeMenu === 'solutions' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
-                  <span>Solutions</span>
+                  <span>{t.nav.solutions}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'solutions' ? 'rotate-180 text-[#0B69FF]' : ''
@@ -609,7 +631,7 @@ export default function LandingPage() {
                     activeMenu === 'tools' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
-                  <span>Tools</span>
+                  <span>{t.nav.tools}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'tools' ? 'rotate-180 text-[#0B69FF]' : ''
@@ -923,7 +945,7 @@ export default function LandingPage() {
                     activeMenu === 'resources' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
-                  <span>Resources</span>
+                  <span>{t.nav.resources}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'resources' ? 'rotate-180 text-[#0B69FF]' : ''
@@ -1133,7 +1155,7 @@ export default function LandingPage() {
                     activeMenu === 'api-mcp' ? 'text-[#0B69FF]' : 'hover:text-[#0B69FF]'
                   }`}
                 >
-                  <span>API &amp; MCP</span>
+                  <span>{t.nav.apiMcp}</span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 text-gray-400 transition-transform ${
                       activeMenu === 'api-mcp' ? 'rotate-180 text-[#0B69FF]' : ''
@@ -1317,7 +1339,7 @@ export default function LandingPage() {
                           key={l.code}
                           type="button"
                           onClick={() => {
-                            setSelectedLang(l.code);
+                            handleLanguageChange(l.code);
                             setActiveMenu(null);
                           }}
                           className={`w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2.5 text-xs transition-colors cursor-pointer ${
@@ -1349,7 +1371,7 @@ export default function LandingPage() {
               href="/login"
               className="text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors px-2 py-1 cursor-pointer"
             >
-              Log in
+              {t.nav.login}
             </Link>
 
             {/* "See product tour" button matching Screenshot */}
@@ -1358,7 +1380,7 @@ export default function LandingPage() {
               onClick={() => setIsTourOpen(true)}
               className="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
-              <span>See product tour</span>
+              <span>{t.nav.productTour}</span>
             </button>
 
             {/* "Start free trial" Solid Blue Button */}
@@ -1366,7 +1388,7 @@ export default function LandingPage() {
               href="/signup"
               className="px-5 py-2 bg-[#1351d8] hover:bg-[#0f46bd] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md"
             >
-              <span>Start free trial</span>
+              <span>{t.nav.startTrial}</span>
             </Link>
           </div>
         </div>
@@ -1375,11 +1397,11 @@ export default function LandingPage() {
       {/* 3. Hero Section (Exact visual match to Screenshot) */}
       <section className="pt-20 sm:pt-24 pb-12 px-4 sm:px-6 max-w-5xl mx-auto text-center">
         <h1 className="text-[36px] sm:text-[48px] md:text-[52px] lg:text-[54px] font-extrabold text-[#111827] tracking-tight leading-[1.12]">
-          Don’t just track visibility. Validate&nbsp;it.
+          {t.hero.title}
         </h1>
 
         <p className="mt-5 text-[#4b5563] text-base sm:text-[18px] max-w-[740px] mx-auto leading-relaxed font-normal">
-          Give your team the cross-channel context to prove the value of every decision across<br className="hidden sm:inline" /> SEO, GEO, and social.
+          {t.hero.subtitle}
         </p>
 
         {/* Hero CTAs: Start free trial & See product tour */}
@@ -1388,14 +1410,14 @@ export default function LandingPage() {
             href="/signup"
             className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
           >
-            <span>Start free trial</span>
+            <span>{t.hero.trialCta}</span>
           </Link>
           <button
             type="button"
             onClick={() => setIsTourOpen(true)}
             className="w-full sm:w-auto px-8 py-3.5 sm:px-9 sm:py-4 bg-white border border-[#111827] hover:bg-gray-50 text-[#111827] text-[16px] sm:text-[17px] font-medium rounded-xl transition-all cursor-pointer shadow-2xs"
           >
-            <span>See product tour</span>
+            <span>{t.hero.tourCta}</span>
           </button>
         </div>
 
@@ -1472,20 +1494,20 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="text-center">
             <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-normal text-[#101423] tracking-tight leading-tight">
-              Complete AI SEO platform for every challenge
+              {t.platform.title}
             </h2>
           </div>
 
           {/* Interactive Navigation Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-sm">
             {[
-              { id: 'ai-visibility', label: 'AI Visibility' },
-              { id: 'seo-research', label: 'SEO Research' },
-              { id: 'seo-monitoring', label: 'SEO Monitoring' },
-              { id: 'content-marketing', label: 'Content Marketing' },
-              { id: 'local-marketing', label: 'Local Marketing' },
-              { id: 'agency-kit', label: 'Agency Success Kit' },
-              { id: 'integrations', label: 'Integrations' },
+              { id: 'ai-visibility', label: t.platform.tabs.aiVisibility },
+              { id: 'seo-research', label: t.platform.tabs.seoResearch },
+              { id: 'seo-monitoring', label: t.platform.tabs.seoMonitoring },
+              { id: 'content-marketing', label: t.platform.tabs.contentMarketing },
+              { id: 'local-marketing', label: t.platform.tabs.localMarketing },
+              { id: 'agency-kit', label: t.platform.tabs.agencyKit },
+              { id: 'integrations', label: t.platform.tabs.integrations },
             ].map((tab) => {
               const isActive = platformTab === tab.id;
               return (
@@ -3646,35 +3668,33 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto space-y-10">
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#101423] tracking-tight leading-tight">
-              Brand, grow, and win more clients with the Agency Pack
+              {t.agencyPack.title}
             </h2>
             <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-              Take control of your agency&apos;s client cycle with tools that help you attract prospects, deliver results, and build loyalty.
+              {t.agencyPack.subtitle}
             </p>
           </div>
 
           {/* 5 Agency Pack Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-sm">
-            {(
-              [
-                { id: 'catalog', label: 'Agency Catalog' },
-                { id: 'reporting', label: 'White Label Reporting' },
-                { id: 'lead-gen', label: 'Lead Generator' },
-                { id: 'white-label', label: 'White Label' },
-                { id: 'seats', label: 'Client Seats' },
-              ] as const
-            ).map((t) => (
+            {[
+              { id: 'catalog', label: t.agencyPack.tabs.catalog },
+              { id: 'reporting', label: t.agencyPack.tabs.reporting },
+              { id: 'lead-gen', label: t.agencyPack.tabs.leadGen },
+              { id: 'white-label', label: t.agencyPack.tabs.whiteLabel },
+              { id: 'seats', label: t.agencyPack.tabs.seats },
+            ].map((tabItem) => (
               <button
-                key={t.id}
+                key={tabItem.id}
                 type="button"
-                onClick={() => setAgencyPackTab(t.id)}
+                onClick={() => setAgencyPackTab(tabItem.id as any)}
                 className={`px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-[15px] transition-all cursor-pointer ${
-                  agencyPackTab === t.id
+                  agencyPackTab === tabItem.id
                     ? 'bg-[#101423] text-white font-normal shadow-xs'
                     : 'text-[#667085] hover:text-[#101423] font-normal hover:bg-gray-50'
                 }`}
               >
-                {t.label}
+                {tabItem.label}
               </button>
             ))}
           </div>
@@ -3798,10 +3818,10 @@ export default function LandingPage() {
               {/* Right Column (Exact Screenshot Match) */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
                 <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  Agency Catalog
+                  {t.agencyPack.catalogTitle}
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  Jump into the spotlight with SE Ranking&apos;s Agency Pack! Secure a spot in our expert Agency Catalog, where your services take center stage in front of new prospects. Watch your leads soar, trust surge, and your agency thrive and grow.
+                  {t.agencyPack.catalogDesc}
                 </p>
                 <div className="pt-1">
                   <a
@@ -4025,17 +4045,17 @@ export default function LandingPage() {
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
                 <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  Lead Generator
+                  {t.agencyPack.leadGenTitle}
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  Expand your email list and generate new quality leads. Embed our customizable lead gen solutions to your website and convert visitors into new customers.
+                  {t.agencyPack.leadGenDesc}
                 </p>
                 <div className="pt-1">
                   <Link
                     href="/signup"
                     className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Start free trial
+                    {t.agencyPack.startTrialBtn}
                   </Link>
                 </div>
               </div>
@@ -4059,7 +4079,7 @@ export default function LandingPage() {
                 <div className="divide-y divide-gray-100">
                   {/* Row 1: UI Color */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">UI Color</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.uiColor}</span>
                     <div className="flex items-center gap-2.5 sm:gap-3">
                       {/* Mint Green (active outline) */}
                       <div className="w-8 h-8 rounded-lg bg-[#BEF7C5] border-2 border-emerald-400 cursor-pointer shadow-2xs hover:scale-105 transition-transform" />
@@ -4083,7 +4103,7 @@ export default function LandingPage() {
 
                   {/* Row 2: Company logo */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Company logo</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.companyLogo}</span>
                     <div className="flex items-center gap-3">
                       {/* Current logo preview pill */}
                       <div className="px-3.5 py-2 bg-[#E2E8F4] text-gray-900 rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
@@ -4103,14 +4123,14 @@ export default function LandingPage() {
                           <path d="m2 17 5-5 4 4 5-5 2 2" />
                           <path d="M19 2v6m-3-3h6" />
                         </svg>
-                        <span>Update logo</span>
+                        <span>{t.agencyPack.updateLogo}</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Row 3: Footer logo */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Footer logo</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.footerLogo}</span>
                     <button
                       type="button"
                       className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
@@ -4121,7 +4141,7 @@ export default function LandingPage() {
                         <path d="m2 17 5-5 4 4 5-5 2 2" />
                         <path d="M19 2v6m-3-3h6" />
                       </svg>
-                      <span>Upload logo</span>
+                      <span>{t.agencyPack.uploadLogo}</span>
                     </button>
                   </div>
                 </div>
@@ -4130,17 +4150,17 @@ export default function LandingPage() {
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
                 <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  White Label
+                  {t.agencyPack.whiteLabelTitle}
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  Enhance credibility and strengthen customer trust. Create a seamless client experience by providing access to our SEO platform customized to your brand book and domain name.
+                  {t.agencyPack.whiteLabelDesc}
                 </p>
                 <div className="pt-1">
                   <Link
                     href="/signup"
                     className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Start free trial
+                    {t.agencyPack.startTrialBtn}
                   </Link>
                 </div>
               </div>
@@ -4152,15 +4172,15 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Users Table Mockup Card */}
               <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <h4 className="text-xl font-bold text-[#101423]">Users</h4>
+                <h4 className="text-xl font-bold text-[#101423]">{t.agencyPack.usersTitle}</h4>
 
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b border-gray-100 text-[11px] text-gray-400 uppercase font-semibold">
-                        <th className="py-3 px-4">NAME</th>
-                        <th className="py-3 px-4">ACCOUNT TYPE</th>
-                        <th className="py-3 px-4">EMAIL</th>
+                        <th className="py-3 px-4">{t.agencyPack.nameCol}</th>
+                        <th className="py-3 px-4">{t.agencyPack.accountTypeCol}</th>
+                        <th className="py-3 px-4">{t.agencyPack.emailCol}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -4174,7 +4194,7 @@ export default function LandingPage() {
                         <td className="py-3 px-4 text-gray-800">
                           <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
                             <Shield className="w-3.5 h-3.5 text-blue-600" />
-                            Owner
+                            {t.agencyPack.ownerRole}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-gray-600 font-mono text-xs">ewaters@comcast.net</td>
@@ -4189,7 +4209,7 @@ export default function LandingPage() {
                         <td className="py-3 px-4 text-gray-800">
                           <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
                             <User className="w-3.5 h-3.5 text-gray-500" />
-                            Client
+                            {t.agencyPack.clientRole}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-gray-600 font-mono text-xs">yeedancer@gmail.c...</td>
@@ -4204,7 +4224,7 @@ export default function LandingPage() {
                         <td className="py-3 px-4 text-gray-800">
                           <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
                             <User className="w-3.5 h-3.5 text-gray-500" />
-                            Manager
+                            {t.agencyPack.managerRole}
                           </span>
                         </td>
                         <td className="py-3 px-4 text-gray-600 font-mono text-xs">m.klnr@outlook.com</td>
@@ -4217,17 +4237,17 @@ export default function LandingPage() {
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
                 <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  Client Seats
+                  {t.agencyPack.seatsTitle}
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  Get extra client seats to openly communicate your progress. Choose which SEO tools your clients will have access to and adjust access settings at any time.
+                  {t.agencyPack.seatsDesc}
                 </p>
                 <div className="pt-1">
                   <Link
                     href="/signup"
                     className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Start free trial
+                    {t.agencyPack.startTrialBtn}
                   </Link>
                 </div>
               </div>
@@ -4240,7 +4260,7 @@ export default function LandingPage() {
       <section className="py-20 sm:py-28 bg-white border-t border-gray-100 px-4 sm:px-8">
         <div className="max-w-4xl mx-auto space-y-10 text-center">
           <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-bold text-[#101423] tracking-tight">
-            Why SEO pros from 150+ countries choose us
+            {t.testimonials.title}
           </h2>
 
           {/* Interactive Pagination < 1 / 7 > matching screenshot */}
@@ -4679,7 +4699,7 @@ export default function LandingPage() {
                 }}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-gray-200 bg-white hover:bg-gray-50 text-xs font-semibold text-gray-700 transition-colors cursor-pointer shadow-2xs"
               >
-                <span className="text-[10px] font-bold px-1 py-0.5 rounded bg-gray-100 text-gray-600">EN</span>
+                <span className="text-[10px] font-bold px-1 py-0.5 rounded bg-gray-100 text-gray-600 uppercase">{selectedLang}</span>
                 <span>{footerLang}</span>
                 <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform ${isFooterLangOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -4695,7 +4715,7 @@ export default function LandingPage() {
                       key={lang.code}
                       type="button"
                       onClick={() => {
-                        setFooterLang(lang.label);
+                        handleLanguageChange(lang.code);
                         setIsFooterLangOpen(false);
                       }}
                       className="w-full text-left px-3.5 py-2 text-xs font-medium text-gray-700 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between transition-colors cursor-pointer"

@@ -10,14 +10,15 @@ import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Auth & public landing pages have NO admin header, NO sidebar, NO trial banner, NO discount tab
+  // Auth, public landing pages, and standalone Project Settings Wizard have NO admin header, NO sidebar
   const isAuthOrPublicPage =
     pathname === '/' ||
     pathname.startsWith('/signup') ||
     pathname.startsWith('/login') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/landing') ||
-    pathname.startsWith('/logout');
+    pathname.startsWith('/logout') ||
+    pathname === '/settings';
 
   if (isAuthOrPublicPage) {
     return (
