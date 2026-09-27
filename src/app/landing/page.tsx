@@ -45,6 +45,8 @@ import {
   Tag,
   DollarSign,
   MousePointerClick,
+  Wrench,
+  Banknote,
 } from 'lucide-react';
 import {
   LineChart,
@@ -184,15 +186,17 @@ const ecoPlanableData = [
   { date: 'Oct 10', ig: 28000, tiktok: 39000, fb: 26000, yt: 21000, linkedin: 17000 },
 ];
 
-// Agency Catalog Cards (Screenshot 5 exact match)
+// Agency Catalog Cards (Exact user reference screenshot match)
 const agencyCatalogItems = [
   {
     id: 'pixelpulse',
     name: 'PixelPulse Agency',
     url: 'https://pixelpulseagency.com',
     location: 'Barcelona (Spain)',
-    services: 'Digital Marketing, General SEO +11',
-    industries: 'Technology, Healthcare, Retail +3',
+    services: 'Digital Marketing, General SEO',
+    servicesExtra: '+11',
+    industries: 'Technology, Healthcare, Retail',
+    industriesExtra: '+3',
     budget: 'No minimum budget',
     teamSize: '100+',
   },
@@ -201,9 +205,11 @@ const agencyCatalogItems = [
     name: 'Fusion Marketing',
     url: 'https://fusionmarketing.co.uk',
     location: 'London (UK)',
-    services: 'SEO, Content Strategy +8',
-    industries: 'Fintech, E-commerce +5',
-    budget: '$2,500/mo',
+    services: 'SEO, Content Strategy',
+    servicesExtra: '+8',
+    industries: 'Fintech, E-commerce',
+    industriesExtra: '+5',
+    budget: 'No minimum budget',
     teamSize: '50-100',
   },
   {
@@ -211,9 +217,11 @@ const agencyCatalogItems = [
     name: 'NeonWave Digital',
     url: 'https://neonwavedigital.com',
     location: 'Berlin (Germany)',
-    services: 'Technical SEO, Link Building +6',
-    industries: 'SaaS, AI Startups +4',
-    budget: '$5,000/mo',
+    services: 'Technical SEO, Link Building',
+    servicesExtra: '+6',
+    industries: 'SaaS, AI Startups',
+    industriesExtra: '+4',
+    budget: 'No minimum budget',
     teamSize: '25-50',
   },
   {
@@ -221,8 +229,10 @@ const agencyCatalogItems = [
     name: 'Echo Marketing',
     url: 'https://echomarketing.io',
     location: 'Austin (USA)',
-    services: 'Local SEO, PPC, Analytics +9',
-    industries: 'Real Estate, Automotive +2',
+    services: 'Local SEO, PPC, Analytics',
+    servicesExtra: '+9',
+    industries: 'Real Estate, Automotive',
+    industriesExtra: '+2',
     budget: 'No minimum budget',
     teamSize: '10-25',
   },
@@ -3666,58 +3676,115 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* 1. Tab: Agency Catalog */}
+          {/* 1. Tab: Agency Catalog (Exact 100% match to official seranking.com screenshot) */}
           {agencyPackTab === 'catalog' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: 4 Agency Cards in Mockup */}
-              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-5 sm:p-6 shadow-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
+              {/* Left Column: Agency Cards in Mockup with right and bottom peeking effect */}
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 overflow-hidden h-[440px] sm:h-[460px] relative shadow-xs">
+                <div className="grid grid-cols-[330px_330px] sm:grid-cols-[350px_350px] gap-5 w-[730px] select-none">
                   {agencyCatalogItems.map((item) => (
                     <div
                       key={item.id}
-                      className="p-4 bg-white border border-gray-200/80 rounded-2xl space-y-3 shadow-2xs"
+                      className="w-[330px] sm:w-[350px] p-5 sm:p-6 bg-white border border-[#E2EDF9] rounded-[22px] space-y-4 shadow-[0_2px_12px_rgba(16,24,40,0.04)] shrink-0"
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-center shrink-0 text-gray-400">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                            <circle cx="9" cy="9" r="2" />
-                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      {/* Top Header: Logo box + Title & URL */}
+                      <div className="flex items-start gap-3.5">
+                        <div className="w-[52px] h-[52px] rounded-[14px] border border-[#CBD5E1] bg-white flex items-center justify-center shrink-0 shadow-2xs">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#1E293B"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <rect width="18" height="18" x="3" y="3" rx="3" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <path d="m21 15-5-5L5 21" />
                           </svg>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-bold text-gray-900 truncate">{item.name}</div>
-                          <span className="text-[11px] text-[#1351d8] hover:underline block truncate">
+                        <div className="min-w-0 flex-1 pt-0.5">
+                          <div className="text-[18px] font-bold text-[#101828] leading-tight truncate">
+                            {item.name}
+                          </div>
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[13px] text-[#0B69FF] font-medium hover:underline block truncate mt-1"
+                          >
                             {item.url}
-                          </span>
+                          </a>
                         </div>
                       </div>
 
-                      <div className="space-y-1.5 text-[11px] text-gray-600 pt-2 border-t border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-3 h-3 text-gray-400 shrink-0" />
-                          <span className="text-gray-400 w-14">Location</span>
-                          <span className="font-medium text-gray-800 truncate">{item.location}</span>
+                      {/* Key-Value Details matching reference screenshot */}
+                      <div className="space-y-3 text-[13px] pt-1.5">
+                        {/* Location */}
+                        <div className="flex items-center">
+                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
+                            <MapPin className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                            <span>Location</span>
+                          </div>
+                          <div className="font-bold text-[#101828] truncate pl-3">
+                            {item.location}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Sliders className="w-3 h-3 text-gray-400 shrink-0" />
-                          <span className="text-gray-400 w-14">Services</span>
-                          <span className="font-medium text-gray-800 truncate">{item.services}</span>
+
+                        {/* Services */}
+                        <div className="flex items-center">
+                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
+                            <Wrench className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                            <span>Services</span>
+                          </div>
+                          <div className="font-bold text-[#101828] truncate pl-3 flex items-center">
+                            <span className="truncate">{item.services}</span>
+                            {item.servicesExtra && (
+                              <span className="text-[#0B69FF] font-bold ml-1.5 shrink-0">
+                                {item.servicesExtra}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Building className="w-3 h-3 text-gray-400 shrink-0" />
-                          <span className="text-gray-400 w-14">Industries</span>
-                          <span className="font-medium text-gray-800 truncate">{item.industries}</span>
+
+                        {/* Industries */}
+                        <div className="flex items-center">
+                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
+                            <Briefcase className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                            <span>Industries</span>
+                          </div>
+                          <div className="font-bold text-[#101828] truncate pl-3 flex items-center">
+                            <span className="truncate">{item.industries}</span>
+                            {item.industriesExtra && (
+                              <span className="text-[#0B69FF] font-bold ml-1.5 shrink-0">
+                                {item.industriesExtra}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="w-3 h-3 text-gray-400 shrink-0" />
-                          <span className="text-gray-400 w-14">Budget</span>
-                          <span className="font-medium text-gray-800 truncate">{item.budget}</span>
+
+                        {/* Budget */}
+                        <div className="flex items-center">
+                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
+                            <Banknote className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                            <span>Budget</span>
+                          </div>
+                          <div className="font-bold text-[#101828] truncate pl-3">
+                            {item.budget}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Users className="w-3 h-3 text-gray-400 shrink-0" />
-                          <span className="text-gray-400 w-14">Team size</span>
-                          <span className="font-medium text-gray-800 truncate">{item.teamSize}</span>
+
+                        {/* Team size */}
+                        <div className="flex items-center">
+                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
+                            <Users className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                            <span>Team size</span>
+                          </div>
+                          <div className="font-bold text-[#101828] truncate pl-3">
+                            {item.teamSize}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -3725,20 +3792,20 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Right Column */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+              {/* Right Column (Exact Screenshot Match) */}
+              <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
                   Agency Catalog
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
                   Jump into the spotlight with SE Ranking&apos;s Agency Pack! Secure a spot in our expert Agency Catalog, where your services take center stage in front of new prospects. Watch your leads soar, trust surge, and your agency thrive and grow.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1">
                   <a
                     href="https://seranking.com/agency-catalog.html"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
                     Browse catalog
                   </a>
