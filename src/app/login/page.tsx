@@ -62,8 +62,14 @@ export default function LoginPage() {
         throw new Error(data.error || 'Invalid pair username/password!');
       }
 
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('seranking_user', JSON.stringify(data.user || { email: email.trim(), name: 'Admin User' }));
+        localStorage.setItem('user_email', email.trim());
+      }
+
       await refreshProjects();
-      router.push('/project-overview');
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
+      router.push(redirectUrl);
     } catch (err: any) {
       setError(err?.message || 'Invalid pair username/password!');
       setIsLoading(false);
@@ -82,14 +88,16 @@ export default function LoginPage() {
           password: 'AdminPassword123#',
         }),
       });
-      if (res.ok) {
-        await refreshProjects();
-        router.push('/project-overview');
-      } else {
-        router.push('/project-overview');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('seranking_user', JSON.stringify({ email: 'admin@seranking.com', name: 'Admin User' }));
+        localStorage.setItem('user_email', 'admin@seranking.com');
       }
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
+      await refreshProjects();
+      router.push(redirectUrl);
     } catch {
-      router.push('/project-overview');
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
+      router.push(redirectUrl);
     }
   };
 

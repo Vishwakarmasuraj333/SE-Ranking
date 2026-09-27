@@ -1,17 +1,17 @@
 'use client';
 
-import React from 'react';
-import { usePathname } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
-import { TrialBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
-import { BonusDiscountTab } from '@/components/ui/BonusDiscountTab';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   // Auth, public landing pages, and standalone Project Settings Wizard have NO admin header, NO sidebar
   const isAuthOrPublicPage =
@@ -48,6 +48,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/admin.site.wizard') ||
     pathname === '/settings';
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Authentication check for protected dashboard and admin routes
+  useEffect(() => {
+    if (isAuthOrPublicPage) {
+      setIsAuthenticated(true);
+      return;
+    }
+
+    const checkAuth = () => {
+      // Check for user session cookie or localStorage
+      const hasCookie =
+        typeof document !== 'undefined' &&
+        (document.cookie.includes('user_email=') || document.cookie.includes('user_name='));
+
+      const hasLocalUser =
+        typeof window !== 'undefined' &&
+        (localStorage.getItem('seranking_user') !== null ||
+          localStorage.getItem('user_email') !== null);
+
+      if (hasCookie || hasLocalUser) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        // Cleanly redirect unauthenticated visitors to login
+        router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      }
+    };
+
+    checkAuth();
+  }, [pathname, isAuthOrPublicPage, router]);
+
   if (isAuthOrPublicPage) {
     return (
       <div className="min-h-screen w-full bg-white text-gray-900 flex flex-col">
@@ -56,13 +88,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // If waiting for auth or unauthenticated, display professional loading screen without leaking dashboard
+  if (isAuthenticated === null || isAuthenticated === false) {
+    return (
+      <div className="min-h-screen bg-[#F4F6F9] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
+        <div className="w-10 h-10 rounded-full border-3 border-[#0B69FF]/20 border-t-[#0B69FF] animate-spin mb-4" />
+        <p className="text-gray-900 font-bold text-sm">Verifying session...</p>
+        <p className="text-gray-500 text-xs mt-1">Please sign in to access SE Ranking Studio.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col font-sans relative bg-[#F4F6F9] text-gray-900">
       {/* Top Blue Header */}
       <TopHeader />
-
-      {/* Trial Green Gradient Banner */}
-      <TrialBanner />
 
       {/* Main App Workspace */}
       <div className="flex-1 flex overflow-hidden">
@@ -88,9 +128,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <main className="flex-1 flex flex-col min-w-0">
             {children}
           </main>
-
-          {/* Floating Vertical 10% Discount Tab & Interactive Modal */}
-          <BonusDiscountTab />
         </div>
       </div>
     </div>

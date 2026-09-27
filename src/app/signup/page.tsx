@@ -167,14 +167,19 @@ export default function SignUpPage() {
       }
 
       setSuccessMessage('14-Day Free Trial activated! Redirecting to studio...');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('seranking_user', JSON.stringify(data.user || { email, name: `${firstName} ${lastName}`.trim() }));
+        localStorage.setItem('user_email', email.trim());
+      }
       await refreshProjects();
 
       if (data.project) {
         setActiveProject(data.project);
       }
 
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
       setTimeout(() => {
-        router.push('/project-overview');
+        router.push(redirectUrl);
       }, 1000);
     } catch (err: any) {
       setError(err?.message || 'Something went wrong. Please try again.');

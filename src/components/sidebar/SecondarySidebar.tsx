@@ -161,7 +161,7 @@ export function SecondarySidebar() {
 
   return (
     <>
-      <aside className="w-[245px] bg-[#232E3D] text-[#C4C9D3] flex flex-col justify-between border-r border-[#2B3545] select-none shrink-0 text-[13.5px] z-20 overflow-hidden">
+      <aside className="w-[245px] bg-[#232E3D] text-[#C4C9D3] flex flex-col justify-between border-r border-[#2B3545] select-none shrink-0 text-[14px] z-20 overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Header row matching screenshot */}
           <div className="h-11 px-3.5 flex items-center justify-between border-b border-[#2C374A] text-white">
@@ -498,31 +498,41 @@ export function SecondarySidebar() {
           {/* Navigation Links List */}
           <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 no-scrollbar">
             {effectiveSection === 'local-marketing' ? (
-              /* Local Marketing Mode Menu (Exact match to Screenshot 2) */
+              /* Local Marketing Mode Menu (Exact match to Screenshots 1, 2, 5, 6) */
               <>
                 <Link
-                  href="/local-marketing"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                  href="/local-marketing?tab=all-locations"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    pathname.includes('admin.local_marketing.html') ||
+                    currentTab === 'all-locations' ||
+                    (pathname === '/local-marketing' && !currentTab)
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
                 >
-                  <FolderTree className="w-4 h-4 text-gray-400" />
+                  <MapPin className="w-4 h-4 text-gray-400" />
                   <span>All Locations</span>
                 </Link>
 
                 <Link
-                  href="/local-marketing"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
-                    pathname === '/local-marketing'
+                  href="/local-marketing?tab=overview"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    currentTab === 'overview'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4 text-gray-300" />
+                  <Compass className="w-4 h-4 text-gray-400" />
                   <span>Overview</span>
                 </Link>
 
                 <Link
                   href="/local-marketing?tab=rankings"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    currentTab === 'rankings'
+                      ? 'bg-[#394757] text-white font-medium'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
                 >
                   <LayoutGrid className="w-4 h-4 text-gray-400" />
                   <span>Local Rankings</span>
@@ -530,10 +540,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/local-marketing/audit"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
-                    pathname.startsWith('/local-marketing/audit')
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    pathname.startsWith('/local-marketing/audit') || currentTab === 'audit'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <CheckCircle2 className="w-4 h-4 text-gray-400" />
@@ -543,7 +553,7 @@ export function SecondarySidebar() {
                 <div>
                   <button
                     onClick={() => toggleSection('gbp')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <Store className="w-4 h-4 text-gray-400" />
@@ -553,11 +563,11 @@ export function SecondarySidebar() {
                   </button>
                   {expandedSections.gbp && (
                     <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
-                      <Link href="/local-marketing#gbp-stats" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5">
-                        • Performance &amp; Views
+                      <Link href="/local-marketing?tab=gbp-insights" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10">
+                        • GBP Insights
                       </Link>
-                      <Link href="/local-marketing#gbp-keywords" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5">
-                        • Searches by Keywords
+                      <Link href="/local-marketing?tab=gbp-posts" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10">
+                        • GBP Posts
                       </Link>
                     </div>
                   )}
@@ -565,10 +575,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/local-marketing/business-listings"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
-                    pathname.startsWith('/local-marketing/business-listings')
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    pathname.startsWith('/local-marketing/business-listings') || currentTab === 'listings'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Files className="w-4 h-4 text-gray-300" />
@@ -578,7 +588,7 @@ export function SecondarySidebar() {
                 <div>
                   <button
                     onClick={() => toggleSection('reviews')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
@@ -593,7 +603,7 @@ export function SecondarySidebar() {
                         className={`block px-2 py-1.5 rounded text-xs transition-colors ${
                           pathname.includes('/review-list') || pathname === '/local-marketing/reviews'
                             ? 'bg-white/10 text-white font-medium'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         • Review List
@@ -603,14 +613,14 @@ export function SecondarySidebar() {
                         className={`block px-2 py-1.5 rounded text-xs transition-colors ${
                           pathname.includes('/analytics')
                             ? 'bg-white/10 text-white font-medium'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         • Analytics
                       </Link>
                       <Link
                         href="/local-marketing/reviews/analytics#insights"
-                        className="block px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                        className="block px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
                       >
                         • Insights
                       </Link>
@@ -623,10 +633,10 @@ export function SecondarySidebar() {
               <>
                 <Link
                   href="/api-docs"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/api-docs' || pathname === '/api'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -635,10 +645,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/api-docs/wallet"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/api-docs/wallet' || pathname === '/api/wallet'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Wallet className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -647,10 +657,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/api-docs/mcp"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/api-docs/mcp' || pathname === '/api/mcp'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Cpu className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -665,7 +675,7 @@ export function SecondarySidebar() {
                   <button
                     type="button"
                     onClick={(e) => toggleSection('white_label', e)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer select-none transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <ChevronDown
@@ -684,7 +694,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'interface-customization'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Interface customization
@@ -694,7 +704,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'personal-domain-names'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Personal domain names
@@ -706,7 +716,7 @@ export function SecondarySidebar() {
                           pathname.includes('whitelabel') ||
                           (pathname.startsWith('/agency-pack') && (!currentTab || currentTab === 'login-page'))
                             ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
@@ -717,7 +727,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'email-settings'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Email settings
@@ -727,7 +737,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'report-builder'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Report Builder
@@ -741,7 +751,7 @@ export function SecondarySidebar() {
                   <button
                     type="button"
                     onClick={(e) => toggleSection('lead_generator', e)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer select-none transition-colors"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
                       <ChevronRight
@@ -760,7 +770,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'lead-generator'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Start
@@ -770,7 +780,7 @@ export function SecondarySidebar() {
                         className={`block px-3 py-1.5 rounded-md transition-colors ${
                           currentTab === 'lead-widgets'
                             ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         Widgets
@@ -782,7 +792,7 @@ export function SecondarySidebar() {
                 {/* 3. Users External Link */}
                 <Link
                   href="/users"
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] transition-colors"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <Users className="w-4 h-4 text-gray-400" />
@@ -794,7 +804,7 @@ export function SecondarySidebar() {
                 {/* 4. Report Builder External Link */}
                 <Link
                   href="/reports"
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] transition-colors"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
                     <BarChart2 className="w-4 h-4 text-gray-400" />
@@ -809,10 +819,10 @@ export function SecondarySidebar() {
                 {/* 1. All Projects */}
                 <Link
                   href="/projects"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/projects' || pathname === '/'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Home className="w-4 h-4 text-gray-300" />
@@ -822,10 +832,10 @@ export function SecondarySidebar() {
                 {/* 2. Project Overview */}
                 <Link
                   href="/project-overview"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/project-overview'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <LayoutGrid className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -835,10 +845,10 @@ export function SecondarySidebar() {
                 {/* 3. Rankings */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/rankings')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/rankings" className="flex items-center gap-2.5 flex-1">
@@ -874,10 +884,10 @@ export function SecondarySidebar() {
                 {/* 4. Analytics & Traffic */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/analytics')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/analytics" className="flex items-center gap-2.5 flex-1">
@@ -910,10 +920,10 @@ export function SecondarySidebar() {
                 {/* 5. My Competitors */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/competitors')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/competitors" className="flex items-center gap-2.5 flex-1">
@@ -946,10 +956,10 @@ export function SecondarySidebar() {
                 {/* 6. AI Results Tracker */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/ai-results-tracker')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/ai-results-tracker" className="flex items-center gap-2.5 flex-1">
@@ -985,10 +995,10 @@ export function SecondarySidebar() {
                 {/* 7. Insights */}
                 <Link
                   href="/insights"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname.startsWith('/insights')
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Sparkles className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -998,10 +1008,10 @@ export function SecondarySidebar() {
                 {/* 8. Backlink Checker */}
                 <Link
                   href="/backlinks"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/backlinks'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Link2 className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -1011,10 +1021,10 @@ export function SecondarySidebar() {
                 {/* 9. Marketing Plan */}
                 <Link
                   href="/marketing-plan"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname.startsWith('/marketing-plan')
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <CheckSquare className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -1024,10 +1034,10 @@ export function SecondarySidebar() {
                 {/* 10. Website Audit */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/website-audit')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/website-audit" className="flex items-center gap-2.5 flex-1">
@@ -1063,10 +1073,10 @@ export function SecondarySidebar() {
                 {/* 11. Page Changes Monitor */}
                 <Link
                   href="/page-changes"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname.startsWith('/page-changes')
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Columns className="w-4 h-4 text-gray-400 group-hover:text-white" />
@@ -1076,10 +1086,10 @@ export function SecondarySidebar() {
                 {/* 12. Backlink Monitor */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors group cursor-pointer ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
                       pathname.startsWith('/backlinks-monitor')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/backlinks-monitor" className="flex items-center gap-2.5 flex-1">
@@ -1114,10 +1124,10 @@ export function SecondarySidebar() {
               <>
                 <Link
                   href="/backlinks"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/backlinks'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Link2 className="w-4 h-4 text-gray-400" />
@@ -1126,10 +1136,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/backlinks/gap-analyzer"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/backlinks/gap-analyzer'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <FolderTree className="w-4 h-4 text-gray-400" />
@@ -1141,10 +1151,10 @@ export function SecondarySidebar() {
               <>
                 <Link
                   href="/website-audit"
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/website-audit'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -1159,19 +1169,19 @@ export function SecondarySidebar() {
                 <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
                   <Link
                     href="/website-audit?tab=overview"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
                   >
                     • Overview
                   </Link>
                   <Link
                     href="/website-audit?tab=issues"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
                   >
                     • Issue Report
                   </Link>
                   <Link
                     href="/website-audit?tab=pages"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/5"
+                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
                   >
                     • Crawled Pages
                   </Link>
@@ -1179,7 +1189,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/website-audit/on-page"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
                 >
                   <FileSearch className="w-4 h-4 text-gray-400" />
                   <span>On-Page SEO Checker</span>
@@ -1187,7 +1197,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/website-audit/serp-analyzer"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
                 >
                   <SearchIcon className="w-4 h-4 text-gray-400" />
                   <span>SERP Analyzer</span>
@@ -1198,10 +1208,10 @@ export function SecondarySidebar() {
               <>
                 <Link
                   href="/reports"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/reports'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <BarChart2 className="w-4 h-4 text-gray-400" />
@@ -1210,7 +1220,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/reports?tab=templates"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
                 >
                   <Files className="w-4 h-4 text-gray-400" />
                   <span>Templates</span>
@@ -1218,7 +1228,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/reports?tab=scheduled"
-                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
                 >
                   <div className="flex items-center gap-2.5">
                     <Activity className="w-4 h-4 text-gray-400" />
@@ -1235,7 +1245,7 @@ export function SecondarySidebar() {
                 <div>
                   <button
                     onClick={() => toggleSection('competitive_research')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <Compass className="w-4 h-4 text-gray-400" />
@@ -1255,7 +1265,7 @@ export function SecondarySidebar() {
                         className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
                           pathname === '/research/competitive-research'
                             ? 'text-white font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         <span className="mr-2 text-gray-500">•</span>
@@ -1267,7 +1277,7 @@ export function SecondarySidebar() {
                         className={`flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
                           pathname.startsWith('/research/ai-search')
                             ? 'text-[#60A5FA] font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         <div className="flex items-center">
@@ -1284,7 +1294,7 @@ export function SecondarySidebar() {
                         className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
                           pathname === '/research/database-expansion'
                             ? 'text-white font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         <span className="mr-2 text-gray-500">•</span>
@@ -1297,7 +1307,7 @@ export function SecondarySidebar() {
                 <div>
                   <button
                     onClick={() => toggleSection('keyword_research')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer"
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <KeyRound className="w-4 h-4 text-gray-400" />
@@ -1327,10 +1337,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/keyword-manager"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/keyword-manager'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Sliders className="w-4 h-4 text-gray-400" />
@@ -1339,10 +1349,10 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/keyword-grouper"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
                     pathname === '/keyword-grouper'
                       ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <FolderTree className="w-4 h-4 text-gray-400" />
@@ -1351,7 +1361,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/research/keyword-research/suggestions"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors"
                 >
                   <SearchIcon className="w-4 h-4 text-gray-400" />
                   <span>Search Engine Autocomplete</span>
@@ -1359,7 +1369,7 @@ export function SecondarySidebar() {
 
                 <Link
                   href="/research/keyword-research"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] text-[#C4C9D3] hover:text-white hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors"
                 >
                   <BarChart2 className="w-4 h-4 text-gray-400" />
                   <span>Search Volume Checker</span>
@@ -1368,10 +1378,10 @@ export function SecondarySidebar() {
                 {/* Index Status Checker with Results matching Screenshot 1 */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] transition-colors ${
+                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors ${
                       pathname.startsWith('/index-status-checker')
                         ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/5'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                     }`}
                   >
                     <Link href="/index-status-checker" className="flex items-center gap-2.5 flex-1">
@@ -1386,7 +1396,7 @@ export function SecondarySidebar() {
                       className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
                         pathname.startsWith('/index-status-checker')
                           ? 'text-white font-semibold bg-[#2C3848]'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+                          : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                       }`}
                     >
                       <span className="mr-2 text-gray-500">•</span>

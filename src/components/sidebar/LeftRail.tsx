@@ -164,10 +164,10 @@ export function LeftRail() {
               href={item.href}
               onClick={item.onClick}
               title={item.label}
-              className={`w-[58px] min-h-[52px] py-1.5 px-0.5 flex flex-col items-center justify-center rounded-lg transition-all relative group text-center ${
+              className={`w-[60px] min-h-[54px] py-1.5 px-0.5 flex flex-col items-center justify-center rounded-lg transition-all duration-150 relative group text-center cursor-pointer ${
                 isActive
-                  ? 'bg-[#313E4F] text-white font-medium'
-                  : 'hover:bg-white/5 hover:text-gray-200 text-[#9DA8B6]'
+                  ? 'bg-[#313E4F] text-white font-medium shadow-xs'
+                  : 'hover:bg-white/10 hover:text-white text-[#9DA8B6]'
               }`}
             >
               {/* Arrow Notch pointing to secondary sidebar when active */}
@@ -177,12 +177,12 @@ export function LeftRail() {
 
               <div className="relative flex items-center justify-center">
                 {item.isBoxedIcon ? (
-                  <div className={`p-1 rounded border ${isActive ? 'border-white/40 text-white' : 'border-gray-500/40 text-[#9DA8B6] group-hover:text-white'}`}>
-                    <Icon className="w-3.5 h-3.5" />
+                  <div className={`p-1 rounded border ${isActive ? 'border-white/50 text-white' : 'border-gray-500/40 text-[#9DA8B6] group-hover:text-white'}`}>
+                    <Icon className="w-4 h-4" />
                   </div>
                 ) : (
                   <Icon
-                    className={`w-[19px] h-[19px] ${
+                    className={`w-[20px] h-[20px] transition-transform duration-150 group-hover:scale-105 ${
                       isActive ? 'text-white' : 'text-[#9DA8B6] group-hover:text-white'
                     }`}
                   />
@@ -193,13 +193,13 @@ export function LeftRail() {
                 )}
               </div>
 
-              <span className="text-[10px] leading-tight px-0.5 mt-1 text-center line-clamp-2 max-w-[56px] font-normal">
+              <span className="text-[11px] leading-tight px-0.5 mt-1 text-center line-clamp-2 max-w-[58px] font-normal tracking-tight">
                 {item.label}
               </span>
 
               {item.badge && (
                 <span
-                  className={`mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-full tracking-tight ${item.badgeColor}`}
+                  className={`mt-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full tracking-tight ${item.badgeColor}`}
                 >
                   {item.badge}
                 </span>

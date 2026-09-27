@@ -144,7 +144,7 @@ export const translations: Record<string, Translations> = {
       subtitle: 'Drive real business impact with enterprise-grade data, AI Overview tracking, competitor intelligence, and comprehensive SEO workflows.',
       searchPlaceholder: 'Enter domain, URL or keyword...',
       searchBtn: 'Analyze',
-      trialCta: 'Start free trial',
+      trialCta: 'Projects',
       tourCta: 'See product tour',
       trustedBy: 'Trusted by 1,000,000+ SEO pros and 50,000+ agencies worldwide',
       noCardNeeded: '14-day free trial. No credit card required.',

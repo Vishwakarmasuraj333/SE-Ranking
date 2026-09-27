@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Sparkles,
   ArrowRight,
@@ -346,6 +347,35 @@ export default function LandingPage() {
     } catch (e) {}
   };
 
+  const router = useRouter();
+
+  // Close navigation dropdowns when clicking outside
+  useEffect(() => {
+    const handleDocumentClick = () => {
+      setActiveMenu(null);
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, []);
+
+  const handleProjectsNavigation = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const hasAuth =
+      typeof document !== 'undefined' &&
+      (document.cookie.includes('user_email=') ||
+        (typeof window !== 'undefined' &&
+          (localStorage.getItem('seranking_user') !== null ||
+            localStorage.getItem('user_email') !== null)));
+
+    if (hasAuth) {
+      router.push('/projects');
+    } else {
+      router.push('/login?redirect=%2Fprojects');
+    }
+  };
+
   // Active Dropdown state for Desktop Navigation
   const [activeMenu, setActiveMenu] = useState<
     'suite' | 'solutions' | 'tools' | 'resources' | 'pricing' | 'api-mcp' | 'lang' | null
@@ -469,7 +499,7 @@ export default function LandingPage() {
               </button>
 
               {activeMenu === 'suite' && (
-                <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute top-[44px] left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                   <div className="w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-2 space-y-1">
                     {/* SE Ranking */}
                     <div className="p-2 bg-blue-50/70 rounded-lg flex items-center justify-between cursor-pointer">
@@ -564,7 +594,7 @@ export default function LandingPage() {
                 </button>
 
                 {activeMenu === 'solutions' && (
-                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-[44px] left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-[420px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2 h-fit">
                       {/* Left Column */}
                       <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100 flex flex-col justify-between">
@@ -673,7 +703,7 @@ export default function LandingPage() {
                 </button>
 
                 {activeMenu === 'tools' && (
-                  <div className="absolute top-full -left-12 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-[44px] -left-12 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-[510px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
                       {/* Left Column (Categories) */}
                       <div className="w-48 space-y-0.5 pr-1.5 border-r border-gray-100">
@@ -987,7 +1017,7 @@ export default function LandingPage() {
                 </button>
 
                 {activeMenu === 'resources' && (
-                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-[44px] left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-[430px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
                       {/* Left Column */}
                       <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100">
@@ -1141,7 +1171,7 @@ export default function LandingPage() {
                 </Link>
 
                 {activeMenu === 'pricing' && (
-                  <div className="absolute top-full left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-[44px] left-0 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 space-y-0.5">
                       <Link
                         href="/pricing"
@@ -1196,7 +1226,7 @@ export default function LandingPage() {
                 </button>
 
                 {activeMenu === 'api-mcp' && (
-                  <div className="absolute top-full -left-20 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute top-[44px] -left-20 pt-1 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="w-[430px] bg-white rounded-xl shadow-xl border border-gray-100 p-2 flex gap-2">
                       {/* Left Column */}
                       <div className="w-44 space-y-0.5 pr-2 border-r border-gray-100">
@@ -1360,7 +1390,7 @@ export default function LandingPage() {
 
               {activeMenu === 'lang' && (
                 <div
-                  className="absolute right-0 top-full pt-1.5 z-50 animate-in fade-in zoom-in-95 duration-100"
+                  className="absolute right-0 top-[44px].5 z-50 animate-in fade-in zoom-in-95 duration-100"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="w-[155px] bg-white rounded-xl shadow-xl border border-gray-200 py-1.5 px-1.5 space-y-0.5">
@@ -1408,12 +1438,13 @@ export default function LandingPage() {
             </button>
 
             {/* "Projects" Solid Blue Button matching Screenshot */}
-            <Link
-              href="/projects"
+            <button
+              type="button"
+              onClick={handleProjectsNavigation}
               className="px-5 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md"
             >
               Projects
-            </Link>
+            </button>
 
             {/* Mobile Hamburger Toggle Button */}
             <button
@@ -1480,11 +1511,11 @@ export default function LandingPage() {
                 See product tour
               </button>
               <Link
-                href="/signup"
+                href="/projects"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full py-2.5 text-center bg-[#1351d8] hover:bg-[#0f44b8] text-white rounded-xl text-sm font-bold shadow-sm"
               >
-                Start free trial
+                Projects
               </Link>
               <Link
                 href="/login"
@@ -1508,14 +1539,15 @@ export default function LandingPage() {
           {t.hero.subtitle}
         </p>
 
-        {/* Hero CTAs: Start free trial & See product tour */}
+        {/* Hero CTAs: Projects & See product tour */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/signup"
+          <button
+            type="button"
+            onClick={handleProjectsNavigation}
             className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
           >
-            <span>{t.hero.trialCta}</span>
-          </Link>
+            <span>Projects</span>
+          </button>
           <button
             type="button"
             onClick={() => setIsTourOpen(true)}
