@@ -47,6 +47,9 @@ import {
   MousePointerClick,
   Wrench,
   Banknote,
+  Shield,
+  User,
+  Square,
 } from 'lucide-react';
 import {
   LineChart,
@@ -3814,50 +3817,97 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* 2. Tab: White Label Reporting */}
+          {/* 2. Tab: White Label Reporting (Exact 100% match to screenshot 1) */}
           {agencyPackTab === 'reporting' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
               {/* Left Column: SEO Report Card with Gauge */}
-              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-8 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[380px] relative overflow-hidden">
-                <div className="w-full max-w-sm bg-white rounded-3xl border border-gray-200 p-6 shadow-sm text-center space-y-3 relative overflow-hidden">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#101423] text-white rounded-md text-xs font-semibold">
-                    <span>*</span>
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden">
+                <div className="w-full max-w-[360px] sm:max-w-[380px] bg-white rounded-[26px] border border-[#E2EDF9] p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)] text-center space-y-3 relative overflow-hidden">
+                  {/* Top Badge: * My Logo */}
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0E131F] text-white rounded-lg text-xs font-bold shadow-2xs">
+                    <span className="text-[13px] leading-none">✻</span>
                     <span>My Logo</span>
                   </div>
+
                   <div>
-                    <h4 className="text-2xl font-bold text-[#101423]">SEO Report</h4>
-                    <p className="text-[11px] text-gray-400 tracking-wider uppercase font-medium mt-0.5">
-                      JAN-19 2025 | JAN-25 2025
+                    <h4 className="text-[28px] sm:text-[32px] font-bold text-[#101423] tracking-tight leading-none mt-2">
+                      SEO Report
+                    </h4>
+                    <p className="text-[11px] sm:text-[12px] font-mono tracking-wider font-semibold text-[#64748B] uppercase mt-2.5">
+                      JAN-19 2025 <span className="mx-2 text-[#CBD5E1]">|</span> JAN-25 2025
                     </p>
                   </div>
 
-                  {/* Multi-color gauge arch */}
-                  <div className="pt-4 flex justify-center">
-                    <svg width="220" height="120" viewBox="0 0 200 110" className="overflow-visible">
+                  {/* Polar radial semi-circle gauge matching exact screenshot */}
+                  <div className="pt-3 flex justify-center overflow-visible">
+                    <svg
+                      width="300"
+                      height="150"
+                      viewBox="0 0 300 150"
+                      className="overflow-visible select-none"
+                    >
+                      {/* Concentric grid lines */}
                       <path
-                        d="M 20 100 A 80 80 0 0 1 180 100"
+                        d="M 20 150 A 130 130 0 0 1 280 150"
                         fill="none"
-                        stroke="#F1F5F9"
-                        strokeWidth="24"
-                        strokeDasharray="4 2"
+                        stroke="#DCE7F6"
+                        strokeWidth="1.5"
                       />
                       <path
-                        d="M 20 100 A 80 80 0 0 1 65 38"
+                        d="M 50 150 A 100 100 0 0 1 250 150"
                         fill="none"
-                        stroke="#10B981"
-                        strokeWidth="24"
+                        stroke="#DCE7F6"
+                        strokeWidth="1.5"
+                      />
+
+                      {/* Radial spokes in faint blue */}
+                      <line x1="150" y1="150" x2="20" y2="150" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="38" y2="85" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="85" y2="38" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="150" y2="20" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="215" y2="38" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="262" y2="85" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="150" y1="150" x2="280" y2="150" stroke="#DCE7F6" strokeWidth="1.5" />
+
+                      {/* Colored Radial Slices matching screenshot */}
+                      {/* 1. Neon Green Slice (Leftmost) */}
+                      <path
+                        d="M 150 150 L 60 150 A 90 90 0 0 1 68 112 Z"
+                        fill="#7EFC7E"
+                      />
+
+                      {/* 2. Deep Navy Blue Slice */}
+                      <path
+                        d="M 150 150 L 46 92 A 125 125 0 0 1 92 46 Z"
+                        fill="#000EB8"
+                      />
+
+                      {/* 3. Vivid Pink/Red Slice (Top Center) */}
+                      <path
+                        d="M 150 150 L 102 52 A 105 105 0 0 1 198 52 Z"
+                        fill="#F42557"
+                      />
+
+                      {/* 4. Bright Electric Blue Slice (Upper Right) */}
+                      <path
+                        d="M 150 150 L 208 38 A 130 130 0 0 1 272 105 Z"
+                        fill="#1251FE"
+                      />
+
+                      {/* 5. Dark Midnight Blue Slice (Far Right) */}
+                      <path
+                        d="M 150 150 L 258 110 A 115 115 0 0 1 265 150 Z"
+                        fill="#0B1336"
+                      />
+
+                      {/* Inner semi-circle hub */}
+                      <path
+                        d="M 115 150 A 35 35 0 0 1 185 150 Z"
+                        fill="#E2EDF8"
                       />
                       <path
-                        d="M 68 35 A 80 80 0 0 1 125 32"
-                        fill="none"
-                        stroke="#F43F5E"
-                        strokeWidth="24"
-                      />
-                      <path
-                        d="M 128 35 A 80 80 0 0 1 180 100"
-                        fill="none"
-                        stroke="#1351D8"
-                        strokeWidth="24"
+                        d="M 132 150 A 18 18 0 0 1 168 150 Z"
+                        fill="#FFFFFF"
                       />
                     </svg>
                   </div>
@@ -3865,105 +3915,127 @@ export default function LandingPage() {
               </div>
 
               {/* Right Column */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+              <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
                   White Label Reporting
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
                   Keep your customer in the loop with compelling reporting. Design customizable automated reports to effortlessly showcase the value of your SEO services to clients.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1">
                   <Link
-                    href="/projects"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                    href="/signup"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Projects
+                    Start free trial
                   </Link>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 3. Tab: Lead Generator */}
+          {/* 3. Tab: Lead Generator (Exact 100% match to screenshot 2) */}
           {agencyPackTab === 'lead-gen' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
               {/* Left Column: Leads Mockup Card */}
-              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <h4 className="text-base font-bold text-[#101423]">Leads</h4>
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 shadow-xs">
+                <div className="bg-white rounded-[24px] border border-[#E2EDF9] p-5 sm:p-6 shadow-[0_2px_12px_rgba(16,24,40,0.04)] space-y-4">
+                  <h4 className="text-[20px] font-bold text-[#101423]">Leads</h4>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="p-3 bg-white rounded-xl border border-gray-200">
-                    <div className="text-2xl font-bold text-[#101423]">72</div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">TODAY</div>
+                  {/* 3 Stat Cards */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-3.5">
+                    <div className="p-3.5 sm:p-4 bg-[#EEF5FF] rounded-[14px] border border-[#DCE9F8]">
+                      <div className="text-[28px] sm:text-[32px] font-bold text-[#101423] leading-none">
+                        72
+                      </div>
+                      <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
+                        TODAY
+                      </div>
+                    </div>
+                    <div className="p-3.5 sm:p-4 bg-[#EEF5FF] rounded-[14px] border border-[#DCE9F8]">
+                      <div className="text-[28px] sm:text-[32px] font-bold text-[#101423] leading-none">
+                        1798
+                      </div>
+                      <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
+                        PER MONTH
+                      </div>
+                    </div>
+                    <div className="p-3.5 sm:p-4 bg-[#EEF5FF] rounded-[14px] border border-[#DCE9F8]">
+                      <div className="text-[28px] sm:text-[32px] font-bold text-[#101423] leading-none">
+                        58
+                      </div>
+                      <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
+                        AVG. PER DAY
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-3 bg-white rounded-xl border border-gray-200">
-                    <div className="text-2xl font-bold text-[#101423]">1798</div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">PER MONTH</div>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border border-gray-200">
-                    <div className="text-2xl font-bold text-[#101423]">58</div>
-                    <div className="text-[10px] text-gray-400 font-bold uppercase mt-0.5">AVG. PER DAY</div>
-                  </div>
-                </div>
 
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-gray-100 text-[10px] text-gray-400 uppercase font-semibold">
-                        <th className="py-2.5 px-3">AUDIT PAGE URL</th>
-                        <th className="py-2.5 px-3">LEAD INFO</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 text-gray-700">
-                      <tr>
-                        <td className="py-3 px-3 flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
-                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.g2.com/products/se-rankin...</span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-gray-900">Dianne Russell</div>
-                          <div className="text-gray-400 text-[11px]">dianne.russel@outlook.com</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 px-3 flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
-                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.capterra.com/p/142169/SE...</span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-gray-900">Megan Smith</div>
-                          <div className="text-gray-400 text-[11px]">megan.design@gmail.com</div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 px-3 flex items-center gap-2">
-                          <span className="w-3.5 h-3.5 rounded border border-gray-300 inline-block" />
-                          <span className="text-[#1351d8] truncate max-w-[200px]">https://www.getapp.com/marketing-soft...</span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="font-semibold text-gray-900">Dianne Russell</div>
-                          <div className="text-gray-400 text-[11px]">dianne.russel@outlook.com</div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  {/* Leads Table matching screenshot */}
+                  <div className="rounded-[16px] border border-gray-200/80 overflow-hidden divide-y divide-gray-100">
+                    <div className="grid grid-cols-2 py-3 px-4 bg-white text-[11px] font-mono font-bold text-[#64748B] tracking-wider uppercase border-b border-gray-100">
+                      <div className="flex items-center gap-2">
+                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        <span>AUDIT PAGE URL</span>
+                      </div>
+                      <div>LEAD INFO</div>
+                    </div>
+
+                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        <span className="text-[#0B69FF] font-medium truncate">
+                          https://www.g2.com/products/se-rankin...
+                        </span>
+                      </div>
+                      <div className="text-xs">
+                        <div className="font-bold text-[#101423]">Dianne Russell</div>
+                        <div className="text-[11px] text-[#64748B]">dianne.russel@outlook.com</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        <span className="text-[#0B69FF] font-medium truncate">
+                          https://www.capterra.com/p/142169/SE...
+                        </span>
+                      </div>
+                      <div className="text-xs">
+                        <div className="font-bold text-[#101423]">Megan Smith</div>
+                        <div className="text-[11px] text-[#64748B]">megan.design@gmail.com</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        <span className="text-[#0B69FF] font-medium truncate">
+                          https://www.getapp.com/marketing-soft...
+                        </span>
+                      </div>
+                      <div className="text-xs">
+                        <div className="font-bold text-[#101423]">Dianne Russell</div>
+                        <div className="text-[11px] text-[#64748B]">dianne.russel@outlook.com</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Right Column */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+              <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
                   Lead Generator
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
                   Expand your email list and generate new quality leads. Embed our customizable lead gen solutions to your website and convert visitors into new customers.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1">
                   <Link
-                    href="/projects"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                    href="/signup"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Projects
+                    Start free trial
                   </Link>
                 </div>
               </div>
@@ -3974,75 +4046,101 @@ export default function LandingPage() {
           {agencyPackTab === 'white-label' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: White Label Customization Mockup Card */}
-              <div className="lg:col-span-7 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-xs">
+              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm">
                 {/* Mint green header bar */}
-                <div className="p-4 bg-[#C4FFC4]/50 border-b border-gray-200/60 flex items-center gap-2">
-                  <div className="px-3 py-1 bg-white text-[#101423] border border-gray-200 rounded-md text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs">
-                    <span>*</span>
-                    <span>My Logo</span>
+                <div className="px-6 py-4 bg-[#BEF7C5] border-b border-gray-100 flex items-center">
+                  <div className="px-3.5 py-1.5 bg-white text-[#101423] rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
+                    <span className="text-base leading-none font-black">*</span>
+                    <span className="tracking-tight">My Logo</span>
                   </div>
                 </div>
 
-                <div className="p-6 space-y-5">
-                  {/* UI Color */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-gray-500 uppercase">UI Color</span>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-[#C4FFC4] border-2 border-gray-900 cursor-pointer shadow-2xs" />
-                      <div className="w-7 h-7 rounded-lg bg-[#7C3AED] cursor-pointer hover:scale-105 transition-transform" />
-                      <div className="w-7 h-7 rounded-lg bg-[#F59E0B] cursor-pointer hover:scale-105 transition-transform" />
-                      <div className="w-7 h-7 rounded-lg bg-[#1351D8] cursor-pointer hover:scale-105 transition-transform" />
-                      <div className="w-7 h-7 rounded-lg bg-[#EC4899] cursor-pointer hover:scale-105 transition-transform" />
+                {/* Settings Rows */}
+                <div className="divide-y divide-gray-100">
+                  {/* Row 1: UI Color */}
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">UI Color</span>
+                    <div className="flex items-center gap-2.5 sm:gap-3">
+                      {/* Mint Green (active outline) */}
+                      <div className="w-8 h-8 rounded-lg bg-[#BEF7C5] border-2 border-emerald-400 cursor-pointer shadow-2xs hover:scale-105 transition-transform" />
+                      {/* Purple */}
+                      <div className="w-8 h-8 rounded-lg bg-[#9A00FF] cursor-pointer hover:scale-105 transition-transform" />
+                      {/* Orange with cursor arrow */}
+                      <div className="relative cursor-pointer hover:scale-105 transition-transform">
+                        <div className="w-8 h-8 rounded-lg bg-[#FF9F00]" />
+                        <div className="absolute -bottom-3 right-0 pointer-events-none z-10">
+                          <svg className="w-5 h-5 text-black drop-shadow-sm fill-black stroke-white stroke-[0.5]" viewBox="0 0 24 24">
+                            <path d="M4 2l16 11.5-7.5 1.5 4.5 7.5-3 1.5-4.5-7.5L4 20V2z" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Deep Royal Blue */}
+                      <div className="w-8 h-8 rounded-lg bg-[#0000C8] cursor-pointer hover:scale-105 transition-transform" />
+                      {/* Crimson / Magenta */}
+                      <div className="w-8 h-8 rounded-lg bg-[#E61952] cursor-pointer hover:scale-105 transition-transform" />
                     </div>
                   </div>
 
-                  {/* Company Logo */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs font-mono text-gray-500">Company logo</span>
+                  {/* Row 2: Company logo */}
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Company logo</span>
                     <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-white border border-gray-200 rounded-md text-xs font-semibold text-gray-800">
-                        * My Logo
-                      </span>
-                      <button type="button" className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-xs font-medium text-gray-700 flex items-center gap-1.5">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                          <circle cx="9" cy="9" r="2" />
-                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      {/* Current logo preview pill */}
+                      <div className="px-3.5 py-2 bg-[#E2E8F4] text-gray-900 rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
+                        <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center text-xs font-black text-black">
+                          *
+                        </span>
+                        <span className="tracking-tight text-gray-900">My Logo</span>
+                      </div>
+                      {/* Update logo button */}
+                      <button
+                        type="button"
+                        className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                      >
+                        <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect width="16" height="16" x="2" y="5" rx="2" />
+                          <circle cx="8" cy="11" r="1.5" />
+                          <path d="m2 17 5-5 4 4 5-5 2 2" />
+                          <path d="M19 2v6m-3-3h6" />
                         </svg>
-                        Update logo
+                        <span>Update logo</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* Footer Logo */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs font-mono text-gray-500">Footer logo</span>
-                    <button type="button" className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg text-xs font-medium text-gray-700 flex items-center gap-1.5">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                        <circle cx="9" cy="9" r="2" />
-                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                  {/* Row 3: Footer logo */}
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Footer logo</span>
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                    >
+                      <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect width="16" height="16" x="2" y="5" rx="2" />
+                        <circle cx="8" cy="11" r="1.5" />
+                        <path d="m2 17 5-5 4 4 5-5 2 2" />
+                        <path d="M19 2v6m-3-3h6" />
                       </svg>
-                      Upload logo
+                      <span>Upload logo</span>
                     </button>
                   </div>
                 </div>
               </div>
 
               {/* Right Column */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+              <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
                   White Label
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
                   Enhance credibility and strengthen customer trust. Create a seamless client experience by providing access to our SEO platform customized to your brand book and domain name.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1">
                   <Link
-                    href="/projects"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                    href="/signup"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Projects
+                    Start free trial
                   </Link>
                 </div>
               </div>
@@ -4053,51 +4151,63 @@ export default function LandingPage() {
           {agencyPackTab === 'seats' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Users Table Mockup Card */}
-              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <h4 className="text-base font-bold text-[#101423]">Users</h4>
+              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <h4 className="text-xl font-bold text-[#101423]">Users</h4>
 
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs sm:text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 text-[10px] text-gray-400 uppercase font-semibold">
-                        <th className="py-2.5 px-3">NAME</th>
-                        <th className="py-2.5 px-3">ACCOUNT TYPE</th>
-                        <th className="py-2.5 px-3">EMAIL</th>
+                      <tr className="border-b border-gray-100 text-[11px] text-gray-400 uppercase font-semibold">
+                        <th className="py-3 px-4">NAME</th>
+                        <th className="py-3 px-4">ACCOUNT TYPE</th>
+                        <th className="py-3 px-4">EMAIL</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      <tr className="bg-[#E6F7FF]/80">
-                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
-                          <span className="text-gray-400">›</span>
-                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">7</span>
-                          <span>Devon Lane</span>
+                      {/* Row 1: Devon Lane (Highlighted in soft cyan) */}
+                      <tr className="bg-[#E5F6FF]/90 font-medium">
+                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
+                          <span className="text-gray-400 text-xs">›</span>
+                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">7</span>
+                          <span className="font-semibold text-gray-900">Devon Lane</span>
                         </td>
-                        <td className="py-3 px-3 font-medium text-gray-800">
-                          <span className="inline-flex items-center gap-1">🛡 Owner</span>
+                        <td className="py-3 px-4 text-gray-800">
+                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
+                            <Shield className="w-3.5 h-3.5 text-blue-600" />
+                            Owner
+                          </span>
                         </td>
-                        <td className="py-3 px-3 text-gray-600">ewaters@comcast.net</td>
+                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">ewaters@comcast.net</td>
                       </tr>
+                      {/* Row 2: Harry Leddington */}
                       <tr>
-                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
-                          <span className="text-gray-400">›</span>
-                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">51</span>
-                          <span>Harry Leddington</span>
+                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
+                          <span className="text-gray-400 text-xs">›</span>
+                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">51</span>
+                          <span className="font-semibold text-gray-900">Harry Leddington</span>
                         </td>
-                        <td className="py-3 px-3 font-medium text-gray-800">
-                          <span className="inline-flex items-center gap-1">👤 Client</span>
+                        <td className="py-3 px-4 text-gray-800">
+                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
+                            <User className="w-3.5 h-3.5 text-gray-500" />
+                            Client
+                          </span>
                         </td>
-                        <td className="py-3 px-3 text-gray-600">yeedancer@gmail.c...</td>
+                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">yeedancer@gmail.c...</td>
                       </tr>
+                      {/* Row 3: Mark Kleiner */}
                       <tr>
-                        <td className="py-3 px-3 flex items-center gap-2 font-medium text-gray-900">
-                          <span className="text-gray-400">›</span>
-                          <span className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-700">65</span>
-                          <span>Mark Kleiner</span>
+                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
+                          <span className="text-gray-400 text-xs">›</span>
+                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">65</span>
+                          <span className="font-semibold text-gray-900">Mark Kleiner</span>
                         </td>
-                        <td className="py-3 px-3 font-medium text-gray-800">
-                          <span className="inline-flex items-center gap-1">👤 Manager</span>
+                        <td className="py-3 px-4 text-gray-800">
+                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
+                            <User className="w-3.5 h-3.5 text-gray-500" />
+                            Manager
+                          </span>
                         </td>
-                        <td className="py-3 px-3 text-gray-600">m.klnr@outlook.com</td>
+                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">m.klnr@outlook.com</td>
                       </tr>
                     </tbody>
                   </table>
@@ -4105,19 +4215,19 @@ export default function LandingPage() {
               </div>
 
               {/* Right Column */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+              <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
+                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
                   Client Seats
                 </h3>
-                <p className="text-base text-gray-600 leading-relaxed font-normal">
+                <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
                   Get extra client seats to openly communicate your progress. Choose which SEO tools your clients will have access to and adjust access settings at any time.
                 </p>
-                <div className="pt-2">
+                <div className="pt-1">
                   <Link
-                    href="/projects"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-xl shadow-sm transition-colors cursor-pointer"
+                    href="/signup"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Projects
+                    Start free trial
                   </Link>
                 </div>
               </div>
