@@ -50,6 +50,8 @@ import {
   Shield,
   User,
   Square,
+  Menu,
+  X,
 } from 'lucide-react';
 import {
   LineChart,
@@ -435,7 +437,7 @@ export default function LandingPage() {
   const [agencyPackTab, setAgencyPackTab] = useState<
     'catalog' | 'reporting' | 'lead-gen' | 'white-label' | 'seats'
   >('catalog');
-  const [whiteLabelColor, setWhiteLabelColor] = useState<string>('#BEF7C5');
+  const [whiteLabelColor, setWhiteLabelColor] = useState<string>('#BAF6BE');
   const [whiteLabelLogo, setWhiteLabelLogo] = useState<string>('My Logo');
   const [leadCheckboxes, setLeadCheckboxes] = useState<Record<string, boolean>>({
     'g2': false,
@@ -588,7 +590,7 @@ export default function LandingPage() {
             </Link>
 
             {/* Desktop Navigation Links & Dropdowns */}
-            <nav className="flex items-center gap-5 xl:gap-6 text-[14px] font-medium text-gray-900 h-full">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-[14px] font-medium text-gray-900 h-full">
               {/* 1. Solutions Dropdown */}
               <div
                 className="relative h-full flex items-center"
@@ -1463,8 +1465,88 @@ export default function LandingPage() {
             >
               Projects
             </Link>
+
+            {/* Mobile Hamburger Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 text-gray-700 hover:text-black hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+              aria-label="Toggle mobile menu"
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Slide-down Drawer Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden border-t border-gray-100 bg-white shadow-xl animate-in slide-in-from-top-2 duration-150 px-5 py-5 space-y-4">
+            <nav className="flex flex-col space-y-2.5">
+              <Link
+                href="/research/competitive-research"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-gray-900 hover:text-[#0B69FF] py-1"
+              >
+                Solutions
+              </Link>
+              <Link
+                href="/rankings"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-gray-900 hover:text-[#0B69FF] py-1"
+              >
+                Tools
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-gray-900 hover:text-[#0B69FF] py-1"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/help"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-gray-900 hover:text-[#0B69FF] py-1"
+              >
+                Resources
+              </Link>
+              <Link
+                href="/api-docs"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-gray-900 hover:text-[#0B69FF] py-1"
+              >
+                API & MCP
+              </Link>
+            </nav>
+
+            <div className="pt-3 border-t border-gray-100 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsTourOpen(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full py-2.5 text-center border border-gray-900 rounded-xl text-sm font-bold text-gray-900 hover:bg-gray-50 cursor-pointer"
+              >
+                See product tour
+              </button>
+              <Link
+                href="/signup"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 text-center bg-[#1351d8] hover:bg-[#0f44b8] text-white rounded-xl text-sm font-bold shadow-sm"
+              >
+                Start free trial
+              </Link>
+              <Link
+                href="/login"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="w-full py-2.5 text-center text-gray-700 hover:text-gray-900 text-sm font-semibold"
+              >
+                Log in
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* 3. Hero Section (Exact visual match to Screenshot) */}
@@ -3776,19 +3858,19 @@ export default function LandingPage() {
           {agencyPackTab === 'catalog' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
               {/* Left Column: Agency Cards in Mockup with right and bottom peeking effect */}
-              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 overflow-hidden h-[440px] sm:h-[460px] relative shadow-xs">
-                <div className="grid grid-cols-[330px_330px] sm:grid-cols-[350px_350px] gap-5 w-[730px] select-none">
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#F4F7FC] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 overflow-hidden h-[440px] sm:h-[460px] relative shadow-xs">
+                <div className="grid grid-cols-[420px_420px] gap-6 w-[880px] select-none">
                   {agencyCatalogItems.map((item) => (
                     <div
                       key={item.id}
-                      className="w-[330px] sm:w-[350px] p-5 sm:p-6 bg-white border border-[#E2EDF9] rounded-[22px] space-y-4 shadow-[0_2px_12px_rgba(16,24,40,0.04)] shrink-0 text-left"
+                      className="w-[420px] p-6 bg-white border border-[#E2EDF9] rounded-[26px] space-y-4 shadow-[0_2px_16px_rgba(16,24,40,0.05)] shrink-0 text-left"
                     >
                       {/* Top Header: Logo box + Title & URL */}
-                      <div className="flex items-start gap-3.5">
-                        <div className="w-[52px] h-[52px] rounded-[14px] border border-[#CBD5E1] bg-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <div className="flex items-start gap-4">
+                        <div className="w-[62px] h-[62px] rounded-[18px] border border-[#CBD5E1] bg-white flex items-center justify-center shrink-0 shadow-2xs">
                           <svg
-                            width="24"
-                            height="24"
+                            width="28"
+                            height="28"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="#1E293B"
@@ -3796,20 +3878,20 @@ export default function LandingPage() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            <rect width="18" height="18" x="3" y="3" rx="3" />
+                            <rect width="18" height="18" x="3" y="3" rx="3.5" />
                             <circle cx="8.5" cy="8.5" r="1.5" />
                             <path d="m21 15-5-5L5 21" />
                           </svg>
                         </div>
                         <div className="min-w-0 flex-1 pt-0.5">
-                          <div className="text-[18px] font-bold text-[#101828] leading-tight truncate">
+                          <div className="text-[21px] font-bold text-[#101828] leading-tight truncate">
                             {item.name}
                           </div>
                           <a
                             href={item.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[13px] text-[#0B69FF] font-medium hover:underline block truncate mt-1"
+                            className="text-[14px] text-[#1D4ED8] font-normal hover:underline block truncate mt-1"
                           >
                             {item.url}
                           </a>
@@ -3817,28 +3899,28 @@ export default function LandingPage() {
                       </div>
 
                       {/* Key-Value Details matching reference screenshot */}
-                      <div className="space-y-3 text-[13px] pt-1.5">
+                      <div className="space-y-3 text-[14.5px] pt-1">
                         {/* Location */}
                         <div className="flex items-center">
-                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
-                            <MapPin className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
+                            <MapPin className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
                             <span>Location</span>
                           </div>
-                          <div className="font-bold text-[#101828] truncate pl-3">
+                          <div className="font-bold text-[#101828] truncate pl-2">
                             {item.location}
                           </div>
                         </div>
 
                         {/* Services */}
                         <div className="flex items-center">
-                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
-                            <Wrench className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
+                            <Wrench className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
                             <span>Services</span>
                           </div>
-                          <div className="font-bold text-[#101828] truncate pl-3 flex items-center">
-                            <span className="truncate">{item.services}</span>
+                          <div className="font-bold text-[#101828] truncate pl-2 flex items-center">
+                            <span>{item.services}</span>
                             {item.servicesExtra && (
-                              <span className="text-[#0B69FF] font-bold ml-1.5 shrink-0">
+                              <span className="text-[#1D4ED8] font-bold ml-1.5 shrink-0">
                                 {item.servicesExtra}
                               </span>
                             )}
@@ -3847,14 +3929,14 @@ export default function LandingPage() {
 
                         {/* Industries */}
                         <div className="flex items-center">
-                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
-                            <Briefcase className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
+                            <Briefcase className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
                             <span>Industries</span>
                           </div>
-                          <div className="font-bold text-[#101828] truncate pl-3 flex items-center">
-                            <span className="truncate">{item.industries}</span>
+                          <div className="font-bold text-[#101828] truncate pl-2 flex items-center">
+                            <span>{item.industries}</span>
                             {item.industriesExtra && (
-                              <span className="text-[#0B69FF] font-bold ml-1.5 shrink-0">
+                              <span className="text-[#1D4ED8] font-bold ml-1.5 shrink-0">
                                 {item.industriesExtra}
                               </span>
                             )}
@@ -3863,22 +3945,22 @@ export default function LandingPage() {
 
                         {/* Budget */}
                         <div className="flex items-center">
-                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
-                            <Banknote className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
+                            <Banknote className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
                             <span>Budget</span>
                           </div>
-                          <div className="font-bold text-[#101828] truncate pl-3">
+                          <div className="font-bold text-[#101828] truncate pl-2">
                             {item.budget}
                           </div>
                         </div>
 
                         {/* Team size */}
                         <div className="flex items-center">
-                          <div className="flex items-center gap-2 text-[#475467] w-[95px] shrink-0 font-normal">
-                            <Users className="w-4 h-4 text-[#344054] shrink-0" strokeWidth={1.8} />
+                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
+                            <Users className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
                             <span>Team size</span>
                           </div>
-                          <div className="font-bold text-[#101828] truncate pl-3">
+                          <div className="font-bold text-[#101828] truncate pl-2">
                             {item.teamSize}
                           </div>
                         </div>
@@ -3911,81 +3993,95 @@ export default function LandingPage() {
           {/* 2. Tab: White Label Reporting (Exact 100% match to user screenshot) */}
           {agencyPackTab === 'reporting' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
-              {/* Left Column: SEO Report Card with Gauge */}
-              <div className="lg:col-span-7 xl:col-span-7 bg-[#F8FAFC] border border-gray-100 rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden">
-                <div className="w-full max-w-[360px] sm:max-w-[380px] bg-white rounded-[26px] border border-gray-200/80 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)] text-center space-y-3 relative overflow-hidden">
+              {/* Left Column: Full-width SEO Report Card with Gauge */}
+              <div className="lg:col-span-7 xl:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 p-8 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden w-full">
+                <div className="w-full max-w-[460px] text-center space-y-4">
                   {/* Top Badge: * My Logo */}
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1F2633] text-white rounded-lg text-xs font-bold shadow-2xs">
-                    <span className="text-[13px] leading-none">✻</span>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#0B0F19] text-white rounded-xl text-[13px] font-semibold shadow-sm">
+                    <span className="w-5 h-5 rounded-md bg-white text-black flex items-center justify-center text-xs font-black leading-none">
+                      ✻
+                    </span>
                     <span>My Logo</span>
                   </div>
 
                   <div>
-                    <h4 className="text-[28px] sm:text-[32px] font-bold text-[#101423] tracking-tight leading-none mt-2">
+                    <h4 className="text-[34px] sm:text-[38px] font-bold text-[#101423] tracking-tight leading-none mt-2">
                       SEO Report
                     </h4>
-                    <p className="text-[11px] sm:text-[12px] font-mono tracking-wider font-semibold text-[#64748B] uppercase mt-2.5">
+                    <p className="text-[12px] font-mono tracking-widest font-semibold text-[#64748B] uppercase mt-3">
                       JAN-19 2025 <span className="mx-2 text-[#CBD5E1]">|</span> JAN-25 2025
                     </p>
                   </div>
 
                   {/* Polar radial semi-circle gauge matching exact screenshot */}
-                  <div className="pt-3 flex justify-center overflow-visible">
+                  <div className="pt-4 flex justify-center overflow-visible">
                     <svg
-                      width="300"
-                      height="150"
-                      viewBox="0 0 300 150"
+                      width="340"
+                      height="170"
+                      viewBox="0 0 340 170"
                       className="overflow-visible select-none"
                     >
-                      {/* Concentric grid lines */}
+                      {/* Concentric grid lines in faint blue */}
                       <path
-                        d="M 20 150 A 130 130 0 0 1 280 150"
+                        d="M 20 170 A 150 150 0 0 1 320 170"
                         fill="none"
-                        stroke="#DCE7F6"
-                        strokeWidth="1.5"
+                        stroke="#D6E4F6"
+                        strokeWidth="2"
                       />
                       <path
-                        d="M 50 150 A 100 100 0 0 1 250 150"
+                        d="M 55 170 A 115 115 0 0 1 285 170"
                         fill="none"
-                        stroke="#DCE7F6"
-                        strokeWidth="1.5"
+                        stroke="#D6E4F6"
+                        strokeWidth="2"
                       />
 
                       {/* Radial spokes in faint blue */}
-                      <line x1="150" y1="150" x2="20" y2="150" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="38" y2="85" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="85" y2="38" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="150" y2="20" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="215" y2="38" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="262" y2="85" stroke="#DCE7F6" strokeWidth="1.5" />
-                      <line x1="150" y1="150" x2="280" y2="150" stroke="#DCE7F6" strokeWidth="1.5" />
+                      <line x1="170" y1="170" x2="20" y2="170" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="42" y2="95" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="95" y2="42" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="170" y2="20" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="245" y2="42" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="298" y2="95" stroke="#D6E4F6" strokeWidth="2" />
+                      <line x1="170" y1="170" x2="320" y2="170" stroke="#D6E4F6" strokeWidth="2" />
 
-                      {/* Colored Radial Slices matching screenshot */}
-                      {/* 1. Neon Green Slice (Leftmost) */}
+                      {/* Colored Radial Slices matching exact user reference image */}
+                      {/* 1. Lime / Neon Green Slice (Leftmost) */}
                       <path
-                        d="M 150 150 L 60 150 A 90 90 0 0 1 68 112 Z"
-                        fill="#86EFAC"
+                        d="M 170 170 L 68 170 A 102 102 0 0 1 76 127 Z"
+                        fill="#6EE7B7"
                       />
 
-                      {/* 2. Vivid Pink/Red Slice (Center) */}
+                      {/* 2. Deep Electric Blue Slice (Upper Left) */}
                       <path
-                        d="M 150 150 L 102 52 A 105 105 0 0 1 198 52 Z"
+                        d="M 170 170 L 52 104 A 142 142 0 0 1 104 52 Z"
+                        fill="#0000C8"
+                      />
+
+                      {/* 3. Vivid Crimson / Hot Pink Slice (Center) */}
+                      <path
+                        d="M 170 170 L 115 59 A 119 119 0 0 1 225 59 Z"
                         fill="#E11D48"
                       />
 
-                      {/* 3. Bright Royal Blue Slice (Right) */}
+                      {/* 4. Bright Royal Blue Slice (Upper Right) */}
                       <path
-                        d="M 150 150 L 208 38 A 130 130 0 0 1 272 105 Z"
+                        d="M 170 170 L 236 43 A 147 147 0 0 1 308 119 Z"
                         fill="#1D4ED8"
                       />
 
-                      {/* Inner semi-circle hub */}
+                      {/* 5. Deep Midnight Blue Slice (Far Right) */}
                       <path
-                        d="M 115 150 A 35 35 0 0 1 185 150 Z"
+                        d="M 170 170 L 293 125 A 130 130 0 0 1 301 170 Z"
+                        fill="#0B1336"
+                      />
+
+                      {/* Inner semi-circle hub matching screenshot */}
+                      <path
+                        d="M 130 170 A 40 40 0 0 1 210 170 Z"
                         fill="#E2EDF8"
                       />
                       <path
-                        d="M 132 150 A 18 18 0 0 1 168 150 Z"
+                        d="M 150 170 A 20 20 0 0 1 190 170 Z"
                         fill="#FFFFFF"
                       />
                     </svg>
@@ -4016,10 +4112,9 @@ export default function LandingPage() {
           {/* 3. Tab: Lead Generator (Exact 100% match to screenshot 2) */}
           {agencyPackTab === 'lead-gen' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
-              {/* Left Column: Leads Mockup Card */}
-              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 shadow-xs">
-                <div className="bg-white rounded-[24px] border border-[#E2EDF9] p-5 sm:p-6 shadow-[0_2px_12px_rgba(16,24,40,0.04)] space-y-4">
-                  <h4 className="text-[20px] font-bold text-[#101423]">Leads</h4>
+              {/* Left Column: Leads Mockup Card Full Width */}
+              <div className="lg:col-span-7 xl:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xs space-y-5 w-full">
+                <h4 className="text-[22px] font-bold text-[#101423]">Leads</h4>
 
                   {/* 3 Stat Cards */}
                   <div className="grid grid-cols-3 gap-3 sm:gap-3.5">
@@ -4102,7 +4197,6 @@ export default function LandingPage() {
                       </div>
                     ))}
                   </div>
-                </div>
               </div>
 
               {/* Right Column */}
@@ -4128,39 +4222,39 @@ export default function LandingPage() {
           {/* 4. Tab: White Label */}
           {agencyPackTab === 'white-label' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: White Label Customization Mockup Card */}
-              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs">
+              {/* Left Column: White Label Customization Mockup Card (100% Exact match to uploaded_media_1790502506396.png) */}
+              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs w-full">
                 {/* Dynamic colored header bar */}
                 <div
-                  className="px-6 py-4 border-b border-gray-100 flex items-center transition-colors duration-300"
+                  className="px-6 py-5 border-b border-gray-100 flex items-center transition-colors duration-300"
                   style={{ backgroundColor: whiteLabelColor }}
                 >
-                  <div className="px-3.5 py-1.5 bg-white text-[#101423] rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
-                    <span className="text-base leading-none font-black">*</span>
-                    <span className="tracking-tight">{whiteLabelLogo}</span>
+                  <div className="px-4 py-2 bg-white text-[#101423] rounded-2xl text-[16px] font-bold inline-flex items-center gap-2.5 shadow-2xs">
+                    <span className="text-xl leading-none font-black text-black">✻</span>
+                    <span className="tracking-tight text-black font-bold">{whiteLabelLogo}</span>
                   </div>
                 </div>
 
                 {/* Settings Rows */}
                 <div className="divide-y divide-gray-100">
                   {/* Row 1: UI Color */}
-                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">UI Color</span>
-                    <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-6">
+                    <span className="font-mono text-[16px] text-[#1E293B] font-medium tracking-wide">UI Color</span>
+                    <div className="flex items-center gap-3 sm:gap-3.5">
                       {[
-                        { color: '#BEF7C5', hasArrow: false },
-                        { color: '#9A00FF', hasArrow: false },
-                        { color: '#FF9F00', hasArrow: true },
+                        { color: '#BAF6BE', hasArrow: false },
+                        { color: '#9300FD', hasArrow: false },
+                        { color: '#F59E0B', hasArrow: true },
                         { color: '#0000C8', hasArrow: false },
-                        { color: '#E61952', hasArrow: false },
+                        { color: '#E11D48', hasArrow: false },
                       ].map((item) => (
                         <div
                           key={item.color}
                           onClick={() => setWhiteLabelColor(item.color)}
-                          className="relative cursor-pointer transition-transform hover:scale-110"
+                          className="relative cursor-pointer transition-transform hover:scale-105"
                         >
                           <div
-                            className={`w-8 h-8 rounded-lg shadow-2xs transition-all ${
+                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl shadow-2xs transition-all ${
                               whiteLabelColor === item.color
                                 ? 'ring-2 ring-offset-2 ring-gray-900 border-2 border-white scale-105'
                                 : 'border border-black/10'
@@ -4168,7 +4262,7 @@ export default function LandingPage() {
                             style={{ backgroundColor: item.color }}
                           />
                           {item.hasArrow && (
-                            <div className="absolute -bottom-3 right-0 pointer-events-none z-10">
+                            <div className="absolute -bottom-2.5 -right-1.5 pointer-events-none z-10">
                               <svg className="w-5 h-5 text-black drop-shadow-sm fill-black stroke-white stroke-[0.5]" viewBox="0 0 24 24">
                                 <path d="M4 2l16 11.5-7.5 1.5 4.5 7.5-3 1.5-4.5-7.5L4 20V2z" />
                               </svg>
@@ -4180,15 +4274,15 @@ export default function LandingPage() {
                   </div>
 
                   {/* Row 2: Company logo */}
-                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Company logo</span>
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-6">
+                    <span className="font-mono text-[16px] text-[#1E293B] font-medium tracking-wide">Company logo</span>
+                    <div className="flex items-center gap-3 sm:gap-3.5">
                       {/* Current logo preview pill */}
-                      <div className="px-3.5 py-2 bg-[#E2E8F4] text-gray-900 rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
-                        <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center text-xs font-black text-black">
-                          *
+                      <div className="px-4 py-2.5 bg-[#DBE4F0] text-[#0F172A] rounded-2xl text-[15px] font-bold inline-flex items-center gap-2.5 shadow-2xs">
+                        <span className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-xs font-black text-black shadow-2xs">
+                          ✻
                         </span>
-                        <span className="tracking-tight text-gray-900">{whiteLabelLogo}</span>
+                        <span className="tracking-tight text-[#0F172A] font-bold">{whiteLabelLogo}</span>
                       </div>
                       {/* Update logo button */}
                       <button
@@ -4198,9 +4292,9 @@ export default function LandingPage() {
                           const nextIdx = (logos.indexOf(whiteLabelLogo) + 1) % logos.length;
                           setWhiteLabelLogo(logos[nextIdx]);
                         }}
-                        className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                        className="px-4 py-2.5 bg-white border border-[#CBD5E1] hover:bg-gray-50 active:bg-gray-100 rounded-2xl text-[15px] font-bold text-[#0F172A] flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                       >
-                        <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg className="w-5 h-5 text-[#0F172A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect width="16" height="16" x="2" y="5" rx="2" />
                           <circle cx="8" cy="11" r="1.5" />
                           <path d="m2 17 5-5 4 4 5-5 2 2" />
@@ -4212,8 +4306,8 @@ export default function LandingPage() {
                   </div>
 
                   {/* Row 3: Footer logo */}
-                  <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Footer logo</span>
+                  <div className="flex items-center justify-between px-6 sm:px-8 py-6">
+                    <span className="font-mono text-[16px] text-[#1E293B] font-medium tracking-wide">Footer logo</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -4221,9 +4315,9 @@ export default function LandingPage() {
                         const nextIdx = (logos.indexOf(whiteLabelLogo) + 1) % logos.length;
                         setWhiteLabelLogo(logos[nextIdx]);
                       }}
-                      className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                      className="px-4 py-2.5 bg-white border border-[#CBD5E1] hover:bg-gray-50 active:bg-gray-100 rounded-2xl text-[15px] font-bold text-[#0F172A] flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                     >
-                      <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="w-5 h-5 text-[#0F172A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect width="16" height="16" x="2" y="5" rx="2" />
                         <circle cx="8" cy="11" r="1.5" />
                         <path d="m2 17 5-5 4 4 5-5 2 2" />
@@ -4255,20 +4349,22 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* 5. Tab: Client Seats */}
+          {/* 5. Tab: Client Seats (Full width table, exact screenshot match) */}
           {agencyPackTab === 'seats' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: Users Table Mockup Card */}
-              <div className="lg:col-span-7 bg-white border border-gray-200/80 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <h4 className="text-xl font-bold text-[#101423]">Users</h4>
+              {/* Left Column: Users Table Mockup Card Full Width */}
+              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl shadow-xs overflow-hidden w-full">
+                <div className="px-6 sm:px-8 py-5 border-b border-gray-100">
+                  <h4 className="text-[22px] font-bold text-[#101423]">Users</h4>
+                </div>
 
-                <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs">
+                <div className="w-full overflow-x-auto">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 text-[11px] text-gray-400 uppercase font-semibold">
-                        <th className="py-3 px-4">NAME</th>
-                        <th className="py-3 px-4">ACCOUNT TYPE</th>
-                        <th className="py-3 px-4">EMAIL</th>
+                      <tr className="border-b border-gray-100 text-[11.5px] font-mono tracking-wider text-[#94A3B8] uppercase font-bold">
+                        <th className="py-3.5 px-6 sm:px-8">NAME</th>
+                        <th className="py-3.5 px-6 sm:px-8">ACCOUNT TYPE</th>
+                        <th className="py-3.5 px-6 sm:px-8">EMAIL</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -4284,25 +4380,35 @@ export default function LandingPage() {
                             key={seatUser.name}
                             onClick={() => setActiveSeatRow(idx)}
                             className={`cursor-pointer transition-colors ${
-                              isSelected ? 'bg-[#E0F7FA] font-medium' : 'bg-white hover:bg-gray-50/70 font-normal'
+                              isSelected
+                                ? 'bg-[#E0F7FE] border-y border-[#38BDF8]'
+                                : 'bg-white hover:bg-gray-50/70'
                             }`}
                           >
-                            <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
-                              <span className={`text-xs ${isSelected ? 'text-teal-700 font-bold' : 'text-gray-400'}`}>›</span>
-                              <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${
-                                isSelected ? 'bg-teal-100 text-teal-800' : 'bg-gray-200/90 text-gray-700'
-                              }`}>
+                            <td className="py-4 px-6 sm:px-8 flex items-center gap-2.5 text-gray-900">
+                              <span className={`text-sm ${isSelected ? 'text-[#0284C7] font-bold' : 'text-gray-400'}`}>›</span>
+                              <span
+                                className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${
+                                  isSelected
+                                    ? 'bg-white text-[#0369A1] border border-[#38BDF8] shadow-2xs'
+                                    : 'bg-[#E2E8F0] text-[#475467]'
+                                }`}
+                              >
                                 {seatUser.num}
                               </span>
-                              <span className="font-semibold text-gray-900">{seatUser.name}</span>
+                              <span className="font-bold text-[#0F172A] text-[15px]">{seatUser.name}</span>
                             </td>
-                            <td className="py-3 px-4 text-gray-800">
-                              <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
-                                <IconComponent className={`w-3.5 h-3.5 ${seatUser.role === 'Owner' ? 'text-teal-600' : 'text-gray-500'}`} />
-                                {seatUser.role}
+                            <td className="py-4 px-6 sm:px-8 text-gray-800">
+                              <span className="inline-flex items-center gap-2 font-medium">
+                                <IconComponent className={`w-4 h-4 ${isSelected ? 'text-[#0284C7]' : 'text-gray-500'}`} />
+                                <span className={isSelected ? 'text-[#0F172A] font-bold' : 'text-[#334155]'}>
+                                  {seatUser.role}
+                                </span>
                               </span>
                             </td>
-                            <td className="py-3 px-4 text-gray-600 font-mono text-xs">{seatUser.email}</td>
+                            <td className={`py-4 px-6 sm:px-8 font-mono text-xs ${isSelected ? 'text-[#0F172A] font-medium' : 'text-[#64748B]'}`}>
+                              {seatUser.email}
+                            </td>
                           </tr>
                         );
                       })}
