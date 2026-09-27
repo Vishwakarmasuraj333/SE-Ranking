@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/navigation';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Settings,
@@ -39,13 +38,13 @@ export default function ProjectSettingsWizardPage() {
 
   const siteIdParam = searchParams.get('site_id');
 
-  // Match or default project matching screenshot (zohosocial.com)
+  // Match or default project matching screenshot (https://www.workcomposer.com/)
   const currentProject =
     (siteIdParam ? projects.find((p) => String(p.id) === String(siteIdParam)) : null) ||
-    projects.find((p) => p.name?.toLowerCase().includes('zohosocial') || p.domain?.toLowerCase().includes('zohosocial')) || {
+    projects.find((p) => p.name?.toLowerCase().includes('workcomposer') || p.name?.toLowerCase().includes('zohosocial') || p.domain?.toLowerCase().includes('workcomposer')) || {
       id: '12960641',
-      name: 'zohosocial.com',
-      domain: 'zohosocial.com',
+      name: 'https://www.workcomposer.com/',
+      domain: 'workcomposer.com',
       url: 'https://www.workcomposer.com/',
     };
 
@@ -53,15 +52,14 @@ export default function ProjectSettingsWizardPage() {
 
   // Form State matching screenshot
   const [websiteUrl, setWebsiteUrl] = useState(
-    currentProject.name === 'zohosocial.com' || !siteIdParam
-      ? 'https://www.workcomposer.com/'
-      : (currentProject as any).url || (currentProject.domain ? `https://${currentProject.domain}` : 'https://www.workcomposer.com/')
+    (currentProject as any)?.url || 'https://www.workcomposer.com/'
   );
   const [domainType, setDomainType] = useState('*.domain/* (Recommended)');
   const [projectName, setProjectName] = useState(
-    currentProject.name === 'zohosocial.com' || !siteIdParam
-      ? 'https://www.workcomposer.com/'
-      : currentProject.name || 'https://www.workcomposer.com/'
+    currentProject?.name || 'https://www.workcomposer.com/'
+  );
+  const [sidebarTitle, setSidebarTitle] = useState(
+    currentProject?.name || websiteUrl || 'https://www.workcomposer.com/'
   );
   const [group, setGroup] = useState('No group selected');
   const [projectColor, setProjectColor] = useState('#00E676'); // vibrant green from screenshot
@@ -73,6 +71,13 @@ export default function ProjectSettingsWizardPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showSaveToast, setShowSaveToast] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Sync state if currentProject changes
+  useEffect(() => {
+    if (currentProject) {
+      if (currentProject.name) setSidebarTitle(currentProject.name);
+    }
+  }, [currentProject]);
 
   // Tab 2: Search engines state
   const [searchEngines, setSearchEngines] = useState([
@@ -131,8 +136,10 @@ export default function ProjectSettingsWizardPage() {
   // Handle Save / Apply
   const handleApply = async () => {
     setIsSaving(true);
+    // Update the sidebar title immediately to reflect changes
+    setSidebarTitle(projectName || websiteUrl || 'https://www.workcomposer.com/');
     try {
-      if (currentProject.id) {
+      if (currentProject?.id) {
         await fetch(`/api/projects/${currentProject.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -149,7 +156,7 @@ export default function ProjectSettingsWizardPage() {
     } finally {
       setIsSaving(false);
       setShowSaveToast(true);
-      setTimeout(() => setShowSaveToast(false), 3000);
+      setTimeout(() => setShowSaveToast(false), 4000);
       if (refreshProjects) refreshProjects();
     }
   };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -11,10 +11,10 @@ import {
   AlertCircle,
   ChevronDown,
   Loader2,
-  Globe,
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
+import { authLanguages, getAuthTranslation } from '@/lib/i18n/authTranslations';
 
 const FREE_EMAIL_DOMAINS = [
   'gmail.com',
@@ -74,8 +74,25 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [language, setLanguage] = useState('English');
+  const [selectedLang, setSelectedLang] = useState('en');
   const [isLangOpen, setIsLangOpen] = useState(false);
+
+  // Sync language with localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('seranking_lang');
+    if (saved && authLanguages.some((l) => l.code === saved)) {
+      setSelectedLang(saved);
+    }
+  }, []);
+
+  const handleSelectLang = (code: string) => {
+    setSelectedLang(code);
+    setIsLangOpen(false);
+    localStorage.setItem('seranking_lang', code);
+  };
+
+  const tAuth = getAuthTranslation(selectedLang);
+  const currentLangObj = authLanguages.find((l) => l.code === selectedLang) || authLanguages[0];
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,15 +136,13 @@ export default function SignUpPage() {
     const parts = email.split('@');
     const domain = parts[1]?.toLowerCase().trim();
     if (!domain || isFreeEmailWarning || FREE_EMAIL_DOMAINS.includes(domain)) {
-      setError(
-        'Please enter your company work email (e.g. name@company.com). Free email addresses like Gmail, Yahoo, or Outlook are not accepted for trials.'
-      );
+      setError(tAuth.freeEmailWarning);
       setIsFreeEmailWarning(true);
       return;
     }
 
     if (!password || password.length < 8) {
-      setError('Password must be at least 8 characters long.');
+      setError(tAuth.passwordMinLength);
       return;
     }
 
@@ -160,7 +175,7 @@ export default function SignUpPage() {
 
       setTimeout(() => {
         router.push('/project-overview');
-      }, 1200);
+      }, 1000);
     } catch (err: any) {
       setError(err?.message || 'Something went wrong. Please try again.');
     } finally {
@@ -169,7 +184,6 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignup = () => {
-    // Quick demo work account login
     const demoWorkEmail = 'suraj.vishwakarma@gvilab.com';
     setEmail(demoWorkEmail);
     setFirstName('Suraj');
@@ -180,42 +194,55 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between select-none">
+    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between select-none font-sans">
       {/* Top Header */}
       <header className="w-full max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
           <SeRankingLogo variant="brand" width={136} height={32} />
         </Link>
 
-        {/* Language selector */}
+        {/* 10-Language selector matching exact user screenshot */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setIsLangOpen(!isLangOpen)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 hover:text-gray-900 px-2 py-1 rounded transition-colors cursor-pointer"
+            className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-gray-900 px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            <span className="uppercase text-[11px] font-bold text-gray-500">
-              EN
+            <span className="w-5 h-5 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+              {currentLangObj.short}
             </span>
-            <span className="text-gray-700">{language}</span>
+            <span className="text-gray-800 font-medium">{currentLangObj.label}</span>
             <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
           </button>
 
           {isLangOpen && (
-            <div className="absolute right-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 text-xs">
-              {['English', 'Deutsch', 'Français', 'Español', 'Italiano'].map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => {
-                    setLanguage(lang);
-                    setIsLangOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-blue-50 text-gray-700 hover:text-[#0B69FF] cursor-pointer"
-                >
-                  {lang}
-                </button>
-              ))}
+            <div className="absolute right-0 mt-1.5 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-1.5 z-50 text-xs animate-in fade-in duration-100">
+              {authLanguages.map((lang) => {
+                const isActive = lang.code === selectedLang;
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => handleSelectLang(lang.code)}
+                    className={`w-full text-left px-3.5 py-2 flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-50 text-[#0B69FF] font-bold'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span
+                      className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                        isActive
+                          ? 'bg-[#0B69FF] text-white'
+                          : 'bg-gray-100 border border-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {lang.short}
+                    </span>
+                    <span className="truncate">{lang.label}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -224,27 +251,27 @@ export default function SignUpPage() {
       {/* Main Container */}
       <main className="flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[430px] space-y-6 text-center">
-          {/* Heading matching Screenshot 2 */}
+          {/* Heading matching Screenshot */}
           <div className="space-y-3">
             <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
-              Start a free trial with <span className="text-[#0B69FF]">your work</span><br />
-              email
+              {tAuth.signupTitle}{' '}
+              <span className="text-[#0B69FF]">{tAuth.signupTitleHighlight}</span>
             </h1>
 
             <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-600 font-semibold">
               <CreditCard className="w-4 h-4 text-[#0B69FF]" />
-              <span>No credit card required</span>
+              <span>{tAuth.noCardNeeded}</span>
             </div>
           </div>
 
-          {/* Form matching Screenshot 2 */}
+          {/* Form matching Screenshot */}
           <form onSubmit={handleSubmit} className="space-y-3.5 text-left">
             {/* First name & Last name */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <input
                   type="text"
-                  placeholder="First name"
+                  placeholder={tAuth.firstName}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-3.5 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 text-gray-900 focus:outline-hidden focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF] transition-all bg-white"
@@ -254,7 +281,7 @@ export default function SignUpPage() {
               <div>
                 <input
                   type="text"
-                  placeholder="Last name"
+                  placeholder={tAuth.lastName}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-3.5 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 text-gray-900 focus:outline-hidden focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF] transition-all bg-white"
@@ -268,7 +295,7 @@ export default function SignUpPage() {
               <div className="relative">
                 <input
                   type="email"
-                  placeholder="Work email"
+                  placeholder={tAuth.workEmail}
                   value={email}
                   onChange={(e) => handleEmailChange(e.target.value)}
                   className={`w-full px-3.5 py-3 border rounded-lg text-sm placeholder:text-gray-400 text-gray-900 focus:outline-hidden transition-all bg-white ${
@@ -307,7 +334,7 @@ export default function SignUpPage() {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Password (min. 8 characters)"
+                placeholder={tAuth.password}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3.5 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 text-gray-900 focus:outline-hidden focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF] transition-all pr-11 bg-white"
@@ -354,32 +381,32 @@ export default function SignUpPage() {
                   <span>Activating trial...</span>
                 </>
               ) : (
-                <span>Start 14-Day Free Trial</span>
+                <span>{tAuth.startTrialBtn}</span>
               )}
             </button>
           </form>
 
-          {/* Legal disclaimer matching Screenshot 2 */}
+          {/* Legal disclaimer matching Screenshot */}
           <p className="text-[11px] text-gray-500 leading-relaxed text-center px-1">
-            By clicking this button, you agree to SE Ranking&apos;s{' '}
+            {tAuth.disclaimerPrefix}{' '}
             <a href="https://seranking.com/terms.html" target="_blank" className="text-[#0B69FF] hover:underline">
-              Terms of Service
+              {tAuth.termsOfService}
             </a>{' '}
             and{' '}
             <a href="https://seranking.com/privacy.html" target="_blank" className="text-[#0B69FF] hover:underline">
-              Privacy Statement
+              {tAuth.privacyStatement}
             </a>
             .
           </p>
 
-          {/* Bottom Row matching Screenshot 2: Google sign up on left, Log in on right */}
+          {/* Bottom Row: Google sign up on left, Log in on right */}
           <div className="pt-3 flex items-center justify-between text-xs border-t border-gray-100">
             <button
               type="button"
               onClick={handleGoogleSignup}
               className="flex items-center gap-2 text-gray-700 hover:text-gray-950 font-medium transition-colors cursor-pointer group"
             >
-              <span>Sign up with Google work account</span>
+              <span>{tAuth.signInWithGoogle}</span>
               <svg className="w-4 h-4 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -401,9 +428,9 @@ export default function SignUpPage() {
             </button>
 
             <div className="text-gray-600">
-              Already have an account?{' '}
+              {tAuth.alreadyHaveAccount}{' '}
               <Link href="/login" className="text-[#0B69FF] font-semibold hover:underline">
-                Log in
+                {tAuth.logInLink}
               </Link>
             </div>
           </div>

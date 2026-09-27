@@ -188,7 +188,7 @@ export const translations: Record<string, Translations> = {
       catalogTitle: 'Agency Catalog',
       catalogDesc: 'Put your agency in front of 50,000+ businesses actively looking for SEO and marketing partners. Generate qualified client inquiries directly through our verified agency directory.',
       reportingTitle: 'White Label Reporting',
-      reportingDesc: 'Automate and deliver beautiful, fully customized SEO reports with your agency logo, custom color schemes, and domain-matched links that impress your clients.',
+      reportingDesc: 'Keep your customer in the loop with compelling reporting. Design customizable automated reports to effortlessly showcase the value of your SEO services to clients.',
       leadGenTitle: 'Lead Generator',
       leadGenDesc: 'Expand your email list and generate new quality leads. Embed our customizable lead gen solutions to your website and convert visitors into new customers.',
       whiteLabelTitle: 'White Label',

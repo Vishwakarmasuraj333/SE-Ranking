@@ -25,6 +25,7 @@ import {
   Upload,
   GripVertical,
   RotateCcw,
+  Copy,
 } from 'lucide-react';
 import {
   LineChart,
@@ -106,6 +107,11 @@ export default function ProjectOverviewPage() {
   const [newKeywordsText, setNewKeywordsText] = useState('');
   const [keywordList, setKeywordList] = useState<string[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
+
+  // Guest Link & Feedback Modals matching screenshots
+  const [isGuestLinkOpen, setIsGuestLinkOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
 
   // Load saved order from localStorage
   useEffect(() => {
@@ -874,23 +880,25 @@ export default function ProjectOverviewPage() {
 
           <div className="flex items-center gap-4 text-xs">
             <button
-              onClick={() => showNotice('Guest link copied to clipboard')}
+              type="button"
+              onClick={() => setIsGuestLinkOpen(true)}
               className="text-[#0B69FF] hover:underline font-semibold cursor-pointer"
             >
               Guest link
             </button>
             <button
-              onClick={() => showNotice('Feedback dialog opened')}
+              type="button"
+              onClick={() => setIsFeedbackOpen(true)}
               className="text-[#0B69FF] hover:underline font-semibold cursor-pointer"
             >
               Feedback
             </button>
-            <button
-              onClick={() => showNotice('Notes drawer opened')}
+            <Link
+              href="/notes"
               className="text-[#0B69FF] hover:underline font-semibold cursor-pointer"
             >
               Notes ({appWrapData.site_notes?.notes_count || 46})
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -972,6 +980,164 @@ export default function ProjectOverviewPage() {
           {sectionsOrder.map((sectionId, index) => renderWidget(sectionId, index))}
         </div>
       </div>
+
+      {/* Guest Link Modal matching user screenshot */}
+      {isGuestLinkOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Get access to guest links</h3>
+              <button
+                type="button"
+                onClick={() => setIsGuestLinkOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Share this link with your clients or partners to give them the possibility to view website statistics without logging into the system.
+            </p>
+
+            {/* Link box */}
+            <div className="p-3 bg-[#E6F4EA]/70 border border-[#CEEAD6] text-[#137333] rounded-lg flex items-center justify-between text-xs">
+              <span className="truncate font-mono mr-2">
+                https://online.seranking.com/guest.html?site_id=12960641&amp;hv=e8a49...
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('https://online.seranking.com/guest.html?site_id=12960641');
+                  showNotice('Guest link copied to clipboard!');
+                }}
+                className="flex items-center gap-1.5 text-[#0B69FF] font-semibold hover:underline shrink-0 cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy link</span>
+              </button>
+            </div>
+
+            {/* Checkboxes */}
+            <div className="space-y-2 text-xs text-gray-700">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="rounded border-gray-300 text-blue-600 w-3.5 h-3.5" />
+                <span>Hide search volume column</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" defaultChecked className="rounded border-gray-300 text-blue-600 w-3.5 h-3.5" />
+                <span className="flex items-center gap-1">
+                  Include filtering and sorting settings
+                  <span className="italic text-gray-400 font-serif text-[10px]">i</span>
+                </span>
+              </label>
+            </div>
+
+            {/* Access to modules */}
+            <div className="space-y-2.5">
+              <div className="text-xs font-semibold text-gray-700">Access to modules:</div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {[
+                  { id: 'overview', label: 'PROJECT OVERVIEW', defaultActive: true },
+                  { id: 'rankings', label: 'RANKINGS', defaultActive: false },
+                  { id: 'analytics', label: 'ANALYTICS & TRAFFIC', defaultActive: false },
+                  { id: 'competitors', label: 'MY COMPETITORS', defaultActive: false },
+                  { id: 'ai', label: 'AI RESULTS TRACKER', defaultActive: false },
+                  { id: 'audit', label: 'WEBSITE AUDIT', defaultActive: false },
+                  { id: 'marketing', label: 'MARKETING PLAN', defaultActive: false },
+                ].map((mod) => (
+                  <label
+                    key={mod.id}
+                    className={`p-2.5 rounded-lg border flex items-center gap-2 font-bold cursor-pointer transition-all ${
+                      mod.defaultActive
+                        ? 'bg-[#534F6A] border-[#534F6A] text-white'
+                        : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      defaultChecked={mod.defaultActive}
+                      className="w-3.5 h-3.5 rounded"
+                    />
+                    <span className="text-[11px] tracking-wide">{mod.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom buttons */}
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsGuestLinkOpen(false)}
+                className="px-5 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 uppercase cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsGuestLinkOpen(false);
+                  showNotice('Guest link updated successfully!');
+                }}
+                className="px-6 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-xs font-bold uppercase transition-colors shadow-xs cursor-pointer"
+              >
+                UPDATE LINK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal matching user screenshot */}
+      {isFeedbackOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between">
+              <h3 className="text-base font-bold text-gray-900">Tell us what you think</h3>
+              <button
+                type="button"
+                onClick={() => setIsFeedbackOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs">
+              <label className="block text-gray-700 font-semibold">How useful is this section?</label>
+              <textarea
+                rows={5}
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                placeholder="Your feedback"
+                className="w-full p-3 border border-gray-300 rounded-lg text-xs text-gray-900 focus:outline-none focus:border-blue-600"
+              />
+            </div>
+
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsFeedbackOpen(false)}
+                className="px-5 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 uppercase cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFeedbackOpen(false);
+                  setFeedbackText('');
+                  showNotice('Thank you! Your feedback has been sent.');
+                }}
+                className="px-6 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-xs font-bold uppercase transition-colors shadow-xs cursor-pointer"
+              >
+                SEND
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Keywords Modal */}
       {isAddKeywordsOpen && (

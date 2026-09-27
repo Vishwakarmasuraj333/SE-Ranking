@@ -295,6 +295,79 @@ const testimonials = [
   },
 ];
 
+// Case studies official brand logos matching reference screenshots
+const renderCaseStudyLogo = (idx: number) => {
+  switch (idx) {
+    case 0: // Fractional Teams
+      return (
+        <div className="flex items-center gap-2.5 text-[#67F87C] select-none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
+            <rect x="3" y="3" width="7" height="18" rx="1.5" fill="#67F87C" />
+            <rect x="12" y="3" width="9" height="6" rx="1.5" fill="#67F87C" />
+            <rect x="12" y="11" width="6" height="5" rx="1.5" fill="#67F87C" />
+          </svg>
+          <span className="text-[17px] font-semibold tracking-tight text-[#67F87C]">fractional teams</span>
+        </div>
+      );
+    case 1: // EYClick
+      return (
+        <div className="text-[22px] font-bold tracking-tight text-[#67F87C] select-none">
+          EYClick
+        </div>
+      );
+    case 2: // Japan Ski Experience
+      return (
+        <div className="flex items-center gap-2 text-[#67F87C] select-none">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="shrink-0">
+            <circle cx="12" cy="12" r="10" stroke="#67F87C" strokeWidth="1.8" />
+            <path d="M12 5L8 11.5h8zM12 19l-4-6.5h8z" fill="#67F87C" />
+          </svg>
+          <div className="leading-tight text-left">
+            <span className="text-[13px] font-bold tracking-wider text-[#67F87C] block uppercase">JAPAN SKI</span>
+            <span className="text-[9px] font-medium tracking-widest text-[#67F87C] block uppercase -mt-0.5">EXPERIENCE</span>
+          </div>
+        </div>
+      );
+    case 3: // Cardeseo
+      return (
+        <div className="text-[28px] font-black tracking-tight text-[#67F87C] lowercase select-none">
+          cardeseo
+        </div>
+      );
+    case 4: // hurra.com™
+      return (
+        <div className="text-right leading-none text-[#67F87C] select-none">
+          <div className="text-[28px] font-bold tracking-tight flex items-baseline gap-0.5 justify-end">
+            hurra<span className="text-xs font-normal">™</span>
+          </div>
+          <div className="text-[20px] font-bold tracking-wider mt-0.5">com</div>
+        </div>
+      );
+    case 5: // Pilote Consulting
+      return (
+        <div className="flex items-center gap-2 text-[#67F87C] select-none">
+          <svg width="30" height="24" viewBox="0 0 30 24" fill="#67F87C" className="shrink-0">
+            <path d="M2 20C4.5 17.5 7 17.5 9.5 20V4C7 1.5 4.5 1.5 2 4v16zM11 20C13.5 17.5 16 17.5 18.5 20V4C16 1.5 13.5 1.5 11 4v16zM20 20C22.5 17.5 25 17.5 27.5 20V4C25 1.5 22.5 1.5 20 4v16z" />
+          </svg>
+          <span className="text-[26px] font-bold tracking-tight text-[#67F87C]">Pilote</span>
+        </div>
+      );
+    case 6: // Votre Site Pro
+      return (
+        <div className="flex items-center gap-2 text-[#67F87C] select-none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#67F87C" strokeWidth="2" className="shrink-0">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span className="text-[18px] font-bold text-[#67F87C]">Votre Site Pro</span>
+        </div>
+      );
+    default:
+      return null;
+  }
+};
+
 export default function LandingPage() {
   // Mobile drawer & language switcher states
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -358,10 +431,18 @@ export default function LandingPage() {
   const [ecoVisibleCategory, setEcoVisibleCategory] = useState('All');
   const [isEcoCategoryOpen, setIsEcoCategoryOpen] = useState(false);
 
-  // Agency Pack tabs
+  // Agency Pack tabs & interactive state
   const [agencyPackTab, setAgencyPackTab] = useState<
     'catalog' | 'reporting' | 'lead-gen' | 'white-label' | 'seats'
   >('catalog');
+  const [whiteLabelColor, setWhiteLabelColor] = useState<string>('#BEF7C5');
+  const [whiteLabelLogo, setWhiteLabelLogo] = useState<string>('My Logo');
+  const [leadCheckboxes, setLeadCheckboxes] = useState<Record<string, boolean>>({
+    'g2': false,
+    'capterra': false,
+    'getapp': false,
+  });
+  const [activeSeatRow, setActiveSeatRow] = useState<number>(0);
 
   // Testimonials carousel index (0 to 6 = 1 to 7)
   const [testimonialIdx, setTestimonialIdx] = useState(0);
@@ -1366,29 +1447,21 @@ export default function LandingPage() {
               )}
             </div>
 
-            {/* "Log in" link matching SE Ranking official header */}
-            <Link
-              href="/login"
-              className="text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors px-2 py-1 cursor-pointer"
-            >
-              {t.nav.login}
-            </Link>
-
             {/* "See product tour" button matching Screenshot */}
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
               className="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
-              <span>{t.nav.productTour}</span>
+              <span>See product tour</span>
             </button>
 
-            {/* "Start free trial" Solid Blue Button */}
+            {/* "Projects" Solid Blue Button matching Screenshot */}
             <Link
-              href="/signup"
-              className="px-5 py-2 bg-[#1351d8] hover:bg-[#0f46bd] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md"
+              href="/projects"
+              className="px-5 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md"
             >
-              <span>{t.nav.startTrial}</span>
+              Projects
             </Link>
           </div>
         </div>
@@ -3654,7 +3727,7 @@ export default function LandingPage() {
                     Cross-channel performance
                   </h3>
                   <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-                    Find connections between channels, analyze dependencies, and act on the right signals instead of isolated metrics
+                    Find connections between channels, analyze dependencies, and act on the right signals instead of isolated metrics.
                   </p>
                 </div>
               </div>
@@ -3666,32 +3739,32 @@ export default function LandingPage() {
       {/* 8. Brand, grow, and win more clients with the Agency Pack (Exact Screenshot Match) */}
       <section className="py-16 sm:py-24 bg-white border-t border-gray-100 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto space-y-10">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal text-[#101423] tracking-tight leading-tight">
-              {t.agencyPack.title}
+          <div className="text-center max-w-4xl mx-auto space-y-4">
+            <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-bold text-[#101423] tracking-tight leading-tight">
+              Brand, grow, and win more clients with the Agency Pack
             </h2>
-            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-              {t.agencyPack.subtitle}
+            <p className="text-[#475467] text-base sm:text-[17px] leading-relaxed max-w-3xl mx-auto font-normal">
+              Take control of your agency’s client cycle with tools that help you attract prospects, deliver results, and build loyalty.
             </p>
           </div>
 
           {/* 5 Agency Pack Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 text-sm">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm">
             {[
-              { id: 'catalog', label: t.agencyPack.tabs.catalog },
-              { id: 'reporting', label: t.agencyPack.tabs.reporting },
-              { id: 'lead-gen', label: t.agencyPack.tabs.leadGen },
-              { id: 'white-label', label: t.agencyPack.tabs.whiteLabel },
-              { id: 'seats', label: t.agencyPack.tabs.seats },
+              { id: 'catalog', label: 'Agency Catalog' },
+              { id: 'reporting', label: 'White Label Reporting' },
+              { id: 'lead-gen', label: 'Lead Generator' },
+              { id: 'white-label', label: 'White Label' },
+              { id: 'seats', label: 'Client Seats' },
             ].map((tabItem) => (
               <button
                 key={tabItem.id}
                 type="button"
                 onClick={() => setAgencyPackTab(tabItem.id as any)}
-                className={`px-5 py-2 sm:px-6 sm:py-2.5 rounded-full text-[15px] transition-all cursor-pointer ${
+                className={`px-6 py-2.5 rounded-full text-[14px] transition-all cursor-pointer ${
                   agencyPackTab === tabItem.id
-                    ? 'bg-[#101423] text-white font-normal shadow-xs'
-                    : 'text-[#667085] hover:text-[#101423] font-normal hover:bg-gray-50'
+                    ? 'bg-[#1F2633] text-white font-medium shadow-xs'
+                    : 'text-[#64748B] hover:text-[#1F2633] font-medium hover:bg-gray-50'
                 }`}
               >
                 {tabItem.label}
@@ -3699,7 +3772,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* 1. Tab: Agency Catalog (Exact 100% match to official seranking.com screenshot) */}
+          {/* 1. Tab: Agency Catalog (Exact 100% match to official user screenshot) */}
           {agencyPackTab === 'catalog' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
               {/* Left Column: Agency Cards in Mockup with right and bottom peeking effect */}
@@ -3708,7 +3781,7 @@ export default function LandingPage() {
                   {agencyCatalogItems.map((item) => (
                     <div
                       key={item.id}
-                      className="w-[330px] sm:w-[350px] p-5 sm:p-6 bg-white border border-[#E2EDF9] rounded-[22px] space-y-4 shadow-[0_2px_12px_rgba(16,24,40,0.04)] shrink-0"
+                      className="w-[330px] sm:w-[350px] p-5 sm:p-6 bg-white border border-[#E2EDF9] rounded-[22px] space-y-4 shadow-[0_2px_12px_rgba(16,24,40,0.04)] shrink-0 text-left"
                     >
                       {/* Top Header: Logo box + Title & URL */}
                       <div className="flex items-start gap-3.5">
@@ -3817,34 +3890,32 @@ export default function LandingPage() {
 
               {/* Right Column (Exact Screenshot Match) */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  {t.agencyPack.catalogTitle}
+                <h3 className="text-4xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.15]">
+                  Agency Catalog
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  {t.agencyPack.catalogDesc}
+                  Jump into the spotlight with SE Ranking’s Agency Pack! Secure a spot in our expert Agency Catalog, where your services take center stage in front of new prospects. Watch your leads soar, trust surge, and your agency thrive and grow.
                 </p>
                 <div className="pt-1">
-                  <a
-                    href="https://seranking.com/agency-catalog.html"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                  <Link
+                    href="/agency-pack"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1F2633] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
                     Browse catalog
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 2. Tab: White Label Reporting (Exact 100% match to screenshot 1) */}
+          {/* 2. Tab: White Label Reporting (Exact 100% match to user screenshot) */}
           {agencyPackTab === 'reporting' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
               {/* Left Column: SEO Report Card with Gauge */}
-              <div className="lg:col-span-7 xl:col-span-7 bg-[#EEF6FF] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden">
-                <div className="w-full max-w-[360px] sm:max-w-[380px] bg-white rounded-[26px] border border-[#E2EDF9] p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)] text-center space-y-3 relative overflow-hidden">
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#F8FAFC] border border-gray-100 rounded-[28px] sm:rounded-[32px] p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center min-h-[440px] relative overflow-hidden">
+                <div className="w-full max-w-[360px] sm:max-w-[380px] bg-white rounded-[26px] border border-gray-200/80 p-6 sm:p-7 shadow-[0_4px_24px_rgba(0,0,0,0.04)] text-center space-y-3 relative overflow-hidden">
                   {/* Top Badge: * My Logo */}
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0E131F] text-white rounded-lg text-xs font-bold shadow-2xs">
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1F2633] text-white rounded-lg text-xs font-bold shadow-2xs">
                     <span className="text-[13px] leading-none">✻</span>
                     <span>My Logo</span>
                   </div>
@@ -3893,31 +3964,19 @@ export default function LandingPage() {
                       {/* 1. Neon Green Slice (Leftmost) */}
                       <path
                         d="M 150 150 L 60 150 A 90 90 0 0 1 68 112 Z"
-                        fill="#7EFC7E"
+                        fill="#86EFAC"
                       />
 
-                      {/* 2. Deep Navy Blue Slice */}
-                      <path
-                        d="M 150 150 L 46 92 A 125 125 0 0 1 92 46 Z"
-                        fill="#000EB8"
-                      />
-
-                      {/* 3. Vivid Pink/Red Slice (Top Center) */}
+                      {/* 2. Vivid Pink/Red Slice (Center) */}
                       <path
                         d="M 150 150 L 102 52 A 105 105 0 0 1 198 52 Z"
-                        fill="#F42557"
+                        fill="#E11D48"
                       />
 
-                      {/* 4. Bright Electric Blue Slice (Upper Right) */}
+                      {/* 3. Bright Royal Blue Slice (Right) */}
                       <path
                         d="M 150 150 L 208 38 A 130 130 0 0 1 272 105 Z"
-                        fill="#1251FE"
-                      />
-
-                      {/* 5. Dark Midnight Blue Slice (Far Right) */}
-                      <path
-                        d="M 150 150 L 258 110 A 115 115 0 0 1 265 150 Z"
-                        fill="#0B1336"
+                        fill="#1D4ED8"
                       />
 
                       {/* Inner semi-circle hub */}
@@ -3936,7 +3995,7 @@ export default function LandingPage() {
 
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
+                <h3 className="text-4xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.15]">
                   White Label Reporting
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
@@ -3944,10 +4003,10 @@ export default function LandingPage() {
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/signup"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    Start free trial
+                    Projects
                   </Link>
                 </div>
               </div>
@@ -3969,7 +4028,7 @@ export default function LandingPage() {
                         72
                       </div>
                       <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
-                        TODAY
+                        {t.agencyPack.todayStat}
                       </div>
                     </div>
                     <div className="p-3.5 sm:p-4 bg-[#EEF5FF] rounded-[14px] border border-[#DCE9F8]">
@@ -3977,7 +4036,7 @@ export default function LandingPage() {
                         1798
                       </div>
                       <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
-                        PER MONTH
+                        {t.agencyPack.perMonthStat}
                       </div>
                     </div>
                     <div className="p-3.5 sm:p-4 bg-[#EEF5FF] rounded-[14px] border border-[#DCE9F8]">
@@ -3985,77 +4044,81 @@ export default function LandingPage() {
                         58
                       </div>
                       <div className="text-[11px] font-mono tracking-wider font-semibold text-[#64748B] mt-2 uppercase">
-                        AVG. PER DAY
+                        {t.agencyPack.avgDayStat}
                       </div>
                     </div>
                   </div>
 
                   {/* Leads Table matching screenshot */}
                   <div className="rounded-[16px] border border-gray-200/80 overflow-hidden divide-y divide-gray-100">
-                    <div className="grid grid-cols-2 py-3 px-4 bg-white text-[11px] font-mono font-bold text-[#64748B] tracking-wider uppercase border-b border-gray-100">
+                    <div
+                      onClick={() => {
+                        const allSelected = leadCheckboxes['g2'] && leadCheckboxes['capterra'] && leadCheckboxes['getapp'];
+                        setLeadCheckboxes({
+                          g2: !allSelected,
+                          capterra: !allSelected,
+                          getapp: !allSelected,
+                        });
+                      }}
+                      className="grid grid-cols-2 py-3 px-4 bg-white text-[11px] font-mono font-bold text-[#64748B] tracking-wider uppercase border-b border-gray-100 cursor-pointer select-none hover:bg-gray-50/60 transition-colors"
+                    >
                       <div className="flex items-center gap-2">
-                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        {leadCheckboxes['g2'] && leadCheckboxes['capterra'] && leadCheckboxes['getapp'] ? (
+                          <CheckSquare className="w-3.5 h-3.5 text-[#1351D8] shrink-0" strokeWidth={2.2} />
+                        ) : (
+                          <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                        )}
                         <span>AUDIT PAGE URL</span>
                       </div>
                       <div>LEAD INFO</div>
                     </div>
 
-                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
-                      <div className="flex items-center gap-2 text-xs">
-                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
-                        <span className="text-[#0B69FF] font-medium truncate">
-                          https://www.g2.com/products/se-rankin...
-                        </span>
+                    {[
+                      { key: 'g2', url: 'https://www.g2.com/products/se-rankin...', name: 'Dianne Russell', email: 'dianne.russel@outlook.com' },
+                      { key: 'capterra', url: 'https://www.capterra.com/p/142169/SE...', name: 'Megan Smith', email: 'megan.design@gmail.com' },
+                      { key: 'getapp', url: 'https://www.getapp.com/marketing-soft...', name: 'Dianne Russell', email: 'dianne.russel@outlook.com' },
+                    ].map((row) => (
+                      <div
+                        key={row.key}
+                        onClick={() => setLeadCheckboxes((prev) => ({ ...prev, [row.key]: !prev[row.key] }))}
+                        className={`grid grid-cols-2 py-3 px-4 items-center cursor-pointer transition-colors ${
+                          leadCheckboxes[row.key] ? 'bg-[#EEF5FF]/70' : 'bg-white hover:bg-gray-50/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 text-xs min-w-0 pr-2">
+                          {leadCheckboxes[row.key] ? (
+                            <CheckSquare className="w-3.5 h-3.5 text-[#1351D8] shrink-0" strokeWidth={2.2} />
+                          ) : (
+                            <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
+                          )}
+                          <span className="text-[#0B69FF] font-medium truncate">
+                            {row.url}
+                          </span>
+                        </div>
+                        <div className="text-xs">
+                          <div className="font-bold text-[#101423]">{row.name}</div>
+                          <div className="text-[11px] text-[#64748B]">{row.email}</div>
+                        </div>
                       </div>
-                      <div className="text-xs">
-                        <div className="font-bold text-[#101423]">Dianne Russell</div>
-                        <div className="text-[11px] text-[#64748B]">dianne.russel@outlook.com</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
-                      <div className="flex items-center gap-2 text-xs">
-                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
-                        <span className="text-[#0B69FF] font-medium truncate">
-                          https://www.capterra.com/p/142169/SE...
-                        </span>
-                      </div>
-                      <div className="text-xs">
-                        <div className="font-bold text-[#101423]">Megan Smith</div>
-                        <div className="text-[11px] text-[#64748B]">megan.design@gmail.com</div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 py-3 px-4 items-center bg-white">
-                      <div className="flex items-center gap-2 text-xs">
-                        <Square className="w-3.5 h-3.5 text-gray-800 shrink-0" strokeWidth={2} />
-                        <span className="text-[#0B69FF] font-medium truncate">
-                          https://www.getapp.com/marketing-soft...
-                        </span>
-                      </div>
-                      <div className="text-xs">
-                        <div className="font-bold text-[#101423]">Dianne Russell</div>
-                        <div className="text-[11px] text-[#64748B]">dianne.russel@outlook.com</div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
 
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  {t.agencyPack.leadGenTitle}
+                <h3 className="text-4xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.15]">
+                  Lead Generator
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  {t.agencyPack.leadGenDesc}
+                  Expand your email list and generate new quality leads. Embed our customizable lead gen solutions to your website and convert visitors into new customers.
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/signup"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    {t.agencyPack.startTrialBtn}
+                    Projects
                   </Link>
                 </div>
               </div>
@@ -4066,12 +4129,15 @@ export default function LandingPage() {
           {agencyPackTab === 'white-label' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: White Label Customization Mockup Card */}
-              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm">
-                {/* Mint green header bar */}
-                <div className="px-6 py-4 bg-[#BEF7C5] border-b border-gray-100 flex items-center">
+              <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xs">
+                {/* Dynamic colored header bar */}
+                <div
+                  className="px-6 py-4 border-b border-gray-100 flex items-center transition-colors duration-300"
+                  style={{ backgroundColor: whiteLabelColor }}
+                >
                   <div className="px-3.5 py-1.5 bg-white text-[#101423] rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
                     <span className="text-base leading-none font-black">*</span>
-                    <span className="tracking-tight">My Logo</span>
+                    <span className="tracking-tight">{whiteLabelLogo}</span>
                   </div>
                 </div>
 
@@ -4079,43 +4145,60 @@ export default function LandingPage() {
                 <div className="divide-y divide-gray-100">
                   {/* Row 1: UI Color */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.uiColor}</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">UI Color</span>
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      {/* Mint Green (active outline) */}
-                      <div className="w-8 h-8 rounded-lg bg-[#BEF7C5] border-2 border-emerald-400 cursor-pointer shadow-2xs hover:scale-105 transition-transform" />
-                      {/* Purple */}
-                      <div className="w-8 h-8 rounded-lg bg-[#9A00FF] cursor-pointer hover:scale-105 transition-transform" />
-                      {/* Orange with cursor arrow */}
-                      <div className="relative cursor-pointer hover:scale-105 transition-transform">
-                        <div className="w-8 h-8 rounded-lg bg-[#FF9F00]" />
-                        <div className="absolute -bottom-3 right-0 pointer-events-none z-10">
-                          <svg className="w-5 h-5 text-black drop-shadow-sm fill-black stroke-white stroke-[0.5]" viewBox="0 0 24 24">
-                            <path d="M4 2l16 11.5-7.5 1.5 4.5 7.5-3 1.5-4.5-7.5L4 20V2z" />
-                          </svg>
+                      {[
+                        { color: '#BEF7C5', hasArrow: false },
+                        { color: '#9A00FF', hasArrow: false },
+                        { color: '#FF9F00', hasArrow: true },
+                        { color: '#0000C8', hasArrow: false },
+                        { color: '#E61952', hasArrow: false },
+                      ].map((item) => (
+                        <div
+                          key={item.color}
+                          onClick={() => setWhiteLabelColor(item.color)}
+                          className="relative cursor-pointer transition-transform hover:scale-110"
+                        >
+                          <div
+                            className={`w-8 h-8 rounded-lg shadow-2xs transition-all ${
+                              whiteLabelColor === item.color
+                                ? 'ring-2 ring-offset-2 ring-gray-900 border-2 border-white scale-105'
+                                : 'border border-black/10'
+                            }`}
+                            style={{ backgroundColor: item.color }}
+                          />
+                          {item.hasArrow && (
+                            <div className="absolute -bottom-3 right-0 pointer-events-none z-10">
+                              <svg className="w-5 h-5 text-black drop-shadow-sm fill-black stroke-white stroke-[0.5]" viewBox="0 0 24 24">
+                                <path d="M4 2l16 11.5-7.5 1.5 4.5 7.5-3 1.5-4.5-7.5L4 20V2z" />
+                              </svg>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      {/* Deep Royal Blue */}
-                      <div className="w-8 h-8 rounded-lg bg-[#0000C8] cursor-pointer hover:scale-105 transition-transform" />
-                      {/* Crimson / Magenta */}
-                      <div className="w-8 h-8 rounded-lg bg-[#E61952] cursor-pointer hover:scale-105 transition-transform" />
+                      ))}
                     </div>
                   </div>
 
                   {/* Row 2: Company logo */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.companyLogo}</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Company logo</span>
                     <div className="flex items-center gap-3">
                       {/* Current logo preview pill */}
                       <div className="px-3.5 py-2 bg-[#E2E8F4] text-gray-900 rounded-xl text-sm font-bold inline-flex items-center gap-2 shadow-2xs">
                         <span className="w-5 h-5 rounded-md bg-white flex items-center justify-center text-xs font-black text-black">
                           *
                         </span>
-                        <span className="tracking-tight text-gray-900">My Logo</span>
+                        <span className="tracking-tight text-gray-900">{whiteLabelLogo}</span>
                       </div>
                       {/* Update logo button */}
                       <button
                         type="button"
-                        className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                        onClick={() => {
+                          const logos = ['My Logo', 'Zenith Agency', 'Horizon Digital', 'Pulse Marketing'];
+                          const nextIdx = (logos.indexOf(whiteLabelLogo) + 1) % logos.length;
+                          setWhiteLabelLogo(logos[nextIdx]);
+                        }}
+                        className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                       >
                         <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <rect width="16" height="16" x="2" y="5" rx="2" />
@@ -4123,17 +4206,22 @@ export default function LandingPage() {
                           <path d="m2 17 5-5 4 4 5-5 2 2" />
                           <path d="M19 2v6m-3-3h6" />
                         </svg>
-                        <span>{t.agencyPack.updateLogo}</span>
+                        <span>Update logo</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Row 3: Footer logo */}
                   <div className="flex items-center justify-between px-6 sm:px-8 py-5">
-                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">{t.agencyPack.footerLogo}</span>
+                    <span className="font-mono text-[14px] text-gray-800 tracking-wide font-medium">Footer logo</span>
                     <button
                       type="button"
-                      className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                      onClick={() => {
+                        const logos = ['Footer Logo', 'Agency Icon', 'Brand Stamp', 'My Logo'];
+                        const nextIdx = (logos.indexOf(whiteLabelLogo) + 1) % logos.length;
+                        setWhiteLabelLogo(logos[nextIdx]);
+                      }}
+                      className="px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 active:bg-gray-100 rounded-xl text-sm font-semibold text-gray-900 flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                     >
                       <svg className="w-4 h-4 text-gray-800" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect width="16" height="16" x="2" y="5" rx="2" />
@@ -4141,7 +4229,7 @@ export default function LandingPage() {
                         <path d="m2 17 5-5 4 4 5-5 2 2" />
                         <path d="M19 2v6m-3-3h6" />
                       </svg>
-                      <span>{t.agencyPack.uploadLogo}</span>
+                      <span>Upload logo</span>
                     </button>
                   </div>
                 </div>
@@ -4149,18 +4237,18 @@ export default function LandingPage() {
 
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  {t.agencyPack.whiteLabelTitle}
+                <h3 className="text-4xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.15]">
+                  White Label
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  {t.agencyPack.whiteLabelDesc}
+                  Enhance credibility and strengthen customer trust. Create a seamless client experience by providing access to our SEO platform customized to your brand book and domain name.
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/signup"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    {t.agencyPack.startTrialBtn}
+                    Projects
                   </Link>
                 </div>
               </div>
@@ -4171,64 +4259,53 @@ export default function LandingPage() {
           {agencyPackTab === 'seats' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
               {/* Left Column: Users Table Mockup Card */}
-              <div className="lg:col-span-7 bg-[#F4F6FA] border border-gray-200/80 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
-                <h4 className="text-xl font-bold text-[#101423]">{t.agencyPack.usersTitle}</h4>
+              <div className="lg:col-span-7 bg-white border border-gray-200/80 rounded-2xl sm:rounded-3xl p-6 sm:p-7 shadow-xs space-y-4">
+                <h4 className="text-xl font-bold text-[#101423]">Users</h4>
 
                 <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-2xs">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead>
                       <tr className="border-b border-gray-100 text-[11px] text-gray-400 uppercase font-semibold">
-                        <th className="py-3 px-4">{t.agencyPack.nameCol}</th>
-                        <th className="py-3 px-4">{t.agencyPack.accountTypeCol}</th>
-                        <th className="py-3 px-4">{t.agencyPack.emailCol}</th>
+                        <th className="py-3 px-4">NAME</th>
+                        <th className="py-3 px-4">ACCOUNT TYPE</th>
+                        <th className="py-3 px-4">EMAIL</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {/* Row 1: Devon Lane (Highlighted in soft cyan) */}
-                      <tr className="bg-[#E5F6FF]/90 font-medium">
-                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
-                          <span className="text-gray-400 text-xs">›</span>
-                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">7</span>
-                          <span className="font-semibold text-gray-900">Devon Lane</span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-800">
-                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
-                            <Shield className="w-3.5 h-3.5 text-blue-600" />
-                            {t.agencyPack.ownerRole}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">ewaters@comcast.net</td>
-                      </tr>
-                      {/* Row 2: Harry Leddington */}
-                      <tr>
-                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
-                          <span className="text-gray-400 text-xs">›</span>
-                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">51</span>
-                          <span className="font-semibold text-gray-900">Harry Leddington</span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-800">
-                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
-                            <User className="w-3.5 h-3.5 text-gray-500" />
-                            {t.agencyPack.clientRole}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">yeedancer@gmail.c...</td>
-                      </tr>
-                      {/* Row 3: Mark Kleiner */}
-                      <tr>
-                        <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
-                          <span className="text-gray-400 text-xs">›</span>
-                          <span className="w-6 h-6 rounded bg-gray-200/90 flex items-center justify-center text-xs font-bold text-gray-700">65</span>
-                          <span className="font-semibold text-gray-900">Mark Kleiner</span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-800">
-                          <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
-                            <User className="w-3.5 h-3.5 text-gray-500" />
-                            {t.agencyPack.managerRole}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-gray-600 font-mono text-xs">m.klnr@outlook.com</td>
-                      </tr>
+                      {[
+                        { num: 7, name: 'Devon Lane', role: 'Owner', icon: Shield, email: 'ewaters@comcast.net' },
+                        { num: 51, name: 'Harry Leddington', role: 'Client', icon: User, email: 'yeedancer@gmail.c...' },
+                        { num: 65, name: 'Mark Kleiner', role: 'Manager', icon: User, email: 'm.klnr@outlook.com' },
+                      ].map((seatUser, idx) => {
+                        const IconComponent = seatUser.icon;
+                        const isSelected = activeSeatRow === idx;
+                        return (
+                          <tr
+                            key={seatUser.name}
+                            onClick={() => setActiveSeatRow(idx)}
+                            className={`cursor-pointer transition-colors ${
+                              isSelected ? 'bg-[#E0F7FA] font-medium' : 'bg-white hover:bg-gray-50/70 font-normal'
+                            }`}
+                          >
+                            <td className="py-3 px-4 flex items-center gap-2.5 text-gray-900">
+                              <span className={`text-xs ${isSelected ? 'text-teal-700 font-bold' : 'text-gray-400'}`}>›</span>
+                              <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold ${
+                                isSelected ? 'bg-teal-100 text-teal-800' : 'bg-gray-200/90 text-gray-700'
+                              }`}>
+                                {seatUser.num}
+                              </span>
+                              <span className="font-semibold text-gray-900">{seatUser.name}</span>
+                            </td>
+                            <td className="py-3 px-4 text-gray-800">
+                              <span className="inline-flex items-center gap-1.5 font-medium text-gray-800">
+                                <IconComponent className={`w-3.5 h-3.5 ${seatUser.role === 'Owner' ? 'text-teal-600' : 'text-gray-500'}`} />
+                                {seatUser.role}
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-gray-600 font-mono text-xs">{seatUser.email}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -4236,18 +4313,18 @@ export default function LandingPage() {
 
               {/* Right Column */}
               <div className="lg:col-span-5 xl:col-span-5 pl-2 sm:pl-6 space-y-6 text-left">
-                <h3 className="text-3xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.1]">
-                  {t.agencyPack.seatsTitle}
+                <h3 className="text-4xl sm:text-[44px] font-bold text-[#101423] tracking-tight leading-[1.15]">
+                  Client Seats
                 </h3>
                 <p className="text-[16px] text-[#475467] leading-[1.65] max-w-[460px] font-normal">
-                  {t.agencyPack.seatsDesc}
+                  Get extra client seats to openly communicate your progress. Choose which SEO tools your clients will have access to and adjust access settings at any time.
                 </p>
                 <div className="pt-1">
                   <Link
-                    href="/signup"
-                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#101423] hover:bg-black text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
+                    href="/projects"
+                    className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-[15px] font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
-                    {t.agencyPack.startTrialBtn}
+                    Projects
                   </Link>
                 </div>
               </div>
@@ -4315,40 +4392,40 @@ export default function LandingPage() {
       </section>
 
 
-      {/* 10. Pricing & Add-ons (Screenshot 6 Exact Match) */}
+      {/* 10. Pricing & Add-ons (Exact Screenshot Match with proper typographic balance) */}
       <section id="pricing" className="py-16 sm:py-24 bg-white border-t border-gray-200 px-4 sm:px-8">
         <div className="max-w-5xl mx-auto space-y-12">
-          {/* 2 Featured Platform Plans matching Screenshot 6 */}
+          {/* 2 Featured Platform Plans */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Plan 1: Essential / Growth */}
             <div className="p-8 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-6">
               <div>
-                <div className="text-3xl sm:text-4xl font-black text-gray-900">
-                  $103.20<span className="text-sm font-normal text-gray-500">/mo</span>
+                <div className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  $103.20<span className="text-sm font-normal text-[#64748B]">/mo</span>
                 </div>
                 <div className="pt-4">
                   <Link
                     href="/projects"
-                    className="w-full py-3 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs block text-center"
+                    className="w-full py-3 bg-[#1351D8] hover:bg-[#0f44b8] text-white text-sm font-bold rounded-xl transition-all shadow-xs block text-center cursor-pointer"
                   >
                     Start free trial
                   </Link>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-2 border-t border-gray-100 text-xs sm:text-sm text-gray-700">
-                <div className="font-bold text-gray-900">Repeatable SEO + GEO delivery</div>
-                <ul className="space-y-2 text-gray-600">
+              <div className="space-y-3 pt-2 border-t border-gray-100 text-sm">
+                <div className="font-semibold text-base text-[#101423]">Repeatable SEO + GEO delivery</div>
+                <ul className="space-y-2 text-[#475467] font-normal">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>Rank tracking across engines</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>Unlimited keyword &amp; comp. research</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>Data Studio / Matomo / GA / GSC</span>
                   </li>
                 </ul>
@@ -4358,32 +4435,32 @@ export default function LandingPage() {
             {/* Plan 2: Pro / Business */}
             <div className="p-8 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-6">
               <div>
-                <div className="text-3xl sm:text-4xl font-black text-gray-900">
-                  $223.20<span className="text-sm font-normal text-gray-500">/mo</span>
+                <div className="text-3xl sm:text-4xl font-bold text-[#101423] tracking-tight">
+                  $223.20<span className="text-sm font-normal text-[#64748B]">/mo</span>
                 </div>
                 <div className="pt-4">
                   <Link
                     href="/projects"
-                    className="w-full py-3 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs block text-center"
+                    className="w-full py-3 bg-[#1351D8] hover:bg-[#0f44b8] text-white text-sm font-bold rounded-xl transition-all shadow-xs block text-center cursor-pointer"
                   >
                     Start free trial
                   </Link>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-2 border-t border-gray-100 text-xs sm:text-sm text-gray-700">
-                <div className="font-bold text-gray-900">Multi-client SEO + GEO workflows</div>
-                <ul className="space-y-2 text-gray-600">
+              <div className="space-y-3 pt-2 border-t border-gray-100 text-sm">
+                <div className="font-semibold text-base text-[#101423]">Multi-client SEO + GEO workflows</div>
+                <ul className="space-y-2 text-[#475467] font-normal">
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>All Core features included</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>Project Lifetime historical data</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Check className="w-4 h-4 text-[#1351D8] shrink-0" />
                     <span>API access with 300k credits</span>
                   </li>
                 </ul>
@@ -4393,79 +4470,79 @@ export default function LandingPage() {
 
           {/* Need more? Upgrade with add-ons! */}
           <div className="text-center space-y-6 pt-4">
-            <h2 className="text-2xl sm:text-4xl font-black text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-bold text-[#101423] tracking-tight">
               Need more? Upgrade with add-ons!
             </h2>
 
             {/* 3 Add-ons Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
-              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-3">
-                <div className="text-xs font-black uppercase tracking-wider text-gray-500">Agency Pack</div>
-                <div className="text-xs text-gray-400">From</div>
-                <div className="text-3xl sm:text-4xl font-black text-gray-900">
-                  $69.00<span className="text-sm font-normal text-gray-500">/mo</span>
+              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-2.5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">Agency Pack</div>
+                <div className="text-xs text-[#94A3B8] font-normal">From</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#101423] tracking-tight">
+                  $69.00<span className="text-sm font-normal text-[#64748B]">/mo</span>
                 </div>
               </div>
 
-              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-3">
-                <div className="text-xs font-black uppercase tracking-wider text-gray-500">AI Search</div>
-                <div className="text-xs text-gray-400">From</div>
-                <div className="text-3xl sm:text-4xl font-black text-gray-900">
-                  $71.20<span className="text-sm font-normal text-gray-500">/mo</span>
+              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-2.5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">AI Search</div>
+                <div className="text-xs text-[#94A3B8] font-normal">From</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#101423] tracking-tight">
+                  $71.20<span className="text-sm font-normal text-[#64748B]">/mo</span>
                 </div>
               </div>
 
-              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-3">
-                <div className="text-xs font-black uppercase tracking-wider text-gray-500">API</div>
-                <div className="text-xs text-gray-400">From</div>
-                <div className="text-3xl sm:text-4xl font-black text-gray-900">
-                  $149.00<span className="text-sm font-normal text-gray-500">/mo</span>
+              <div className="p-7 bg-white border border-gray-200 rounded-3xl shadow-xs space-y-2.5">
+                <div className="text-xs font-semibold uppercase tracking-wider text-[#64748B]">API</div>
+                <div className="text-xs text-[#94A3B8] font-normal">From</div>
+                <div className="text-2xl sm:text-3xl font-bold text-[#101423] tracking-tight">
+                  $149.00<span className="text-sm font-normal text-[#64748B]">/mo</span>
                 </div>
               </div>
             </div>
 
             <div className="pt-2 text-center">
-              <a href="#pricing" className="text-xs sm:text-sm font-bold text-gray-900 hover:text-[#0B69FF] inline-flex items-center gap-1.5">
+              <a href="#pricing" className="text-sm font-semibold text-[#101423] hover:text-[#1351D8] inline-flex items-center gap-1.5 transition-colors cursor-pointer">
                 <span>Explore pricing plans</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="font-bold">→</span>
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 11. Customer Success Stories (Screenshot 6 Exact Match) */}
+      {/* 11. Customer Success Stories (Exact Screenshot Match for all 7 slides) */}
       <section className="py-16 sm:py-24 px-4 sm:px-8 max-w-5xl mx-auto space-y-8">
-        <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 text-center leading-tight">
+        <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-bold text-[#101423] text-center leading-tight tracking-tight max-w-3xl mx-auto">
           How agencies, brands, and businesses worldwide win with SE Ranking
         </h2>
 
-        {/* Dark Forest Green Box matching Screenshot 6 */}
-        <div className="bg-[#032E1D] text-white rounded-3xl p-6 sm:p-12 space-y-8 shadow-md">
+        {/* Dark Forest Green Box matching Screenshot 1 to 7 */}
+        <div className="bg-[#0B2816] text-white rounded-[28px] sm:rounded-[32px] p-7 sm:p-12 lg:p-14 space-y-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
-            <h3 className="text-base sm:text-2xl font-bold text-white max-w-2xl leading-snug">
+            <h3 className="text-xl sm:text-2xl lg:text-[25px] font-bold text-white max-w-2xl leading-[1.35]">
               {caseStudies[caseStudyIdx].company}, {caseStudies[caseStudyIdx].meta}
             </h3>
-            <span className="text-xs font-bold text-[#4ade80] tracking-wider shrink-0 flex items-center gap-2">
-              <span>{caseStudies[caseStudyIdx].company.toLowerCase()}</span>
-            </span>
+            <div className="shrink-0 pt-1">
+              {renderCaseStudyLogo(caseStudyIdx)}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-4">
             <div>
-              <div className="text-3xl sm:text-5xl font-black text-[#4ade80]">
+              <div className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-[#67F87C] tracking-tight leading-none">
                 {caseStudies[caseStudyIdx].metric1}
               </div>
-              <div className="text-xs sm:text-sm text-gray-200 mt-2">
+              <div className="text-sm sm:text-base text-gray-300 font-normal mt-3">
                 {caseStudies[caseStudyIdx].desc1}
               </div>
             </div>
 
             <div>
-              <div className="text-3xl sm:text-5xl font-black text-[#4ade80]">
+              <div className="text-4xl sm:text-5xl lg:text-[54px] font-bold text-[#67F87C] tracking-tight leading-none">
                 {caseStudies[caseStudyIdx].metric2}
               </div>
-              <div className="text-xs sm:text-sm text-gray-200 mt-2">
+              <div className="text-sm sm:text-base text-gray-300 font-normal mt-3">
                 {caseStudies[caseStudyIdx].desc2}
               </div>
             </div>
@@ -4473,29 +4550,29 @@ export default function LandingPage() {
         </div>
 
         {/* Pagination & View all case studies */}
-        <div className="flex items-center justify-between text-xs sm:text-sm pt-2">
+        <div className="flex items-center justify-between text-sm pt-2">
           <a
             href="https://seranking.com/blog/category-customer-stories/"
             target="_blank"
             rel="noreferrer"
-            className="font-bold text-gray-900 hover:text-[#0B69FF] inline-flex items-center gap-1.5"
+            className="text-sm sm:text-base font-semibold text-[#101423] hover:text-[#1351D8] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>View all case studies</span>
-            <ArrowRight className="w-4 h-4" />
+            <span className="font-bold">→</span>
           </a>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() =>
                 setCaseStudyIdx((prev) => (prev === 0 ? caseStudies.length - 1 : prev - 1))
               }
-              className="w-8 h-8 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors cursor-pointer text-gray-700"
+              className="w-9 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors cursor-pointer text-gray-700 shadow-2xs"
               aria-label="Previous case study"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="font-mono text-xs font-bold text-gray-700 px-2">
+            <span className="font-mono text-sm font-semibold text-gray-700 px-3">
               {caseStudyIdx + 1} / {caseStudies.length}
             </span>
             <button
@@ -4503,7 +4580,7 @@ export default function LandingPage() {
               onClick={() =>
                 setCaseStudyIdx((prev) => (prev + 1) % caseStudies.length)
               }
-              className="w-8 h-8 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors cursor-pointer text-gray-700"
+              className="w-9 h-9 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center transition-colors cursor-pointer text-gray-700 shadow-2xs"
               aria-label="Next case study"
             >
               <ChevronRight className="w-4 h-4" />
@@ -4512,22 +4589,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 12. Full Width Royal Blue CTA Banner (Screenshot 6 Exact Match) */}
+      {/* 12. Full Width Royal Blue CTA Banner with Speech Bubble & Chamfer (Exact Screenshot Match) */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-5xl mx-auto">
-        <div className="bg-[#0B69FF] text-white rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-lg">
-          <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
-            Get 14 days of full access to the SE Ranking platform!
-          </h2>
-          <div className="pt-2">
-            <Link
-              href="/signup"
-              className="px-8 py-3.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052E16] font-extrabold text-sm sm:text-base rounded-xl transition-all shadow-md inline-block cursor-pointer"
-            >
-              Start free trial
-            </Link>
-          </div>
-          <div className="text-xs sm:text-sm text-blue-100 font-medium">
-            No credit card required
+        <div className="relative pt-6">
+          {/* Top Speech bubble pointer tab */}
+          <div className="absolute top-0 right-[18%] sm:right-[20%] w-0 h-0 border-l-[16px] border-l-transparent border-r-[16px] border-r-transparent border-b-[24px] border-b-[#1054E2] z-10" />
+
+          {/* Main Blue Banner Container with Chamfered Bottom-Left Corner */}
+          <div
+            className="bg-[#1054E2] text-white rounded-3xl p-8 sm:p-14 text-center space-y-6 shadow-md relative"
+            style={{
+              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 65px 100%, 0 calc(100% - 65px))',
+            }}
+          >
+            <h2 className="text-2xl sm:text-3xl lg:text-[40px] font-bold text-white tracking-tight leading-tight max-w-2xl mx-auto">
+              Get 14 days of full access to the SE Ranking platform!
+            </h2>
+            <div className="pt-2">
+              <Link
+                href="/signup"
+                className="px-8 py-3.5 bg-[#64F878] hover:bg-[#52e866] text-[#0A2416] font-bold text-[15px] sm:text-base rounded-xl transition-colors shadow-xs inline-block cursor-pointer"
+              >
+                Start free trial
+              </Link>
+            </div>
+            <div className="text-xs sm:text-sm text-white/80 font-normal">
+              No credit card required
+            </div>
           </div>
         </div>
       </section>

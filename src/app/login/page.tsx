@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
+import { authLanguages, getAuthTranslation } from '@/lib/i18n/authTranslations';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,8 +18,26 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [language, setLanguage] = useState('English');
+  const [isBtnHovered, setIsBtnHovered] = useState(false);
+  const [selectedLang, setSelectedLang] = useState('en');
   const [isLangOpen, setIsLangOpen] = useState(false);
+
+  // Sync language with localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('seranking_lang');
+    if (saved && authLanguages.some((l) => l.code === saved)) {
+      setSelectedLang(saved);
+    }
+  }, []);
+
+  const handleSelectLang = (code: string) => {
+    setSelectedLang(code);
+    setIsLangOpen(false);
+    localStorage.setItem('seranking_lang', code);
+  };
+
+  const tAuth = getAuthTranslation(selectedLang);
+  const currentLangObj = authLanguages.find((l) => l.code === selectedLang) || authLanguages[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +63,7 @@ export default function LoginPage() {
       }
 
       await refreshProjects();
-      router.push('/projects');
+      router.push('/project-overview');
     } catch (err: any) {
       setError(err?.message || 'Invalid pair username/password!');
       setIsLoading(false);
@@ -65,22 +84,68 @@ export default function LoginPage() {
       });
       if (res.ok) {
         await refreshProjects();
-        router.push('/projects');
+        router.push('/project-overview');
       } else {
-        router.push('/projects');
+        router.push('/project-overview');
       }
     } catch {
-      router.push('/projects');
+      router.push('/project-overview');
     }
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between select-none">
-      {/* Top Header */}
-      <header className="w-full max-w-md mx-auto pt-8 px-6 flex items-center justify-center">
+    <div className="min-h-screen bg-white text-gray-900 flex flex-col justify-between select-none font-sans">
+      {/* Top Header with Logo and 10-Language Selector */}
+      <header className="w-full max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
           <SeRankingLogo variant="brand" width={140} height={34} />
         </Link>
+
+        {/* 10-Language switcher */}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className="flex items-center gap-2 text-xs font-semibold text-gray-700 hover:text-gray-900 px-2 py-1.5 rounded-md hover:bg-gray-50 transition-colors cursor-pointer"
+          >
+            <span className="w-5 h-5 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+              {currentLangObj.short}
+            </span>
+            <span className="text-gray-800 font-medium">{currentLangObj.label}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+          </button>
+
+          {isLangOpen && (
+            <div className="absolute right-0 mt-1.5 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-1.5 z-50 text-xs animate-in fade-in duration-100">
+              {authLanguages.map((lang) => {
+                const isActive = lang.code === selectedLang;
+                return (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={() => handleSelectLang(lang.code)}
+                    className={`w-full text-left px-3.5 py-2 flex items-center gap-2.5 transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-blue-50 text-[#0B69FF] font-bold'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span
+                      className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold shrink-0 ${
+                        isActive
+                          ? 'bg-[#0B69FF] text-white'
+                          : 'bg-gray-100 border border-gray-200 text-gray-600'
+                      }`}
+                    >
+                      {lang.short}
+                    </span>
+                    <span className="truncate">{lang.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Main Login Card */}
@@ -88,7 +153,7 @@ export default function LoginPage() {
         <div className="w-full max-w-[390px] space-y-5">
           {/* Title matching screenshot */}
           <h2 className="text-center text-sm font-bold text-gray-700 tracking-wider uppercase">
-            SIGN IN TO YOUR ACCOUNT
+            {tAuth.signInTitle}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -98,7 +163,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="absolute -top-2 left-3 bg-white px-1 text-[11px] font-medium text-gray-500 z-10"
               >
-                Email
+                {tAuth.emailLabel}
               </label>
               <input
                 id="email"
@@ -108,7 +173,7 @@ export default function LoginPage() {
                   setEmail(e.target.value);
                   setError(null);
                 }}
-                placeholder="name@company.com"
+                placeholder={tAuth.emailPlaceholder}
                 className={`w-full px-3.5 py-3 border rounded-md text-sm text-gray-900 focus:outline-hidden transition-colors ${
                   error
                     ? 'border-rose-400 bg-rose-50/10 focus:border-rose-500'
@@ -134,7 +199,7 @@ export default function LoginPage() {
                   setPassword(e.target.value);
                   setError(null);
                 }}
-                placeholder="Password"
+                placeholder={tAuth.password}
                 className="w-full px-3.5 py-3 border border-gray-300 rounded-md text-sm text-gray-900 focus:outline-hidden focus:border-[#0B69FF] transition-colors pr-10"
                 required
               />
@@ -148,19 +213,37 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Sign In Button */}
+            {/* Sign In Button with animated dual-arc radar icon matching user request */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-[#1B66FF] hover:bg-[#0B59EE] active:bg-[#004ECC] text-white font-semibold rounded-md text-sm shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              onMouseEnter={() => setIsBtnHovered(true)}
+              onMouseLeave={() => setIsBtnHovered(false)}
+              className="w-full py-3 bg-[#1B66FF] hover:bg-[#0B59EE] active:bg-[#004ECC] text-white font-semibold rounded-md text-sm shadow-xs transition-all flex items-center justify-center gap-2.5 cursor-pointer relative overflow-hidden group"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Signing in...</span>
+                  <span>{tAuth.signingIn}</span>
                 </>
               ) : (
-                <span>Sign In</span>
+                <div className="flex items-center justify-center gap-2">
+                  {/* Dual-arc radar wave icon animated on hover or when email is present */}
+                  <svg
+                    className={`w-5 h-5 text-white transition-transform duration-300 ${
+                      isBtnHovered || email ? 'animate-pulse scale-110' : 'opacity-90'
+                    }`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
+                    <path d="M7 9a6 6 0 0 1 10 0" />
+                    <path d="M7 15a6 6 0 0 0 10 0" />
+                  </svg>
+                  <span>{tAuth.signInBtn}</span>
+                </div>
               )}
             </button>
 
@@ -173,7 +256,7 @@ export default function LoginPage() {
                   onChange={(e) => setStayLoggedIn(e.target.checked)}
                   className="rounded text-[#1B66FF] focus:ring-0 w-3.5 h-3.5"
                 />
-                <span>Stay Logged In</span>
+                <span>{tAuth.stayLoggedIn}</span>
               </label>
 
               <button
@@ -181,7 +264,7 @@ export default function LoginPage() {
                 onClick={() => alert('Password reset instructions sent to your email')}
                 className="text-[#1B66FF] hover:underline font-medium cursor-pointer"
               >
-                Forgot Password?
+                {tAuth.forgotPassword}
               </button>
             </div>
           </form>
@@ -190,7 +273,7 @@ export default function LoginPage() {
           <div className="relative flex items-center justify-center my-4">
             <div className="border-t border-gray-200 w-full" />
             <span className="bg-white px-4 text-xs text-gray-400 font-medium uppercase absolute">
-              or
+              {tAuth.orDivider}
             </span>
           </div>
 
@@ -202,11 +285,10 @@ export default function LoginPage() {
               onClick={() => handleSocialLogin('Facebook')}
               className="w-full py-2.5 px-4 bg-[#1877F2] hover:bg-[#166FE5] text-white font-semibold rounded-md text-sm shadow-2xs transition-colors flex items-center justify-center gap-3 cursor-pointer"
             >
-              {/* Facebook Icon */}
               <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
-              <span>Continue with Facebook</span>
+              <span>{tAuth.continueWithFacebook}</span>
             </button>
 
             {/* Google */}
@@ -215,7 +297,6 @@ export default function LoginPage() {
               onClick={() => handleSocialLogin('Google')}
               className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-md text-sm border border-gray-300 shadow-2xs transition-colors flex items-center justify-center gap-3 cursor-pointer"
             >
-              {/* Google G Icon */}
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
                   fill="#4285F4"
@@ -234,78 +315,38 @@ export default function LoginPage() {
                   d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                 />
               </svg>
-              <span>Sign in with Google</span>
+              <span>{tAuth.signInWithGoogle}</span>
             </button>
 
             {/* LinkedIn */}
             <button
               type="button"
               onClick={() => handleSocialLogin('LinkedIn')}
-              className="w-full py-2.5 px-4 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-md text-sm border border-gray-300 shadow-2xs transition-colors flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full py-2.5 px-4 bg-[#0A66C2] hover:bg-[#084e96] text-white font-semibold rounded-md text-sm shadow-2xs transition-colors flex items-center justify-center gap-3 cursor-pointer"
             >
-              {/* LinkedIn Icon */}
-              <svg className="w-4 h-4 fill-[#0A66C2]" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
               </svg>
-              <span>Sign in with LinkedIn</span>
+              <span>{tAuth.signInWithLinkedIn}</span>
             </button>
           </div>
 
-          {/* Footer Text */}
-          <div className="pt-4 text-center space-y-3">
-            <p className="text-xs text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="text-[#1B66FF] font-bold hover:underline">
-                Sign Up
-              </Link>
-            </p>
-
-            <p className="text-[11px] text-gray-400 leading-relaxed max-w-xs mx-auto">
-              This site is protected by reCAPTCHA and the Google{' '}
-              <a href="https://policies.google.com/privacy" target="_blank" className="text-gray-500 underline">
-                Privacy Policy
-              </a>{' '}
-              and{' '}
-              <a href="https://policies.google.com/terms" target="_blank" className="text-gray-500 underline">
-                Terms of Service
-              </a>{' '}
-              apply.
-            </p>
+          {/* Footer Link matching screenshot */}
+          <div className="pt-2 text-center text-xs text-gray-600">
+            {tAuth.dontHaveAccount}{' '}
+            <Link
+              href="/signup"
+              className="text-[#1B66FF] hover:underline font-semibold"
+            >
+              {tAuth.startTrialLink}
+            </Link>
           </div>
         </div>
       </main>
 
-      {/* Language bottom selector */}
-      <footer className="w-full py-4 text-center">
-        <div className="relative inline-block">
-          <button
-            type="button"
-            onClick={() => setIsLangOpen(!isLangOpen)}
-            className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-800 cursor-pointer"
-          >
-            <span>🇬🇧</span>
-            <span>{language}</span>
-            <ChevronDown className="w-3 h-3 text-gray-400" />
-          </button>
-
-          {isLangOpen && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-32 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 text-xs">
-              {['English', 'Deutsch', 'Français', 'Español'].map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => {
-                    setLanguage(lang);
-                    setIsLangOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 hover:bg-blue-50 text-gray-700 hover:text-[#0B69FF]"
-                >
-                  {lang}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Footer */}
+      <footer className="w-full max-w-md mx-auto py-6 text-center text-xs text-gray-400">
+        © 2026 SE Ranking. All rights reserved.
       </footer>
     </div>
   );

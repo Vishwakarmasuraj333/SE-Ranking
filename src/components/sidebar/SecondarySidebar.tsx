@@ -52,6 +52,8 @@ export function SecondarySidebar() {
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isProjectFlyoutOpen, setIsProjectFlyoutOpen] = useState(false);
+  const [hoveredSubmenu, setHoveredSubmenu] = useState<string | null>(null);
 
   // Expanded sub-sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -177,45 +179,284 @@ export function SecondarySidebar() {
               <ChevronsUpDown className="w-4 h-4 text-gray-500 shrink-0 ml-1" />
             </button>
 
-            {/* Project Dropdown Modal */}
+            {/* Project Dropdown Modal with Cascading Flyout Menu */}
             {isProjectDropdownOpen && (
-              <div className="absolute left-2.5 right-2.5 top-12 bg-[#1C2431] border border-[#343F54] rounded-lg shadow-2xl z-50 overflow-hidden text-xs">
+              <div className="absolute left-2.5 right-2.5 top-12 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 text-xs">
                 {/* Search */}
-                <div className="p-2 border-b border-[#2E374A] flex items-center gap-1.5 bg-[#151C26]">
-                  <SearchIcon className="w-3.5 h-3.5 text-gray-400" />
-                  <input
-                    type="text"
-                    value={projectSearch}
-                    onChange={(e) => setProjectSearch(e.target.value)}
-                    placeholder="Search project"
-                    className="w-full bg-transparent text-gray-200 focus:outline-hidden text-xs"
-                    autoFocus
-                  />
+                <div className="p-2 border-b border-gray-100 flex items-center justify-between gap-1.5 bg-gray-50/70 rounded-t-lg">
+                  <div className="flex items-center gap-1.5 flex-1">
+                    <SearchIcon className="w-3.5 h-3.5 text-gray-400" />
+                    <input
+                      type="text"
+                      value={projectSearch}
+                      onChange={(e) => setProjectSearch(e.target.value)}
+                      placeholder="Search project"
+                      className="w-full bg-transparent text-gray-800 placeholder:text-gray-400 focus:outline-none text-xs"
+                      autoFocus
+                    />
+                  </div>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 rotate-180" />
                 </div>
 
-                {/* List */}
-                <div className="max-h-48 overflow-y-auto py-1 divide-y divide-[#283244]/40">
-                  {filteredProjects.map((p) => {
-                    const isSelected = activeProject?.id === p.id;
-                    return (
-                      <button
-                        key={p.id}
-                        onClick={() => {
-                          setActiveProject(p);
-                          setIsProjectDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 flex items-center justify-between transition-colors ${
-                          isSelected ? 'bg-[#0B69FF]/20 text-[#60A5FA]' : 'hover:bg-white/5 text-gray-200'
-                        }`}
+                {/* Active Project Card with hover trigger for flyout */}
+                <div
+                  className="p-1 relative"
+                  onMouseEnter={() => setIsProjectFlyoutOpen(true)}
+                  onMouseLeave={() => {
+                    setIsProjectFlyoutOpen(false);
+                    setHoveredSubmenu(null);
+                  }}
+                >
+                  <div className="w-full px-3 py-2.5 rounded-md bg-[#EDF2F7] hover:bg-[#E2E8F0] text-gray-900 flex items-center justify-between transition-colors cursor-pointer group">
+                    <div className="flex items-center gap-2 truncate">
+                      {/* Logo square */}
+                      <div className="w-4 h-4 rounded-[3px] border border-gray-300 overflow-hidden grid grid-cols-2 grid-rows-2 shrink-0">
+                        <div className="bg-[#E53935]" />
+                        <div className="bg-[#FB8C00]" />
+                        <div className="bg-[#1E88E5]" />
+                        <div className="bg-[#43A047]" />
+                      </div>
+                      <span className="truncate font-semibold text-gray-800 text-[13px]">
+                        {activeProject?.name || activeProject?.domain || 'https://www.workcomposer.com/'}
+                      </span>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-500 shrink-0 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+
+                  {/* Level 1 Flyout Menu matching exact screenshot */}
+                  {isProjectFlyoutOpen && (
+                    <div
+                      className="absolute left-[calc(100%+4px)] top-0 w-60 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700 animate-in fade-in zoom-in-95 duration-100"
+                      onMouseEnter={() => setIsProjectFlyoutOpen(true)}
+                    >
+                      {/* 1. Project Overview */}
+                      <Link
+                        href="/project-overview"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
                       >
-                        <div className="flex items-center gap-2 truncate">
-                          <span className="w-3.5 h-3.5 rounded-full bg-amber-500/80 shrink-0" />
-                          <span className="truncate font-medium">{p.domain}</span>
-                        </div>
-                        {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-[#0B69FF]" />}
-                      </button>
-                    );
-                  })}
+                        <LayoutGrid className="w-4 h-4 text-gray-500" />
+                        <span>Project Overview</span>
+                      </Link>
+
+                      {/* 2. Rankings with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('rankings')}
+                      >
+                        <Link
+                          href="/rankings"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <BarChart2 className="w-4 h-4 text-gray-500" />
+                            <span>Rankings</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'rankings' && (
+                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Summary</Link>
+                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Detailed</Link>
+                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Historical data</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 3. Analytics & Traffic with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('analytics')}
+                      >
+                        <Link
+                          href="/analytics"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Activity className="w-4 h-4 text-gray-500" />
+                            <span>Analytics &amp; Traffic</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'analytics' && (
+                          <div className="absolute left-full top-0 ml-1 w-52 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Overview</Link>
+                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Traffic</Link>
+                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Snippets</Link>
+                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Google Search Console Data</Link>
+                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">SEO potential</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 4. My Competitors with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('competitors')}
+                      >
+                        <Link
+                          href="/competitors"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Users className="w-4 h-4 text-gray-500" />
+                            <span>My Competitors</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'competitors' && (
+                          <div className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Added Competitors</Link>
+                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">SERP Competitors</Link>
+                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Share of Voice</Link>
+                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Visibility Rating</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 5. AI Results Tracker with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('ai')}
+                      >
+                        <Link
+                          href="/ai-results-tracker"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Sparkles className="w-4 h-4 text-gray-500" />
+                            <span>AI Results Tracker</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'ai' && (
+                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Rankings</Link>
+                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Competitors</Link>
+                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Sources</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 6. Insights */}
+                      <Link
+                        href="/insights"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                      >
+                        <Compass className="w-4 h-4 text-gray-500" />
+                        <span>Insights</span>
+                      </Link>
+
+                      {/* 7. Backlink Checker */}
+                      <Link
+                        href="/backlinks"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                      >
+                        <Link2 className="w-4 h-4 text-gray-500" />
+                        <span>Backlink Checker</span>
+                      </Link>
+
+                      {/* 8. Marketing Plan */}
+                      <Link
+                        href="/marketing-plan"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                      >
+                        <CheckSquare className="w-4 h-4 text-gray-500" />
+                        <span>Marketing Plan</span>
+                      </Link>
+
+                      {/* 9. Website Audit with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('audit')}
+                      >
+                        <Link
+                          href="/website-audit"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <FileSearch className="w-4 h-4 text-gray-500" />
+                            <span>Website Audit</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'audit' && (
+                          <div className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Overview</Link>
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Issue Report</Link>
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Crawled Pages</Link>
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Found Resources</Link>
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Found Links</Link>
+                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Crawl Comparison</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 10. Page Changes Monitor */}
+                      <Link
+                        href="/page-changes"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                      >
+                        <Columns className="w-4 h-4 text-gray-500" />
+                        <span>Page Changes Monitor</span>
+                      </Link>
+
+                      {/* 11. Backlink Monitor with Submenu */}
+                      <div
+                        className="relative"
+                        onMouseEnter={() => setHoveredSubmenu('backlink-mon')}
+                      >
+                        <Link
+                          href="/backlinks-monitor"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <ChainLink className="w-4 h-4 text-gray-500" />
+                            <span>Backlink Monitor</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                        </Link>
+
+                        {hoveredSubmenu === 'backlink-mon' && (
+                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Backlinks</Link>
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Domains</Link>
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Anchor Texts</Link>
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Pages</Link>
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">IPs/Subnets</Link>
+                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Disavow</Link>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 12. Project Settings */}
+                      <div className="pt-1 mt-1 border-t border-gray-100">
+                        <Link
+                          href="/settings?site_id=12960641"
+                          onClick={() => setIsProjectDropdownOpen(false)}
+                          className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors font-medium text-gray-800"
+                        >
+                          <Settings className="w-4 h-4 text-gray-500" />
+                          <span>Project settings</span>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Create Project Button */}
@@ -224,7 +465,7 @@ export function SecondarySidebar() {
                     setIsProjectDropdownOpen(false);
                     setIsCreateModalOpen(true);
                   }}
-                  className="w-full p-2.5 flex items-center justify-center gap-1.5 text-[#3E8BFF] bg-[#171D28] hover:bg-[#121721] font-medium border-t border-[#2E374A] transition-colors cursor-pointer"
+                  className="w-full p-2.5 flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 font-medium border-t border-gray-100 transition-colors cursor-pointer rounded-b-lg"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Create project</span>

@@ -153,15 +153,13 @@ export function TopHeader() {
       {/* Right controls */}
       <div className="flex items-center gap-2">
         {/* Help */}
-        <a
-          href="https://help.seranking.com"
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          href="/help"
           className="w-7 h-7 flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/10"
           title="Help Center"
         >
           <HelpCircle className="w-4 h-4" />
-        </a>
+        </Link>
 
         {/* Notification Bell matching screenshot red 1 badge */}
         <div className="relative">
