@@ -34,6 +34,10 @@ import {
   Store,
   Star,
   MapPin,
+  HelpCircle,
+  ExternalLink,
+  Shield,
+  Target,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
@@ -63,6 +67,8 @@ export function SecondarySidebar() {
     ai_tracker: false,
     audit: false,
     backlink_monitor: false,
+    white_label: true,
+    lead_generator: false,
     competitive_research: true,
     keyword_research: false,
   });
@@ -165,15 +171,15 @@ export function SecondarySidebar() {
               className="w-full bg-white hover:bg-gray-50 text-gray-900 rounded-lg px-3 py-2 flex items-center justify-between shadow-xs transition-colors border border-transparent cursor-pointer"
             >
               <div className="flex items-center gap-2.5 truncate">
-                {/* Zoho 4-color square logo */}
-                <div className="w-5 h-5 rounded-[4px] border border-gray-200 overflow-hidden grid grid-cols-2 grid-rows-2 shrink-0 shadow-2xs">
-                  <div className="bg-[#E53935]" />
-                  <div className="bg-[#FB8C00]" />
-                  <div className="bg-[#1E88E5]" />
-                  <div className="bg-[#43A047]" />
-                </div>
-                <span className="text-[13.5px] font-semibold text-gray-800 truncate">
-                  {activeProject?.domain || 'zohosocial.com'}
+                <img
+                  src={`https://www.google.de/s2/favicons?domain=${activeProject?.domain || 'https://www.workcomposer.com'}`}
+                  alt=""
+                  className="w-4 h-4 rounded-xs shrink-0"
+                />
+                <span className="text-[13px] font-semibold text-gray-800 truncate">
+                  {activeProject?.domain
+                    ? (activeProject.domain.startsWith('http') ? activeProject.domain : `https://${activeProject.domain}/`)
+                    : 'https://www.workcomposer.com/'}
                 </span>
               </div>
               <ChevronsUpDown className="w-4 h-4 text-gray-500 shrink-0 ml-1" />
@@ -209,15 +215,15 @@ export function SecondarySidebar() {
                 >
                   <div className="w-full px-3 py-2.5 rounded-md bg-[#EDF2F7] hover:bg-[#E2E8F0] text-gray-900 flex items-center justify-between transition-colors cursor-pointer group">
                     <div className="flex items-center gap-2 truncate">
-                      {/* Logo square */}
-                      <div className="w-4 h-4 rounded-[3px] border border-gray-300 overflow-hidden grid grid-cols-2 grid-rows-2 shrink-0">
-                        <div className="bg-[#E53935]" />
-                        <div className="bg-[#FB8C00]" />
-                        <div className="bg-[#1E88E5]" />
-                        <div className="bg-[#43A047]" />
-                      </div>
+                      <img
+                        src={`https://www.google.de/s2/favicons?domain=${activeProject?.domain || 'https://www.workcomposer.com'}`}
+                        alt=""
+                        className="w-4 h-4 rounded-xs shrink-0"
+                      />
                       <span className="truncate font-semibold text-gray-800 text-[13px]">
-                        {activeProject?.name || activeProject?.domain || 'https://www.workcomposer.com/'}
+                        {activeProject?.domain
+                          ? (activeProject.domain.startsWith('http') ? activeProject.domain : `https://${activeProject.domain}/`)
+                          : 'https://www.workcomposer.com/'}
                       </span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-gray-500 shrink-0 ml-1 group-hover:translate-x-0.5 transition-transform" />

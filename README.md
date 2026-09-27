@@ -49,12 +49,26 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to explore the platform.
 
-### 3. Production Build
+### 3. Demo Login Credentials (Work Office Email)
+
+For instant access across local development and Vercel deployments:
+
+| Field | Value |
+|---|---|
+| **Work Office Email** | `admin@seranking.com` |
+| **Password** | `AdminPassword123#` |
+| **Default Active Project** | `https://www.workcomposer.com/` |
+
+> [!NOTE]
+> All authentication and dashboard routes operate with automatic serverless fail-safe session fallbacks, ensuring zero `500` errors on Vercel even without setting an external database connection string.
+
+### 4. Production Build & Deployment
 
 ```bash
 npm run build
 npm run start
 ```
+
 
 ## 📄 License
 

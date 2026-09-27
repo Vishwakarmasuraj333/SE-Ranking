@@ -192,57 +192,7 @@ const ecoPlanableData = [
   { date: 'Oct 10', ig: 28000, tiktok: 39000, fb: 26000, yt: 21000, linkedin: 17000 },
 ];
 
-// Agency Catalog Cards (Exact user reference screenshot match)
-const agencyCatalogItems = [
-  {
-    id: 'pixelpulse',
-    name: 'PixelPulse Agency',
-    url: 'https://pixelpulseagency.com',
-    location: 'Barcelona (Spain)',
-    services: 'Digital Marketing, General SEO',
-    servicesExtra: '+11',
-    industries: 'Technology, Healthcare, Retail',
-    industriesExtra: '+3',
-    budget: 'No minimum budget',
-    teamSize: '100+',
-  },
-  {
-    id: 'fusion',
-    name: 'Fusion Marketing',
-    url: 'https://fusionmarketing.co.uk',
-    location: 'London (UK)',
-    services: 'SEO, Content Strategy',
-    servicesExtra: '+8',
-    industries: 'Fintech, E-commerce',
-    industriesExtra: '+5',
-    budget: 'No minimum budget',
-    teamSize: '50-100',
-  },
-  {
-    id: 'neonwave',
-    name: 'NeonWave Digital',
-    url: 'https://neonwavedigital.com',
-    location: 'Berlin (Germany)',
-    services: 'Technical SEO, Link Building',
-    servicesExtra: '+6',
-    industries: 'SaaS, AI Startups',
-    industriesExtra: '+4',
-    budget: 'No minimum budget',
-    teamSize: '25-50',
-  },
-  {
-    id: 'echo',
-    name: 'Echo Marketing',
-    url: 'https://echomarketing.io',
-    location: 'Austin (USA)',
-    services: 'Local SEO, PPC, Analytics',
-    servicesExtra: '+9',
-    industries: 'Real Estate, Automotive',
-    industriesExtra: '+2',
-    budget: 'No minimum budget',
-    teamSize: '10-25',
-  },
-];
+
 
 // Testimonials data (7 items) - Exact screenshot match
 const testimonials = [
@@ -1921,143 +1871,13 @@ export default function LandingPage() {
           {/* TAB 2: SEO Research (Exact Screenshot Match) */}
           {platformTab === 'seo-research' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: SEO Research Card */}
-              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
-                  {/* Left Column: Organic & Paid Traffic Cards */}
-                  <div className="md:col-span-5 space-y-3">
-                    {/* Organic Traffic */}
-                    <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
-                          ORGANIC TRAFFIC
-                        </span>
-                        <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">
-                          🍃
-                        </div>
-                      </div>
-                      <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-2xl font-bold text-gray-900">11.3M</span>
-                        <span className="text-xs text-emerald-600 font-bold">▲ 215.9K</span>
-                      </div>
-                      <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
-                    </div>
-
-                    {/* Paid Traffic */}
-                    <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold tracking-wider text-gray-500 uppercase">
-                          PAID TRAFFIC
-                        </span>
-                        <div className="w-6 h-6 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold">
-                          $
-                        </div>
-                      </div>
-                      <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-2xl font-bold text-gray-900">12.9K</span>
-                        <span className="text-xs text-emerald-600 font-bold">▲ 41.7K</span>
-                      </div>
-                      <span className="text-[11px] text-gray-400 font-medium block mt-1">Clicks/mo</span>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Traffic Chart with Google Update Badge */}
-                  <div className="md:col-span-7 p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                    <div className="flex items-center justify-between border-b border-gray-100 pb-2 text-xs">
-                      <span className="font-bold text-[#1864FF] border-b-2 border-[#1864FF] pb-1.5 cursor-pointer">
-                        TOTAL TRAFFIC
-                      </span>
-                      <span className="font-semibold text-gray-500 hover:text-gray-900 cursor-pointer">KEYWORDS</span>
-                      <span className="font-semibold text-gray-500 hover:text-gray-900 cursor-pointer">BACKLINKS</span>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-1.5 text-[10px] font-bold text-gray-400">
-                      <span className="text-[#1864FF] border-b border-[#1864FF] cursor-pointer">6M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">12M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">18M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">24M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">30M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">36M</span>
-                      <span className="hover:text-gray-900 cursor-pointer">ALL</span>
-                    </div>
-
-                    <div className="h-32 w-full relative">
-                      <div className="absolute left-0 top-0 bottom-4 text-[9px] text-gray-400 flex flex-col justify-between">
-                        <span>100K</span>
-                        <span>75K</span>
-                        <span>50K</span>
-                        <span>25K</span>
-                        <span>0</span>
-                      </div>
-                      <div className="ml-7 h-28">
-                        <svg viewBox="0 0 200 80" className="w-full h-full overflow-visible">
-                          <line x1="0" y1="0" x2="200" y2="0" stroke="#F1F5F9" strokeWidth="1" />
-                          <line x1="0" y1="20" x2="200" y2="20" stroke="#F1F5F9" strokeWidth="1" />
-                          <line x1="0" y1="40" x2="200" y2="40" stroke="#F1F5F9" strokeWidth="1" />
-                          <line x1="0" y1="60" x2="200" y2="60" stroke="#F1F5F9" strokeWidth="1" />
-
-                          {/* Organic Green Curve & Area */}
-                          <path d="M 0 55 C 30 45, 60 50, 95 30 C 130 5, 160 35, 200 15 L 200 80 L 0 80 Z" fill="#10B981" fillOpacity="0.1" />
-                          <path d="M 0 55 C 30 45, 60 50, 95 30 C 130 5, 160 35, 200 15" fill="none" stroke="#10B981" strokeWidth="2" />
-                          <circle cx="95" cy="30" r="2.5" fill="#10B981" />
-                          <circle cx="200" cy="15" r="2.5" fill="#10B981" />
-
-                          {/* Paid Blue Curve */}
-                          <path d="M 0 25 C 30 40, 60 15, 95 38 C 130 65, 165 60, 200 35" fill="none" stroke="#2563EB" strokeWidth="2" />
-                          <circle cx="0" cy="25" r="2.5" fill="#2563EB" />
-                          <circle cx="60" cy="15" r="2.5" fill="#2563EB" />
-                          <circle cx="95" cy="38" r="2.5" fill="#2563EB" />
-                          <circle cx="200" cy="35" r="2.5" fill="#2563EB" />
-                        </svg>
-                      </div>
-                      <div className="flex justify-between text-[8px] text-gray-400 ml-7 pt-1">
-                        <span>Mar</span>
-                        <span>Apr</span>
-                        <span>May</span>
-                        <span className="flex items-center gap-0.5 font-bold text-gray-800">
-                          Jun <span className="w-2.5 h-2.5 rounded-full bg-blue-600 text-white text-[6px] inline-flex items-center justify-center">G</span>
-                        </span>
-                        <span>Jul</span>
-                        <span>Aug</span>
-                        <span>Sep</span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between text-[10px] text-gray-600 pt-2 border-t border-gray-100">
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Organic</span>
-                        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-600" /> Paid</span>
-                      </div>
-                      <button type="button" className="w-5 h-5 rounded border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 text-xs">
-                        ↑
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom Row: Referring Domains, Backlinks, Domain/Page Trust */}
-                <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                  <div>
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">REFERRING DOMAINS</span>
-                    <span className="text-2xl font-bold text-gray-900 block mt-1">962.8K</span>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 domains ⓘ</span>
-                  </div>
-                  <div className="border-l border-gray-100 pl-4">
-                    <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider block">BACKLINKS</span>
-                    <span className="text-2xl font-bold text-gray-900 block mt-1">13.9M</span>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">Analyzed only the top 10 000 backlinks ⓘ</span>
-                  </div>
-                  <div className="border-l border-gray-100 pl-4 space-y-1 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-700">DOMAIN TRUST</span>
-                      <span className="text-lg font-bold text-gray-900">96</span>
-                    </div>
-                    <div className="border-t border-gray-100 pt-1 flex items-center justify-between">
-                      <span className="font-bold text-gray-700">PAGE TRUST</span>
-                      <span className="text-lg font-bold text-gray-900">72</span>
-                    </div>
-                  </div>
-                </div>
+              {/* Left Column: SEO Research Card (Exact Screenshot Match) */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-2 sm:p-4 shadow-xs flex items-center justify-center overflow-hidden">
+                <img
+                  src="/images/mockups/seo-research.png"
+                  alt="SEO Research"
+                  className="w-full h-auto rounded-2xl shadow-xs object-contain"
+                />
               </div>
 
               {/* Right Column: Title, Links & Button */}
@@ -2684,55 +2504,13 @@ export default function LandingPage() {
           {/* TAB 6: Agency Success Kit (Exact Screenshot Match: My Logo + SEO Report + Circular Wheel) */}
           {platformTab === 'agency-kit' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: Agency Kit Card */}
-              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-6 sm:p-10 shadow-xs flex flex-col items-center justify-center text-center">
-                {/* My Logo pill badge */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#101423] text-white rounded-md text-xs font-semibold shadow-xs mb-4">
-                  <span className="text-xs">✱</span>
-                  <span>My Logo</span>
-                </div>
-
-                {/* Report Title */}
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
-                  SEO Report
-                </h3>
-
-                {/* Date range */}
-                <div className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1.5 mb-6">
-                  JAN-19 2025 <span className="mx-2 text-gray-300">|</span> JAN-25 2025
-                </div>
-
-                {/* Semicircular / Segmented Color Wheel */}
-                <div className="relative w-72 h-40 overflow-hidden flex items-end justify-center">
-                  <svg viewBox="0 0 200 100" className="w-72 h-40 overflow-visible">
-                    {/* Concentric radar arcs */}
-                    <path d="M 10 100 A 90 90 0 0 1 190 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <path d="M 30 100 A 70 70 0 0 1 170 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <path d="M 50 100 A 50 50 0 0 1 150 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <path d="M 70 100 A 30 30 0 0 1 130 100" fill="none" stroke="#DBEAFE" strokeWidth="1.5" />
-
-                    {/* Radial grid lines */}
-                    <line x1="100" y1="100" x2="30" y2="35" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <line x1="100" y1="100" x2="65" y2="15" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <line x1="100" y1="100" x2="100" y2="10" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <line x1="100" y1="100" x2="135" y2="15" stroke="#DBEAFE" strokeWidth="1.5" />
-                    <line x1="100" y1="100" x2="170" y2="35" stroke="#DBEAFE" strokeWidth="1.5" />
-
-                    {/* Sector 1: Lime Green */}
-                    <path d="M 100 100 L 25 80 A 80 80 0 0 1 45 45 Z" fill="#4ADE80" />
-                    {/* Sector 2: Deep Blue */}
-                    <path d="M 100 100 L 45 45 A 80 80 0 0 1 75 25 Z" fill="#0018A8" />
-                    {/* Sector 3: Bright Magenta / Red */}
-                    <path d="M 100 100 L 75 25 A 80 80 0 0 1 125 25 Z" fill="#F43F5E" />
-                    {/* Sector 4: Royal Blue */}
-                    <path d="M 100 100 L 125 25 A 80 80 0 0 1 165 45 Z" fill="#1D4ED8" />
-                    {/* Sector 5: Dark Navy */}
-                    <path d="M 100 100 L 165 45 A 80 80 0 0 1 178 75 Z" fill="#0F172A" />
-
-                    {/* Inner cutout hub */}
-                    <circle cx="100" cy="100" r="18" fill="#EEF3F8" />
-                  </svg>
-                </div>
+              {/* Left Column: Agency Kit Card (Exact Screenshot Match) */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-2 sm:p-4 shadow-xs flex items-center justify-center overflow-hidden">
+                <img
+                  src="/images/mockups/agency-kit.png"
+                  alt="Agency Success Kit"
+                  className="w-full h-auto rounded-2xl shadow-xs object-contain"
+                />
               </div>
 
               {/* Right Column: Title, Links & Button */}
@@ -2771,119 +2549,13 @@ export default function LandingPage() {
           {/* TAB 7: Integrations (Exact Screenshot Match: 5 Category Boxes) */}
           {platformTab === 'integrations' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center pt-2">
-              {/* Left Column: 5 Integrations Boxes matching exact screenshot */}
-              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-5 sm:p-7 shadow-xs space-y-3.5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Category 1: Analytics */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
-                      ANALYTICS
-                    </span>
-                    <div className="flex items-center gap-2.5">
-                      {/* GA */}
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center p-2 border border-gray-100 shadow-2xs">
-                        <div className="flex items-end gap-0.5 h-6">
-                          <span className="w-1.5 h-2 bg-amber-500 rounded-2xs" />
-                          <span className="w-1.5 h-4 bg-amber-500 rounded-2xs" />
-                          <span className="w-1.5 h-6 bg-amber-500 rounded-2xs" />
-                        </div>
-                      </div>
-                      {/* GSC */}
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs text-lg">
-                        <span className="text-blue-500">🔍</span>
-                      </div>
-                      {/* Ads */}
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs">
-                        <div className="w-6 h-6 flex items-center justify-center">
-                          <span className="w-2 h-5 bg-blue-600 rounded-full rotate-45 transform -translate-x-1" />
-                          <span className="w-2 h-5 bg-emerald-500 rounded-full -rotate-45 transform translate-x-1" />
-                        </div>
-                      </div>
-                      {/* Matomo */}
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center border border-gray-100 shadow-2xs">
-                        <span className="text-[#0052CC] font-black text-sm">M</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Category 2: Reporting */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
-                      REPORTING
-                    </span>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-100 shadow-2xs">
-                        8
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-rose-500 font-bold text-sm border border-gray-100 shadow-2xs">
-                        W
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-black text-sm border border-gray-100 shadow-2xs">
-                        A
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-cyan-500 font-bold text-sm border border-gray-100 shadow-2xs">
-                        R
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Category 3: Automation */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
-                      AUTOMATION
-                    </span>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-rose-500 font-bold text-sm border border-gray-100 shadow-2xs">
-                        ⚯
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-emerald-600 font-bold text-sm border border-gray-100 shadow-2xs">
-                        ⊞
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-orange-500 font-bold text-base border border-gray-100 shadow-2xs">
-                        ✱
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-purple-600 font-bold text-sm border border-gray-100 shadow-2xs">
-                        III
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Category 4: Business Profile */}
-                  <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                    <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
-                      BUSINESS PROFILE
-                    </span>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-600 font-bold text-sm border border-gray-100 shadow-2xs">
-                        🏪
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-blue-700 font-bold text-sm border border-gray-100 shadow-2xs">
-                        f
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-900 font-bold text-sm border border-gray-100 shadow-2xs">
-                        
-                      </div>
-                      <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-teal-600 font-bold text-sm border border-gray-100 shadow-2xs">
-                        b
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Category 5: Website Builder (Full Width) */}
-                <div className="p-4 bg-white rounded-2xl border border-gray-200 shadow-2xs space-y-3">
-                  <span className="text-[11px] font-bold text-gray-900 uppercase tracking-wider block font-mono">
-                    WEBSITE BUILDER
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-800 font-black text-sm border border-gray-100 shadow-2xs">
-                      W
-                    </div>
-                    <div className="px-4 h-11 rounded-xl bg-[#F0F4FA] flex items-center justify-center text-gray-900 font-bold text-sm tracking-wider border border-gray-100 shadow-2xs">
-                      WiX
-                    </div>
-                  </div>
-                </div>
+              {/* Left Column: Integrations Mockup Card (Exact Screenshot Match) */}
+              <div className="lg:col-span-7 bg-[#EEF3F8] border border-gray-200/80 rounded-3xl p-2 sm:p-4 shadow-xs flex items-center justify-center overflow-hidden">
+                <img
+                  src="/images/mockups/integrations.png"
+                  alt="Integrations"
+                  className="w-full h-auto rounded-2xl shadow-xs object-contain"
+                />
               </div>
 
               {/* Right Column: Title, Link & Button */}
@@ -3857,117 +3529,13 @@ export default function LandingPage() {
           {/* 1. Tab: Agency Catalog (Exact 100% match to official user screenshot) */}
           {agencyPackTab === 'catalog' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center pt-2">
-              {/* Left Column: Agency Cards in Mockup with right and bottom peeking effect */}
-              <div className="lg:col-span-7 xl:col-span-7 bg-[#F4F7FC] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-6 sm:p-7 overflow-hidden h-[440px] sm:h-[460px] relative shadow-xs">
-                <div className="grid grid-cols-[420px_420px] gap-6 w-[880px] select-none">
-                  {agencyCatalogItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="w-[420px] p-6 bg-white border border-[#E2EDF9] rounded-[26px] space-y-4 shadow-[0_2px_16px_rgba(16,24,40,0.05)] shrink-0 text-left"
-                    >
-                      {/* Top Header: Logo box + Title & URL */}
-                      <div className="flex items-start gap-4">
-                        <div className="w-[62px] h-[62px] rounded-[18px] border border-[#CBD5E1] bg-white flex items-center justify-center shrink-0 shadow-2xs">
-                          <svg
-                            width="28"
-                            height="28"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="#1E293B"
-                            strokeWidth="1.8"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <rect width="18" height="18" x="3" y="3" rx="3.5" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <path d="m21 15-5-5L5 21" />
-                          </svg>
-                        </div>
-                        <div className="min-w-0 flex-1 pt-0.5">
-                          <div className="text-[21px] font-bold text-[#101828] leading-tight truncate">
-                            {item.name}
-                          </div>
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[14px] text-[#1D4ED8] font-normal hover:underline block truncate mt-1"
-                          >
-                            {item.url}
-                          </a>
-                        </div>
-                      </div>
-
-                      {/* Key-Value Details matching reference screenshot */}
-                      <div className="space-y-3 text-[14.5px] pt-1">
-                        {/* Location */}
-                        <div className="flex items-center">
-                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
-                            <MapPin className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
-                            <span>Location</span>
-                          </div>
-                          <div className="font-bold text-[#101828] truncate pl-2">
-                            {item.location}
-                          </div>
-                        </div>
-
-                        {/* Services */}
-                        <div className="flex items-center">
-                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
-                            <Wrench className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
-                            <span>Services</span>
-                          </div>
-                          <div className="font-bold text-[#101828] truncate pl-2 flex items-center">
-                            <span>{item.services}</span>
-                            {item.servicesExtra && (
-                              <span className="text-[#1D4ED8] font-bold ml-1.5 shrink-0">
-                                {item.servicesExtra}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Industries */}
-                        <div className="flex items-center">
-                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
-                            <Briefcase className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
-                            <span>Industries</span>
-                          </div>
-                          <div className="font-bold text-[#101828] truncate pl-2 flex items-center">
-                            <span>{item.industries}</span>
-                            {item.industriesExtra && (
-                              <span className="text-[#1D4ED8] font-bold ml-1.5 shrink-0">
-                                {item.industriesExtra}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Budget */}
-                        <div className="flex items-center">
-                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
-                            <Banknote className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
-                            <span>Budget</span>
-                          </div>
-                          <div className="font-bold text-[#101828] truncate pl-2">
-                            {item.budget}
-                          </div>
-                        </div>
-
-                        {/* Team size */}
-                        <div className="flex items-center">
-                          <div className="flex items-center gap-2.5 text-[#475467] w-[120px] shrink-0 font-normal">
-                            <Users className="w-5 h-5 text-[#344054] shrink-0" strokeWidth={1.8} />
-                            <span>Team size</span>
-                          </div>
-                          <div className="font-bold text-[#101828] truncate pl-2">
-                            {item.teamSize}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {/* Left Column: Agency Catalog Official Image Mockup */}
+              <div className="lg:col-span-7 xl:col-span-7 bg-[#F4F7FC] border border-[#DEECFD] rounded-[28px] sm:rounded-[32px] p-2 sm:p-4 overflow-hidden relative shadow-xs flex items-center justify-center">
+                <img
+                  src="/images/mockups/agency-success-kit.png"
+                  alt="SE Ranking Agency Catalog"
+                  className="w-full h-auto object-contain rounded-[20px] select-none pointer-events-none"
+                />
               </div>
 
               {/* Right Column (Exact Screenshot Match) */}

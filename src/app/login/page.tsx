@@ -259,13 +259,12 @@ export default function LoginPage() {
                 <span>{tAuth.stayLoggedIn}</span>
               </label>
 
-              <button
-                type="button"
-                onClick={() => alert('Password reset instructions sent to your email')}
+              <Link
+                href="/forgot"
                 className="text-[#1B66FF] hover:underline font-medium cursor-pointer"
               >
                 {tAuth.forgotPassword}
-              </button>
+              </Link>
             </div>
           </form>
 
