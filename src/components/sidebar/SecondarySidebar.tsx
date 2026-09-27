@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import {
   Home,
   LayoutGrid,
@@ -38,6 +38,7 @@ import {
   ExternalLink,
   Shield,
   Target,
+  Building2,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
@@ -101,6 +102,9 @@ export function SecondarySidebar() {
     );
   }
 
+  const searchParams = useSearchParams();
+  const currentTab = searchParams ? searchParams.get('tab') || '' : '';
+
   // Determine active section
   const effectiveSection = (() => {
     if (pathname.startsWith('/local-marketing')) return 'local-marketing';
@@ -108,6 +112,14 @@ export function SecondarySidebar() {
     if (pathname.startsWith('/backlinks')) return 'projects';
     if (pathname.startsWith('/website-audit')) return 'audit';
     if (pathname.startsWith('/reports')) return 'projects';
+    if (
+      pathname.startsWith('/agency-pack') ||
+      pathname.startsWith('/admin.user.whitelabel') ||
+      pathname.startsWith('/admin.lead_generator') ||
+      activeRail === 'agency'
+    ) {
+      return 'agency';
+    }
     if (
       pathname === '/' ||
       pathname === '/projects' ||
@@ -128,6 +140,8 @@ export function SecondarySidebar() {
 
   const getSectionTitle = () => {
     switch (effectiveSection) {
+      case 'agency':
+        return 'Agency Pack';
       case 'local-marketing':
         return 'Local Marketing';
       case 'api':
@@ -163,8 +177,8 @@ export function SecondarySidebar() {
             </button>
           </div>
 
-          {/* Project Selector Card (Hidden on API & Local Marketing routes) */}
-          {effectiveSection !== 'api' && effectiveSection !== 'local-marketing' && (
+          {/* Project Selector Card (Hidden on API, Local Marketing, & Agency routes) */}
+          {effectiveSection !== 'api' && effectiveSection !== 'local-marketing' && effectiveSection !== 'agency' && (
           <div className="p-2.5 relative border-b border-[#2C374A]/60">
             <button
               onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
@@ -641,6 +655,152 @@ export function SecondarySidebar() {
                 >
                   <Cpu className="w-4 h-4 text-gray-400 group-hover:text-white" />
                   <span>MCP</span>
+                </Link>
+              </>
+            ) : effectiveSection === 'agency' ? (
+              /* Agency Pack Menu (Exact match to SE Ranking White Label screenshot) */
+              <>
+                {/* 1. White Label Accordion */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e) => toggleSection('white_label', e)}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer select-none transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                          expandedSections.white_label ? 'rotate-0' : '-rotate-90'
+                        }`}
+                      />
+                      <span>White Label</span>
+                    </div>
+                  </button>
+
+                  {expandedSections.white_label && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
+                      <Link
+                        href="/agency-pack?tab=interface-customization"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'interface-customization'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Interface customization
+                      </Link>
+                      <Link
+                        href="/agency-pack?tab=personal-domain-names"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'personal-domain-names'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Personal domain names
+                      </Link>
+                      <Link
+                        href="/agency-pack?tab=login-page"
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'login-page' ||
+                          pathname.includes('whitelabel') ||
+                          (pathname.startsWith('/agency-pack') && (!currentTab || currentTab === 'login-page'))
+                            ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
+                        <span>Login page</span>
+                      </Link>
+                      <Link
+                        href="/agency-pack?tab=email-settings"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'email-settings'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Email settings
+                      </Link>
+                      <Link
+                        href="/agency-pack?tab=report-builder"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'report-builder'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Report Builder
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Lead Generator Accordion */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={(e) => toggleSection('lead_generator', e)}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] font-semibold cursor-pointer select-none transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ChevronRight
+                        className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                          expandedSections.lead_generator ? 'rotate-90' : 'rotate-0'
+                        }`}
+                      />
+                      <span>Lead Generator</span>
+                    </div>
+                  </button>
+
+                  {expandedSections.lead_generator && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
+                      <Link
+                        href="/agency-pack?tab=lead-generator"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'lead-generator'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Start
+                      </Link>
+                      <Link
+                        href="/agency-pack?tab=lead-widgets"
+                        className={`block px-3 py-1.5 rounded-md transition-colors ${
+                          currentTab === 'lead-widgets'
+                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
+                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        Widgets
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Users External Link */}
+                <Link
+                  href="/users"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Users className="w-4 h-4 text-gray-400" />
+                    <span>Users</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
+                </Link>
+
+                {/* 4. Report Builder External Link */}
+                <Link
+                  href="/reports"
+                  className="flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/5 text-[13.5px] transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <BarChart2 className="w-4 h-4 text-gray-400" />
+                    <span>Report Builder</span>
+                  </div>
+                  <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
                 </Link>
               </>
             ) : effectiveSection === 'projects' ? (

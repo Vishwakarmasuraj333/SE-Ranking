@@ -45,6 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/api-docs/backlinks' ||
     pathname === '/api-docs/domains' ||
     pathname.startsWith('/logout') ||
+    pathname.startsWith('/admin.site.wizard') ||
     pathname === '/settings';
 
   if (isAuthOrPublicPage) {
@@ -70,10 +71,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (visible on projects, reports, api, etc.) */}
+        {/* Desktop Secondary Navigation Sidebar (visible on projects, reports, api, agency pack, etc.) */}
         {!pathname.startsWith('/smm') &&
           !pathname.startsWith('/content-marketing') &&
-          !pathname.startsWith('/agency-pack') &&
           !pathname.startsWith('/settings') && (
             <div className="hidden lg:flex">
               <SecondarySidebar />

@@ -27,6 +27,7 @@ import {
 } from 'recharts';
 import { useApp } from '@/components/providers/AppProviders';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 export default function ProjectsDashboardPage() {
   const { projects, activeProject, setActiveProject } = useApp();
@@ -37,6 +38,9 @@ export default function ProjectsDashboardPage() {
   const [activeViewFilter, setActiveViewFilter] = useState<'ALL' | 'WEBSITES' | 'GROUPS'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isRecheckOpen, setIsRecheckOpen] = useState(false);
+  const [hoveredRecheckMenu, setHoveredRecheckMenu] = useState<'rankings' | 'search_volume' | null>(null);
 
   // Empty trend grid lines matching screenshot
   const chartData = [
@@ -106,14 +110,77 @@ export default function ProjectsDashboardPage() {
             <span>CREATE PROJECT</span>
           </button>
 
-          <button
-            onClick={() => alert('Rechecking project data...')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>RECHECK DATA</span>
-            <ChevronDown className="w-3 h-3 ml-0.5" />
-          </button>
+          {/* Recheck Data Dropdown matching Screenshot 2 & 3 */}
+          <div className="relative">
+            <button
+              onClick={() => setIsRecheckOpen(!isRecheckOpen)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>RECHECK DATA</span>
+              <ChevronDown className="w-3 h-3 ml-0.5" />
+            </button>
+
+            {isRecheckOpen && (
+              <div className="absolute top-full left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-30 text-xs animate-in fade-in duration-100">
+                {/* Recheck rankings item */}
+                <div
+                  onMouseEnter={() => setHoveredRecheckMenu('rankings')}
+                  className="relative px-3.5 py-2 hover:bg-gray-100 text-gray-800 flex items-center justify-between cursor-pointer font-medium"
+                >
+                  <span>Recheck rankings</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+
+                  {/* Level 2 Flyout Menu */}
+                  {hoveredRecheckMenu === 'rankings' && (
+                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs">
+                      <div
+                        onClick={() => {
+                          alert('Recheck selected rankings initiated');
+                          setIsRecheckOpen(false);
+                        }}
+                        className="px-3 py-2 text-gray-400 hover:bg-gray-50 cursor-pointer"
+                      >
+                        Recheck selected
+                      </div>
+                      <div
+                        onClick={() => {
+                          alert('Rechecking all rankings for active websites...');
+                          setIsRecheckOpen(false);
+                        }}
+                        className="px-3 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer"
+                      >
+                        Recheck all
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Recheck search volume item */}
+                <div
+                  onMouseEnter={() => setHoveredRecheckMenu('search_volume')}
+                  className="relative px-3.5 py-2 hover:bg-gray-100 text-gray-800 flex items-center justify-between cursor-pointer font-medium"
+                >
+                  <span>Recheck search volume</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+
+                  {hoveredRecheckMenu === 'search_volume' && (
+                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs">
+                      <div
+                        onClick={() => {
+                          alert('Recheck search volume for all keywords');
+                          setIsRecheckOpen(false);
+                        }}
+                        className="px-3 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer"
+                      >
+                        Recheck all keywords
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Metric Tabs Bar */}
