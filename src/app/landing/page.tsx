@@ -1331,21 +1331,29 @@ export default function LandingPage() {
               )}
             </div>
 
+            {/* "Log in" link matching SE Ranking official header */}
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-gray-800 hover:text-[#0B69FF] transition-colors px-2 py-1 cursor-pointer"
+            >
+              Log in
+            </Link>
+
             {/* "See product tour" button matching Screenshot */}
             <button
               type="button"
               onClick={() => setIsTourOpen(true)}
-              className="inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
+              className="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer"
             >
               <span>See product tour</span>
             </button>
 
-            {/* "Projects" Solid Blue Button matching Screenshot */}
+            {/* "Start free trial" Solid Blue Button */}
             <Link
-              href="/projects"
-              className="px-5 py-2 bg-[#1351d8] hover:bg-[#0f46bd] text-white rounded-lg text-[13px] font-bold tracking-normal transition-colors cursor-pointer shadow-xs"
+              href="/signup"
+              className="px-5 py-2 bg-[#1351d8] hover:bg-[#0f46bd] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md"
             >
-              <span>Projects</span>
+              <span>Start free trial</span>
             </Link>
           </div>
         </div>
@@ -1361,13 +1369,13 @@ export default function LandingPage() {
           Give your team the cross-channel context to prove the value of every decision across<br className="hidden sm:inline" /> SEO, GEO, and social.
         </p>
 
-        {/* Hero CTAs: Projects & See product tour */}
+        {/* Hero CTAs: Start free trial & See product tour */}
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/projects"
-            className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-medium rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
+            href="/signup"
+            className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
           >
-            <span>Projects</span>
+            <span>Start free trial</span>
           </Link>
           <button
             type="button"
@@ -2787,10 +2795,10 @@ export default function LandingPage() {
 
             <div className="pt-2">
               <Link
-                href="/projects"
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-medium rounded-lg shadow-sm transition-colors cursor-pointer"
+                href="/signup"
+                className="inline-flex items-center justify-center px-8 py-3.5 bg-[#1351d8] hover:bg-[#0f44b8] text-white text-[15px] font-bold rounded-lg shadow-sm transition-colors cursor-pointer"
               >
-                Projects
+                Start free trial
               </Link>
             </div>
           </div>
@@ -2916,13 +2924,13 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Centered Blue Projects Button */}
+          {/* Centered Blue Start Free Trial Button */}
           <div className="text-center pt-2">
             <Link
-              href="/projects"
+              href="/signup"
               className="inline-flex items-center justify-center px-10 py-3.5 bg-[#1351d8] hover:bg-[#0f46bd] text-white font-bold text-sm sm:text-base rounded-lg transition-colors shadow-xs"
             >
-              <span>Projects</span>
+              <span>Start free trial</span>
             </Link>
           </div>
         </div>
@@ -4315,8 +4323,8 @@ export default function LandingPage() {
           </h2>
           <div className="pt-2">
             <Link
-              href="/projects"
-              className="px-8 py-3.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052E16] font-extrabold text-sm sm:text-base rounded-xl transition-all shadow-md inline-block"
+              href="/signup"
+              className="px-8 py-3.5 bg-[#4ADE80] hover:bg-[#22C55E] text-[#052E16] font-extrabold text-sm sm:text-base rounded-xl transition-all shadow-md inline-block cursor-pointer"
             >
               Start free trial
             </Link>
@@ -4580,7 +4588,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
                 <button
                   onClick={() => setIsTourOpen(false)}
                   className="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
@@ -4589,9 +4597,15 @@ export default function LandingPage() {
                 </button>
                 <Link
                   href="/projects"
+                  className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-sm font-semibold transition-colors"
+                >
+                  View Studio Live
+                </Link>
+                <Link
+                  href="/signup"
                   className="px-6 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-xl text-sm font-bold shadow-xs transition-colors"
                 >
-                  Launch Projects
+                  Start Free Trial
                 </Link>
               </div>
             </div>

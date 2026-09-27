@@ -8,29 +8,49 @@ const FREE_EMAIL_DOMAINS = new Set([
   'yahoo.com',
   'yahoo.co.in',
   'yahoo.co.uk',
+  'yahoo.ca',
+  'ymail.com',
+  'rocketmail.com',
   'hotmail.com',
+  'hotmail.co.uk',
+  'hotmail.fr',
+  'hotmail.es',
   'outlook.com',
+  'outlook.in',
   'live.com',
+  'live.in',
   'msn.com',
   'aol.com',
+  'aim.com',
   'icloud.com',
   'me.com',
   'mac.com',
   'mail.com',
+  'email.com',
   'zoho.com',
+  'zohomail.com',
   'protonmail.com',
   'proton.me',
+  'pm.me',
   'yandex.com',
   'yandex.ru',
   'gmx.com',
   'gmx.de',
+  'gmx.net',
+  'web.de',
   'mail.ru',
-  'inbox.com',
-  'fastmail.com',
+  'inbox.ru',
+  'list.ru',
+  'bk.ru',
+  'rediffmail.com',
   'tutanota.com',
+  'tuta.io',
+  'fastmail.com',
   'tempmail.com',
   '10minutemail.com',
   'throwawaymail.com',
+  'guerrillamail.com',
+  'mailinator.com',
 ]);
 
 export async function POST(req: NextRequest) {
@@ -55,7 +75,13 @@ export async function POST(req: NextRequest) {
     }
 
     const domain = cleanEmail.split('@')[1];
-    if (FREE_EMAIL_DOMAINS.has(domain)) {
+    const isFree =
+      FREE_EMAIL_DOMAINS.has(domain) ||
+      ['gmail', 'googlemail', 'yahoo', 'hotmail', 'outlook', 'live', 'msn', 'icloud', 'aol'].some(
+        (prefix) => domain === prefix || domain.startsWith(`${prefix}.`)
+      );
+
+    if (isFree) {
       return NextResponse.json(
         {
           error:

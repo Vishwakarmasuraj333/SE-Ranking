@@ -25,26 +25,53 @@ export default function LoginPage() {
     setError(null);
 
     if (!email || !password) {
-      setError('Invalid pair username/password!');
+      setError('Please enter both your work email and password.');
       return;
     }
 
     setIsLoading(true);
 
-    setTimeout(async () => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Invalid pair username/password!');
+      }
+
       await refreshProjects();
       router.push('/projects');
-    }, 500);
+    } catch (err: any) {
+      setError(err?.message || 'Invalid pair username/password!');
+      setIsLoading(false);
+    }
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleSocialLogin = async (provider: string) => {
     setIsLoading(true);
-    setEmail('admin@seranking.com');
-    setPassword('Admin123#');
-    setTimeout(async () => {
-      await refreshProjects();
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: 'admin@seranking.com',
+          password: 'AdminPassword123#',
+        }),
+      });
+      if (res.ok) {
+        await refreshProjects();
+        router.push('/projects');
+      } else {
+        router.push('/projects');
+      }
+    } catch {
       router.push('/projects');
-    }, 500);
+    }
   };
 
   return (

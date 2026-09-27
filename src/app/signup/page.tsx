@@ -22,20 +22,47 @@ const FREE_EMAIL_DOMAINS = [
   'yahoo.com',
   'yahoo.co.in',
   'yahoo.co.uk',
+  'yahoo.ca',
+  'ymail.com',
+  'rocketmail.com',
   'hotmail.com',
+  'hotmail.co.uk',
+  'hotmail.fr',
+  'hotmail.es',
   'outlook.com',
+  'outlook.in',
   'live.com',
+  'live.in',
   'msn.com',
   'aol.com',
+  'aim.com',
   'icloud.com',
+  'me.com',
+  'mac.com',
   'mail.com',
+  'email.com',
   'zoho.com',
+  'zohomail.com',
   'protonmail.com',
   'proton.me',
+  'pm.me',
   'yandex.com',
   'yandex.ru',
   'gmx.com',
+  'gmx.de',
+  'gmx.net',
+  'web.de',
   'mail.ru',
+  'inbox.ru',
+  'list.ru',
+  'bk.ru',
+  'rediffmail.com',
+  'tutanota.com',
+  'tuta.io',
+  'fastmail.com',
+  'tempmail.com',
+  '10minutemail.com',
+  'throwawaymail.com',
 ];
 
 export default function SignUpPage() {
@@ -53,17 +80,35 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isFreeEmailWarning, setIsFreeEmailWarning] = useState(false);
+  const [isValidWorkEmail, setIsValidWorkEmail] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Check email domain on change
+  // Check email domain on change - strict work email enforcement
   const handleEmailChange = (val: string) => {
     setEmail(val);
     setError(null);
-    const domain = val.split('@')[1]?.toLowerCase();
-    if (domain && FREE_EMAIL_DOMAINS.includes(domain)) {
-      setIsFreeEmailWarning(true);
+    const parts = val.split('@');
+    if (parts.length === 2) {
+      const domain = parts[1].toLowerCase().trim();
+      const isFree =
+        FREE_EMAIL_DOMAINS.includes(domain) ||
+        ['gmail', 'googlemail', 'yahoo', 'hotmail', 'outlook', 'live', 'msn', 'icloud', 'aol'].some(
+          (prefix) => domain === prefix || domain.startsWith(`${prefix}.`)
+        );
+
+      if (isFree) {
+        setIsFreeEmailWarning(true);
+        setIsValidWorkEmail(false);
+      } else if (domain.includes('.') && domain.split('.')[1].length >= 2) {
+        setIsFreeEmailWarning(false);
+        setIsValidWorkEmail(true);
+      } else {
+        setIsFreeEmailWarning(false);
+        setIsValidWorkEmail(false);
+      }
     } else {
       setIsFreeEmailWarning(false);
+      setIsValidWorkEmail(false);
     }
   };
 
@@ -71,10 +116,11 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
-    const domain = email.split('@')[1]?.toLowerCase();
-    if (domain && FREE_EMAIL_DOMAINS.includes(domain)) {
+    const parts = email.split('@');
+    const domain = parts[1]?.toLowerCase().trim();
+    if (!domain || isFreeEmailWarning || FREE_EMAIL_DOMAINS.includes(domain)) {
       setError(
-        'Please use your company or work email address (e.g. name@company.com). Free email providers like Gmail or Yahoo are not supported for business trials.'
+        'Please enter your company work email (e.g. name@company.com). Free email addresses like Gmail, Yahoo, or Outlook are not accepted for trials.'
       );
       setIsFreeEmailWarning(true);
       return;
@@ -130,6 +176,7 @@ export default function SignUpPage() {
     setLastName('Vishwakarma');
     setPassword('WorkPassword123#');
     setIsFreeEmailWarning(false);
+    setIsValidWorkEmail(true);
   };
 
   return (
@@ -238,11 +285,20 @@ export default function SignUpPage() {
 
               {/* Real-time Work Email Guard */}
               {isFreeEmailWarning && (
-                <div className="mt-1.5 p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0 mt-0.5" />
+                <div className="mt-1.5 p-2.5 rounded-lg bg-rose-50 border border-rose-300 text-rose-700 text-xs flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   <div className="leading-tight text-[11px]">
-                    <strong>Work email required:</strong> Please use your company email (e.g. <code>name@company.com</code>). Personal addresses like Gmail or Yahoo are not accepted for trials.
+                    <strong className="font-bold text-rose-800">Personal email not accepted:</strong> Free mailboxes like <code>@{email.split('@')[1] || 'gmail.com'}</code> are not supported for business trials. Please enter your official corporate/work email (e.g. <code>name@company.com</code>).
                   </div>
+                </div>
+              )}
+
+              {isValidWorkEmail && (
+                <div className="mt-1.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span className="text-[11px] font-medium">
+                    Work domain verified: <strong className="font-bold">@{email.split('@')[1]}</strong>
+                  </span>
                 </div>
               )}
             </div>
@@ -251,7 +307,7 @@ export default function SignUpPage() {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
+                placeholder="Password (min. 8 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3.5 py-3 border border-gray-300 rounded-lg text-sm placeholder:text-gray-400 text-gray-900 focus:outline-hidden focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF] transition-all pr-11 bg-white"
@@ -285,10 +341,10 @@ export default function SignUpPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || isFreeEmailWarning}
+              disabled={isLoading || isFreeEmailWarning || !isValidWorkEmail}
               className={`w-full py-3.5 px-4 rounded-lg text-white font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                isLoading || isFreeEmailWarning
-                  ? 'bg-gray-400 cursor-not-allowed'
+                isLoading || isFreeEmailWarning || !isValidWorkEmail
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-[#0B69FF] hover:bg-[#005FE0] active:scale-[0.99]'
               }`}
             >
