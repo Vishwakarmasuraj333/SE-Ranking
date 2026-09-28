@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function ResearchPage() {
-  redirect('/research/ai-search');
+  redirect('/research/competitive-research');
 }

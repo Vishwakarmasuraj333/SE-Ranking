@@ -39,6 +39,7 @@ import {
   Shield,
   Target,
   Building2,
+  PenLine,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
@@ -60,18 +61,31 @@ export function SecondarySidebar() {
   const [isProjectFlyoutOpen, setIsProjectFlyoutOpen] = useState(false);
   const [hoveredSubmenu, setHoveredSubmenu] = useState<string | null>(null);
 
-  // Expanded sub-sections
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    rankings: false,
-    analytics: false,
-    competitors: false,
-    ai_tracker: false,
-    audit: false,
-    backlink_monitor: false,
-    white_label: true,
-    lead_generator: false,
-    competitive_research: true,
-    keyword_research: false,
+  // Expanded sub-sections matching exact screenshot (all project dropdowns expanded by default)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('se_ranking_sidebar_sections');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return {
+      rankings: true,
+      analytics: true,
+      competitors: true,
+      ai_tracker: true,
+      audit: true,
+      backlink_monitor: true,
+      white_label: true,
+      lead_generator: false,
+      competitive_research: true,
+      keyword_research: true,
+      keyword_grouper: true,
+      search_volume: true,
+      index_status: true,
+    };
   });
 
   const toggleSection = (key: string, e?: React.MouseEvent) => {
@@ -79,7 +93,17 @@ export function SecondarySidebar() {
       e.preventDefault();
       e.stopPropagation();
     }
-    setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+    setExpandedSections((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('se_ranking_sidebar_sections', JSON.stringify(next));
+        } catch {
+          // ignore
+        }
+      }
+      return next;
+    });
   };
 
   const filteredProjects = projects.filter(
@@ -119,6 +143,15 @@ export function SecondarySidebar() {
       activeRail === 'agency'
     ) {
       return 'agency';
+    }
+    if (
+      pathname.startsWith('/research') ||
+      pathname.startsWith('/keyword-') ||
+      pathname.startsWith('/search-') ||
+      pathname.startsWith('/index-status-checker') ||
+      activeRail === 'research'
+    ) {
+      return 'research';
     }
     if (
       pathname === '/' ||
@@ -177,8 +210,8 @@ export function SecondarySidebar() {
             </button>
           </div>
 
-          {/* Project Selector Card (Hidden on API, Local Marketing, & Agency routes) */}
-          {effectiveSection !== 'api' && effectiveSection !== 'local-marketing' && effectiveSection !== 'agency' && (
+          {/* Project Selector Card (Visible ONLY on Projects mode matching screenshot) */}
+          {effectiveSection === 'projects' && (
           <div className="p-2.5 relative border-b border-[#2C374A]/60">
             <button
               onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
@@ -814,179 +847,327 @@ export function SecondarySidebar() {
                 </Link>
               </>
             ) : effectiveSection === 'projects' ? (
-              /* Projects Mode Menu (Exact match to uploaded_media_1790348914402.png) */
-              <>
+              /* Projects Mode Menu (Exact 1:1 match to uploaded SE Ranking screenshot) */
+              <div className="space-y-0.5">
                 {/* 1. All Projects */}
                 <Link
                   href="/projects"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname === '/projects' || pathname === '/'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Home className="w-4 h-4 text-gray-300" />
-                  <span>All Projects</span>
+                  <Home className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">All Projects</span>
                 </Link>
 
                 {/* 2. Project Overview */}
                 <Link
                   href="/project-overview"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname === '/project-overview'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <LayoutGrid className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Project Overview</span>
+                  <LayoutGrid className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Project Overview</span>
                 </Link>
 
-                {/* 3. Rankings */}
+                {/* 3. Rankings (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('rankings', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/rankings')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/rankings" className="flex items-center gap-2.5 flex-1">
-                      <BarChart2 className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>Rankings</span>
+                    <Link
+                      href="/rankings"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <BarChart2 className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Rankings</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('rankings', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Rankings menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.rankings ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.rankings ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.rankings && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/rankings?tab=detailed" className="block px-2 py-1.5 hover:text-white">
-                        • Detailed
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/rankings?tab=summary"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'summary' || (pathname === '/rankings' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Summary
                       </Link>
-                      <Link href="/rankings?tab=historical" className="block px-2 py-1.5 hover:text-white">
-                        • Historical Data
+                      <Link
+                        href="/rankings?tab=detailed"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'detailed'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Detailed
                       </Link>
-                      <Link href="/rankings?tab=overview" className="block px-2 py-1.5 hover:text-white">
-                        • Overview
+                      <Link
+                        href="/rankings?tab=historical"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'historical'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Historical data
                       </Link>
                     </div>
                   )}
                 </div>
 
-                {/* 4. Analytics & Traffic */}
+                {/* 4. Analytics & Traffic (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('analytics', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/analytics')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/analytics" className="flex items-center gap-2.5 flex-1">
-                      <Activity className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>Analytics &amp; Traffic</span>
+                    <Link
+                      href="/analytics"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <Activity className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Analytics &amp; Traffic</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('analytics', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Analytics & Traffic menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.analytics ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.analytics ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.analytics && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/analytics?tab=overview" className="block px-2 py-1.5 hover:text-white">
-                        • Overview
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/analytics?tab=overview"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'overview' || (pathname === '/analytics' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Overview
                       </Link>
-                      <Link href="/analytics?tab=traffic" className="block px-2 py-1.5 hover:text-white">
-                        • Traffic Channels
+                      <Link
+                        href="/analytics?tab=traffic"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'traffic'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Traffic
+                      </Link>
+                      <Link
+                        href="/analytics?tab=snippets"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'snippets'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Snippets
+                      </Link>
+                      <Link
+                        href="/analytics?tab=gsc"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'gsc'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Google Search Console Data
+                      </Link>
+                      <Link
+                        href="/analytics?tab=potential"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'potential'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - SEO potential
                       </Link>
                     </div>
                   )}
                 </div>
 
-                {/* 5. My Competitors */}
+                {/* 5. My Competitors (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('competitors', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/competitors')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/competitors" className="flex items-center gap-2.5 flex-1">
-                      <Users className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>My Competitors</span>
+                    <Link
+                      href="/competitors"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <Users className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">My Competitors</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('competitors', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle My Competitors menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.competitors ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.competitors ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.competitors && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/competitors?tab=added" className="block px-2 py-1.5 hover:text-white">
-                        • Added Competitors
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/competitors?tab=added"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'added' || (pathname === '/competitors' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Added Competitors
                       </Link>
-                      <Link href="/competitors?tab=serp" className="block px-2 py-1.5 hover:text-white">
-                        • SERP Competitors
+                      <Link
+                        href="/competitors?tab=serp"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'serp'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - SERP Competitors
+                      </Link>
+                      <Link
+                        href="/competitors?tab=sov"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'sov'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Share of Voice
+                      </Link>
+                      <Link
+                        href="/competitors?tab=visibility"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'visibility'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Visibility Rating
                       </Link>
                     </div>
                   )}
                 </div>
 
-                {/* 6. AI Results Tracker */}
+                {/* 6. AI Results Tracker (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('ai_tracker', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/ai-results-tracker')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/ai-results-tracker" className="flex items-center gap-2.5 flex-1">
-                      <Compass className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>AI Results Tracker</span>
+                    <Link
+                      href="/ai-results-tracker"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <Compass className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">AI Results Tracker</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('ai_tracker', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle AI Results Tracker menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.ai_tracker ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.ai_tracker ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.ai_tracker && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/ai-results-tracker?tab=chatgpt" className="block px-2 py-1.5 hover:text-white">
-                        • ChatGPT Visibility
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/ai-results-tracker?tab=rankings"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'rankings' || (pathname === '/ai-results-tracker' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Rankings
                       </Link>
-                      <Link href="/ai-results-tracker?tab=perplexity" className="block px-2 py-1.5 hover:text-white">
-                        • Perplexity Answers
+                      <Link
+                        href="/ai-results-tracker?tab=competitors"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'competitors'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Competitors
                       </Link>
-                      <Link href="/ai-results-tracker?tab=gemini" className="block px-2 py-1.5 hover:text-white">
-                        • Gemini Overview
+                      <Link
+                        href="/ai-results-tracker?tab=sources"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'sources'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Sources
                       </Link>
                     </div>
                   )}
@@ -995,76 +1176,134 @@ export function SecondarySidebar() {
                 {/* 7. Insights */}
                 <Link
                   href="/insights"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname.startsWith('/insights')
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Sparkles className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Insights</span>
+                  <Sparkles className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Insights</span>
                 </Link>
 
                 {/* 8. Backlink Checker */}
                 <Link
                   href="/backlinks"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname === '/backlinks'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Link2 className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Backlink Checker</span>
+                  <Link2 className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Backlink Checker</span>
                 </Link>
 
                 {/* 9. Marketing Plan */}
                 <Link
                   href="/marketing-plan"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname.startsWith('/marketing-plan')
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <CheckSquare className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Marketing Plan</span>
+                  <CheckSquare className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Marketing Plan</span>
                 </Link>
 
-                {/* 10. Website Audit */}
+                {/* 10. Website Audit (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('audit', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/website-audit')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/website-audit" className="flex items-center gap-2.5 flex-1">
-                      <FileSearch className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>Website Audit</span>
+                    <Link
+                      href="/website-audit"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <FileSearch className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Website Audit</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('audit', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Website Audit menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.audit ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.audit ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.audit && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/website-audit" className="block px-2 py-1.5 hover:text-white">
-                        • Overview
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/website-audit?tab=overview"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'overview' || (pathname === '/website-audit' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Overview
                       </Link>
-                      <Link href="/website-audit?tab=issues" className="block px-2 py-1.5 hover:text-white">
-                        • Issue Report
+                      <Link
+                        href="/website-audit?tab=issues"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'issues'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Issue Report
                       </Link>
-                      <Link href="/website-audit?tab=pages" className="block px-2 py-1.5 hover:text-white">
-                        • Crawled Pages
+                      <Link
+                        href="/website-audit?tab=pages"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'pages'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Crawled Pages
+                      </Link>
+                      <Link
+                        href="/website-audit?tab=resources"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'resources'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Found Resources
+                      </Link>
+                      <Link
+                        href="/website-audit?tab=links"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'links'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Found Links
+                      </Link>
+                      <Link
+                        href="/website-audit?tab=comparison"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'comparison'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Crawl Comparison
                       </Link>
                     </div>
                   )}
@@ -1073,52 +1312,113 @@ export function SecondarySidebar() {
                 {/* 11. Page Changes Monitor */}
                 <Link
                   href="/page-changes"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
                     pathname.startsWith('/page-changes')
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Columns className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Page Changes Monitor</span>
+                  <Columns className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Page Changes Monitor</span>
                 </Link>
 
-                {/* 12. Backlink Monitor */}
+                {/* 12. Backlink Monitor (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors group cursor-pointer ${
+                    onClick={(e) => toggleSection('backlink_monitor', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
                       pathname.startsWith('/backlinks-monitor')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/backlinks-monitor" className="flex items-center gap-2.5 flex-1">
-                      <ChainLink className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                      <span>Backlink Monitor</span>
+                    <Link
+                      href="/backlinks-monitor"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <ChainLink className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Backlink Monitor</span>
                     </Link>
                     <button
+                      type="button"
                       onClick={(e) => toggleSection('backlink_monitor', e)}
-                      className="p-0.5 hover:text-white text-gray-400 cursor-pointer"
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Backlink Monitor menu"
                     >
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
-                          expandedSections.backlink_monitor ? 'rotate-180' : ''
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.backlink_monitor ? 'rotate-180' : 'rotate-0'
                         }`}
                       />
                     </button>
                   </div>
                   {expandedSections.backlink_monitor && (
-                    <div className="ml-6 pl-2 border-l border-[#333E50] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/backlinks-monitor?tab=all" className="block px-2 py-1.5 hover:text-white">
-                        • All Monitored Links
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/backlinks-monitor?tab=backlinks"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'backlinks' || (pathname === '/backlinks-monitor' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Backlinks
                       </Link>
-                      <Link href="/backlinks-monitor?tab=disavow" className="block px-2 py-1.5 hover:text-white">
-                        • Disavow Tool
+                      <Link
+                        href="/backlinks-monitor?tab=domains"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'domains'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Domains
+                      </Link>
+                      <Link
+                        href="/backlinks-monitor?tab=anchor-texts"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'anchor-texts'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Anchor Texts
+                      </Link>
+                      <Link
+                        href="/backlinks-monitor?tab=pages"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'pages'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Pages
+                      </Link>
+                      <Link
+                        href="/backlinks-monitor?tab=ips-subnets"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'ips-subnets'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - IPs/Subnets
+                      </Link>
+                      <Link
+                        href="/backlinks-monitor?tab=disavow"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'disavow'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Disavow
                       </Link>
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             ) : effectiveSection === 'backlinks' ? (
               /* Backlinks Submenu */
               <>
@@ -1147,62 +1447,151 @@ export function SecondarySidebar() {
                 </Link>
               </>
             ) : effectiveSection === 'audit' ? (
-              /* Audit Submenu */
-              <>
-                <Link
-                  href="/website-audit"
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/website-audit'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <FileSearch className="w-4 h-4 text-gray-400" />
-                    <span>Website Audit</span>
+              /* Audit Submenu (Exact 1:1 match to screenshot) */
+              <div className="space-y-0.5">
+                {/* Website Audit Dropdown */}
+                <div>
+                  <div
+                    onClick={(e) => toggleSection('audit', e)}
+                    className="group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]"
+                  >
+                    <Link
+                      href="/website-audit"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <FileSearch className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Website Audit</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('audit', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Website Audit menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.audit ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
                   </div>
-                  <span className="text-[10px] bg-white/10 text-gray-300 px-1.5 py-0.2 rounded font-semibold">
-                    1
-                  </span>
-                </Link>
 
-                <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
-                  <Link
-                    href="/website-audit?tab=overview"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
-                  >
-                    • Overview
-                  </Link>
-                  <Link
-                    href="/website-audit?tab=issues"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
-                  >
-                    • Issue Report
-                  </Link>
-                  <Link
-                    href="/website-audit?tab=pages"
-                    className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
-                  >
-                    • Crawled Pages
-                  </Link>
+                  {expandedSections.audit && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      {/* All reports (active in screenshot) */}
+                      <Link
+                        href="/website-audit"
+                        className={`flex items-center gap-2 py-1.5 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          pathname === '/website-audit' && (!currentTab || currentTab === 'all-reports')
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span className="text-[#8C98A9]">📋</span>
+                        <span>All reports</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=overview"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'overview'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Overview</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=issues"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'issues'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Issue Report</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=pages"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'pages'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Crawled Pages</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=resources"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'resources'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Found Resources</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=links"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'links'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Found Links</span>
+                      </Link>
+
+                      <Link
+                        href="/website-audit?tab=comparison"
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'comparison'
+                            ? 'bg-[#394757] text-white font-medium shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        <span>-</span>
+                        <span>Crawl Comparison</span>
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
-                <Link
-                  href="/website-audit/on-page"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
-                >
-                  <FileSearch className="w-4 h-4 text-gray-400" />
-                  <span>On-Page SEO Checker</span>
-                </Link>
+                {/* On-Page SEO Checker */}
+                <div className="flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors text-[#C4C9D3] hover:text-white hover:bg-[#2C384A] cursor-pointer">
+                  <Link
+                    href="/website-audit/on-page"
+                    className="flex items-center gap-2.5 flex-1 min-w-0"
+                  >
+                    <FileSearch className="w-4 h-4 text-[#8C98A9]" />
+                    <span className="truncate">On-Page SEO Checker</span>
+                  </Link>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#8C98A9]" />
+                </div>
 
+                {/* SERP Analyzer */}
                 <Link
                   href="/website-audit/serp-analyzer"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors ${
+                    pathname === '/website-audit/serp-analyzer'
+                      ? 'bg-[#394757] text-white'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
+                  }`}
                 >
-                  <SearchIcon className="w-4 h-4 text-gray-400" />
+                  <SearchIcon className="w-4 h-4 text-[#8C98A9]" />
                   <span>SERP Analyzer</span>
                 </Link>
-              </>
+              </div>
             ) : effectiveSection === 'reports' ? (
               /* Reports Submenu */
               <>
@@ -1240,171 +1629,354 @@ export function SecondarySidebar() {
                 </Link>
               </>
             ) : (
-              /* Research Mode Menu */
-              <>
+              /* Research Mode Menu (Exact 1:1 match to uploaded Research screenshot) */
+              <div className="space-y-0.5">
+                {/* 1. Competitive Research (Dropdown matching Screenshot 1, 2 & 3) */}
                 <div>
-                  <button
-                    onClick={() => toggleSection('competitive_research')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer"
+                  <div
+                    onClick={(e) => toggleSection('competitive_research', e)}
+                    className="group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Compass className="w-4 h-4 text-gray-400" />
-                      <span>Competitive Research</span>
-                    </div>
-                    {expandedSections.competitive_research ? (
-                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                    )}
-                  </button>
-
+                    <Link
+                      href="/research/competitive-research"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <Compass className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Competitive Research</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('competitive_research', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Competitive Research menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.competitive_research ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
                   {expandedSections.competitive_research && (
-                    <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      {/* Google Search subitem matching Screenshot 1 */}
                       <Link
                         href="/research/competitive-research"
-                        className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
-                          pathname === '/research/competitive-research'
-                            ? 'text-white font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          pathname === '/research' || pathname === '/research/competitive-research'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        <span className="mr-2 text-gray-500">•</span>
+                        <span className={pathname === '/research' || pathname === '/research/competitive-research' ? 'text-white font-bold' : 'text-[#8C98A9]'}>
+                          {pathname === '/research' || pathname === '/research/competitive-research' ? '•' : '-'}
+                        </span>
                         <span>Google Search</span>
                       </Link>
 
+                      {/* AI Search subitem matching Screenshot 2 */}
                       <Link
                         href="/research/ai-search"
-                        className={`flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
+                        className={`flex items-center justify-between py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           pathname.startsWith('/research/ai-search')
-                            ? 'text-[#60A5FA] font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        <div className="flex items-center">
-                          <span className="mr-2 text-[#60A5FA]">•</span>
+                        <div className="flex items-center gap-2">
+                          <span className={pathname.startsWith('/research/ai-search') ? 'text-white font-bold' : 'text-[#8C98A9]'}>
+                            {pathname.startsWith('/research/ai-search') ? '•' : '-'}
+                          </span>
                           <span>AI Search</span>
                         </div>
-                        <span className="text-[10px] bg-[#145EA8]/40 text-[#8ec5fc] px-1.5 py-0.2 rounded font-semibold border border-[#145EA8]/50">
+                        <span className="text-[10px] bg-[#145EA8]/50 text-[#8ec5fc] px-1.5 py-0.2 rounded font-semibold border border-[#145EA8]/60">
                           Beta
                         </span>
                       </Link>
 
+                      {/* Database Expansion subitem matching Screenshot 3 */}
                       <Link
                         href="/research/database-expansion"
-                        className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           pathname === '/research/database-expansion'
-                            ? 'text-white font-semibold bg-[#394757]'
-                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        <span className="mr-2 text-gray-500">•</span>
+                        <span className={pathname === '/research/database-expansion' ? 'text-white font-bold' : 'text-[#8C98A9]'}>
+                          {pathname === '/research/database-expansion' ? '•' : '-'}
+                        </span>
                         <span>Database Expansion</span>
                       </Link>
                     </div>
                   )}
                 </div>
 
+                {/* 2. Keyword Research (Dropdown) */}
                 <div>
-                  <button
-                    onClick={() => toggleSection('keyword_research')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer"
+                  <div
+                    onClick={(e) => toggleSection('keyword_research', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
+                      pathname.startsWith('/research/keyword')
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
+                    }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <KeyRound className="w-4 h-4 text-gray-400" />
-                      <span>Keyword Research</span>
-                    </div>
-                    {expandedSections.keyword_research ? (
-                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                    ) : (
-                      <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
-                    )}
-                  </button>
-
+                    <Link
+                      href="/research/keyword-research"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <KeyRound className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Keyword Research</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('keyword_research', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Keyword Research menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.keyword_research ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
                   {expandedSections.keyword_research && (
-                    <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5 text-xs text-gray-400">
-                      <Link href="/research/keyword-research" className="block px-2 py-1.5 hover:text-white">
-                        • Overview
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/research/keyword-research?tab=overview"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'overview' || (pathname === '/research/keyword-research' && !currentTab)
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Overview
                       </Link>
-                      <Link href="/research/keyword-research/suggestions" className="block px-2 py-1.5 hover:text-white">
-                        • Keyword Suggestions
+                      <Link
+                        href="/research/keyword-research/suggestions"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          pathname.includes('suggestions') || currentTab === 'suggestions'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Keyword Suggestions
                       </Link>
-                      <Link href="/research/keyword-research/serp" className="block px-2 py-1.5 hover:text-white">
-                        • SERP Overview
+                      <Link
+                        href="/research/keyword-research/serp"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          pathname.includes('serp') || currentTab === 'serp'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - SERP Overview
+                      </Link>
+                      <Link
+                        href="/research/keyword-research?tab=organic-serp-history"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'organic-serp-history'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Organic SERP History
+                      </Link>
+                      <Link
+                        href="/research/keyword-research?tab=ads-history"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'ads-history'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Ads History
+                      </Link>
+                      <Link
+                        href="/research/keyword-research?tab=database-expansion"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'database-expansion'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Database Expansion
                       </Link>
                     </div>
                   )}
                 </div>
 
+                {/* 3. Keyword Manager */}
                 <Link
                   href="/keyword-manager"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/keyword-manager'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
+                    pathname.startsWith('/keyword-manager')
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Sliders className="w-4 h-4 text-gray-400" />
-                  <span>Keyword Manager</span>
+                  <Sliders className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Keyword Manager</span>
                 </Link>
 
-                <Link
-                  href="/keyword-grouper"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/keyword-grouper'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <FolderTree className="w-4 h-4 text-gray-400" />
-                  <span>Keyword Grouper</span>
-                </Link>
-
-                <Link
-                  href="/research/keyword-research/suggestions"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  <SearchIcon className="w-4 h-4 text-gray-400" />
-                  <span>Search Engine Autocomplete</span>
-                </Link>
-
-                <Link
-                  href="/research/keyword-research"
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] text-[#C4C9D3] hover:text-white hover:bg-white/10 transition-colors"
-                >
-                  <BarChart2 className="w-4 h-4 text-gray-400" />
-                  <span>Search Volume Checker</span>
-                </Link>
-
-                {/* Index Status Checker with Results matching Screenshot 1 */}
+                {/* 4. Keyword Grouper (Dropdown) */}
                 <div>
                   <div
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                      pathname.startsWith('/index-status-checker')
-                        ? 'bg-[#394757] text-white font-medium'
-                        : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                    onClick={(e) => toggleSection('keyword_grouper', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
+                      pathname.startsWith('/keyword-grouper')
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                     }`}
                   >
-                    <Link href="/index-status-checker" className="flex items-center gap-2.5 flex-1">
-                      <CheckCircle2 className="w-4 h-4 text-gray-400" />
-                      <span>Index Status Checker</span>
-                    </Link>
-                    <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                  </div>
-                  <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
                     <Link
-                      href="/index-status-checker?tab=results"
-                      className={`flex items-center px-2 py-1.5 rounded text-xs transition-colors ${
-                        pathname.startsWith('/index-status-checker')
-                          ? 'text-white font-semibold bg-[#2C3848]'
-                          : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
-                      }`}
+                      href="/keyword-grouper"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
                     >
-                      <span className="mr-2 text-gray-500">•</span>
-                      <span>Results</span>
+                      <FolderTree className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Keyword Grouper</span>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('keyword_grouper', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Keyword Grouper menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.keyword_grouper ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
                   </div>
+                  {expandedSections.keyword_grouper && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/keyword-grouper?tab=results"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'results' || pathname === '/keyword-grouper'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Results
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              </>
+
+                {/* 5. Search Engine Autocomplete */}
+                <Link
+                  href="/search-autocomplete"
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
+                    pathname.startsWith('/search-autocomplete')
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
+                  }`}
+                >
+                  <PenLine className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Search Engine Autocomplete</span>
+                </Link>
+
+                {/* 6. Search Volume Checker (Dropdown) */}
+                <div>
+                  <div
+                    onClick={(e) => toggleSection('search_volume', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
+                      pathname.startsWith('/search-volume-checker')
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
+                    }`}
+                  >
+                    <Link
+                      href="/search-volume-checker"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <BarChart2 className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Search Volume Checker</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('search_volume', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Search Volume Checker menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.search_volume ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {expandedSections.search_volume && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/search-volume-checker?tab=results"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'results' || pathname === '/search-volume-checker'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Results
+                      </Link>
+                    </div>
+                  )}
+                </div>
+
+                {/* 7. Index Status Checker (Dropdown - Active highlight matching screenshot) */}
+                <div>
+                  <div
+                    onClick={(e) => toggleSection('index_status', e)}
+                    className={`group flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer select-none ${
+                      pathname.startsWith('/index-status-checker')
+                        ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                        : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
+                    }`}
+                  >
+                    <Link
+                      href="/index-status-checker"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex items-center gap-2.5 flex-1 min-w-0"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                      <span className="truncate">Index Status Checker</span>
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => toggleSection('index_status', e)}
+                      className="p-1 rounded hover:bg-white/10 text-[#8C98A9] group-hover:text-white transition-all cursor-pointer shrink-0 ml-1"
+                      title="Toggle Index Status Checker menu"
+                    >
+                      <ChevronDown
+                        className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                          expandedSections.index_status ? 'rotate-180' : 'rotate-0'
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  {expandedSections.index_status && (
+                    <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
+                      <Link
+                        href="/index-status-checker?tab=results"
+                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                          currentTab === 'results' || pathname === '/index-status-checker'
+                            ? 'text-white font-medium bg-white/10'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                        }`}
+                      >
+                        - Results
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         </div>

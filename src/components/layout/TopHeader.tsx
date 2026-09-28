@@ -343,61 +343,6 @@ export function TopHeader() {
               </div>
             );
           })}
-
-          {/* Plus Add / Customize Favorites Button */}
-          <div ref={addTabRef} className="relative flex items-center h-full">
-            <button
-              onClick={() => setIsAddTabOpen(!isAddTabOpen)}
-              className={`p-1.5 rounded transition-colors text-white/70 hover:text-white hover:bg-white/10 cursor-pointer ${
-                isAddTabOpen ? 'bg-white/20 text-white' : ''
-              }`}
-              title="Add or manage favorite tabs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Add Tab Popover Dropdown */}
-            {isAddTabOpen && (
-              <div className="absolute left-0 top-[calc(100%+3px)] w-60 bg-white rounded-lg shadow-xl border border-gray-200 text-gray-800 z-50 py-2 text-xs">
-                <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between border-b pb-1.5 mb-1">
-                  <span>Add to Favorites</span>
-                  <button
-                    onClick={handleRestoreDefaultTabs}
-                    className="text-[#0B69FF] hover:underline flex items-center gap-1 font-semibold normal-case text-[11px] cursor-pointer"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Reset</span>
-                  </button>
-                </div>
-
-                <div className="max-h-64 overflow-y-auto py-1">
-                  {ALL_AVAILABLE_TOOLS.map((tool) => {
-                    const isAdded = favoriteTabs.some((t) => t.id === tool.id);
-                    return (
-                      <button
-                        key={tool.id}
-                        onClick={() => {
-                          if (isAdded) {
-                            saveTabs(favoriteTabs.filter((t) => t.id !== tool.id));
-                          } else {
-                            handleAddTab(tool);
-                          }
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-1.5 hover:bg-blue-50/70 text-gray-700 hover:text-[#0B69FF] font-medium text-left transition-colors cursor-pointer"
-                      >
-                        <span className="truncate">{tool.label}</span>
-                        {isAdded ? (
-                          <Check className="w-3.5 h-3.5 text-[#0B69FF] shrink-0" />
-                        ) : (
-                          <Plus className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
         </nav>
       </div>
 
@@ -449,10 +394,8 @@ export function TopHeader() {
                 <span>Report a bug</span>
               </button>
 
-              <a
-                href="https://help.seranking.com/hc/en-us"
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href="/help"
                 onClick={() => setIsHelpOpen(false)}
                 className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer"
               >
@@ -460,13 +403,10 @@ export function TopHeader() {
                   <BookOpen className="w-4 h-4 text-gray-500" />
                   <span>Help Center</span>
                 </div>
-                <ExternalLink className="w-3 h-3 text-gray-400" />
-              </a>
+              </Link>
 
-              <a
-                href="https://seranking.com/whats-new.html"
-                target="_blank"
-                rel="noreferrer"
+              <Link
+                href="/whats-new"
                 onClick={() => setIsHelpOpen(false)}
                 className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer border-t border-gray-100 mt-1 pt-1.5"
               >
@@ -474,8 +414,7 @@ export function TopHeader() {
                   <Gift className="w-4 h-4 text-amber-500" />
                   <span>What&apos;s new</span>
                 </div>
-                <ExternalLink className="w-3 h-3 text-gray-400" />
-              </a>
+              </Link>
             </div>
           )}
         </div>

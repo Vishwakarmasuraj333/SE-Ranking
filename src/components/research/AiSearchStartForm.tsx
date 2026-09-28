@@ -86,23 +86,28 @@ export function AiSearchStartForm({
     <div className="w-full max-w-[620px] mx-auto pt-6 pb-12 px-4 select-none">
       {/* Top Title: Start with */}
       <div className="text-center mb-5">
-        <h2 className="text-[13px] font-semibold text-gray-700 tracking-wide mb-3 uppercase">
+        <h2 className="text-xs font-semibold text-gray-700 tracking-wide mb-2.5">
           Start with
         </h2>
 
-        {/* Toggle Pills: Google Search vs AI Search */}
-        <div className="inline-flex p-1 bg-white border border-gray-200 rounded-lg shadow-2xs">
+        {/* Toggle Pills: Google Search vs AI Search matching Screenshot 1 & 2 */}
+        <div className="inline-flex p-1 bg-[#EEF2F6] border border-gray-200/80 rounded-lg shadow-2xs">
           <button
             type="button"
-            onClick={() => setSearchType('google-search')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+            onClick={() => {
+              if (searchType !== 'google-search') {
+                setSearchType('google-search');
+                router.push('/research/competitive-research');
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium transition-all cursor-pointer ${
               searchType === 'google-search'
-                ? 'bg-blue-50 text-[#0B69FF] shadow-2xs border border-blue-200'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-white text-gray-900 shadow-xs border border-gray-200/70 font-semibold'
+                : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             {/* Google G logo */}
-            <svg className="w-4 h-4" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -125,20 +130,25 @@ export function AiSearchStartForm({
 
           <button
             type="button"
-            onClick={() => setSearchType('ai-search')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+            onClick={() => {
+              if (searchType !== 'ai-search') {
+                setSearchType('ai-search');
+                router.push('/research/ai-search');
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-xs font-medium transition-all cursor-pointer ${
               searchType === 'ai-search'
-                ? 'bg-purple-50 text-[#7C3AED] shadow-2xs border border-purple-200'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-white text-gray-900 shadow-xs border border-gray-200/70 font-semibold'
+                : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            <Sparkles className="w-4 h-4 text-[#8B5CF6]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6]" />
             <span>AI Search</span>
           </button>
         </div>
 
-        {/* Subtitle text */}
-        <p className="text-xs text-gray-500 max-w-[480px] mx-auto mt-3.5 leading-relaxed">
+        {/* Subtitle text matching Screenshot 1 & 2 */}
+        <p className="text-xs text-gray-500 max-w-[490px] mx-auto mt-3 leading-relaxed">
           {searchType === 'ai-search'
             ? 'Monitor domain citations and brand mentions in AI answers, and identify their sources. Use these insights to improve visibility and stay ahead of competitors.'
             : 'Analyze domain rankings, find top keywords, and discover competitor insights to grow organic traffic.'}

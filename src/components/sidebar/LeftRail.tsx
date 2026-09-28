@@ -60,7 +60,7 @@ export function LeftRail() {
       id: 'research',
       label: 'Research',
       icon: Search,
-      href: '/research/ai-search',
+      href: '/research/competitive-research',
       onClick: () => setActiveRail('research'),
     },
     {
@@ -127,15 +127,15 @@ export function LeftRail() {
       id: 'smm',
       label: 'SMM',
       icon: ThumbsUp,
-      badge: '-20%',
-      badgeColor: 'bg-[#EAE6FF] text-[#5E4DB2]',
+      badge: '20%',
+      badgeColor: 'bg-[#FF4D6D]/25 text-[#FFA0B4]',
       href: '/smm',
       onClick: () => setActiveRail('smm'),
     },
   ];
 
   return (
-    <aside className="w-[66px] bg-[#222D3B] text-gray-400 flex flex-col justify-between py-2 border-r border-[#2C3646] select-none shrink-0 z-30">
+    <aside className="w-[66px] bg-[#0c192c] text-gray-400 flex flex-col justify-between py-2 border-r border-[#1a293e] select-none shrink-0 z-30">
       {/* Top Navigation Items */}
       <div className="flex flex-col items-center gap-1 overflow-y-auto no-scrollbar">
         {railItems.map((item) => {
@@ -166,7 +166,7 @@ export function LeftRail() {
               title={item.label}
               className={`w-[60px] min-h-[54px] py-1.5 px-0.5 flex flex-col items-center justify-center rounded-lg transition-all duration-150 relative group text-center cursor-pointer ${
                 isActive
-                  ? 'bg-[#313E4F] text-white font-medium shadow-xs'
+                  ? 'bg-[#1e2d42] text-white font-medium shadow-xs'
                   : 'hover:bg-white/10 hover:text-white text-[#9DA8B6]'
               }`}
             >
@@ -189,7 +189,7 @@ export function LeftRail() {
                 )}
 
                 {item.hasMarker && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#10B981] border border-[#222D3B]" />
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#20b26c] border border-[#0c192c]" />
                 )}
               </div>
 
@@ -210,14 +210,17 @@ export function LeftRail() {
       </div>
 
       {/* Bottom Profile and Settings */}
-      <div className="flex flex-col items-center gap-1 pt-2 border-t border-[#2C3646]">
+      <div className="flex flex-col items-center gap-1 pt-2 border-t border-[#1a293e]">
         <Link
           href="/settings"
           title="Profile & Settings"
           className="w-[50px] h-[48px] rounded-lg flex flex-col items-center justify-center hover:bg-white/5 transition-colors relative group"
         >
-          <div className="w-6 h-6 rounded-full bg-blue-600/40 text-blue-200 flex items-center justify-center text-[10px] font-bold border border-blue-400/40">
-            SV
+          <div className="relative">
+            <div className="w-6 h-6 rounded-full bg-[#1b3459] text-blue-200 flex items-center justify-center text-[10px] font-bold border border-blue-400/40">
+              GV
+            </div>
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#2563eb] border border-[#0c192c]" />
           </div>
           <Settings className="w-3 h-3 text-gray-500 group-hover:text-gray-300 mt-0.5" />
         </Link>

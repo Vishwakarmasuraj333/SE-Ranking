@@ -1,206 +1,449 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import {
   Info,
   X,
   ChevronDown,
-  RefreshCw,
-  Search,
+  Paperclip,
   Download,
-  CheckCircle2,
+  Search,
+  Check,
+  Sparkles,
+  ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
+import { SUPPORTED_COUNTRIES } from '@/lib/constants';
 
 interface VolumeResult {
   keyword: string;
   volume: number;
   cpc: string;
   competition: string;
+  trend: string;
 }
 
 export default function SearchVolumeCheckerPage() {
-  const [showBanner, setShowBanner] = useState(true);
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
   const [source, setSource] = useState('Google Keyword Planner');
-  const [country, setCountry] = useState('India');
+  const [isSourceOpen, setIsSourceOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(
+    SUPPORTED_COUNTRIES.find((c) => c.code === 'in') || SUPPORTED_COUNTRIES[0]
+  );
+  const [isCountryOpen, setIsCountryOpen] = useState(false);
+
+  // Region Search
+  const [regionInput, setRegionInput] = useState('');
+  const [isRegionOpen, setIsRegionOpen] = useState(false);
+
+  const indiaRegions = [
+    'Hyderabad, Telangana, India',
+    'Nellore, Nellore, Andhra Pradesh, India',
+    'Vijayawada, Andhra Pradesh, India',
+    'Visakhapatnam, Andhra Pradesh, India',
+    'Warangal, Telangana, India',
+    'Guwahati, Assam, India',
+    'Bengaluru, Karnataka, India',
+    'Mumbai, Maharashtra, India',
+    'Delhi, National Capital Territory of Delhi, India',
+    'Pune, Maharashtra, India',
+  ];
+
+  const usRegions = [
+    'New York, NY, United States',
+    'Los Angeles, CA, United States',
+    'Chicago, IL, United States',
+    'Houston, TX, United States',
+    'Phoenix, AZ, United States',
+    'San Francisco, CA, United States',
+    'Austin, TX, United States',
+    'Seattle, WA, United States',
+  ];
+
+  const availableRegions = selectedCountry.code === 'in' ? indiaRegions : usRegions;
+  const filteredRegions = availableRegions.filter((r) =>
+    r.toLowerCase().includes(regionInput.toLowerCase())
+  );
+
   const [keywordsText, setKeywordsText] = useState('');
   const [isChecking, setIsChecking] = useState(false);
   const [results, setResults] = useState<VolumeResult[]>([]);
+  const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const keywordCount = keywordsText
-    .split('\n')
+  const queryLines = keywordsText
+    .split(/[\r\n]+/)
     .map((k) => k.trim())
-    .filter((k) => k.length > 0).length;
+    .filter(Boolean);
+  const queryCount = queryLines.length;
+  const totalCost = (queryCount * 0.005).toFixed(3);
 
-  const totalCost = (keywordCount * 0.005).toFixed(3);
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (!text) return;
+      setKeywordsText(text);
+    };
+    reader.readAsText(file);
+  };
+
+  const loadSampleKeywords = () => {
+    setKeywordsText(
+      `best time tracking software\nremote employee monitoring\ntimesheet calculator app\nemployee productivity tracker\nwork hours tracker with screenshots\nattendance punch in punch out software`
+    );
+  };
 
   const handleStartCheck = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!keywordsText.trim()) return;
+    if (queryCount === 0) {
+      alert('Please enter at least one keyword.');
+      return;
+    }
 
     setIsChecking(true);
-    setTimeout(() => {
-      const lines = keywordsText
-        .split('\n')
-        .map((k) => k.trim())
-        .filter((k) => k.length > 0);
 
-      const generated: VolumeResult[] = lines.map((k) => ({
-        keyword: k,
-        volume: Math.floor(Math.random() * 18000) + 1200,
-        cpc: `$${(Math.random() * 3 + 0.8).toFixed(2)}`,
-        competition: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)],
-      }));
+    setTimeout(() => {
+      const generated: VolumeResult[] = queryLines.map((k) => {
+        const baseVol = Math.max(450, Math.floor(2800 + (k.length * 420) % 35000));
+        const cpcVal = (1.1 + (k.length * 0.18) % 6.5).toFixed(2);
+        const comp = ['Low', 'Medium', 'High'][k.length % 3];
+        const trend = `+${Math.floor(10 + (k.length * 3) % 40)}%`;
+        return {
+          keyword: k,
+          volume: baseVol,
+          cpc: `$${cpcVal}`,
+          competition: comp,
+          trend,
+        };
+      });
 
       setResults(generated);
       setIsChecking(false);
     }, 1000);
   };
 
-  return (
-    <div className="flex-1 bg-[#F5F7FB] min-h-screen text-gray-800 p-6 select-none">
-      <div className="max-w-6xl mx-auto space-y-4">
-        {/* Top Breadcrumb & Feedback Header */}
-        <div className="flex items-center justify-between text-xs text-gray-500">
-          <div className="font-semibold text-gray-700">Search Volume Checker</div>
-          <button
-            onClick={() => alert('Feedback dialog opened')}
-            className="hover:text-blue-600 font-medium cursor-pointer"
-          >
-            Feedback
-          </button>
-        </div>
+  const handleExportCsv = () => {
+    const headers = ['Keyword', 'Monthly Search Volume', 'Estimated CPC', 'Competition Level', 'Trend'];
+    const rows = results.map((r) => [
+      `"${r.keyword}"`,
+      String(r.volume),
+      r.cpc,
+      r.competition,
+      r.trend,
+    ]);
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((row) => row.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', 'search_volume_report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-        {/* Blue Info Banner (Screenshot 5 exact match) */}
-        {showBanner && (
-          <div className="p-4 bg-[#EDF3FC] border border-[#D5E3F7] rounded-xl text-xs text-gray-700 relative flex items-start gap-3">
+  return (
+    <div className="flex-1 overflow-y-auto bg-[#FAFBFD] min-h-[calc(100vh-80px)] text-gray-900 select-none pb-20 relative">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept=".txt,.csv"
+        className="hidden"
+      />
+
+      {/* Floating 10% Discount Tab matching Screenshot 1 & 2 */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-bottom-right rotate-90 translate-x-[2px] hidden md:block">
+        <a
+          href="/pricing"
+          className="bg-[#FF6077] hover:bg-[#ff4a64] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-md shadow-md tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
+        >
+          <span>10% discount just for you</span>
+        </a>
+      </div>
+
+      <div className="max-w-[1240px] mx-auto p-4 sm:p-6 space-y-4">
+        {/* Notice Info Banner matching Screenshot 1 & 2 */}
+        {showInfoBanner && (
+          <div className="p-3.5 sm:p-4 bg-[#EDF3FC] border border-[#D5E3F7] rounded-lg text-xs text-gray-700 relative flex items-start gap-3 leading-relaxed">
             <Info className="w-4 h-4 text-[#0B69FF] shrink-0 mt-0.5" />
-            <p className="leading-relaxed flex-1">
+            <p className="flex-1 pr-6">
               Our Search Volume Checker offers statistics on the search volume a specific keyword gets on Google per month. This data will help you predict the traffic volume, evaluate the quality of your semantic core, and discover which keywords can be removed so that you don&apos;t waste resources on promotion.
             </p>
             <button
-              onClick={() => setShowBanner(false)}
-              className="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+              type="button"
+              onClick={() => setShowInfoBanner(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+              title="Close notice"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
-        {/* Main 2-Column Interface (Screenshot 5 exact match) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Left Column: Payment For Checking */}
-          <div className="lg:col-span-4 bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-4 flex flex-col justify-between">
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-900">Payment for checking</h3>
+        {/* Title row matching Screenshot 1 */}
+        <div className="flex items-center justify-between text-xs pt-1">
+          <div className="text-[13px] font-semibold text-gray-800">
+            Search Volume Checker
+          </div>
+          <button
+            type="button"
+            onClick={() => alert('Feedback dialog opened')}
+            className="text-xs text-gray-500 hover:text-[#0B69FF] cursor-pointer"
+          >
+            Feedback
+          </button>
+        </div>
 
-              {/* Green Price Box */}
-              <div className="bg-[#EAFBF3] border border-[#BCEEDA] rounded-xl p-4 text-center">
-                <div className="text-xl font-black text-[#00A86B]">$0.005</div>
-                <div className="text-[11px] text-gray-600 mt-0.5 font-medium">Per search query</div>
-              </div>
+        {/* Two-Column Interface matching Screenshot 1 & 2 */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Payment for checking */}
+          <div className="lg:col-span-5 bg-white border border-gray-200/90 rounded-xl p-6 shadow-2xs space-y-5 text-center">
+            <h3 className="text-[15px] font-bold text-gray-900 tracking-tight">
+              Payment for checking
+            </h3>
 
-              {/* Gray Balance Box */}
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-                <div className="text-xl font-bold text-gray-800">$0</div>
-                <div className="text-[11px] text-gray-500 mt-0.5 font-medium">Current balance</div>
-              </div>
-
-              {/* Top Up Balance Button */}
-              <Link
-                href="/api-docs/wallet"
-                className="w-full py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors block text-center uppercase tracking-wider shadow-2xs"
-              >
-                TOP UP BALANCE
-              </Link>
+            {/* Per search query card */}
+            <div className="border border-gray-200 rounded-lg p-5 bg-white space-y-1">
+              <div className="text-2xl font-bold text-[#10B981]">$0.005</div>
+              <div className="text-xs text-gray-500 font-medium">Per search query</div>
             </div>
 
-            <div className="pt-4 border-t border-gray-100 text-center">
-              <div className="text-xs font-semibold text-gray-700">Total amount to be charged</div>
-              <div className="text-2xl font-black text-gray-900 mt-1">${totalCost}</div>
+            {/* Current balance card */}
+            <div className="border border-gray-200 rounded-lg p-5 bg-white space-y-1">
+              <div className="text-2xl font-bold text-gray-800">$0</div>
+              <div className="text-xs text-gray-500 font-medium">Current balance</div>
+            </div>
+
+            {/* Top Up Balance Button */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsTopUpModalOpen(true)}
+                className="w-full py-2.5 bg-white hover:bg-gray-50 border border-gray-300 rounded text-xs font-bold text-gray-700 uppercase tracking-wider transition-colors cursor-pointer shadow-2xs"
+              >
+                TOP UP BALANCE
+              </button>
+            </div>
+
+            {/* Total amount to be charged section */}
+            <div className="pt-2 space-y-2">
+              <div className="text-xs font-semibold text-gray-700">
+                Total amount to be charged
+              </div>
+              <div className="inline-block px-8 py-2 rounded-full bg-blue-50/70 border border-blue-100">
+                <span className="text-xl font-bold text-[#0B69FF]">${totalCost}</span>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Form Inputs */}
-          <div className="lg:col-span-8 bg-white border border-gray-200 rounded-2xl p-6 shadow-xs space-y-5">
-            <form onSubmit={handleStartCheck} className="space-y-4">
+          {/* Right Column: Form Controls matching Screenshot 1 & 2 */}
+          <div className="lg:col-span-7 bg-white border border-gray-200/90 rounded-xl p-6 shadow-2xs space-y-4">
+            <form onSubmit={handleStartCheck} className="space-y-4 text-xs">
               {/* Select a source */}
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                <label className="block text-xs text-gray-700 font-medium mb-1.5">
                   Select a source:
                 </label>
                 <div className="relative">
-                  <select
-                    value={source}
-                    onChange={(e) => setSource(e.target.value)}
-                    className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF] appearance-none bg-white font-medium"
-                  >
-                    <option value="Google Keyword Planner">Google Keyword Planner</option>
-                    <option value="Bing Ads Intelligence">Bing Ads Intelligence</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Select country and region */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Select country and region:
-                </label>
-                <div className="relative">
-                  <select
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-3.5 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF] appearance-none bg-white font-medium"
-                  >
-                    <option value="India">🇮🇳 India</option>
-                    <option value="United States">🇺🇸 United States</option>
-                    <option value="United Kingdom">🇬🇧 United Kingdom</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-3 top-2.5 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* List keywords */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
-                    <span>List keywords:</span>
-                    <span className="text-gray-400 text-[10px]">ℹ</span>
-                  </label>
                   <button
                     type="button"
-                    onClick={() => setKeywordsText("zoho social\nsocial media management\npost scheduler\ninstagram buffer\nhootsuite pricing")}
-                    className="text-xs text-[#0B69FF] hover:underline font-semibold cursor-pointer"
+                    onClick={() => setIsSourceOpen(!isSourceOpen)}
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg bg-white text-xs flex items-center justify-between hover:border-gray-400 cursor-pointer font-medium"
                   >
-                    Import keywords
+                    <div className="flex items-center gap-2">
+                      {/* Google G logo */}
+                      <svg className="w-4 h-4" viewBox="0 0 24 24">
+                        <path
+                          fill="#4285F4"
+                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                        />
+                      </svg>
+                      <span>{source}</span>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                   </button>
+
+                  {isSourceOpen && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 text-xs">
+                      {['Google Keyword Planner', 'Google Search', 'Bing Ads Intelligence'].map(
+                        (src) => (
+                          <button
+                            key={src}
+                            type="button"
+                            onClick={() => {
+                              setSource(src);
+                              setIsSourceOpen(false);
+                            }}
+                            className={`w-full text-left px-3.5 py-2 hover:bg-gray-50 flex items-center justify-between ${
+                              source === src ? 'text-[#0B69FF] font-bold bg-blue-50/50' : 'text-gray-700'
+                            }`}
+                          >
+                            <span>{src}</span>
+                            {source === src && <Check className="w-3.5 h-3.5 text-[#0B69FF]" />}
+                          </button>
+                        )
+                      )}
+                    </div>
+                  )}
                 </div>
+              </div>
+
+              {/* Select country and region matching Screenshot 1 & 2 */}
+              <div>
+                <label className="block text-xs text-gray-700 font-medium mb-1.5 flex items-center gap-1">
+                  <span>Select country and region:</span>
+                  <span className="text-gray-400 italic text-[11px]">i</span>
+                </label>
+
+                <div className="flex items-center gap-2">
+                  {/* Country Flag Dropdown */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsCountryOpen(!isCountryOpen)}
+                      className="h-10 px-3 border border-gray-300 rounded-lg bg-white flex items-center gap-1.5 hover:border-gray-400 cursor-pointer font-medium"
+                    >
+                      <span className="text-base">{selectedCountry.flag}</span>
+                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+
+                    {isCountryOpen && (
+                      <div className="absolute left-0 top-full mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 max-h-48 overflow-y-auto text-xs">
+                        {SUPPORTED_COUNTRIES.map((c) => (
+                          <button
+                            key={c.code}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCountry(c);
+                              setIsCountryOpen(false);
+                              setRegionInput('');
+                            }}
+                            className="w-full text-left px-3 py-1.5 hover:bg-gray-50 flex items-center gap-2"
+                          >
+                            <span>{c.flag}</span>
+                            <span>{c.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Region Search Input / Dropdown matching Screenshot 2 */}
+                  <div className="relative flex-1">
+                    <div
+                      onClick={() => setIsRegionOpen(true)}
+                      className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white focus-within:border-[#0B69FF]"
+                    >
+                      <input
+                        type="text"
+                        value={regionInput}
+                        onChange={(e) => {
+                          setRegionInput(e.target.value);
+                          setIsRegionOpen(true);
+                        }}
+                        onFocus={() => setIsRegionOpen(true)}
+                        placeholder="Enter region name"
+                        className="w-full px-3.5 py-2.5 text-xs focus:outline-hidden text-gray-900 placeholder:text-gray-400"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setIsRegionOpen(!isRegionOpen)}
+                        className="px-3 text-gray-400 hover:text-gray-600 cursor-pointer"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    {isRegionOpen && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl z-30 max-h-56 overflow-y-auto py-1 text-xs">
+                        {filteredRegions.map((reg) => (
+                          <button
+                            key={reg}
+                            type="button"
+                            onClick={() => {
+                              setRegionInput(reg);
+                              setIsRegionOpen(false);
+                            }}
+                            className="w-full text-left px-3.5 py-2 hover:bg-blue-50/70 text-gray-700 flex items-center justify-between"
+                          >
+                            <span>{reg}</span>
+                            {regionInput === reg && <Check className="w-3.5 h-3.5 text-[#0B69FF]" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* List keywords textarea & import */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs text-gray-700 font-medium flex items-center gap-1">
+                    <span>List keywords:</span>
+                    <span className="text-gray-400 italic text-[11px]">i</span>
+                  </label>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-[#0B69FF] hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                    >
+                      <Paperclip className="w-3.5 h-3.5" />
+                      <span>Import keywords</span>
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      type="button"
+                      onClick={loadSampleKeywords}
+                      className="text-gray-500 hover:text-[#0B69FF] cursor-pointer"
+                    >
+                      Sample
+                    </button>
+                  </div>
+                </div>
+
                 <textarea
-                  rows={6}
-                  required
+                  rows={8}
                   value={keywordsText}
                   onChange={(e) => setKeywordsText(e.target.value)}
                   placeholder="Enter keywords (one per line)"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-[#0B69FF] font-mono leading-relaxed"
+                  className="w-full p-3 border border-gray-300 rounded-lg text-xs font-mono focus:outline-hidden focus:border-[#0B69FF] leading-relaxed bg-white text-gray-900"
                 />
               </div>
 
-              {/* Start Check Button */}
-              <div className="flex justify-end pt-2">
+              {/* Action Button: START CHECK */}
+              <div className="flex justify-end pt-1">
                 <button
                   type="submit"
-                  disabled={isChecking}
-                  className="px-6 py-2.5 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded-lg text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-2 uppercase tracking-wider"
+                  disabled={isChecking || queryCount === 0}
+                  className={`px-7 py-2.5 rounded font-bold text-xs uppercase tracking-wider text-white transition-all cursor-pointer ${
+                    queryCount > 0 && !isChecking
+                      ? 'bg-[#0B69FF] hover:bg-[#005FE0] shadow-xs'
+                      : 'bg-[#94A3B8] opacity-70 cursor-not-allowed'
+                  }`}
                 >
-                  {isChecking ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Checking Volumes...</span>
-                    </>
-                  ) : (
-                    <span>START CHECK</span>
-                  )}
+                  {isChecking ? 'Checking volumes...' : 'START CHECK'}
                 </button>
               </div>
             </form>
@@ -209,46 +452,171 @@ export default function SearchVolumeCheckerPage() {
 
         {/* Real Dynamic Results Table */}
         {results.length > 0 && (
-          <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs animate-in fade-in duration-200">
-            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider">
-                Volume Analysis Results ({results.length} Keywords)
-              </h3>
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs animate-in fade-in duration-200 mt-6">
+            <div className="p-4 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-gray-50/50">
+              <div>
+                <h3 className="text-sm font-bold text-gray-900">
+                  Search Volume Results ({results.length} Keywords)
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Source: {source} • Location: {regionInput || selectedCountry.name}
+                </p>
+              </div>
+
               <button
-                onClick={() => alert('Exporting volume report to CSV...')}
-                className="text-xs text-blue-600 hover:underline font-bold flex items-center gap-1"
+                type="button"
+                onClick={handleExportCsv}
+                className="px-3.5 py-1.5 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
               >
-                <Download className="w-3.5 h-3.5" /> Export
+                <Download className="w-3.5 h-3.5" />
+                <span>Export CSV</span>
               </button>
             </div>
 
-            <table className="w-full text-left text-xs">
-              <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                <tr>
-                  <th className="px-4 py-3">Keyword</th>
-                  <th className="px-4 py-3">Monthly Search Volume</th>
-                  <th className="px-4 py-3">Estimated CPC</th>
-                  <th className="px-4 py-3 text-right">Competition</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-gray-700">
-                {results.map((r, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-semibold text-gray-900">{r.keyword}</td>
-                    <td className="px-4 py-3 font-bold text-[#0B69FF]">{r.volume.toLocaleString()} / mo</td>
-                    <td className="px-4 py-3 font-medium text-gray-700">{r.cpc}</td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[10px] font-semibold">
-                        {r.competition}
-                      </span>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-gray-700">
+                <thead className="bg-gray-50/80 text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200 font-semibold">
+                  <tr>
+                    <th className="px-4 py-3">Keyword</th>
+                    <th className="px-4 py-3 text-right">Monthly Volume</th>
+                    <th className="px-4 py-3 text-right">Est. CPC</th>
+                    <th className="px-4 py-3 text-center">Competition</th>
+                    <th className="px-4 py-3 text-right">YoY Trend</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {results.map((r, i) => (
+                    <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                      <td className="px-4 py-3 font-semibold text-gray-900">{r.keyword}</td>
+                      <td className="px-4 py-3 text-right font-bold text-[#0B69FF]">
+                        {r.volume.toLocaleString()} / mo
+                      </td>
+                      <td className="px-4 py-3 text-right font-mono text-gray-700">{r.cpc}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            r.competition === 'High'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : r.competition === 'Medium'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          }`}
+                        >
+                          {r.competition}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-semibold text-emerald-600">
+                        {r.trend}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Top Up Balance / Subscription Plan Modal */}
+      {isTopUpModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl relative border border-gray-200">
+            <button
+              type="button"
+              onClick={() => setIsTopUpModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center space-y-1">
+              <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-[#0B69FF] text-[11px] font-bold uppercase tracking-wider">
+                Subscription & Wallet
+              </span>
+              <h3 className="text-lg font-bold text-gray-900 pt-2">
+                Top Up Balance or Upgrade Plan
+              </h3>
+              <p className="text-xs text-gray-500">
+                Unlock automated Google Keyword Planner query checks and unlimited keyword tracking.
+              </p>
+            </div>
+
+            <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-gray-50/60">
+              <div className="flex items-center justify-between font-bold text-sm text-gray-900">
+                <span>Free Trial Included Queries</span>
+                <span className="text-[#10B981]">1,000 Free</span>
+              </div>
+              <p className="text-xs text-gray-500">
+                You have 9 days of free trial left on your account. You can run keyword checks immediately without extra charges.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <Link
+                href="/pricing"
+                className="flex-1 py-2.5 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-lg text-center transition-colors uppercase tracking-wider"
+              >
+                Go to Pricing Plans
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  alert('Added $10 demo search volume credit to current balance!');
+                  setIsTopUpModalOpen(false);
+                }}
+                className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+              >
+                Add $10 Demo Credit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer matching Screenshot 1 */}
+      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
+        <div className="flex items-center gap-2 font-semibold text-gray-700">
+          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
+            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+          </svg>
+          <span>SE Ranking</span>
+        </div>
+        <div className="flex items-center gap-5">
+          <button
+            onClick={() => alert('Bug report dialog opened.')}
+            className="hover:underline text-gray-600 cursor-pointer"
+          >
+            Report a bug
+          </button>
+          <a
+            href="https://seranking.com/affiliate.html"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:underline text-gray-600"
+          >
+            Affiliates
+          </a>
+          <a href="/api-docs" className="hover:underline text-gray-600">
+            API
+          </a>
+          <a
+            href="https://seranking.com/whats-new.html"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:underline text-gray-600"
+          >
+            What&apos;s new
+          </a>
+          <a
+            href="https://help.seranking.com"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:underline text-gray-600"
+          >
+            Help
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

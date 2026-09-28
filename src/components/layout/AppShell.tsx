@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
+import { TrialBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';

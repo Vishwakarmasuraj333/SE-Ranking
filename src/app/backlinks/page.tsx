@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useApp } from '@/components/providers/AppProviders';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 // ==========================================
 // DATA TYPES
@@ -792,6 +793,7 @@ function BacklinkCheckerContent() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showNoticeBanner, setShowNoticeBanner] = useState(true);
   const [showInfoBanner, setShowInfoBanner] = useState(true);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
   // Overview Tab Chart Controls
   const [overallPeriod, setOverallPeriod] = useState<'7D' | '1M' | '3M' | '6M' | '12M'>('3M');
@@ -2239,40 +2241,39 @@ function BacklinkCheckerContent() {
         </div>
         <div className="flex items-center gap-5">
           <button
-            onClick={() => alert('Report a bug modal')}
+            onClick={() => setIsBugModalOpen(true)}
             className="hover:underline text-gray-600 cursor-pointer"
           >
             Report a bug
           </button>
-          <a
-            href="https://seranking.com/affiliate.html"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/affiliate"
             className="hover:underline text-gray-600"
           >
             Affiliates
-          </a>
+          </Link>
           <Link href="/api-docs" className="hover:underline text-gray-600">
             API
           </Link>
-          <a
-            href="https://seranking.com/whats-new.html"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            href="/whats-new"
             className="hover:underline text-gray-600"
           >
             What&apos;s new
-          </a>
-          <a
-            href="https://help.seranking.com"
-            target="_blank"
-            rel="noreferrer"
+          </Link>
+          <Link
+            href="/help"
             className="hover:underline text-gray-600"
           >
             Help
-          </a>
+          </Link>
         </div>
       </footer>
+
+      <ReportBugModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
     </div>
   );
 }

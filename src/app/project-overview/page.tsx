@@ -38,6 +38,7 @@ import {
 } from 'recharts';
 import { useApp } from '@/components/providers/AppProviders';
 import { appWrapData } from '@/lib/appWrapData';
+import { FeedbackModal } from '@/components/modals/FeedbackModal';
 
 const mockBacklinkTrend = [
   { date: '06 Jul', backlinks: 60, referring: 41, domainTrust: 21, pageTrust: 6 },
@@ -1490,54 +1491,10 @@ export default function ProjectOverviewPage() {
       )}
 
       {/* Feedback Modal matching user screenshot */}
-      {isFeedbackOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-900">Tell us what you think</h3>
-              <button
-                type="button"
-                onClick={() => setIsFeedbackOpen(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <label className="block text-gray-700 font-semibold">How useful is this section?</label>
-              <textarea
-                rows={5}
-                value={feedbackText}
-                onChange={(e) => setFeedbackText(e.target.value)}
-                placeholder="Your feedback"
-                className="w-full p-3 border border-gray-300 rounded-lg text-xs text-gray-900 focus:outline-none focus:border-blue-600"
-              />
-            </div>
-
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => setIsFeedbackOpen(false)}
-                className="px-5 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 uppercase cursor-pointer"
-              >
-                CANCEL
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFeedbackOpen(false);
-                  setFeedbackText('');
-                  showNotice('Thank you! Your feedback has been sent.');
-                }}
-                className="px-6 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-xs font-bold uppercase transition-colors shadow-xs cursor-pointer"
-              >
-                SEND
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
 
       {/* Add Keywords Modal */}
       {isAddKeywordsOpen && (

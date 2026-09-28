@@ -55,24 +55,78 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   );
 
   const [projects, setProjects] = useState<ProjectData[]>([]);
-  const [activeProject, setActiveProject] = useState<ProjectData | null>(null);
+  const [activeProject, setActiveProjectState] = useState<ProjectData | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisOverview | null>(null);
   const [activeRail, setActiveRail] = useState<RailSection>('research');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  const setActiveProject = (p: ProjectData | null) => {
+    setActiveProjectState(p);
+    if (typeof window !== 'undefined') {
+      if (p?.id) {
+        localStorage.setItem('se_ranking_active_project_id', p.id);
+      } else {
+        localStorage.removeItem('se_ranking_active_project_id');
+      }
+    }
+  };
 
   const refreshProjects = async () => {
     try {
       const res = await fetch('/api/projects');
       if (res.ok) {
         const data = await res.json();
-        setProjects(data.projects || []);
-        if (data.projects?.length > 0 && !activeProject) {
-          setActiveProject(data.projects[0]);
+        let list: ProjectData[] = data.projects || [];
+
+        // Merge any client-created projects from localStorage
+        try {
+          const stored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_user_projects') : null;
+          if (stored) {
+            const localList: ProjectData[] = JSON.parse(stored);
+            const existingIds = new Set(list.map((p) => p.id));
+            const existingDomains = new Set(list.map((p) => p.domain.toLowerCase()));
+            for (const lp of localList) {
+              if (!existingIds.has(lp.id) && !existingDomains.has(lp.domain.toLowerCase())) {
+                list = [lp, ...list];
+              }
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        setProjects(list);
+        if (list.length > 0) {
+          let selected = null;
+          const savedId = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_active_project_id') : null;
+          if (savedId) {
+            selected = list.find((p: ProjectData) => p.id === savedId);
+          }
+          if (!selected) {
+            selected = list.find(
+              (p: ProjectData) =>
+                p.domain.toLowerCase().includes('workcomposer') ||
+                p.name.toLowerCase().includes('workcomposer')
+            );
+          }
+          setActiveProject(selected || list[0]);
         }
       }
     } catch (e) {
-      console.error('Failed to load projects', e);
+      console.warn('Failed to load projects from server, loading from local cache:', e);
+      try {
+        const stored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_user_projects') : null;
+        if (stored) {
+          const localList: ProjectData[] = JSON.parse(stored);
+          if (localList.length > 0) {
+            setProjects(localList);
+            setActiveProject(localList[0]);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
     }
   };
 
