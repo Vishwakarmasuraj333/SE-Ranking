@@ -176,6 +176,9 @@ export default function SignUpPage() {
         document.cookie = `user_email=${encodeURIComponent(email.trim())}; path=/; max-age=86400;`;
         document.cookie = `user_name=${encodeURIComponent(`${firstName} ${lastName}`.trim())}; path=/; max-age=86400;`;
       }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seranking_auth_change'));
+      }
       await refreshProjects();
 
       if (data.project) {

@@ -395,8 +395,80 @@ export default function LandingPage() {
 
     checkAuth();
     window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
+    window.addEventListener('seranking_auth_change', checkAuth);
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('seranking_auth_change', checkAuth);
+    };
   }, []);
+
+  // Language-aware HelloBar banner config:
+  // English keeps the green AI Visibility banner
+  // All other languages use the official orange banner with MCP ChatGPT announcement
+  const helloBarConfig = React.useMemo(() => {
+    const code = (selectedLang || 'en').toLowerCase();
+    if (code === 'en') {
+      return {
+        bg: 'bg-[#0b8465]',
+        textColor: 'text-white',
+        closeColor: 'text-white/80 hover:text-white',
+        text: 'Start doing more with your AI Visibility Data',
+        link: 'https://visible.seranking.com/?utm_source=seranking&utm_medium=hellobar&utm_campaign=visible',
+      };
+    }
+
+    const mcpMessages: Record<string, { text: string; link: string }> = {
+      fr: {
+        text: 'Nouveau connecteur MCP : accédez à vos données SEO et GEO à jour dans ChatGPT. En savoir plus',
+        link: 'https://seranking.com/fr/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      de: {
+        text: 'Neuer MCP-Konnektor: Greifen Sie in ChatGPT auf aktuelle SEO- und GEO-Daten zu. Mehr erfahren',
+        link: 'https://seranking.com/de/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      es: {
+        text: 'Nuevo conector MCP: accede a tus datos de SEO y GEO actualizados en ChatGPT. Más información',
+        link: 'https://seranking.com/es/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      nl: {
+        text: 'Nieuwe MCP-connector: krijg toegang tot actuele SEO- en GEO-gegevens in ChatGPT. Lees meer',
+        link: 'https://seranking.com/nl/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      it: {
+        text: 'Nuovo connettore MCP: accedi ai tuoi dati SEO e GEO aggiornati in ChatGPT. Scopri di più',
+        link: 'https://seranking.com/it/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      pt: {
+        text: 'Novo conector MCP: acesse seus dados de SEO e GEO atualizados no ChatGPT. Saiba mais',
+        link: 'https://seranking.com/pt/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      ua: {
+        text: 'Новий MCP-конектор: доступ до актуальних даних SEO та GEO у ChatGPT. Дізнатися більше',
+        link: 'https://seranking.com/ua/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      ru: {
+        text: 'Новый коннектор MCP: доступ к актуальным данным SEO и GEO в ChatGPT. Узнать больше',
+        link: 'https://seranking.com/ru/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      ja: {
+        text: '新しいMCPコネクタ：ChatGPTで最新のSEOおよびGEOデータにアクセス。詳細を見る',
+        link: 'https://seranking.com/jp/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+      あ: {
+        text: '新しいMCPコネクタ：ChatGPTで最新のSEOおよびGEOデータにアクセス。詳細を見る',
+        link: 'https://seranking.com/jp/mcp.html?utm_source=seranking&utm_medium=hellobar&utm_campaign=mcp',
+      },
+    };
+
+    const current = mcpMessages[code] || mcpMessages.fr;
+    return {
+      bg: 'bg-[#ff9c00]',
+      textColor: 'text-gray-950 font-semibold',
+      closeColor: 'text-gray-950/80 hover:text-black',
+      text: current.text,
+      link: current.link,
+    };
+  }, [selectedLang]);
 
   const handleProjectsNavigation = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -469,16 +541,16 @@ export default function LandingPage() {
       className="min-h-screen bg-white text-gray-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-900"
       onClick={() => setActiveMenu(null)}
     >
-      {/* 1. Green HelloBar at Top (Exact screenshot match) */}
+      {/* 1. Dynamic HelloBar at Top (Green for EN, Orange with MCP for other languages) */}
       {showHelloBar && (
         <div className="w-[calc(100%-24px)] sm:w-[calc(100%-48px)] max-w-7xl mx-auto mt-2.5 mb-1">
-          <div className="bg-[#0b8465] text-white py-2 px-6 rounded-xl text-center text-sm font-semibold tracking-wide flex items-center justify-between relative shadow-xs">
+          <div className={`${helloBarConfig.bg} ${helloBarConfig.textColor} py-2 px-6 rounded-xl text-center text-xs sm:text-sm tracking-wide flex items-center justify-between relative shadow-xs transition-colors duration-200`}>
             <div className="flex-1 text-center">
               <Link
-                href="https://visible.seranking.com/?utm_source=seranking&utm_medium=hellobar&utm_campaign=visible"
-                className="hover:underline text-white font-semibold inline-flex items-center gap-1.5"
+                href={helloBarConfig.link}
+                className="hover:underline font-semibold inline-flex items-center gap-1.5"
               >
-                <span>Start doing more with your AI Visibility Data</span>
+                <span>{helloBarConfig.text}</span>
                 <span className="font-bold">→</span>
               </Link>
             </div>
@@ -488,7 +560,7 @@ export default function LandingPage() {
                 e.stopPropagation();
                 setShowHelloBar(false);
               }}
-              className="text-white/80 hover:text-white transition-opacity p-1 cursor-pointer shrink-0"
+              className={`${helloBarConfig.closeColor} transition-opacity p-1 cursor-pointer shrink-0`}
               aria-label="Close Announcement"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -523,16 +595,23 @@ export default function LandingPage() {
             onClick={handleProjectsNavigation}
             className="w-full sm:w-auto px-9 py-3.5 sm:px-10 sm:py-4 bg-[#1351d8] hover:bg-[#0f46bd] text-white text-[16px] sm:text-[17px] font-bold rounded-xl shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
           >
-            <span>{isLoggedIn ? t.nav.projects : (t.nav.startTrial || 'Start free trial')}</span>
+            <span>{isLoggedIn ? (t.nav.projects || 'Projects') : (t.nav.startTrial || 'Start free trial')}</span>
           </button>
           <button
             type="button"
             onClick={() => router.push('/projects')}
             className="w-full sm:w-auto px-8 py-3.5 sm:px-9 sm:py-4 bg-white border border-[#111827] hover:bg-gray-50 text-[#111827] text-[16px] sm:text-[17px] font-medium rounded-xl transition-all cursor-pointer shadow-2xs"
           >
-            <span>{t.nav.productTour}</span>
+            <span>{t.nav.productTour || 'See product tour'}</span>
           </button>
         </div>
+
+        {/* Subtext: e.g. "Aucune carte bancaire requise" or "14-day free trial. No credit card required." */}
+        {t.hero.noCardNeeded && (
+          <p className="mt-3 text-xs sm:text-sm text-gray-500 font-normal">
+            {t.hero.noCardNeeded}
+          </p>
+        )}
 
         {/* Social Proof: 1-by-1 sliding avatars + Trusted by 40,000+ agencies */}
         <div className="mt-12">

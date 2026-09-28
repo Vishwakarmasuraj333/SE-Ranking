@@ -161,7 +161,11 @@ export function MarketingHeader({
 
     checkAuth();
     window.addEventListener('storage', checkAuth);
-    return () => window.removeEventListener('storage', checkAuth);
+    window.addEventListener('seranking_auth_change', checkAuth);
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('seranking_auth_change', checkAuth);
+    };
   }, []);
 
   // Header ref for click-outside
@@ -1091,13 +1095,23 @@ export function MarketingHeader({
             )}
           </div>
 
+          {/* Log in / Connexion Link (shown when unauthenticated) */}
+          {!isLoggedIn && (
+            <Link
+              href="/login"
+              className="hidden sm:inline-flex text-[14px] font-semibold text-gray-800 hover:text-[#1864FF] transition-colors px-2 py-1.5 whitespace-nowrap"
+            >
+              {t.nav.login || 'Log in'}
+            </Link>
+          )}
+
           {/* "See product tour" button - Fully Translated! */}
           <button
             type="button"
             onClick={handleTourAction}
             className="hidden md:inline-flex items-center justify-center px-4 py-2 border border-gray-900 text-gray-900 rounded-lg text-[13px] font-bold hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
           >
-            <span>{t.nav.productTour}</span>
+            <span>{t.nav.productTour || 'See product tour'}</span>
           </button>
 
           {/* Projects / Start free trial Solid Blue Button */}
@@ -1106,7 +1120,7 @@ export function MarketingHeader({
             onClick={handleProjectsNavigation}
             className="px-5 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-[13px] font-bold tracking-normal transition-all cursor-pointer shadow-xs hover:shadow-md whitespace-nowrap"
           >
-            {isLoggedIn ? t.nav.projects : (t.nav.startTrial || 'Start free trial')}
+            {isLoggedIn ? (t.nav.projects || 'Projects') : (t.nav.startTrial || 'Start free trial')}
           </button>
 
           {/* Mobile Hamburger Toggle Button */}

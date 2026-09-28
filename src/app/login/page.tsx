@@ -71,6 +71,9 @@ export default function LoginPage() {
         document.cookie = `user_email=${encodeURIComponent(email.trim())}; path=/; max-age=86400;`;
         document.cookie = `user_name=${encodeURIComponent(data.user?.name || 'Admin User')}; path=/; max-age=86400;`;
       }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seranking_auth_change'));
+      }
 
       await refreshProjects();
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
@@ -101,6 +104,9 @@ export default function LoginPage() {
       if (typeof document !== 'undefined') {
         document.cookie = `user_email=admin@seranking.com; path=/; max-age=86400;`;
         document.cookie = `user_name=Admin User; path=/; max-age=86400;`;
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('seranking_auth_change'));
       }
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
       await refreshProjects();

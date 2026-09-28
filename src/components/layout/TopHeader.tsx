@@ -138,6 +138,7 @@ export function TopHeader() {
       localStorage.removeItem('seranking_user');
       localStorage.removeItem('user_email');
       localStorage.removeItem('user_name');
+      window.dispatchEvent(new CustomEvent('seranking_auth_change'));
     }
     router.push('/login');
   };
