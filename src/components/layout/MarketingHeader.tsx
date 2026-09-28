@@ -147,16 +147,14 @@ export function MarketingHeader({
 
   useEffect(() => {
     const checkAuth = () => {
-      const hasCookie =
-        typeof document !== 'undefined' &&
-        (document.cookie.includes('user_email=') || document.cookie.includes('user_name='));
+      const isAuth =
+        (typeof window !== 'undefined' &&
+          (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
+            localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
+        (typeof document !== 'undefined' &&
+          document.cookie.includes('seranking_auth_status=logged_in'));
 
-      const hasLocalUser =
-        typeof window !== 'undefined' &&
-        (localStorage.getItem('seranking_user') !== null ||
-          localStorage.getItem('user_email') !== null);
-
-      setIsLoggedIn(Boolean(hasCookie || hasLocalUser));
+      setIsLoggedIn(Boolean(isAuth));
     };
 
     checkAuth();

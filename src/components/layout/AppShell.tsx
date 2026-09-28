@@ -45,8 +45,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/api-docs/backlinks' ||
     pathname === '/api-docs/domains' ||
     pathname.startsWith('/logout') ||
-    pathname.startsWith('/admin.site.wizard') ||
-    pathname === '/settings';
+    pathname.startsWith('/admin.site.wizard');
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
@@ -58,17 +57,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
 
     const checkAuth = () => {
-      // Check for user session cookie or localStorage
-      const hasCookie =
-        typeof document !== 'undefined' &&
-        (document.cookie.includes('user_email=') || document.cookie.includes('user_name='));
+      // Strict auth check: no direct access allowed without authenticating
+      const isAuth =
+        (typeof window !== 'undefined' &&
+          (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
+            localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
+        (typeof document !== 'undefined' &&
+          document.cookie.includes('seranking_auth_status=logged_in'));
 
-      const hasLocalUser =
-        typeof window !== 'undefined' &&
-        (localStorage.getItem('seranking_user') !== null ||
-          localStorage.getItem('user_email') !== null);
-
-      if (hasCookie || hasLocalUser) {
+      if (isAuth) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -78,6 +75,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
+    window.addEventListener('storage', checkAuth);
+    window.addEventListener('seranking_auth_change', checkAuth);
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      window.removeEventListener('seranking_auth_change', checkAuth);
+    };
   }, [pathname, isAuthOrPublicPage, router]);
 
   if (isAuthOrPublicPage) {

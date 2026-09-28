@@ -381,16 +381,14 @@ export default function LandingPage() {
 
   useEffect(() => {
     const checkAuth = () => {
-      const hasCookie =
-        typeof document !== 'undefined' &&
-        (document.cookie.includes('user_email=') || document.cookie.includes('user_name='));
+      const isAuth =
+        (typeof window !== 'undefined' &&
+          (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
+            localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
+        (typeof document !== 'undefined' &&
+          document.cookie.includes('seranking_auth_status=logged_in'));
 
-      const hasLocalUser =
-        typeof window !== 'undefined' &&
-        (localStorage.getItem('seranking_user') !== null ||
-          localStorage.getItem('user_email') !== null);
-
-      setIsLoggedIn(Boolean(hasCookie || hasLocalUser));
+      setIsLoggedIn(Boolean(isAuth));
     };
 
     checkAuth();
@@ -605,13 +603,6 @@ export default function LandingPage() {
             <span>{t.nav.productTour || 'See product tour'}</span>
           </button>
         </div>
-
-        {/* Subtext: e.g. "Aucune carte bancaire requise" or "14-day free trial. No credit card required." */}
-        {t.hero.noCardNeeded && (
-          <p className="mt-3 text-xs sm:text-sm text-gray-500 font-normal">
-            {t.hero.noCardNeeded}
-          </p>
-        )}
 
         {/* Social Proof: 1-by-1 sliding avatars + Trusted by 40,000+ agencies */}
         <div className="mt-12">

@@ -63,11 +63,14 @@ export default function LoginPage() {
       }
 
       if (typeof window !== 'undefined') {
+        localStorage.setItem('seranking_auth_status', 'logged_in');
+        sessionStorage.setItem('seranking_auth_status', 'logged_in');
         localStorage.setItem('seranking_user', JSON.stringify(data.user || { email: email.trim(), name: 'Admin User' }));
         localStorage.setItem('user_email', email.trim());
         localStorage.setItem('user_name', data.user?.name || 'Admin User');
       }
       if (typeof document !== 'undefined') {
+        document.cookie = `seranking_auth_status=logged_in; path=/; max-age=86400;`;
         document.cookie = `user_email=${encodeURIComponent(email.trim())}; path=/; max-age=86400;`;
         document.cookie = `user_name=${encodeURIComponent(data.user?.name || 'Admin User')}; path=/; max-age=86400;`;
       }
@@ -97,11 +100,14 @@ export default function LoginPage() {
         }),
       });
       if (typeof window !== 'undefined') {
+        localStorage.setItem('seranking_auth_status', 'logged_in');
+        sessionStorage.setItem('seranking_auth_status', 'logged_in');
         localStorage.setItem('seranking_user', JSON.stringify({ email: 'admin@seranking.com', name: 'Admin User' }));
         localStorage.setItem('user_email', 'admin@seranking.com');
         localStorage.setItem('user_name', 'Admin User');
       }
       if (typeof document !== 'undefined') {
+        document.cookie = `seranking_auth_status=logged_in; path=/; max-age=86400;`;
         document.cookie = `user_email=admin@seranking.com; path=/; max-age=86400;`;
         document.cookie = `user_name=Admin User; path=/; max-age=86400;`;
       }
