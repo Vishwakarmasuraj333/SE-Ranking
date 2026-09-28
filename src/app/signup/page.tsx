@@ -170,6 +170,11 @@ export default function SignUpPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('seranking_user', JSON.stringify(data.user || { email, name: `${firstName} ${lastName}`.trim() }));
         localStorage.setItem('user_email', email.trim());
+        localStorage.setItem('user_name', `${firstName} ${lastName}`.trim());
+      }
+      if (typeof document !== 'undefined') {
+        document.cookie = `user_email=${encodeURIComponent(email.trim())}; path=/; max-age=86400;`;
+        document.cookie = `user_name=${encodeURIComponent(`${firstName} ${lastName}`.trim())}; path=/; max-age=86400;`;
       }
       await refreshProjects();
 

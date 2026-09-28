@@ -29,6 +29,7 @@ import {
   Terminal,
 } from 'lucide-react';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
+import { MarketingHeader } from '@/components/layout/MarketingHeader';
 
 export default function PricingPage() {
   const [showHelloBar, setShowHelloBar] = useState(true);
@@ -114,46 +115,8 @@ export default function PricingPage() {
         </div>
       )}
 
-      {/* 2. Official Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
-              <SeRankingLogo variant="dark" width={138} height={30} />
-            </Link>
-
-            <nav className="hidden lg:flex items-center gap-6 text-[14px] font-medium text-gray-800">
-              <Link href="/for-agencies" className="hover:text-[#0B69FF] font-semibold transition-colors">
-                Solutions
-              </Link>
-              <Link href="/keyword-rank-tracker" className="hover:text-[#0B69FF] font-semibold transition-colors">
-                Tools
-              </Link>
-              <Link href="/pricing" className="text-[#0B69FF] font-bold">
-                Pricing
-              </Link>
-              <Link href="/enterprise" className="hover:text-[#0B69FF] font-semibold transition-colors">
-                Enterprise
-              </Link>
-              <Link href="/help" className="hover:text-[#0B69FF] font-semibold transition-colors">
-                Resources
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm font-semibold text-gray-700 hover:text-[#0B69FF] px-3 py-2">
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="bg-[#0B69FF] hover:bg-blue-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-sm transition-all"
-            >
-              Start free trial
-            </Link>
-          </div>
-        </div>
-      </header>
+      {/* 2. Official Marketing Header */}
+      <MarketingHeader activeNav="pricing" />
 
       {/* 3. HERO & MAIN SWITCH: PLATFORM vs API */}
       <section className="pt-14 pb-8 bg-gradient-to-b from-blue-50/40 via-white to-white border-b border-gray-100 text-center px-4">

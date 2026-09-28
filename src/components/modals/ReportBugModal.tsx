@@ -18,6 +18,36 @@ export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  React.useEffect(() => {
+    if (isOpen) {
+      try {
+        let currentName = '';
+        let currentEmail = '';
+        const storedUser = localStorage.getItem('seranking_user');
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          if (parsed.name) currentName = parsed.name;
+          if (parsed.email) currentEmail = parsed.email;
+        }
+        if (!currentName) {
+          const savedName = localStorage.getItem('user_name');
+          if (savedName) currentName = savedName;
+        }
+        if (!currentEmail) {
+          const savedEmail = localStorage.getItem('user_email');
+          if (savedEmail) currentEmail = savedEmail;
+        }
+        if (currentName) setName(currentName);
+        if (currentEmail) setEmail(currentEmail);
+        if (typeof window !== 'undefined') {
+          setUrl(window.location.href);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {

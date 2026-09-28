@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   HelpCircle,
   Bell,
@@ -25,6 +25,7 @@ import { appWrapData } from '@/lib/appWrapData';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
 import { GlobalShadowGuide } from '@/components/ui/GlobalShadowGuide';
+import { AppsDropdown } from '@/components/layout/AppsDropdown';
 
 export interface HeaderTab {
   id: string;
@@ -60,7 +61,86 @@ const DEFAULT_TABS: HeaderTab[] = [
 
 export function TopHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const { isMobileDrawerOpen, setIsMobileDrawerOpen } = useApp();
+
+  // Dynamic User Profile state
+  const [userProfile, setUserProfile] = useState({
+    name: appWrapData.account.full_name || 'Suraj Vishwakarma',
+    email: appWrapData.account.email || 'suraj.vishwakarma@gvilab.com',
+    id: appWrapData.account.id || 5269343,
+    initials: 'SV',
+  });
+
+  // Read user profile dynamically from session / localStorage / cookies
+  useEffect(() => {
+    try {
+      let name = '';
+      let email = '';
+      let id = 5269343;
+
+      const storedUser = localStorage.getItem('seranking_user');
+      if (storedUser) {
+        try {
+          const parsed = JSON.parse(storedUser);
+          if (parsed.name) name = parsed.name;
+          if (parsed.email) email = parsed.email;
+          if (parsed.id) id = parsed.id;
+        } catch {
+          // ignore
+        }
+      }
+
+      if (!name) {
+        const storedName = localStorage.getItem('user_name');
+        if (storedName) name = storedName;
+      }
+      if (!email) {
+        const storedEmail = localStorage.getItem('user_email');
+        if (storedEmail) email = storedEmail;
+      }
+
+      if (typeof document !== 'undefined') {
+        const matchEmail = document.cookie.match(/user_email=([^;]+)/);
+        if (matchEmail && !email) email = decodeURIComponent(matchEmail[1]);
+        const matchName = document.cookie.match(/user_name=([^;]+)/);
+        if (matchName && !name) name = decodeURIComponent(matchName[1]);
+      }
+
+      if (!name) name = appWrapData.account.full_name || 'Suraj Vishwakarma';
+      if (!email) email = appWrapData.account.email || 'suraj.vishwakarma@gvilab.com';
+
+      const parts = name.trim().split(/\s+/);
+      const initials = parts.length > 1
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : name.slice(0, 2).toUpperCase() || 'SV';
+
+      setUserProfile({
+        name,
+        email,
+        id,
+        initials,
+      });
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const handleLogout = () => {
+    setIsProfileOpen(false);
+    if (typeof document !== 'undefined') {
+      document.cookie = 'user_email=; path=/; max-age=0;';
+      document.cookie = 'user_name=; path=/; max-age=0;';
+      document.cookie = 'user_domain=; path=/; max-age=0;';
+      document.cookie = 'seranking_user=; path=/; max-age=0;';
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('seranking_user');
+      localStorage.removeItem('user_email');
+      localStorage.removeItem('user_name');
+    }
+    router.push('/login');
+  };
 
   // Dropdown states
   const [isAppsOpen, setIsAppsOpen] = useState(false);
@@ -196,65 +276,12 @@ export function TopHeader() {
           </button>
 
           {/* Apps Switcher Dropdown - Exact match to Screenshot */}
-          {isAppsOpen && (
-            <div className="absolute left-0 top-[calc(100%+3px)] w-[260px] bg-white rounded-lg shadow-xl border border-gray-200 text-gray-800 z-50 py-1.5 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
-              {/* Item 1: SE Visible · AI Search Suite */}
-              <Link
-                href="/research/ai-search"
-                onClick={() => setIsAppsOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 text-gray-800 transition-colors"
-              >
-                <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00B67A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 12c2.5-4 4.5-4 7 0s4.5 4 7 0 4.5-4 6 0" />
-                  </svg>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold text-gray-900 text-[13px]">SE Visible</span>
-                  <span className="text-gray-400 font-normal text-[13px]">· AI Search Suite</span>
-                </div>
-              </Link>
-
-              {/* Item 2: SE Ranking · SEO Suite (Active with blue checkmark) */}
-              <Link
-                href="/projects"
-                onClick={() => setIsAppsOpen(false)}
-                className="flex items-center justify-between px-3 py-2.5 hover:bg-gray-50 text-gray-800 transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="#0B69FF">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className="font-semibold text-gray-900 text-[13px]">SE Ranking</span>
-                    <span className="text-gray-400 font-normal text-[13px]">· SEO Suite</span>
-                  </div>
-                </div>
-                <Check className="w-4 h-4 text-[#0B69FF] stroke-[2.5]" />
-              </Link>
-
-              {/* Item 3: Planable · SMM Suite */}
-              <Link
-                href="/smm"
-                onClick={() => setIsAppsOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 text-gray-800 transition-colors"
-              >
-                <div className="w-5 h-5 flex items-center justify-center shrink-0">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M4 14l8-9 8 9-8 3-8-3z" fill="#00C49F" />
-                    <path d="M12 5l8 9-8 8V5z" fill="#FF8042" />
-                    <path d="M4 14l8 8V17l-8-3z" fill="#FFBB28" />
-                  </svg>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="font-semibold text-gray-900 text-[13px]">Planable</span>
-                  <span className="text-gray-400 font-normal text-[13px]">· SMM Suite</span>
-                </div>
-              </Link>
-            </div>
-          )}
+          <AppsDropdown
+            isOpen={isAppsOpen}
+            onClose={() => setIsAppsOpen(false)}
+            activeApp="ranking"
+            className="left-0 top-[calc(100%+6px)]"
+          />
         </div>
 
         {/* Official Real SE Ranking Logo */}
@@ -508,49 +535,85 @@ export function TopHeader() {
             title="Account & Settings"
           >
             <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold text-white border border-white/30">
-              SV
+              {userProfile.initials}
             </div>
             <MoreHorizontal className="w-3.5 h-3.5 text-white/80" />
           </button>
 
           {isProfileOpen && (
-            <div className="absolute right-0 top-[calc(100%+3px)] w-64 bg-white rounded-lg shadow-xl border border-gray-200 text-gray-800 z-50 py-2 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
-              <div className="px-3.5 py-2.5 border-b border-gray-100">
-                <p className="font-bold text-gray-900 text-xs">{appWrapData.account.full_name}</p>
-                <p className="text-gray-500 text-[11px] font-mono mt-0.5">{appWrapData.account.email}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                    Trial: 10 days left
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-mono">
-                    ID: {appWrapData.account.id}
+            <div className="absolute right-0 top-[calc(100%+3px)] w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 text-gray-800 z-50 py-2 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
+              <div className="px-4 py-2.5 border-b border-gray-100">
+                <p className="font-bold text-gray-900 text-[13px] leading-tight">{userProfile.name}</p>
+                <p className="text-gray-500 text-[11px] font-mono mt-0.5 truncate">{userProfile.email}</p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-[11px] text-gray-400 font-mono tracking-wide">
+                    ID: {userProfile.id}
                   </span>
                 </div>
               </div>
 
               <div className="py-1">
-                {appWrapData.navigation.user_menu.map((menuItem) => (
-                  <Link
-                    key={menuItem.text}
-                    href={menuItem.href}
-                    onClick={() => setIsProfileOpen(false)}
-                    className="flex items-center justify-between px-3.5 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors"
-                  >
-                    <span>{menuItem.text}</span>
-                  </Link>
-                ))}
+                <Link
+                  href="/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  Settings
+                </Link>
+                <Link
+                  href="/users"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  Users
+                </Link>
+                <Link
+                  href="/settings/white-label"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  White Label
+                </Link>
+                <Link
+                  href="/billing"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  Billing
+                </Link>
+                <Link
+                  href="/bonus-offers"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  Bonus Offers
+                </Link>
+                <Link
+                  href="/affiliate"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                >
+                  Affiliate Program
+                </Link>
 
                 <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full flex items-center px-4 py-2 text-[#0B69FF] hover:text-[#0952C7] hover:bg-blue-50/40 font-medium text-[13px] transition-colors cursor-pointer text-left"
+                >
+                  Log Out
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => {
                     setIsProfileOpen(false);
                     setIsBugModalOpen(true);
                   }}
-                  className="w-full flex items-center justify-between px-3.5 py-2 text-gray-700 hover:bg-red-50 hover:text-red-600 font-medium transition-colors border-t border-gray-100 mt-1 pt-1.5 cursor-pointer text-left"
+                  className="w-full flex items-center gap-2.5 px-4 py-2 text-gray-800 hover:bg-red-50/50 hover:text-red-600 font-normal text-[13px] transition-colors cursor-pointer text-left"
                 >
-                  <span className="flex items-center gap-2">
-                    <Bug className="w-3.5 h-3.5 text-red-500" />
-                    <span>Report a bug</span>
-                  </span>
+                  <Bug className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
+                  <span>Report a bug</span>
                 </button>
               </div>
             </div>

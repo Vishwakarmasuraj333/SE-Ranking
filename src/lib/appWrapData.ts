@@ -36,8 +36,8 @@ export const appWrapData = {
     is_hide_volume: false,
     is_wallet_enabled: true,
     is_expired_trial: false,
-    is_trial: true,
-    is_new_lead: true,
+    is_trial: false,
+    is_new_lead: false,
     is_manual: false,
     is_yandex_allowed: false,
     is_research_trial_bonus_enabled: false,
@@ -173,10 +173,10 @@ export const appWrapData = {
     user_menu: [
       { text: "Settings", href: "/settings", icon: "settings" },
       { text: "Users", href: "/users", icon: "users" },
-      { text: "White Label", href: "/agency-pack", icon: "whitelabel" },
+      { text: "White Label", href: "/settings/white-label", icon: "whitelabel" },
       { text: "Billing", href: "/billing", icon: "subscription" },
       { text: "Bonus Offers", href: "/bonus-offers", icon: "earn_keywords" },
-      { text: "Affiliate Program", href: "https://seranking.com/affiliate.html", icon: "affiliate" },
+      { text: "Affiliate Program", href: "/affiliate", icon: "affiliate" },
       { text: "Log Out", href: "/logout", icon: "logout" },
     ],
     project_menu: [
