@@ -2,10 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { FeedbackModal } from '@/components/modals/FeedbackModal';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 export default function ApiMcpPage() {
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
   const [connectedClients, setConnectedClients] = useState<Record<string, boolean>>({
     claude: false,
     cursor: false,
@@ -26,8 +30,34 @@ export default function ApiMcpPage() {
   };
 
   return (
-    <div className="mcp-page w-full min-h-screen bg-[#F4F6F9] py-6 px-4 sm:px-6 font-sans text-[#171B24] flex flex-col justify-between">
-      <div className="max-w-5xl mx-auto w-full space-y-6">
+    <div className="mcp-page w-full min-h-screen bg-[#F4F6F9] py-4 px-4 sm:px-6 font-sans text-[#171B24] flex flex-col justify-between">
+      <div className="max-w-5xl mx-auto w-full space-y-4">
+
+        {/* ===================== TOP ROW: BREADCRUMB + FEEDBACK + CREDITS ===================== */}
+        <div className="flex items-center justify-between py-1 text-xs">
+          <Link
+            href="/api-docs"
+            className="flex items-center gap-1.5 font-bold text-[#5B6370] hover:text-[#171B24] transition-colors"
+          >
+            <span className="w-5 h-5 rounded-full bg-white border border-[#E1E6EB] flex items-center justify-center text-gray-500 shadow-2xs text-sm font-bold">
+              ‹
+            </span>
+            <span>API Dashboard</span>
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsFeedbackOpen(true)}
+              className="text-[#2870ED] hover:underline font-semibold text-xs cursor-pointer"
+            >
+              Feedback
+            </button>
+            <div className="flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] px-3 py-1 rounded-full text-xs font-bold border border-[#FDE68A] shadow-2xs">
+              <span>🪙</span>
+              <span>Credits 100K / 100K ▾</span>
+            </div>
+          </div>
+        </div>
 
         {/* ===================== MCP BANNER ===================== */}
         <section className="mcp-page__banner mcp-banner bg-[#F0F7FF] border border-[#B8D7FF] rounded-[14px] p-5 shadow-xs flex items-start gap-3.5">
@@ -426,27 +456,43 @@ export default function ApiMcpPage() {
 
       </div>
 
-      {/* Footer utility bar */}
-      <div className="border-t border-[#E1E6EB] bg-white mt-8 py-3 px-6 text-xs text-[#7A8391] flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-bold text-[#323842]">
-          <div className="w-4 h-4 rounded bg-[#2870ED] flex items-center justify-center text-white text-[9px] font-black">
-            MCP
-          </div>
-          <span>SE Ranking Model Context Protocol</span>
-        </div>
-
+      {/* Footer matching standard SE Ranking in-app footer */}
+      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
+        <Link href="/projects" className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">
+          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
+            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+          </svg>
+          <span>SE Ranking</span>
+        </Link>
         <div className="flex items-center gap-5">
-          <Link href="/api-docs" className="hover:text-[#2870ED] transition-colors">
-            API Dashboard
+          <button onClick={() => setIsBugModalOpen(true)} className="hover:underline text-gray-600 cursor-pointer">
+            Report a bug
+          </button>
+          <Link href="/affiliate" className="hover:underline text-gray-600">
+            Affiliates
           </Link>
-          <Link href="/api-docs/wallet" className="hover:text-[#2870ED] transition-colors">
-            Wallet
+          <Link href="/api-docs" className="hover:underline text-gray-600">
+            API
           </Link>
-          <Link href="/pricing" className="hover:text-[#2870ED] transition-colors">
-            Pricing
+          <Link href="/whats-new" className="hover:underline text-gray-600">
+            What&apos;s new
+          </Link>
+          <Link href="/help" className="hover:underline text-gray-600">
+            Help
           </Link>
         </div>
-      </div>
+      </footer>
+
+      {/* Internal Modals */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
+
+      <ReportBugModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
 
       {/* ===================== MODAL: CLIENT CONFIGURATION ===================== */}
       {activeModal && (

@@ -530,7 +530,46 @@ export function SecondarySidebar() {
 
           {/* Navigation Links List */}
           <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 no-scrollbar">
-            {effectiveSection === 'local-marketing' ? (
+            {effectiveSection === 'api' ? (
+              /* API Mode Menu matching Screenshot 1 */
+              <>
+                <Link
+                  href="/api-docs"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    (pathname === '/api-docs' || pathname === '/api' || pathname.includes('admin.api.html')) && !currentTab
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <LayoutDashboard className="w-4 h-4 text-gray-400" />
+                  <span>Dashboard</span>
+                </Link>
+
+                <Link
+                  href="/api-docs?tab=wallet"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    currentTab === 'wallet'
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Wallet className="w-4 h-4 text-gray-400" />
+                  <span>Wallet</span>
+                </Link>
+
+                <Link
+                  href="/api-docs/mcp"
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                    pathname.startsWith('/api-docs/mcp') || currentTab === 'mcp'
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Cpu className="w-4 h-4 text-gray-400" />
+                  <span>MCP</span>
+                </Link>
+              </>
+            ) : effectiveSection === 'local-marketing' ? (
               /* Local Marketing Mode Menu (Exact match to Screenshots 1, 2, 5, 6) */
               <>
                 <Link
@@ -660,45 +699,6 @@ export function SecondarySidebar() {
                     </div>
                   )}
                 </div>
-              </>
-            ) : effectiveSection === 'api' ? (
-              /* API Mode Menu (Exact match to SE Ranking API screenshot) */
-              <>
-                <Link
-                  href="/api-docs"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/api-docs' || pathname === '/api'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Dashboard</span>
-                </Link>
-
-                <Link
-                  href="/api-docs/wallet"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/api-docs/wallet' || pathname === '/api/wallet'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Wallet className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>Wallet</span>
-                </Link>
-
-                <Link
-                  href="/api-docs/mcp"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/api-docs/mcp' || pathname === '/api/mcp'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Cpu className="w-4 h-4 text-gray-400 group-hover:text-white" />
-                  <span>MCP</span>
-                </Link>
               </>
             ) : effectiveSection === 'agency' ? (
               /* Agency Pack Menu (Exact match to SE Ranking White Label screenshot) */
@@ -910,33 +910,36 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/rankings?tab=summary"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'summary' || (pathname === '/rankings' && !currentTab)
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Summary
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Summary</span>
                       </Link>
                       <Link
                         href="/rankings?tab=detailed"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'detailed'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Detailed
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Detailed</span>
                       </Link>
                       <Link
                         href="/rankings?tab=historical"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'historical'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Historical data
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Historical data</span>
                       </Link>
                     </div>
                   )}
@@ -977,53 +980,58 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/analytics?tab=overview"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'overview' || (pathname === '/analytics' && !currentTab)
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Overview
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Overview</span>
                       </Link>
                       <Link
                         href="/analytics?tab=traffic"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'traffic'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Traffic
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Traffic</span>
                       </Link>
                       <Link
                         href="/analytics?tab=snippets"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'snippets'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Snippets
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Snippets</span>
                       </Link>
                       <Link
                         href="/analytics?tab=gsc"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'gsc'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - Google Search Console Data
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>Google Search Console Data</span>
                       </Link>
                       <Link
                         href="/analytics?tab=potential"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
                           currentTab === 'potential'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
                       >
-                        - SEO potential
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 shrink-0"></span>
+                        <span>SEO potential</span>
                       </Link>
                     </div>
                   )}
@@ -1064,43 +1072,47 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/competitors?tab=added"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'added' || (pathname === '/competitors' && !currentTab)
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Added Competitors
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Added Competitors</span>
                       </Link>
                       <Link
                         href="/competitors?tab=serp"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'serp'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - SERP Competitors
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>SERP Competitors</span>
                       </Link>
                       <Link
                         href="/competitors?tab=sov"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'sov'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Share of Voice
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Share of Voice</span>
                       </Link>
                       <Link
                         href="/competitors?tab=visibility"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'visibility'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Visibility Rating
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Visibility Rating</span>
                       </Link>
                     </div>
                   )}
@@ -1141,33 +1153,36 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/ai-results-tracker?tab=rankings"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'rankings' || (pathname === '/ai-results-tracker' && !currentTab)
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Rankings
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Rankings</span>
                       </Link>
                       <Link
                         href="/ai-results-tracker?tab=competitors"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'competitors'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Competitors
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Competitors</span>
                       </Link>
                       <Link
                         href="/ai-results-tracker?tab=sources"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'sources'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Sources
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Sources</span>
                       </Link>
                     </div>
                   )}
@@ -1247,63 +1262,69 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/website-audit?tab=overview"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'overview' || (pathname === '/website-audit' && !currentTab)
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Overview
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Overview</span>
                       </Link>
                       <Link
                         href="/website-audit?tab=issues"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'issues'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Issue Report
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Issue Report</span>
                       </Link>
                       <Link
                         href="/website-audit?tab=pages"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'pages'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Crawled Pages
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Crawled Pages</span>
                       </Link>
                       <Link
                         href="/website-audit?tab=resources"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'resources'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Found Resources
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Found Resources</span>
                       </Link>
                       <Link
                         href="/website-audit?tab=links"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'links'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Found Links
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Found Links</span>
                       </Link>
                       <Link
                         href="/website-audit?tab=comparison"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'comparison'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Crawl Comparison
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Crawl Comparison</span>
                       </Link>
                     </div>
                   )}
@@ -1357,63 +1378,69 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/backlinks-monitor?tab=backlinks"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'backlinks' || (pathname === '/backlinks-monitor' && !currentTab)
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Backlinks
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Backlinks</span>
                       </Link>
                       <Link
                         href="/backlinks-monitor?tab=domains"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'domains'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Domains
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Domains</span>
                       </Link>
                       <Link
                         href="/backlinks-monitor?tab=anchor-texts"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'anchor-texts'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Anchor Texts
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Anchor Texts</span>
                       </Link>
                       <Link
                         href="/backlinks-monitor?tab=pages"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'pages'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Pages
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Pages</span>
                       </Link>
                       <Link
                         href="/backlinks-monitor?tab=ips-subnets"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'ips-subnets'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - IPs/Subnets
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>IPs/Subnets</span>
                       </Link>
                       <Link
                         href="/backlinks-monitor?tab=disavow"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'disavow'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Disavow
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Disavow</span>
                       </Link>
                     </div>
                   )}
@@ -1663,31 +1690,27 @@ export function SecondarySidebar() {
                       {/* Google Search subitem matching Screenshot 1 */}
                       <Link
                         href="/research/competitive-research"
-                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           pathname === '/research' || pathname === '/research/competitive-research'
                             ? 'text-white font-medium bg-white/10 shadow-2xs'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        <span className={pathname === '/research' || pathname === '/research/competitive-research' ? 'text-white font-bold' : 'text-[#8C98A9]'}>
-                          {pathname === '/research' || pathname === '/research/competitive-research' ? '•' : '-'}
-                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
                         <span>Google Search</span>
                       </Link>
 
                       {/* AI Search subitem matching Screenshot 2 */}
                       <Link
                         href="/research/ai-search"
-                        className={`flex items-center justify-between py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center justify-between py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           pathname.startsWith('/research/ai-search')
                             ? 'text-white font-medium bg-white/10 shadow-2xs'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={pathname.startsWith('/research/ai-search') ? 'text-white font-bold' : 'text-[#8C98A9]'}>
-                            {pathname.startsWith('/research/ai-search') ? '•' : '-'}
-                          </span>
+                          <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
                           <span>AI Search</span>
                         </div>
                         <span className="text-[10px] bg-[#145EA8]/50 text-[#8ec5fc] px-1.5 py-0.2 rounded font-semibold border border-[#145EA8]/60">
@@ -1698,15 +1721,13 @@ export function SecondarySidebar() {
                       {/* Database Expansion subitem matching Screenshot 3 */}
                       <Link
                         href="/research/database-expansion"
-                        className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           pathname === '/research/database-expansion'
                             ? 'text-white font-medium bg-white/10 shadow-2xs'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        <span className={pathname === '/research/database-expansion' ? 'text-white font-bold' : 'text-[#8C98A9]'}>
-                          {pathname === '/research/database-expansion' ? '•' : '-'}
-                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
                         <span>Database Expansion</span>
                       </Link>
                     </div>
@@ -1748,63 +1769,69 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/research/keyword-research?tab=overview"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'overview' || (pathname === '/research/keyword-research' && !currentTab)
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Overview
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Overview</span>
                       </Link>
                       <Link
                         href="/research/keyword-research/suggestions"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           pathname.includes('suggestions') || currentTab === 'suggestions'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Keyword Suggestions
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Keyword Suggestions</span>
                       </Link>
                       <Link
                         href="/research/keyword-research/serp"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           pathname.includes('serp') || currentTab === 'serp'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - SERP Overview
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>SERP Overview</span>
                       </Link>
                       <Link
                         href="/research/keyword-research?tab=organic-serp-history"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'organic-serp-history'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Organic SERP History
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Organic SERP History</span>
                       </Link>
                       <Link
                         href="/research/keyword-research?tab=ads-history"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'ads-history'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Ads History
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Ads History</span>
                       </Link>
                       <Link
                         href="/research/keyword-research?tab=database-expansion"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'database-expansion'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Database Expansion
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Database Expansion</span>
                       </Link>
                     </div>
                   )}
@@ -1858,13 +1885,14 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/keyword-grouper?tab=results"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'results' || pathname === '/keyword-grouper'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Results
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Results</span>
                       </Link>
                     </div>
                   )}
@@ -1918,13 +1946,14 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/search-volume-checker?tab=results"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'results' || pathname === '/search-volume-checker'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Results
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Results</span>
                       </Link>
                     </div>
                   )}
@@ -1965,13 +1994,14 @@ export function SecondarySidebar() {
                     <div className="ml-5 pl-2.5 border-l border-[#333E50]/80 space-y-0.5 mt-0.5 py-0.5 text-[13px] animate-in fade-in duration-150">
                       <Link
                         href="/index-status-checker?tab=results"
-                        className={`block py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
+                        className={`group flex items-center gap-2 py-1 px-2.5 rounded transition-all duration-150 text-xs tracking-tight ${
                           currentTab === 'results' || pathname === '/index-status-checker'
-                            ? 'text-white font-medium bg-white/10'
-                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
+                            ? 'text-white font-medium bg-white/10 shadow-2xs'
+                            : 'text-[#9AA5B8] hover:text-white hover:bg-white/10'
                         }`}
                       >
-                        - Results
+                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70 group-hover:opacity-100 shrink-0 transition-opacity"></span>
+                        <span>Results</span>
                       </Link>
                     </div>
                   )}

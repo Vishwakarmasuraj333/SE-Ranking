@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Clock, Coins, ChevronDown, X, Plus } from 'lucide-react';
+import { FeedbackModal } from '@/components/modals/FeedbackModal';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 interface ApiKeyItem {
   id: string;
@@ -19,6 +22,8 @@ export default function ApiDashboardPage() {
   const [upgradeType, setUpgradeType] = useState<'addon' | 'standalone'>('addon');
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
   // Dynamic API Keys list matching user HTML
   const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([
@@ -27,7 +32,7 @@ export default function ApiDashboardPage() {
       name: 'Data API Key',
       token: '12856b00-b1c7-f25b-68b9-294c542738ac',
       created: 'Sep 25, 2026',
-      lastUsed: 'Sep 27, 2026',
+      lastUsed: 'Sep 28, 2026',
     },
   ]);
 
@@ -70,81 +75,82 @@ export default function ApiDashboardPage() {
     <div className="api-dashboard w-full min-h-screen bg-[#F4F6F9] py-6 px-4 sm:px-6 font-sans text-[#171B24] flex flex-col justify-between">
       <div className="max-w-6xl mx-auto w-full space-y-6">
 
-        {/* ===================== API HEADER ===================== */}
-        <div className="api-header bg-white border border-[#E1E6EB] rounded-[16px] p-6 shadow-xs">
-          <div className="api-header__top flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#F0F2F5]">
-            <div className="api-header__title-wrapper flex items-center gap-2">
-              <h1 className="api-header__title text-2xl font-bold text-[#171B24] tracking-tight">
-                API Dashboard
-              </h1>
-              <div className="se-hint-element-2 se-hint-title-2">
-                <div className="se-hint-element-2__wrapper" title="Manage your SE Ranking API keys, monitor credit consumption, and explore developer docs.">
-                  <span className="se-hint-title-2__icon w-4 h-4 rounded-full bg-[#E1E6EB] text-[#5B6370] text-[10px] font-bold inline-flex items-center justify-center cursor-help">
-                    i
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="api-header__button-wrapper">
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="se-button_icon se-button-2_size-l se-button-2 se-button-2_primary inline-flex items-center gap-2 px-5 py-2.5 bg-[#2870ED] hover:bg-[#1C60DB] active:bg-[#1553C4] text-white font-semibold text-xs rounded-[8px] shadow-sm transition-all cursor-pointer"
-              >
-                <span className="se-button-2__wrapper flex items-center gap-1.5">
-                  <span className="se-material-icon-2 se-button-2__icon notranslate">
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                    </svg>
-                  </span>
-                  <span className="se-button-2__text">Create api key</span>
-                  <span className="se-button-2__arrow">
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                    </svg>
-                  </span>
-                </span>
-              </button>
-            </div>
+        {/* Top Breadcrumb & Feedback Bar matching Screenshot 1 */}
+        <div className="flex items-center justify-between text-xs text-gray-500 pb-1">
+          <div className="flex items-center gap-1.5 text-gray-400 font-medium">
+            <span>API Dashboard</span>
           </div>
 
-          <div className="api-header__footer pt-3 flex items-center gap-4 text-xs text-[#5B6370]">
-            <div className="api-header__key-count font-semibold text-[#171B24]">
-              {apiKeys.length} / 10 API keys
-            </div>
-            <span className="text-gray-300">•</span>
-            <div className="api-header__last-used">
-              Last used <b className="text-[#171B24]">Sep 27, 2026</b>
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setIsFeedbackOpen(true)}
+              className="text-[#0B69FF] hover:underline cursor-pointer font-medium text-xs"
+            >
+              Feedback
+            </button>
+
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] rounded-full text-xs font-semibold cursor-pointer">
+              <Coins className="w-3.5 h-3.5 text-[#F59E0B]" />
+              <span>Credits 100K / 100K</span>
+              <ChevronDown className="w-3 h-3 text-[#92400E]" />
             </div>
           </div>
         </div>
 
-        {/* ===================== API BANNER (Trial ends in 10 days) ===================== */}
-        <div className="api-banner api-banner--info bg-[#F0F7FF] border border-[#B8D7FF] rounded-[14px] p-5 shadow-xs">
-          <div className="api-banner__header flex items-center justify-between pb-2 border-b border-[#D0E4FF]">
-            <div className="api-banner__title-section flex items-center gap-2.5">
-              <span className="se-material-icon-2 api-banner__icon text-[#171717] flex items-center">
-                {/* schedule clock icon */}
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
-                </svg>
-              </span>
-              <span className="api-banner__title font-bold text-sm text-[#171717]">
-                Trial ends in 10 days
+        {/* ===================== API HEADER matching Screenshot 1 ===================== */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900 tracking-tight">
+                API Dashboard
+              </h1>
+              <span
+                className="w-4 h-4 rounded-full bg-gray-200 text-gray-600 text-[10px] font-bold inline-flex items-center justify-center cursor-help"
+                title="Manage your SE Ranking API keys, monitor credit consumption, and explore developer docs."
+              >
+                i
               </span>
             </div>
-            <div className="api-banner__header-info text-xs font-semibold text-[#2870ED] bg-white px-2.5 py-0.5 rounded-full border border-[#B8D7FF]">
-              Access to the Data API only
+            <div className="flex items-center gap-3 text-xs text-gray-500">
+              <span className="font-semibold text-gray-700">{apiKeys.length} / 10 API keys</span>
+              <span>•</span>
+              <span>Last used <b className="text-gray-700 font-semibold">Sep 28, 2026</b></span>
             </div>
           </div>
-          <div className="api-banner__content pt-3 text-xs text-[#1E3A8A]">
+
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+          >
+            <Plus className="w-4 h-4" />
+            <span>CREATE API KEY</span>
+          </button>
+        </div>
+
+        {/* ===================== API BANNER (Trial ends in 9 days) matching Screenshot 1 ===================== */}
+        <div className="bg-[#F0F6FF] border border-[#CBE2FF] rounded-xl p-4 flex flex-col gap-1.5 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#1E2532]">
+              <Clock className="w-4 h-4 text-[#1E2532]" />
+              <span>Trial ends in 9 days</span>
+            </div>
+            <span className="text-xs font-normal text-[#475569]">
+              Access to the Data API only
+            </span>
+          </div>
+          <div className="text-xs text-[#475569] pl-6">
             Still have 100,000 credits to explore. Want to keep going?{' '}
-            <Link
-              href="/pricing"
-              className="api-banner__link font-bold text-[#2870ED] hover:underline"
+            <button
+              type="button"
+              onClick={() => {
+                setUpgradeType('addon');
+                setIsUpgradeModalOpen(true);
+              }}
+              className="text-[#0B69FF] font-medium hover:underline cursor-pointer"
             >
               Get full access
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -618,87 +624,90 @@ export default function ApiDashboardPage() {
 
       </div>
 
-      {/* Footer utility links matching SE Ranking */}
-      <div className="border-t border-[#E1E6EB] bg-white mt-8 py-3 px-6 text-xs text-[#7A8391] flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-bold text-[#323842]">
-          <div className="w-4 h-4 rounded bg-[#2870ED] flex items-center justify-center text-white text-[9px] font-black">
-            API
-          </div>
-          <span>SE Ranking Developer Platform</span>
-        </div>
-
+      {/* Footer matching standard SE Ranking in-app footer */}
+      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
+        <Link href="/projects" className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">
+          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
+            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
+          </svg>
+          <span>SE Ranking</span>
+        </Link>
         <div className="flex items-center gap-5">
-          <Link href="/api-docs/keywords" className="hover:text-[#2870ED] transition-colors">
-            Keywords API
+          <button onClick={() => setIsBugModalOpen(true)} className="hover:underline text-gray-600 cursor-pointer">
+            Report a bug
+          </button>
+          <Link href="/affiliate" className="hover:underline text-gray-600">
+            Affiliates
           </Link>
-          <Link href="/api-docs/backlinks" className="hover:text-[#2870ED] transition-colors">
-            Backlinks API
+          <Link href="/api-docs" className="hover:underline text-gray-600">
+            API
           </Link>
-          <Link href="/api-docs/domains" className="hover:text-[#2870ED] transition-colors">
-            Domain API
+          <Link href="/whats-new" className="hover:underline text-gray-600">
+            What&apos;s new
           </Link>
-          <Link href="/api-docs/mcp" className="hover:text-[#2870ED] transition-colors">
-            MCP Server
-          </Link>
-          <Link href="/pricing" className="hover:text-[#2870ED] transition-colors">
-            Pricing
+          <Link href="/help" className="hover:underline text-gray-600">
+            Help
           </Link>
         </div>
-      </div>
+      </footer>
 
-      {/* ===================== MODAL: CREATE API KEY ===================== */}
+      {/* Internal Modals */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
+
+      <ReportBugModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
+
+      {/* ===================== MODAL: CREATE API KEY (Screenshot 3 Exact Match) ===================== */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-[#E1E6EB] relative">
-            <button
-              onClick={() => setIsCreateModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer"
-            >
-              ✕
-            </button>
-
-            <form onSubmit={handleCreateKey} className="space-y-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#2870ED] flex items-center justify-center font-bold text-sm">
-                  🔑
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[#171B24]">Generate New API Key</h3>
-                  <p className="text-xs text-[#5B6370]">Provide an identifier for this key</p>
-                </div>
-              </div>
-
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-2xs flex items-center justify-center p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4 border border-gray-100 relative animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Key Name
+                <h3 className="text-[17px] font-bold text-gray-900 tracking-tight">
+                  Create API key
+                </h3>
+                <p className="text-[13px] text-gray-500 mt-1 font-normal">
+                  Choose the API type that matches your goal.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer transition-colors"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateKey} className="space-y-4 pt-1">
+              <div>
+                <label className="block text-[13px] font-medium text-gray-700 mb-1.5">
+                  API key name
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Staging Server, Zapier Automation"
+                  placeholder="Enter API key name"
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-[#2870ED]"
+                  className="w-full px-3 py-2 border border-[#CBD5E1] rounded text-[13px] text-gray-900 placeholder:text-gray-400 bg-white focus:outline-hidden focus:border-[#0B69FF]"
+                  autoFocus
                 />
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-[11px] text-amber-800">
-                Keep your API key confidential. Never expose it in client-side code or public repositories.
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-lg text-xs cursor-pointer"
-                >
-                  Cancel
-                </button>
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#2870ED] hover:bg-[#1C60DB] text-white font-semibold rounded-lg text-xs cursor-pointer"
+                  disabled={!newKeyName.trim()}
+                  className="px-6 py-2 bg-[#0B69FF] hover:bg-[#005FE0] disabled:bg-blue-300 text-white text-xs font-bold rounded uppercase transition-colors shadow-2xs cursor-pointer"
                 >
-                  Create Key
+                  CREATE KEY
                 </button>
               </div>
             </form>
