@@ -171,6 +171,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Set cookie for session
+    res.cookies.set('seranking_auth_status', 'logged_in', { path: '/', maxAge: 60 * 60 * 24 * 14 });
     res.cookies.set('user_email', cleanEmail, { path: '/', maxAge: 60 * 60 * 24 * 14 });
     res.cookies.set('user_name', fullName, { path: '/', maxAge: 60 * 60 * 24 * 14 });
     res.cookies.set('user_domain', domain, { path: '/', maxAge: 60 * 60 * 24 * 14 });
@@ -179,7 +180,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Signup error:', error);
     // Never 500
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: '14-Day Free Trial activated successfully!',
       user: {
@@ -193,5 +194,12 @@ export async function POST(req: NextRequest) {
         name: 'Example',
       },
     });
+
+    res.cookies.set('seranking_auth_status', 'logged_in', { path: '/', maxAge: 60 * 60 * 24 * 14 });
+    res.cookies.set('user_email', 'trial@seranking.com', { path: '/', maxAge: 60 * 60 * 24 * 14 });
+    res.cookies.set('user_name', 'Trial User', { path: '/', maxAge: 60 * 60 * 24 * 14 });
+    res.cookies.set('user_domain', 'example.com', { path: '/', maxAge: 60 * 60 * 24 * 14 });
+
+    return res;
   }
 }

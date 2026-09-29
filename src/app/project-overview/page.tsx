@@ -26,6 +26,8 @@ import {
   GripVertical,
   RotateCcw,
   Copy,
+  LayoutGrid,
+  Calendar,
 } from 'lucide-react';
 import {
   LineChart,
@@ -39,6 +41,17 @@ import {
 import { useApp } from '@/components/providers/AppProviders';
 import { appWrapData } from '@/lib/appWrapData';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
+
+const SUGGESTED_HIGH_POTENTIAL = [
+  { keyword: 'employee monitoring software', volume: '14.8K', kd: 28, intent: 'Commercial', cpc: '$4.50' },
+  { keyword: 'work time tracker', volume: '8.1K', kd: 22, intent: 'Commercial', cpc: '$3.20' },
+  { keyword: 'remote employee tracking software', volume: '5.4K', kd: 25, intent: 'Commercial', cpc: '$4.10' },
+  { keyword: 'automatic screenshot monitoring tool', volume: '2.4K', kd: 16, intent: 'High Potential', cpc: '$5.10' },
+  { keyword: 'desktop activity tracker', volume: '3.6K', kd: 19, intent: 'Commercial', cpc: '$2.80' },
+  { keyword: 'remote team productivity tool', volume: '5.2K', kd: 24, intent: 'Commercial', cpc: '$3.90' },
+  { keyword: 'time tracking software with screenshots', volume: '1.9K', kd: 18, intent: 'Commercial', cpc: '$3.40' },
+];
 
 const mockBacklinkTrend = [
   { date: '06 Jul', backlinks: 60, referring: 41, domainTrust: 21, pageTrust: 6 },
@@ -52,49 +65,49 @@ const mockBacklinkTrend = [
 
 const DEFAULT_SECTIONS = [
   'comp_ai_search',
-  'ai_results_tracker',
-  'key_metrics',
   'rankings',
-  'backlink_checker',
   'analytics_traffic',
+  'backlink_checker',
+  'key_metrics',
+  'ai_results_tracker',
   'marketing_plan',
   'comp_research_geo',
-  'website_audit',
   'insights',
+  'website_audit',
   'content_keywords',
 ];
 
 const WIDGET_NAMES: Record<string, string> = {
   comp_ai_search: 'Competitive Research - AI Search',
-  ai_results_tracker: 'AI Results Tracker',
-  key_metrics: 'Key metrics',
   rankings: 'Rankings',
-  backlink_checker: 'Backlink Checker',
   analytics_traffic: 'Analytics and traffic',
+  backlink_checker: 'Backlink Checker',
+  key_metrics: 'Key metrics',
+  ai_results_tracker: 'AI Results Tracker',
   marketing_plan: 'Marketing Plan',
   comp_research_geo: 'Competitive Research',
-  website_audit: 'Website Audit',
   insights: 'Insights',
+  website_audit: 'Website Audit',
   content_keywords: 'Content',
 };
 
 export default function ProjectOverviewPage() {
   const { activeProject } = useApp();
-  const domain = activeProject?.domain || 'zohosocial.com';
+  const domain = activeProject?.domain || 'https://www.workcomposer.com/';
 
   // Sections order for Drag and Drop (uper niche)
   const [sectionsOrder, setSectionsOrder] = useState<string[]>(DEFAULT_SECTIONS);
   const [visibleWidgets, setVisibleWidgets] = useState<Record<string, boolean>>({
     comp_ai_search: true,
-    ai_results_tracker: true,
-    key_metrics: true,
     rankings: true,
-    backlink_checker: true,
     analytics_traffic: true,
+    backlink_checker: true,
+    key_metrics: true,
+    ai_results_tracker: true,
     marketing_plan: true,
     comp_research_geo: true,
-    website_audit: true,
     insights: true,
+    website_audit: true,
     content_keywords: true,
   });
 
@@ -113,6 +126,13 @@ export default function ProjectOverviewPage() {
   // Guest Link & Feedback Modals matching screenshots
   const [isGuestLinkOpen, setIsGuestLinkOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isHighPotentialModalOpen, setIsHighPotentialModalOpen] = useState(false);
+  const [selectedHighPotential, setSelectedHighPotential] = useState<string[]>([
+    'employee monitoring software',
+    'work time tracker',
+    'remote employee tracking software',
+  ]);
   const [feedbackText, setFeedbackText] = useState('');
 
   // Overview Settings Modal state
@@ -130,10 +150,10 @@ export default function ProjectOverviewPage() {
   const [isAiTrackerBrandOpen, setIsAiTrackerBrandOpen] = useState(false);
   const [aiTrackerEngines, setAiTrackerEngines] = useState('1 AI engines · 0 prompts');
   const [isAiTrackerEnginesOpen, setIsAiTrackerEnginesOpen] = useState(false);
-  const [aiTrackerPeriod, setAiTrackerPeriod] = useState('23 Sept - 25 Sept, 2026');
+  const [aiTrackerPeriod, setAiTrackerPeriod] = useState('27 Sept - 29 Sept, 2026');
   const [isAiTrackerPeriodOpen, setIsAiTrackerPeriodOpen] = useState(false);
 
-  const [rankingsEngine, setRankingsEngine] = useState('Google India (EN)');
+  const [rankingsEngine, setRankingsEngine] = useState('Google India');
   const [isRankingsEngineOpen, setIsRankingsEngineOpen] = useState(false);
   const [rankingsPeriod, setRankingsPeriod] = useState('Past 30 days');
   const [isRankingsPeriodOpen, setIsRankingsPeriodOpen] = useState(false);
@@ -278,39 +298,18 @@ export default function ProjectOverviewPage() {
   const renderWidget = (sectionId: string, index: number) => {
     if (!visibleWidgets[sectionId]) return null;
 
-    const isBeingDragged = draggedIndex === index;
-    const isDragOver = dragOverIndex === index;
-
-    // Clean, authentic widget header matching real SE Ranking
-    const headerControls = (title: string, subInfo?: React.ReactNode) => (
+    // Clean, authentic widget header matching real SE Ranking (Screenshot 1-5)
+    const headerControls = (title: React.ReactNode, rightControls?: React.ReactNode) => (
       <div className="flex items-center justify-between pb-3 border-b border-gray-100 select-none">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-bold text-xs text-gray-900">{title}</span>
-          {subInfo}
+          {title}
         </div>
-        <div className="flex items-center gap-1 text-gray-400">
-          <button
-            type="button"
-            onClick={() => moveUp(index)}
-            disabled={index === 0}
-            className="p-1 rounded hover:bg-gray-100 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            title="Move section up"
-          >
-            <ChevronUp className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => moveDown(index)}
-            disabled={index === sectionsOrder.length - 1}
-            className="p-1 rounded hover:bg-gray-100 hover:text-gray-700 disabled:opacity-20 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            title="Move section down"
-          >
-            <ChevronDown className="w-3.5 h-3.5" />
-          </button>
+        <div className="flex items-center gap-1.5 text-gray-400">
+          {rightControls}
           <button
             type="button"
             onClick={() => toggleWidgetVisibility(sectionId)}
-            className="p-1 rounded hover:bg-gray-100 hover:text-gray-700 transition-colors cursor-pointer ml-0.5"
+            className="p-1 rounded hover:bg-gray-100 hover:text-gray-700 transition-colors cursor-pointer"
             title="Hide widget"
           >
             <X className="w-3.5 h-3.5" />
@@ -326,100 +325,32 @@ export default function ProjectOverviewPage() {
         content = (
           <div className="space-y-3">
             {headerControls(
-              'Competitive Research - AI Search ⓘ',
-              <div className="flex items-center gap-2 text-xs">
-                {/* Brand Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAiSearchBrandOpen(!isAiSearchBrandOpen);
-                      setIsAiSearchPeriodOpen(false);
-                    }}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 cursor-pointer"
-                  >
-                    <span>Brand: {aiSearchBrand}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isAiSearchBrandOpen && (
-                    <div className="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {['Zoho', 'WorkComposer', 'SE Ranking', 'Competitor A'].map((b) => (
-                        <button
-                          key={b}
-                          type="button"
-                          onClick={() => {
-                            setAiSearchBrand(b);
-                            setIsAiSearchBrandOpen(false);
-                            showNotice(`Brand switched to ${b}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            aiSearchBrand === b ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{b}</span>
-                          {aiSearchBrand === b && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Period Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAiSearchPeriodOpen(!isAiSearchPeriodOpen);
-                      setIsAiSearchBrandOpen(false);
-                    }}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 cursor-pointer"
-                  >
-                    <span>{aiSearchPeriod}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isAiSearchPeriodOpen && (
-                    <div className="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {['Last 7 days', 'Last 30 days', 'Last 3 months', 'Last 6 months'].map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => {
-                            setAiSearchPeriod(p);
-                            setIsAiSearchPeriodOpen(false);
-                            showNotice(`Period set to ${p}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            aiSearchPeriod === p ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{p}</span>
-                          {aiSearchPeriod === p && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="font-bold text-gray-900 text-sm">Competitive Research - AI Search ⓘ</span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-600 font-medium">Brand: Zoho</span>
+                <span className="text-gray-600 font-medium">Last 30 days</span>
               </div>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
               {/* AI Overview */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
                   <span className="text-[#0B69FF]">✦</span>
                   <span>AI Overview</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-gray-900">13.5K</span>
+                  <span className="font-bold text-[#0B69FF]">13.5K</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">6</span>
                 </div>
               </div>
 
               {/* AI Mode */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
                   <span className="text-amber-500">✦</span>
                   <span>AI Mode</span>
@@ -435,9 +366,9 @@ export default function ProjectOverviewPage() {
               </div>
 
               {/* ChatGPT */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-emerald-600">◎</span>
+                  <span className="text-emerald-600 font-bold">◎</span>
                   <span>ChatGPT</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
@@ -451,7 +382,7 @@ export default function ProjectOverviewPage() {
               </div>
 
               {/* Gemini */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
                   <span className="text-blue-500">✦</span>
                   <span>Gemini</span>
@@ -467,7 +398,7 @@ export default function ProjectOverviewPage() {
               </div>
 
               {/* Perplexity */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
                   <span className="text-purple-500">✱</span>
                   <span>Perplexity</span>
@@ -486,133 +417,285 @@ export default function ProjectOverviewPage() {
         );
         break;
 
-      case 'ai_results_tracker':
+      case 'rankings':
         content = (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {headerControls(
-              'AI Results Tracker ⓘ',
-              <div className="flex items-center gap-2 text-xs flex-wrap">
-                {/* Brand Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAiTrackerBrandOpen(!isAiTrackerBrandOpen);
-                      setIsAiTrackerEnginesOpen(false);
-                      setIsAiTrackerPeriodOpen(false);
-                    }}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 cursor-pointer"
-                  >
-                    <span>Brand: {aiTrackerBrand}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isAiTrackerBrandOpen && (
-                    <div className="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {['Zoho', 'WorkComposer', 'SE Ranking'].map((b) => (
-                        <button
-                          key={b}
-                          type="button"
-                          onClick={() => {
-                            setAiTrackerBrand(b);
-                            setIsAiTrackerBrandOpen(false);
-                            showNotice(`AI Tracker Brand: ${b}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            aiTrackerBrand === b ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{b}</span>
-                          {aiTrackerBrand === b && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="font-bold text-sm text-gray-900">Rankings</span>
 
-                {/* Engines Dropdown */}
+                {/* Google India EN Dropdown matching Screenshot 3 */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => {
-                      setIsAiTrackerEnginesOpen(!isAiTrackerEnginesOpen);
-                      setIsAiTrackerBrandOpen(false);
-                      setIsAiTrackerPeriodOpen(false);
+                      setIsRankingsEngineOpen(!isRankingsEngineOpen);
+                      setIsRankingsPeriodOpen(false);
                     }}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 cursor-pointer"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 cursor-pointer text-xs shadow-2xs"
                   >
-                    <span>{aiTrackerEngines}</span>
+                    <span className="font-bold text-xs text-blue-600">G</span>
+                    <span className="text-sm">🇮🇳</span>
+                    <span>{rankingsEngine}</span>
+                    <span className="text-[10px] font-bold text-gray-500">EN</span>
                     <ChevronDown className="w-3 h-3 text-gray-400" />
                   </button>
-                  {isAiTrackerEnginesOpen && (
-                    <div className="absolute left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {[
-                        '1 AI engines · 0 prompts',
-                        'All engines (ChatGPT, Gemini, Perplexity)',
-                        'ChatGPT Only',
-                        'Google Gemini Only',
-                        'Perplexity AI Only',
-                      ].map((eng) => (
-                        <button
-                          key={eng}
-                          type="button"
-                          onClick={() => {
-                            setAiTrackerEngines(eng);
-                            setIsAiTrackerEnginesOpen(false);
-                            showNotice(`Engine filter updated: ${eng}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            aiTrackerEngines === eng ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span className="truncate">{eng}</span>
-                          {aiTrackerEngines === eng && <Check className="w-3 h-3 text-[#0B69FF] shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Period Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsAiTrackerPeriodOpen(!isAiTrackerPeriodOpen);
-                      setIsAiTrackerBrandOpen(false);
-                      setIsAiTrackerEnginesOpen(false);
-                    }}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-700 font-medium border border-gray-200 cursor-pointer"
-                  >
-                    <span>{aiTrackerPeriod}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isAiTrackerPeriodOpen && (
+                  {isRankingsEngineOpen && (
                     <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {[
-                        '23 Sept - 25 Sept, 2026',
-                        'Past 7 days',
-                        'Past 30 days',
-                        'Past 90 days',
-                      ].map((p) => (
+                      <button
+                        type="button"
+                        onClick={() => setIsRankingsEngineOpen(false)}
+                        className="w-full text-left px-3 py-1.5 bg-gray-100 font-semibold text-gray-900 flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1.5">
+                          <span className="font-bold text-blue-600">G</span>
+                          <span className="text-sm">🇮🇳</span>
+                          <span>Google India</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500">EN</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Past 30 days Dropdown matching Screenshot 2 */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRankingsPeriodOpen(!isRankingsPeriodOpen);
+                      setIsRankingsEngineOpen(false);
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 cursor-pointer text-xs shadow-2xs"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                    <span>{rankingsPeriod}</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {isRankingsPeriodOpen && (
+                    <div className="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
+                      {['Today', 'Yesterday', 'Last Week', 'Last month', 'Past 7 days', 'Past 30 days'].map((p) => (
                         <button
                           key={p}
                           type="button"
                           onClick={() => {
-                            setAiTrackerPeriod(p);
-                            setIsAiTrackerPeriodOpen(false);
-                            showNotice(`Date filter: ${p}`);
+                            setRankingsPeriod(p);
+                            setIsRankingsPeriodOpen(false);
+                            showNotice(`Rankings date range: ${p}`);
                           }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            aiTrackerPeriod === p ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
+                          className={`w-full text-left px-3 py-1.5 text-xs transition-colors cursor-pointer ${
+                            rankingsPeriod === p ? 'bg-gray-100 text-gray-900 font-semibold' : 'text-gray-700 hover:bg-gray-50'
                           }`}
                         >
-                          <span>{p}</span>
-                          {aiTrackerPeriod === p && <Check className="w-3 h-3 text-[#0B69FF]" />}
+                          {p}
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+            <div className="py-8 text-center space-y-3">
+              <h3 className="text-base font-bold text-gray-900">Add keywords</h3>
+              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                Type manually, select from the suggested list, import copy-paste in a column from any text editor.
+              </p>
+              <div className="flex items-center justify-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAddKeywordsOpen(true)}
+                  className="px-4 py-2 bg-[#20B26C] hover:bg-[#1BA061] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer uppercase tracking-wider"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>ADD KEYWORDS</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAddKeywordsOpen(true)}
+                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer uppercase tracking-wider"
+                >
+                  FIND HIGH-POTENTIAL KEYWORDS
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case 'analytics_traffic':
+        content = (
+          <div className="space-y-4">
+            {headerControls(
+              <span className="font-bold text-sm text-gray-900">Analytics and traffic</span>
+            )}
+            <div className="py-8 text-center space-y-3">
+              <h3 className="text-base font-bold text-gray-900">Analytics and statistics services</h3>
+              <p className="text-xs text-gray-500 max-w-lg mx-auto leading-relaxed">
+                Connect Google Analytics and statistics services to get detailed information about your website without switching between browser tabs. It will only take a few minutes.
+              </p>
+              <div className="flex flex-col items-center gap-2.5 pt-3 max-w-sm mx-auto">
+                <button
+                  type="button"
+                  onClick={() => showNotice('Connecting to Google Analytics...')}
+                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                >
+                  <span className="text-amber-500 font-bold">📊</span>
+                  <span>Connect Google Analytics</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => showNotice('Connecting to Google Search Console...')}
+                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                >
+                  <span className="font-bold text-blue-600">G</span>
+                  <span>Connect Google Search Console</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => showNotice('Connecting to Matomo Analytics...')}
+                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                >
+                  <span className="text-blue-500 font-bold">Ⓜ</span>
+                  <span>Connect Matomo Analytics</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case 'backlink_checker':
+        content = (
+          <div className="space-y-4">
+            {headerControls(
+              <span className="font-bold text-sm text-gray-900">Backlink Checker</span>
+            )}
+            <div className="py-10 text-center space-y-3">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 text-[#0B69FF] flex items-center justify-center mx-auto">
+                <Link2 className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-gray-900">Backlink Checker</h3>
+              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                Get the full list of backlinks for your domain along with additional data for each backlink.
+              </p>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => showNotice('Running backlink analysis for https://www.workcomposer.com/...')}
+                  className="px-6 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-lg uppercase tracking-wider shadow-xs transition-colors cursor-pointer"
+                >
+                  RUN ANALYSIS
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case 'key_metrics':
+        content = (
+          <div className="space-y-4">
+            {headerControls(
+              <span className="font-bold text-sm text-gray-900">Key metrics</span>,
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="p-1 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer mr-1"
+                title="Key metrics settings"
+              >
+                <Settings className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-1">
+              {/* Column 1: AI PRESENCE */}
+              <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
+                  <span>AI PRESENCE ⓘ</span>
+                  <span className="text-sm">🇮🇳</span>
+                </div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-black text-[#0B69FF]">0.54%</span>
+                  <span className="text-xs font-bold text-emerald-600">▲ 0.001%</span>
+                </div>
+                <div className="text-[10px] text-gray-400">Sep, 2026</div>
+              </div>
+
+              {/* Column 2: ORGANIC TRAFFIC */}
+              <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
+                  <span>ORGANIC TRAFFIC ⓘ</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm">🇮🇳</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-gray-900">514</div>
+                <div className="text-[10px] text-gray-400">Sep, 2026</div>
+              </div>
+
+              {/* Column 3: ORGANIC KEYWORDS */}
+              <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
+                  <span>ORGANIC KEYWORDS ⓘ</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm">🇮🇳</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </div>
+                </div>
+                <div className="text-2xl font-black text-gray-900">131</div>
+                <div className="text-[10px] text-gray-400">Sep, 2026</div>
+              </div>
+
+              {/* Column 4: REFERRING DOMAINS */}
+              <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+                <div className="text-[11px] text-gray-500 font-bold uppercase">
+                  <span>REFERRING DOMAINS ⓘ</span>
+                </div>
+                <div className="text-xs text-gray-500">Get backlink data</div>
+                <button
+                  type="button"
+                  onClick={() => showNotice('Running backlink analysis...')}
+                  className="text-xs font-bold text-white bg-[#0B69FF] hover:bg-[#005FE0] px-3.5 py-1.5 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                >
+                  Run analysis
+                </button>
+              </div>
+
+              {/* Column 5: SEARCH VISIBILITY */}
+              <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
+                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
+                  <span>SEARCH VISIBILITY ⓘ</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-bold text-blue-600 text-xs">G</span>
+                    <span className="text-sm">🇮🇳</span>
+                    <span className="text-[10px] font-bold text-gray-500">EN</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500">Get site visibility data</div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddKeywordsOpen(true)}
+                  className="text-xs font-bold text-white bg-[#20B26C] hover:bg-[#1BA061] px-3.5 py-1.5 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                >
+                  Add keywords
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case 'ai_results_tracker':
+        content = (
+          <div className="space-y-4">
+            {headerControls(
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="font-bold text-gray-900 text-sm">AI Results Tracker ⓘ</span>
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-600 font-medium">Brand: Zoho</span>
+                <span className="text-gray-600 font-medium">1 AI engines · 0 prompts</span>
+                <span className="text-gray-600 font-medium">27 Sept - 29 Sept, 2026</span>
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
@@ -668,391 +751,46 @@ export default function ProjectOverviewPage() {
         );
         break;
 
-      case 'key_metrics':
-        content = (
-          <div className="space-y-3">
-            {headerControls('Key metrics')}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-1">
-              {/* Metric 1 */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
-                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
-                  <span>AI PRESENCE ⓘ</span>
-                  <span className="text-sm">🇮🇳</span>
-                </div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-blue-900">0.54%</span>
-                  <span className="text-[11px] font-bold text-gray-500">0%</span>
-                </div>
-                <div className="text-[10px] text-gray-400">Sep, 2026</div>
-              </div>
-
-              {/* Metric 2 */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
-                  <span>ORGANIC TRAFFIC</span>
-                  <span className="text-sm">🇮🇳</span>
-                </div>
-                <div className="text-xs text-gray-400">Data is not found</div>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Traffic recheck started...')}
-                  className="text-[11px] font-semibold text-gray-700 bg-white border border-gray-300 px-2 py-0.5 rounded shadow-2xs hover:bg-gray-50 flex items-center gap-1 cursor-pointer"
-                >
-                  <RefreshCw className="w-3 h-3 text-gray-500" />
-                  <span>Restart</span>
-                </button>
-              </div>
-
-              {/* Metric 3 */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
-                  <span>ORGANIC KEYWORDS</span>
-                  <span className="text-sm">🇮🇳</span>
-                </div>
-                <div className="text-xs text-gray-400">Data is not found</div>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Keywords recheck started...')}
-                  className="text-[11px] font-semibold text-gray-700 bg-white border border-gray-300 px-2 py-0.5 rounded shadow-2xs hover:bg-gray-50 flex items-center gap-1 cursor-pointer"
-                >
-                  <RefreshCw className="w-3 h-3 text-gray-500" />
-                  <span>Restart</span>
-                </button>
-              </div>
-
-              {/* Metric 4 */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
-                <div className="text-[11px] text-gray-500 font-bold uppercase">
-                  <span>REFERRING DOMAINS ⓘ</span>
-                </div>
-                <div className="text-2xl font-black text-[#0B69FF]">41</div>
-                <div className="text-[10px] text-gray-400 flex items-center justify-between">
-                  <span>Sep-23 2026</span>
-                  <RefreshCw
-                    onClick={() => showNotice('Refreshing referring domains...')}
-                    className="w-3 h-3 text-[#0B69FF] cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Metric 5 */}
-              <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1.5">
-                <div className="flex items-center justify-between text-[11px] text-gray-500 font-bold uppercase">
-                  <span>SEARCH VISIBILITY ⓘ</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs">G</span>
-                    <span className="text-xs">🇮🇳</span>
-                    <span className="text-[10px] font-semibold">EN</span>
-                  </div>
-                </div>
-                <div className="text-[11px] text-gray-500">Get site visibility data</div>
-                <button
-                  type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="w-full py-1 bg-[#22C55E] hover:bg-[#16A34A] text-white text-[11px] font-bold rounded shadow-2xs transition-colors cursor-pointer"
-                >
-                  Add keywords
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-        break;
-
-      case 'rankings':
-        content = (
-          <div className="space-y-4">
-            {headerControls(
-              'Rankings',
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Search Engine Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsRankingsEngineOpen(!isRankingsEngineOpen);
-                      setIsRankingsPeriodOpen(false);
-                    }}
-                    className="text-xs text-gray-700 font-medium flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 px-2.5 py-1 rounded transition-colors cursor-pointer"
-                  >
-                    <span>G</span>
-                    <span>🇮🇳</span>
-                    <span>{rankingsEngine}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isRankingsEngineOpen && (
-                    <div className="absolute left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {[
-                        'Google India (EN)',
-                        'Google United States (EN)',
-                        'Google United Kingdom (EN)',
-                        'Bing United States (EN)',
-                        'Yahoo India',
-                      ].map((se) => (
-                        <button
-                          key={se}
-                          type="button"
-                          onClick={() => {
-                            setRankingsEngine(se);
-                            setIsRankingsEngineOpen(false);
-                            showNotice(`Search engine changed to ${se}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            rankingsEngine === se ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{se}</span>
-                          {rankingsEngine === se && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Period Dropdown */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsRankingsPeriodOpen(!isRankingsPeriodOpen);
-                      setIsRankingsEngineOpen(false);
-                    }}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium transition-colors cursor-pointer"
-                  >
-                    <span>{rankingsPeriod}</span>
-                    <ChevronDown className="w-3 h-3 text-gray-400" />
-                  </button>
-                  {isRankingsPeriodOpen && (
-                    <div className="absolute left-0 mt-1 w-36 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      {['Past 7 days', 'Past 30 days', 'Past 90 days', 'All time'].map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => {
-                            setRankingsPeriod(p);
-                            setIsRankingsPeriodOpen(false);
-                            showNotice(`Rankings date range: ${p}`);
-                          }}
-                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                            rankingsPeriod === p ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                          }`}
-                        >
-                          <span>{p}</span>
-                          {rankingsPeriod === p && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-            <div className="py-6 text-center space-y-3">
-              <h3 className="text-base font-bold text-gray-900">Add keywords</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
-                Type manually, select from the suggested list, import copy-paste in a column from any
-                text editor.
-              </p>
-              <div className="flex items-center justify-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-5 py-2 bg-[#00A86B] hover:bg-[#008f5a] text-white text-xs font-bold rounded-lg shadow-2xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>ADD KEYWORDS</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
-                >
-                  FIND HIGH-POTENTIAL KEYWORDS
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-        break;
-
-      case 'backlink_checker':
-        content = (
-          <div className="space-y-4">
-            {headerControls(
-              'Backlink Checker',
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => showNotice('Backlink data update requested')}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-bold transition-colors cursor-pointer"
-                >
-                  <RefreshCw className="w-2.5 h-2.5" />
-                  <span>UPDATE</span>
-                </button>
-                <span className="text-xs text-gray-400">Updated: Sep 23 2026</span>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-              {/* Left Column: Graph & KPIs */}
-              <div className="lg:col-span-8 space-y-3">
-                <div className="grid grid-cols-4 gap-3 text-xs">
-                  <div>
-                    <span className="text-gray-400 font-bold uppercase text-[10px]">TOTAL BACKLINKS ⓘ</span>
-                    <div className="text-xl font-black text-[#0B69FF]">65</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 font-bold uppercase text-[10px]">TOTAL REFERRING DOMAINS ⓘ</span>
-                    <div className="text-xl font-black text-emerald-600">41</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 font-bold uppercase text-[10px]">DOMAIN TRUST ⓘ</span>
-                    <div className="text-xl font-black text-rose-500">21</div>
-                  </div>
-                  <div>
-                    <span className="text-gray-400 font-bold uppercase text-[10px]">PAGE TRUST ⓘ</span>
-                    <div className="text-xl font-black text-amber-500">6</div>
-                  </div>
-                </div>
-
-                <div className="h-48 w-full pt-2">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={mockBacklinkTrend}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                      <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Tooltip contentStyle={{ fontSize: '11px', borderRadius: '8px' }} />
-                      <Line type="monotone" dataKey="backlinks" stroke="#0B69FF" strokeWidth={2} dot={false} name="Total backlinks" />
-                      <Line type="monotone" dataKey="referring" stroke="#10B981" strokeWidth={2} dot={false} name="Total referring domains" />
-                      <Line type="monotone" dataKey="domainTrust" stroke="#EF4444" strokeWidth={2} dot={false} name="Domain Trust" />
-                      <Line type="monotone" dataKey="pageTrust" stroke="#F59E0B" strokeWidth={2} dot={false} name="Page Trust" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-[10px] font-semibold text-gray-500 pt-1">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#0B69FF]" /> Total backlinks
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#10B981]" /> Total referring domains
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#EF4444]" /> Domain Trust
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#F59E0B]" /> Page Trust
-                  </span>
-                </div>
-
-                <Link
-                  href="/backlinks"
-                  className="inline-block px-3 py-1.5 border border-gray-300 rounded text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
-                >
-                  VIEW FULL REPORT
-                </Link>
-              </div>
-
-              {/* Right Column: Toxic & Broken Backlinks */}
-              <div className="lg:col-span-4 bg-gray-50/80 border border-gray-200 rounded-xl p-5 space-y-4">
-                <div>
-                  <div className="text-xs font-bold text-gray-900">TOXIC BACKLINKS ⓘ</div>
-                  <p className="text-[11px] text-gray-500 mt-1">
-                    Identify harmful links that hurt your site&apos;s SEO and clean up your backlink profile.
-                  </p>
-                  <Link
-                    href="/backlinks"
-                    className="w-full mt-3 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold uppercase tracking-wider rounded-lg block text-center shadow-xs transition-colors"
-                  >
-                    FIND TOXIC LINKS
-                  </Link>
-                </div>
-
-                <div className="pt-3 border-t border-gray-200">
-                  <div className="text-[11px] font-bold text-gray-900 uppercase">BROKEN BACKLINKS ⓘ</div>
-                  <div className="text-2xl font-black text-gray-900 mt-1">0</div>
-                  <div className="text-[10px] text-gray-400">0% out of 65</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-        break;
-
-      case 'analytics_traffic':
-        content = (
-          <div className="space-y-4">
-            {headerControls('Analytics and traffic')}
-            <div className="py-6 text-center space-y-3">
-              <h3 className="text-base font-bold text-gray-900">Analytics and statistics services</h3>
-              <p className="text-xs text-gray-500 max-w-xl mx-auto leading-relaxed">
-                Connect Google Analytics and statistics services to get detailed information about your
-                website without switching between browser tabs. It will only take a few minutes.
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Google Analytics...')}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-2 shadow-2xs cursor-pointer"
-                >
-                  <span className="text-amber-500 font-bold">📊</span>
-                  <span>Connect Google Analytics</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Google Search Console...')}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-2 shadow-2xs cursor-pointer"
-                >
-                  <span className="text-blue-500 font-bold">G</span>
-                  <span>Connect Google Search Console</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Matomo Analytics...')}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center gap-2 shadow-2xs cursor-pointer"
-                >
-                  <span className="text-purple-500 font-bold">M</span>
-                  <span>Connect Matomo Analytics</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-        break;
-
       case 'marketing_plan':
         content = (
           <div className="space-y-3">
-            {headerControls('Marketing Plan')}
+            {headerControls(<span className="font-bold text-sm text-gray-900">Marketing Plan</span>)}
             <div className="space-y-3 pt-1">
-              <div className="flex items-baseline justify-between text-xs">
-                <span className="font-bold text-gray-900 text-2xl">65</span>
-                <span className="text-gray-500 text-xs">Marketing tasks</span>
+              <div>
+                <div className="font-black text-3xl text-gray-900">65</div>
+                <div className="text-xs text-gray-500 font-medium mt-0.5">Marketing tasks</div>
               </div>
 
               {/* Orange progress bar */}
-              <div className="w-full bg-[#F59E0B] h-2.5 rounded-full overflow-hidden" />
+              <div className="w-full bg-[#F59E0B] h-3.5 rounded-sm" />
 
-              <div className="grid grid-cols-3 gap-2 text-xs pt-1">
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-gray-600">Done:</span>
+              <div className="space-y-2 text-xs pt-1 text-gray-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span>Done</span>
+                  </div>
                   <span className="font-bold text-gray-900">0</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span className="text-gray-600">To Do:</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+                    <span>To Do</span>
+                  </div>
                   <span className="font-bold text-gray-900">65</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-gray-400" />
-                  <span className="text-gray-600">Ignored:</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-gray-400" />
+                    <span>Ignored</span>
+                  </div>
                   <span className="font-bold text-gray-900">0</span>
                 </div>
               </div>
 
               <Link
                 href="/marketing-plan"
-                className="inline-block mt-2 px-3 py-1.5 border border-gray-300 rounded text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                className="inline-block mt-3 px-4 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
               >
                 VIEW FULL REPORT
               </Link>
@@ -1063,81 +801,134 @@ export default function ProjectOverviewPage() {
 
       case 'comp_research_geo':
         content = (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {headerControls(
-              'Competitive Research',
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsCompGeoOpen(!isCompGeoOpen)}
-                  className="flex items-center gap-1.5 text-xs text-gray-700 font-medium bg-gray-100 hover:bg-gray-200 px-2 py-0.5 rounded transition-colors cursor-pointer"
-                >
-                  <span>🇮🇳</span>
-                  <span>{compGeo}</span>
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
-                </button>
-                {isCompGeoOpen && (
-                  <div className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                    {[
-                      { name: 'India', flag: '🇮🇳' },
-                      { name: 'United States', flag: '🇺🇸' },
-                      { name: 'United Kingdom', flag: '🇬🇧' },
-                      { name: 'Germany', flag: '🇩🇪' },
-                      { name: 'Australia', flag: '🇦🇺' },
-                    ].map((c) => (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => {
-                          setCompGeo(c.name);
-                          setIsCompGeoOpen(false);
-                          showNotice(`Competitive research region: ${c.name}`);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                          compGeo === c.name ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                        }`}
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <span>{c.flag}</span>
-                          <span>{c.name}</span>
-                        </span>
-                        {compGeo === c.name && <Check className="w-3 h-3 text-[#0B69FF]" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
+              <div className="flex items-center gap-3 text-xs flex-wrap">
+                <span className="font-bold text-sm text-gray-900">Competitive Research</span>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsCompGeoOpen(!isCompGeoOpen)}
+                    className="flex items-center gap-1.5 text-xs text-gray-700 font-medium bg-white border border-gray-300 hover:bg-gray-50 px-2.5 py-1 rounded transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <span>🇮🇳</span>
+                    <span>{compGeo}</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {isCompGeoOpen && (
+                    <div className="absolute left-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
+                      {[
+                        { name: 'India', flag: '🇮🇳' },
+                        { name: 'United States', flag: '🇺🇸' },
+                        { name: 'United Kingdom', flag: '🇬🇧' },
+                        { name: 'Germany', flag: '🇩🇪' },
+                        { name: 'Australia', flag: '🇦🇺' },
+                      ].map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => {
+                            setCompGeo(c.name);
+                            setIsCompGeoOpen(false);
+                            showNotice(`Competitive research region: ${c.name}`);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
+                            compGeo === c.name ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
+                          }`}
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span>{c.flag}</span>
+                            <span>{c.name}</span>
+                          </span>
+                          {compGeo === c.name && <Check className="w-3 h-3 text-[#0B69FF]" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className="text-gray-500 font-medium">Sep, 2026</span>
+                <span className="text-gray-400 font-medium">Compare to: Aug, 2026</span>
               </div>
             )}
-            <div className="py-8 text-center space-y-2">
-              <div className="w-9 h-9 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto text-sm">
-                🔍
-              </div>
-              <h4 className="text-xs font-bold text-gray-900">Data is not found</h4>
-              <p className="text-[11px] text-gray-500">
-                We haven&apos;t found any data in the search results.
-              </p>
-            </div>
-          </div>
-        );
-        break;
 
-      case 'website_audit':
-        content = (
-          <div className="space-y-3">
-            {headerControls('Website Audit')}
-            <div className="py-6 text-center space-y-2.5">
-              <div className="w-9 h-9 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mx-auto text-sm">
-                🔍
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-1">
+              {/* Left 4 metric boxes (2x2) */}
+              <div className="lg:col-span-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                    <div className="text-[11px] text-gray-500 font-bold uppercase">ORGANIC TRAFFIC ⓘ</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-gray-900">514</span>
+                      <span className="text-sm font-semibold text-gray-400">0</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                    <div className="text-[11px] text-gray-500 font-bold uppercase">PAID TRAFFIC ⓘ</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-[#0B69FF]">42</span>
+                      <span className="text-sm font-semibold text-gray-400">0</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                    <div className="text-[11px] text-gray-500 font-bold uppercase">ORGANIC KEYWORDS ⓘ</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-gray-900">131</span>
+                      <span className="text-sm font-semibold text-gray-400">0</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                    <div className="text-[11px] text-gray-500 font-bold uppercase">PAID KEYWORDS ⓘ</div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-black text-[#0B69FF]">3</span>
+                      <span className="text-sm font-semibold text-gray-400">0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href="/competitors"
+                  className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
+                >
+                  VIEW FULL REPORT
+                </Link>
               </div>
-              <h4 className="text-xs font-bold text-gray-900">Data is not found</h4>
-              <p className="text-[11px] text-gray-500">Error: Cannot access page</p>
-              <Link
-                href="/website-audit"
-                className="inline-flex items-center gap-1.5 px-4 py-1.5 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-bold text-gray-700 shadow-2xs mt-1"
-              >
-                <RefreshCw className="w-3 h-3 text-gray-500" />
-                <span>START AUDIT</span>
-              </Link>
+
+              {/* Right Top Competitors Table */}
+              <div className="lg:col-span-6 bg-gray-50/50 border border-gray-200 rounded-xl p-4">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-400 font-bold uppercase text-[10px] border-b border-gray-200 pb-2">
+                      <th className="text-left font-bold py-2">Top competitors</th>
+                      <th className="text-right font-bold py-2">Organic tr...</th>
+                      <th className="text-right font-bold py-2">Domain Tru...</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    <tr className="hover:bg-gray-50/80 transition-colors">
+                      <td className="py-2.5 flex items-center gap-2 font-medium text-gray-800">
+                        <span className="text-sm">🌐</span>
+                        <a href="https://onetracker.in" target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1 text-[#0B69FF]">
+                          <span>onetracker.in</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
+                      <td className="text-right py-2.5 font-bold text-gray-900">46</td>
+                      <td className="text-right py-2.5 font-bold text-gray-900">1</td>
+                    </tr>
+                    <tr className="hover:bg-gray-50/80 transition-colors">
+                      <td className="py-2.5 flex items-center gap-2 font-medium text-gray-800">
+                        <span className="text-sm">🌐</span>
+                        <a href="https://afk-assistant.com" target="_blank" rel="noreferrer" className="hover:underline flex items-center gap-1 text-[#0B69FF]">
+                          <span>afk-assistant.com</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </td>
+                      <td className="text-right py-2.5 font-bold text-gray-900">0</td>
+                      <td className="text-right py-2.5 font-bold text-gray-900">4</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         );
@@ -1146,21 +937,130 @@ export default function ProjectOverviewPage() {
       case 'insights':
         content = (
           <div className="space-y-4">
-            {headerControls('Insights')}
-            <div className="py-6 text-center space-y-3">
+            {headerControls(<span className="font-bold text-sm text-gray-900">Insights</span>)}
+            <div className="py-8 text-center space-y-3">
               <h3 className="text-base font-bold text-gray-900">Add keywords</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
+              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
                 Type manually, select from the suggested list, import copy-paste in a column from any
                 text editor.
               </p>
-              <button
-                type="button"
-                onClick={() => setIsAddKeywordsOpen(true)}
-                className="px-5 py-2 bg-[#00A86B] hover:bg-[#008f5a] text-white text-xs font-bold rounded-lg shadow-2xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAddKeywordsOpen(true)}
+                  className="px-5 py-2 bg-[#20B26C] hover:bg-[#1BA061] text-white text-xs font-bold rounded-lg shadow-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer uppercase tracking-wider"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>ADD KEYWORDS</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+        break;
+
+      case 'website_audit':
+        content = (
+          <div className="space-y-4">
+            {headerControls(
+              <div className="flex items-center gap-3 text-xs flex-wrap">
+                <span className="font-bold text-sm text-gray-900">Website Audit</span>
+                <button
+                  type="button"
+                  onClick={() => showNotice('Starting website audit...')}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-[10px] font-bold uppercase transition-colors cursor-pointer shadow-2xs"
+                >
+                  <RefreshCw className="w-3 h-3 text-gray-500" />
+                  <span>UPDATE</span>
+                </button>
+                <span className="text-gray-500 font-medium">Updated: Sep-27 2026 05:32:58</span>
+                <span className="text-gray-400 font-medium">Compare to: Sep-23 2026 10:06:31</span>
+              </div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-1 items-start">
+              {/* Health Score */}
+              <div className="space-y-1">
+                <div className="text-[11px] text-gray-400 font-bold uppercase flex items-center gap-1">
+                  <span>HEALTH SCORE</span>
+                  <span className="cursor-help text-[10px]">ⓘ</span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-black text-[#0B69FF]">84</span>
+                  <span className="text-xs font-bold text-rose-500">▼ 16</span>
+                </div>
+                <div className="h-9 w-full pt-1.5">
+                  <svg className="w-full h-6 overflow-visible" viewBox="0 0 160 26" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="healthGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.45" />
+                        <stop offset="100%" stopColor="#93C5FD" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M 0,18 Q 45,22 85,16 T 160,11 L 160,26 L 0,26 Z"
+                      fill="url(#healthGrad)"
+                    />
+                    <path
+                      d="M 0,18 Q 45,22 85,16 T 160,11"
+                      fill="none"
+                      stroke="#93C5FD"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Crawled Pages */}
+              <div className="space-y-1">
+                <div className="text-[11px] text-gray-400 font-bold uppercase flex items-center gap-1">
+                  <span>CRAWLED PAGES</span>
+                  <span className="cursor-help text-[10px]">ⓘ</span>
+                </div>
+                <div className="text-4xl font-black text-[#0B69FF]">79</div>
+                <div className="h-9 flex items-end gap-16 pt-1">
+                  {/* Left short tick/bar matching screenshot */}
+                  <div className="w-1.5 h-1.5 bg-[#0B69FF] rounded-2xs" />
+                  {/* Right tall vertical bar matching screenshot */}
+                  <div className="w-1.5 h-7 bg-[#0B69FF] rounded-2xs" />
+                </div>
+              </div>
+
+              {/* Errors & Notices */}
+              <div className="space-y-4">
+                <div>
+                  <div className="text-[11px] text-gray-400 font-bold uppercase">ERRORS</div>
+                  <div className="text-3xl font-black text-[#EF4444]">2</div>
+                </div>
+                <div className="border-t border-gray-100 pt-3">
+                  <div className="text-[11px] text-gray-400 font-bold uppercase">NOTICES</div>
+                  <div className="text-3xl font-black text-[#0B69FF]">277</div>
+                </div>
+              </div>
+
+              {/* Warnings & Passed Checks */}
+              <div className="space-y-4">
+                <div>
+                  <div className="text-[11px] text-gray-400 font-bold uppercase">WARNINGS</div>
+                  <div className="text-3xl font-black text-[#F59E0B]">30</div>
+                </div>
+                <div className="border-t border-gray-100 pt-3">
+                  <div className="text-[11px] text-gray-400 font-bold uppercase">PASSED CHECKS</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-emerald-600">106</span>
+                    <span className="text-xs font-bold text-rose-500">▼ 17</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href="/website-audit"
+                className="inline-block px-4 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider"
               >
-                <Plus className="w-3.5 h-3.5" />
-                <span>ADD KEYWORDS</span>
-              </button>
+                VIEW FULL REPORT
+              </Link>
             </div>
           </div>
         );
@@ -1170,71 +1070,92 @@ export default function ProjectOverviewPage() {
         content = (
           <div className="space-y-4">
             {headerControls(
-              'Content',
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setIsContentEngineOpen(!isContentEngineOpen)}
-                  className="text-xs text-gray-700 font-medium flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 px-2 py-0.5 rounded transition-colors cursor-pointer"
-                >
-                  <span>G</span>
-                  <span>🇮🇳</span>
-                  <span>{contentEngine}</span>
-                  <ChevronDown className="w-3 h-3 text-gray-400" />
-                </button>
-                {isContentEngineOpen && (
-                  <div className="absolute left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                    {[
-                      'Google India (EN)',
-                      'Google United States (EN)',
-                      'Google United Kingdom (EN)',
-                    ].map((se) => (
+              <div className="flex items-center gap-3">
+                <span className="font-bold text-sm text-gray-900">Content</span>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsContentEngineOpen(!isContentEngineOpen)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 cursor-pointer text-xs shadow-2xs"
+                  >
+                    <span className="font-bold text-xs text-blue-600">G</span>
+                    <span className="text-sm">🇮🇳</span>
+                    <span>Google India</span>
+                    <span className="text-[10px] font-bold text-gray-500">EN</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {isContentEngineOpen && (
+                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
                       <button
-                        key={se}
                         type="button"
-                        onClick={() => {
-                          setContentEngine(se);
-                          setIsContentEngineOpen(false);
-                          showNotice(`Content engine set to ${se}`);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
-                          contentEngine === se ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
-                        }`}
+                        onClick={() => setIsContentEngineOpen(false)}
+                        className="w-full text-left px-3 py-1.5 bg-gray-100 font-semibold text-gray-900 flex items-center justify-between"
                       >
-                        <span>{se}</span>
-                        {contentEngine === se && <Check className="w-3 h-3 text-[#0B69FF]" />}
+                        <span className="flex items-center gap-1.5">
+                          <span className="font-bold text-blue-600">G</span>
+                          <span className="text-sm">🇮🇳</span>
+                          <span>Google India</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-gray-500">EN</span>
                       </button>
-                    ))}
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-            <div className="py-6 text-center space-y-3">
-              <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0B69FF] font-bold flex items-center justify-center mx-auto text-sm">
-                🔑
+            <div className="py-12 text-center space-y-3">
+              <div className="w-11 h-11 rounded-lg bg-[#EFF6FF] border border-blue-100 text-[#0B69FF] flex items-center justify-center mx-auto shadow-2xs">
+                <span className="text-lg font-bold">🔑</span>
               </div>
               <h3 className="text-base font-bold text-gray-900">Add keywords</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto">
+              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
                 Type manually, select from the suggested list, import copy-paste in a column from any
                 text editor.
               </p>
-              <div className="flex items-center justify-center gap-3 pt-1">
+              <div className="flex items-center justify-center gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-5 py-2 bg-[#00A86B] hover:bg-[#008f5a] text-white text-xs font-bold rounded-lg shadow-2xs inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                  className="px-5 py-2.5 bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer uppercase tracking-wider"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>ADD KEYWORDS</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
+                  onClick={() => setIsHighPotentialModalOpen(true)}
+                  className="px-5 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer uppercase tracking-wider shadow-2xs"
                 >
                   FIND HIGH-POTENTIAL KEYWORDS
                 </button>
               </div>
+
+              {keywordList.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-100 text-left max-w-lg mx-auto">
+                  <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+                    <span className="font-semibold text-gray-800">
+                      Tracked Keywords ({keywordList.length}):
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setKeywordList([])}
+                      className="text-gray-400 hover:text-red-500 text-[11px] cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {keywordList.map((kw, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-medium border border-blue-100 flex items-center gap-1"
+                      >
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );
@@ -1284,7 +1205,7 @@ export default function ProjectOverviewPage() {
               href="/notes"
               className="text-[#0B69FF] hover:underline font-semibold cursor-pointer"
             >
-              Notes ({appWrapData.site_notes?.notes_count || 46})
+              Notes (16)
             </Link>
           </div>
         </div>
@@ -1296,70 +1217,41 @@ export default function ProjectOverviewPage() {
           </h1>
 
           <div className="flex items-center gap-2 relative">
-            {/* Widgets Dropdown */}
+            {/* Widgets Dropdown matching Screenshot 1 */}
             <div className="relative" ref={widgetsDropdownRef}>
               <button
                 type="button"
                 onClick={() => setIsWidgetsDropdownOpen(!isWidgetsDropdownOpen)}
-                className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 shadow-2xs flex items-center gap-2 cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#453768] hover:bg-[#3B2E5A] text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Layers className="w-3.5 h-3.5 text-gray-500" />
+                <LayoutGrid className="w-3.5 h-3.5" />
                 <span>Widgets</span>
-                <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${isWidgetsDropdownOpen ? 'rotate-180' : ''}`} />
+                {isWidgetsDropdownOpen ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
               </button>
 
               {isWidgetsDropdownOpen && (
-                <div className="absolute right-0 mt-1 w-72 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-xs animate-in fade-in duration-100">
-                  <div className="px-3.5 py-2 border-b border-gray-100 flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Manage Widgets</span>
-                    <button
-                      type="button"
-                      onClick={resetLayout}
-                      className="text-[11px] font-bold text-[#0B69FF] hover:underline cursor-pointer"
-                    >
-                      Reset Layout
-                    </button>
-                  </div>
-
-                  <div className="px-3.5 py-1.5 bg-gray-50/80 border-b border-gray-100 flex items-center justify-between text-[11px]">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const allVisible = DEFAULT_SECTIONS.reduce((acc, k) => ({ ...acc, [k]: true }), {});
-                        setVisibleWidgets(allVisible);
-                        showNotice('All widgets enabled');
-                      }}
-                      className="text-gray-600 hover:text-[#0B69FF] font-medium cursor-pointer"
-                    >
-                      Show all
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const allHidden = DEFAULT_SECTIONS.reduce((acc, k) => ({ ...acc, [k]: false }), {});
-                        setVisibleWidgets(allHidden);
-                        showNotice('All widgets hidden');
-                      }}
-                      className="text-gray-600 hover:text-red-600 font-medium cursor-pointer"
-                    >
-                      Hide all
-                    </button>
-                  </div>
-
-                  <div className="max-h-72 overflow-y-auto py-1 divide-y divide-gray-50">
+                <div className="absolute right-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl py-1.5 z-50 text-xs animate-in fade-in duration-100">
+                  <div className="divide-y divide-gray-50">
                     {DEFAULT_SECTIONS.map((key) => (
-                      <label
+                      <div
                         key={key}
-                        className="px-3.5 py-2 flex items-center gap-2.5 hover:bg-gray-50 cursor-pointer text-gray-800 transition-colors"
+                        onClick={() => toggleWidgetVisibility(key)}
+                        className="px-3.5 py-2 flex items-center gap-3 hover:bg-gray-50 cursor-pointer text-gray-800 transition-colors select-none"
                       >
-                        <input
-                          type="checkbox"
-                          checked={visibleWidgets[key] !== false}
-                          onChange={() => toggleWidgetVisibility(key)}
-                          className="rounded text-[#0B69FF] focus:ring-[#0B69FF] w-3.5 h-3.5"
-                        />
-                        <span className="truncate text-xs font-medium">{WIDGET_NAMES[key]}</span>
-                      </label>
+                        <GripVertical className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+                        <div
+                          className={`w-3.5 h-3.5 rounded-xs flex items-center justify-center shrink-0 transition-colors ${
+                            visibleWidgets[key] !== false ? 'bg-black text-white' : 'border border-gray-400 bg-white'
+                          }`}
+                        >
+                          {visibleWidgets[key] !== false && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                        </div>
+                        <span className="text-xs font-medium text-gray-900 truncate">{WIDGET_NAMES[key]}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -1368,7 +1260,7 @@ export default function ProjectOverviewPage() {
 
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="p-1.5 bg-white border border-gray-300 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-50 shadow-2xs cursor-pointer"
+              className="p-1.5 bg-white border border-gray-300 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-50 shadow-2xs cursor-pointer"
               title="Overview Settings"
             >
               <Settings className="w-4 h-4" />
@@ -1380,6 +1272,37 @@ export default function ProjectOverviewPage() {
         <div className="space-y-4">
           {sectionsOrder.map((sectionId, index) => renderWidget(sectionId, index))}
         </div>
+
+        {/* Bottom Footer matching Screenshot */}
+        <footer className="mt-8 pt-4 pb-4 border-t border-gray-200/90 flex items-center justify-between text-xs text-gray-500 w-full select-none">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-[#0B69FF] rounded-xs flex items-center justify-center text-white font-black text-[10px]">
+              ⚡
+            </div>
+            <span className="font-bold text-gray-900 tracking-tight text-sm">SE Ranking</span>
+          </div>
+          <div className="flex items-center gap-6 text-xs text-gray-600 font-medium">
+            <button
+              type="button"
+              onClick={() => setIsBugModalOpen(true)}
+              className="hover:text-[#0B69FF] transition-colors cursor-pointer"
+            >
+              Report a bug
+            </button>
+            <Link href="/affiliate" className="hover:text-[#0B69FF] transition-colors">
+              Affiliates
+            </Link>
+            <Link href="/api-docs" className="hover:text-[#0B69FF] transition-colors">
+              API
+            </Link>
+            <Link href="/whats-new" className="hover:text-[#0B69FF] transition-colors">
+              What's new
+            </Link>
+            <Link href="/help" className="hover:text-[#0B69FF] transition-colors">
+              Help
+            </Link>
+          </div>
+        </footer>
       </div>
 
       {/* Guest Link Modal matching user screenshot */}
@@ -1623,6 +1546,99 @@ export default function ProjectOverviewPage() {
               >
                 Save Changes
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Report a Bug Modal matching user screenshot */}
+      <ReportBugModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
+
+      {/* High-Potential Keywords Modal */}
+      {isHighPotentialModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#0B69FF]" />
+                <h3 className="font-bold text-sm text-gray-900">High-Potential Keywords for {domain}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsHighPotentialModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <p className="text-gray-500 text-xs">
+                AI-curated high search volume, low competition search terms with high intent for {domain}:
+              </p>
+
+              <div className="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+                {SUGGESTED_HIGH_POTENTIAL.map((item) => (
+                  <label
+                    key={item.keyword}
+                    className="p-3 flex items-center justify-between hover:bg-blue-50/50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={selectedHighPotential.includes(item.keyword)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedHighPotential((prev) => [...prev, item.keyword]);
+                          } else {
+                            setSelectedHighPotential((prev) => prev.filter((k) => k !== item.keyword));
+                          }
+                        }}
+                        className="w-4 h-4 rounded text-[#0B69FF]"
+                      />
+                      <div>
+                        <div className="font-bold text-gray-900">{item.keyword}</div>
+                        <div className="text-[11px] text-gray-400">{item.intent} · CPC: {item.cpc}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-[#0B69FF]">{item.volume} vol</div>
+                      <div className="text-[10px] font-semibold text-emerald-600">KD {item.kd}%</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+
+              <div className="pt-2 flex items-center justify-between border-t border-gray-100">
+                <span className="text-gray-500 text-xs">
+                  {selectedHighPotential.length} keywords selected
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsHighPotentialModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (selectedHighPotential.length > 0) {
+                        setKeywordList((prev) => [...prev, ...selectedHighPotential]);
+                        showNotice(`${selectedHighPotential.length} high-potential keywords added!`);
+                        setIsHighPotentialModalOpen(false);
+                      }
+                    }}
+                    disabled={selectedHighPotential.length === 0}
+                    className="px-5 py-2 bg-[#00A86B] hover:bg-[#00925d] disabled:opacity-50 text-white rounded-lg font-bold shadow-2xs transition-colors cursor-pointer"
+                  >
+                    Add Selected to Tracking
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

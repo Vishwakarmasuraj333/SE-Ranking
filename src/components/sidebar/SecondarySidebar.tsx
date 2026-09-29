@@ -162,6 +162,8 @@ export function SecondarySidebar() {
       pathname === '/competitors' ||
       pathname === '/ai-results-tracker' ||
       pathname === '/insights' ||
+      pathname.startsWith('/insights') ||
+      pathname.startsWith('/admin.insights') ||
       pathname === '/marketing-plan' ||
       pathname === '/page-changes' ||
       pathname === '/backlinks-monitor'
@@ -911,7 +913,7 @@ export function SecondarySidebar() {
                       <Link
                         href="/rankings?tab=summary"
                         className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
-                          currentTab === 'summary' || (pathname === '/rankings' && !currentTab)
+                          currentTab === 'summary'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
@@ -922,7 +924,8 @@ export function SecondarySidebar() {
                       <Link
                         href="/rankings?tab=detailed"
                         className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
-                          currentTab === 'detailed'
+                          currentTab === 'detailed' ||
+                          ((pathname === '/rankings' || pathname.includes('admin.site.rankings')) && !currentTab)
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
@@ -933,7 +936,7 @@ export function SecondarySidebar() {
                       <Link
                         href="/rankings?tab=historical"
                         className={`flex items-center gap-2 py-1 px-2.5 rounded transition-colors text-xs tracking-tight ${
-                          currentTab === 'historical'
+                          currentTab === 'historical' || currentTab === 'history'
                             ? 'text-white font-medium bg-white/10'
                             : 'text-[#9AA5B8] hover:text-white hover:bg-white/5'
                         }`}
@@ -1192,7 +1195,7 @@ export function SecondarySidebar() {
                 <Link
                   href="/insights"
                   className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
-                    pathname.startsWith('/insights')
+                    pathname.startsWith('/insights') || pathname.startsWith('/admin.insights')
                       ? 'bg-[#394757] text-white font-semibold shadow-xs'
                       : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}

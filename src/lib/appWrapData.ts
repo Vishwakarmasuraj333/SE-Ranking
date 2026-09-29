@@ -261,10 +261,10 @@ export const appWrapData = {
     ],
     footer_menu: [
       { text: "Report a bug", href: "#", action: "bug_report" },
-      { text: "Affiliates", href: "https://seranking.com/affiliate.html" },
+      { text: "Affiliates", href: "/affiliate" },
       { text: "API", href: "/api-docs" },
-      { text: "What's new", href: "https://seranking.com/whats-new.html" },
-      { text: "Help", href: "https://help.seranking.com/" },
+      { text: "What's new", href: "/whats-new" },
+      { text: "Help", href: "/help" },
     ],
   },
 };

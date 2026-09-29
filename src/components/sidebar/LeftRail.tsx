@@ -33,6 +33,8 @@ export function LeftRail() {
     pathname === '/competitors' ||
     pathname === '/ai-results-tracker' ||
     pathname === '/insights' ||
+    pathname.startsWith('/insights') ||
+    pathname.startsWith('/admin.insights') ||
     pathname === '/marketing-plan' ||
     pathname === '/page-changes' ||
     pathname === '/backlinks-monitor' ||

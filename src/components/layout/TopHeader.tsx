@@ -19,6 +19,11 @@ import {
   Plus,
   Check,
   RotateCcw,
+  Settings,
+  Users,
+  DollarSign,
+  LogOut,
+  Lightbulb,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { appWrapData } from '@/lib/appWrapData';
@@ -346,8 +351,26 @@ export function TopHeader() {
         </nav>
       </div>
 
-      {/* ==================== RIGHT SECTION: Help, Notifications, User SV Profile ==================== */}
+      {/* ==================== RIGHT SECTION: Lightbulb, Help, Notifications, Three-dots Profile ==================== */}
       <div className="flex items-center gap-1.5 h-full shrink-0">
+        {/* Subtle vertical separator matching real SE Ranking */}
+        <div className="h-4 w-[1px] bg-white/25 mx-0.5 shrink-0" />
+
+        {/* Lightbulb Tips / Guide Button */}
+        <button
+          type="button"
+          onClick={() => {
+            setIsGuideModalOpen(true);
+            setIsHelpOpen(false);
+            setIsNotificationsOpen(false);
+            setIsProfileOpen(false);
+          }}
+          className="w-7 h-7 flex items-center justify-center rounded-full text-white/90 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+          title="Tips & Quick-start guide"
+        >
+          <Lightbulb className="w-4 h-4" />
+        </button>
+
         {/* Help Menu Dropdown */}
         <div ref={helpRef} className="relative h-full flex items-center">
           <button
@@ -359,7 +382,7 @@ export function TopHeader() {
               setIsAddTabOpen(false);
             }}
             className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors cursor-pointer ${
-              isHelpOpen ? 'bg-white/20 text-white shadow-xs' : 'text-white/80 hover:text-white hover:bg-white/10'
+              isHelpOpen ? 'bg-white/20 text-white shadow-xs' : 'text-white/90 hover:text-white hover:bg-white/10'
             }`}
             title="Help & Support"
           >
@@ -396,30 +419,36 @@ export function TopHeader() {
 
               <Link
                 href="/help"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsHelpOpen(false)}
-                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer"
+                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer group"
               >
                 <div className="flex items-center gap-2.5">
-                  <BookOpen className="w-4 h-4 text-gray-500" />
+                  <BookOpen className="w-4 h-4 text-gray-500 group-hover:text-[#0B69FF]" />
                   <span>Help Center</span>
                 </div>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0B69FF]" />
               </Link>
 
               <Link
                 href="/whats-new"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsHelpOpen(false)}
-                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer border-t border-gray-100 mt-1 pt-1.5"
+                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer border-t border-gray-100 mt-1 pt-1.5 group"
               >
                 <div className="flex items-center gap-2.5">
-                  <Gift className="w-4 h-4 text-amber-500" />
+                  <Gift className="w-4 h-4 text-amber-500 group-hover:text-[#0B69FF]" />
                   <span>What&apos;s new</span>
                 </div>
+                <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0B69FF]" />
               </Link>
             </div>
           )}
         </div>
 
-        {/* Notification Bell matching screenshot red 1 badge */}
+        {/* Notification Bell matching screenshot with clean red indicator dot */}
         <div ref={notificationsRef} className="relative h-full flex items-center">
           <button
             onClick={() => {
@@ -430,14 +459,12 @@ export function TopHeader() {
               setIsAddTabOpen(false);
             }}
             className={`w-7 h-7 flex items-center justify-center rounded-full relative transition-colors cursor-pointer ${
-              isNotificationsOpen ? 'bg-white/20 text-white shadow-xs' : 'text-white/80 hover:text-white hover:bg-white/10'
+              isNotificationsOpen ? 'bg-white/20 text-white shadow-xs' : 'text-white/90 hover:text-white hover:bg-white/10'
             }`}
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full text-[9px] font-bold text-white flex items-center justify-center ring-2 ring-[#0B69FF]">
-              {appWrapData.notifications.unread_total}
-            </span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-[#FF3B30] rounded-full ring-2 ring-[#0B69FF]" />
           </button>
 
           {isNotificationsOpen && (
@@ -461,7 +488,7 @@ export function TopHeader() {
           )}
         </div>
 
-        {/* User Profile matching SV initials and appWrapData */}
+        {/* User Profile matching exact three-dots button and dropdown from screenshot */}
         <div ref={profileRef} className="relative h-full flex items-center">
           <button
             onClick={() => {
@@ -471,91 +498,76 @@ export function TopHeader() {
               setIsNotificationsOpen(false);
               setIsAddTabOpen(false);
             }}
-            className={`flex items-center gap-1.5 px-1.5 py-1 rounded transition-colors cursor-pointer ${
-              isProfileOpen ? 'bg-white/20 text-white shadow-xs' : 'hover:bg-white/10 text-white'
+            className={`w-8 h-7 flex items-center justify-center rounded-md transition-colors cursor-pointer ${
+              isProfileOpen ? 'bg-[#247BFF] text-white shadow-xs' : 'hover:bg-white/10 text-white'
             }`}
             title="Account & Settings"
           >
-            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-bold text-white border border-white/30">
-              {userProfile.initials}
-            </div>
-            <MoreHorizontal className="w-3.5 h-3.5 text-white/80" />
+            <MoreHorizontal className="w-4 h-4 text-white" />
           </button>
 
           {isProfileOpen && (
-            <div className="absolute right-0 top-[calc(100%+3px)] w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 text-gray-800 z-50 py-2 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
-              <div className="px-4 py-2.5 border-b border-gray-100">
-                <p className="font-bold text-gray-900 text-[13px] leading-tight">{userProfile.name}</p>
-                <p className="text-gray-500 text-[11px] font-mono mt-0.5 truncate">{userProfile.email}</p>
-                <div className="flex items-center gap-2 mt-1.5">
-                  <span className="text-[11px] text-gray-400 font-mono tracking-wide">
-                    ID: {userProfile.id}
-                  </span>
-                </div>
+            <div className="absolute right-0 top-[calc(100%+4px)] w-56 bg-white rounded-lg shadow-xl border border-gray-100 text-[#2C3E50] z-50 py-1.5 text-sm animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
+              <div className="px-4 py-2 text-[#738499] text-[13px] font-normal border-b border-gray-100 mb-1">
+                {userProfile.name}
               </div>
 
-              <div className="py-1">
+              <div className="py-0.5">
                 <Link
                   href="/settings"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  Settings
+                  <Settings className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Settings</span>
                 </Link>
                 <Link
                   href="/users"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  Users
+                  <Users className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Users</span>
                 </Link>
                 <Link
                   href="/settings/white-label"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  White Label
+                  <BookOpen className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>White Label</span>
                 </Link>
                 <Link
                   href="/billing"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  Billing
+                  <CreditCard className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Billing</span>
                 </Link>
                 <Link
                   href="/bonus-offers"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  Bonus Offers
+                  <Gift className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Bonus Offers</span>
                 </Link>
                 <Link
                   href="/affiliate"
                   onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-50 hover:text-[#0B69FF] font-normal text-[13px] transition-colors"
+                  className="flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors"
                 >
-                  Affiliate Program
+                  <DollarSign className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Affiliate Program</span>
                 </Link>
-
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full flex items-center px-4 py-2 text-[#0B69FF] hover:text-[#0952C7] hover:bg-blue-50/40 font-medium text-[13px] transition-colors cursor-pointer text-left"
+                  className="w-full flex items-center gap-3 px-4 py-2 text-[#2C3E50] hover:bg-gray-50 hover:text-[#0B69FF] text-[13px] font-normal transition-colors cursor-pointer text-left"
                 >
-                  Log Out
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsProfileOpen(false);
-                    setIsBugModalOpen(true);
-                  }}
-                  className="w-full flex items-center gap-2.5 px-4 py-2 text-gray-800 hover:bg-red-50/50 hover:text-red-600 font-normal text-[13px] transition-colors cursor-pointer text-left"
-                >
-                  <Bug className="w-3.5 h-3.5 text-red-500 flex-shrink-0" />
-                  <span>Report a bug</span>
+                  <LogOut className="w-4 h-4 text-[#2C3E50] shrink-0" strokeWidth={1.75} />
+                  <span>Log Out</span>
                 </button>
               </div>
             </div>

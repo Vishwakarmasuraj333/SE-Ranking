@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -357,6 +357,23 @@ export default function HelpCenterPage() {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<HelpCategory | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    document.title = 'Knowledge Base | SE Ranking Help Center';
+
+    try {
+      const isAuth =
+        (typeof window !== 'undefined' &&
+          (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
+            localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
+        (typeof document !== 'undefined' &&
+          document.cookie.includes('seranking_auth_status=logged_in'));
+      setIsLoggedIn(!!isAuth);
+    } catch {
+      // ignore
+    }
+  }, []);
   const [chatMessages, setChatMessages] = useState<
     { sender: 'bot' | 'user'; text: string; time: string }[]
   >([
@@ -418,7 +435,7 @@ export default function HelpCenterPage() {
       <header className="bg-white border-b border-gray-100 py-3.5 px-6 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="hover:opacity-90 flex items-center">
+            <Link href={isLoggedIn ? "/projects" : "/"} className="hover:opacity-90 flex items-center">
               <SeRankingLogo variant="brand" width={130} height={30} />
             </Link>
             <span className="text-[#1054E2] font-bold text-sm tracking-tight border-l border-gray-200 pl-3">
@@ -500,18 +517,30 @@ export default function HelpCenterPage() {
                 )}
               </div>
 
-              <Link
-                href="/login"
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 font-bold hover:bg-gray-50 transition-colors"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/signup"
-                className="px-4 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg font-bold shadow-xs transition-colors"
-              >
-                Start free trial
-              </Link>
+              {isLoggedIn ? (
+                <Link
+                  href="/projects"
+                  className="px-4 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg font-bold shadow-xs transition-colors flex items-center gap-1.5"
+                >
+                  <span>Go to Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-800 font-bold hover:bg-gray-50 transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="px-4 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg font-bold shadow-xs transition-colors"
+                  >
+                    Start free trial
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

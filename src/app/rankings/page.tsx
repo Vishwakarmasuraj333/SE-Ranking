@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Plus,
   RefreshCw,
@@ -9,27 +10,35 @@ import {
   Calendar,
   Settings,
   Download,
-  Share2,
-  FileText,
-  Sliders,
   Filter,
   Columns,
   ChevronDown,
   ChevronUp,
+  ChevronRight,
+  ChevronLeft,
   X,
   ExternalLink,
   Info,
-  Layers,
   Sparkles,
   TrendingUp,
   TrendingDown,
   Check,
-  CheckCircle2,
-  HelpCircle,
   BarChart2,
-  Table,
+  Copy,
+  Tag,
+  Link2,
+  Target,
+  Clock,
+  List,
+  Folder,
+  Layers,
+  ArrowUpRight,
+  StickyNote,
+  Sliders,
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
+import { FeedbackModal } from '@/components/modals/FeedbackModal';
+import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 interface KeywordItem {
   id: string;
@@ -45,36 +54,187 @@ interface KeywordItem {
   dateChecked: string;
 }
 
-export default function RankingsPage() {
+const HIGH_POTENTIAL_KEYWORDS = [
+  { keyword: 'remote employee tracking software', volume: 5400, kd: 25, intent: 'Commercial', cpc: '$4.10' },
+  { keyword: 'work time tracker', volume: 8100, kd: 22, intent: 'Commercial', cpc: '$3.20' },
+  { keyword: 'employee monitoring software', volume: 14800, kd: 28, intent: 'Commercial', cpc: '$4.50' },
+  { keyword: 'automatic screenshot monitoring tool', volume: 2400, kd: 16, intent: 'High Potential', cpc: '$5.10' },
+  { keyword: 'desktop activity tracker', volume: 3600, kd: 19, intent: 'Commercial', cpc: '$2.80' },
+  { keyword: 'remote team productivity tool', volume: 5200, kd: 24, intent: 'Commercial', cpc: '$3.90' },
+  { keyword: 'time tracking software with screenshots', volume: 1900, kd: 18, intent: 'Commercial', cpc: '$3.40' },
+];
+
+const SUMMARY_NOTES = [
+  {
+    id: 'note-1',
+    title: 'May 2026 Google Core Update',
+    shortDesc: 'This is the second core update of 2026. It started on May 21, 2026, and finished approximately 12 days later on June 2, 2026. As with other core updates, Google described it as a regular update designed to better surface relevant, satisfying content for...',
+    fullDesc: 'This is the second core update of 2026. It started on May 21, 2026, and finished approximately 12 days later on June 2, 2026. As with other core updates, Google described it as a regular update designed to better surface relevant, satisfying content for searchers from all kinds of sites.',
+    date: 'May-21 2026',
+    category: 'Google update',
+  },
+  {
+    id: 'note-2',
+    title: 'March 2026 core update',
+    shortDesc: 'This is the first core update of 2026, launching just three days after the March 2026 spam update completed. It started on March 27, 2026, and finished approximately 12 days later on April 8, 2026. As with other core updates, Google refined its core ra...',
+    fullDesc: 'This is the first core update of 2026, launching just three days after the March 2026 spam update completed. It started on March 27, 2026, and finished approximately 12 days later on April 8, 2026. As with other core updates, Google refined its core ranking systems to elevate high-value experiences.',
+    date: 'Mar-27 2026',
+    category: 'Google update',
+  },
+  {
+    id: 'note-3',
+    title: 'March 2026 spam update',
+    shortDesc: "This is the first spam update of 2026 and the first since August 2025. It launched on March 24, 2026, and completed the following day in under 24 hours, making it the fastest spam update ever recorded on Google's Search Status Dashboard. Google ...",
+    fullDesc: "This is the first spam update of 2026 and the first since August 2025. It launched on March 24, 2026, and completed the following day in under 24 hours, making it the fastest spam update ever recorded on Google's Search Status Dashboard. Google confirmed all scaled abusive content is heavily mitigated.",
+    date: 'Mar-24 2026',
+    category: 'Google update',
+  },
+  {
+    id: 'note-4',
+    title: 'February 2026 Discover core update',
+    shortDesc: "This is the first confirmed Google Search update of 2026 and the first core update in Google's history to target Google Discover exclusively. It started on February 5, 2026, and completed approximately 22 days later on February 27, 2026. Google descr...",
+    fullDesc: "This is the first confirmed Google Search update of 2026 and the first core update in Google's history to target Google Discover exclusively. It started on February 5, 2026, and completed approximately 22 days later on February 27, 2026. Google described this adjustment as tailored specifically for discovery algorithmic feeds.",
+    date: 'Feb-05 2026',
+    category: 'Google update',
+  },
+  {
+    id: 'note-5',
+    title: 'December 2025 core update',
+    shortDesc: 'This is the third and final core update of 2025. It started on December 11, 2025, and completed 18 days later on December 29, 2025. Google described it as a regular update designed to better surface relevant, satisfying content for searchers from all t...',
+    fullDesc: 'This is the third and final core update of 2025. It started on December 11, 2025, and completed 18 days later on December 29, 2025. Google described it as a regular update designed to better surface relevant, satisfying content for searchers from all types of publishers worldwide.',
+    date: 'Dec-11 2025',
+    category: 'Google update',
+  },
+];
+
+function RankingsPageContent() {
   const { activeProject } = useApp();
-  const domain = activeProject?.domain || 'zohosocial.com';
+  const domain = activeProject?.domain || 'https://www.workcomposer.com/';
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  // Tour popup state (Screenshot 1 exact match: "Rankings table" 1 of 3)
-  const [showTourPopup, setShowTourPopup] = useState(true);
-  const [tourStep, setTourStep] = useState(1);
+  // Active view tab: supports detailed, summary, and historical
+  const tabParam = searchParams?.get('tab');
+  const [activeTab, setActiveTab] = useState<'summary' | 'detailed' | 'historical'>(
+    tabParam === 'summary'
+      ? 'summary'
+      : tabParam === 'historical' || tabParam === 'history'
+      ? 'historical'
+      : 'detailed'
+  );
 
-  // Position filter tab
+  useEffect(() => {
+    if (tabParam === 'summary') {
+      setActiveTab('summary');
+    } else if (tabParam === 'historical' || tabParam === 'history') {
+      setActiveTab('historical');
+    } else if (tabParam === 'detailed') {
+      setActiveTab('detailed');
+    }
+  }, [tabParam]);
+
+  // Ranking Settings Gear Dropdown state matching Screenshot 1
+  const [isRankingSettingsMenuOpen, setIsRankingSettingsMenuOpen] = useState(false);
+  const rankingSettingsRef = useRef<HTMLDivElement>(null);
+  const [isRankingSettingsModalOpen, setIsRankingSettingsModalOpen] = useState(false);
+
+  const [rankingFrequency, setRankingFrequency] = useState('Daily');
+  const [searchVolumeSource, setSearchVolumeSource] = useState('Google Keyword Planner');
+  const [trackSerpFeatures, setTrackSerpFeatures] = useState(true);
+  const [exactMatchMode, setExactMatchMode] = useState(false);
+
+  // Dual Calendar Date Picker Popover matching Screenshot 1
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+  const [selectedDateRangeLabel, setSelectedDateRangeLabel] = useState('29 Sep 2026 - 29 Sep 2026');
+  const [selectedCalendarDay, setSelectedCalendarDay] = useState(29);
+
+  // Search Engine Dropdown
+  const [isEngineDropdownOpen, setIsEngineDropdownOpen] = useState(false);
+  const engineDropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedEngine, setSelectedEngine] = useState('India');
+  const [isAddEngineModalOpen, setIsAddEngineModalOpen] = useState(false);
+
+  // View Mode Dropdown matching Screenshot 3 & 4
+  const [isViewModeDropdownOpen, setIsViewModeDropdownOpen] = useState(false);
+  const viewModeRef = useRef<HTMLDivElement>(null);
+  const [selectedViewMode, setSelectedViewMode] = useState<'List' | 'Groups' | 'Tags' | 'URL in SERP' | 'Target URL' | 'Date'>('Groups');
+
+  // Position Filters state matching Screenshot 1
   const [selectedRange, setSelectedRange] = useState<string>('all');
+  const [posMin, setPosMin] = useState('');
+  const [posMax, setPosMax] = useState('');
 
-  // Insights expandable section
-  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
+  // Insights Section matching Screenshot 1, 2, 3
+  const [isInsightsOpen, setIsInsightsOpen] = useState(true);
+  const [isInsightsExpanded, setIsInsightsExpanded] = useState(false);
 
-  // Add Keywords modal
+  // Metrics Section toggle
+  const [isMetricsVisible, setIsMetricsVisible] = useState(true);
+
+  // Summary View interactive states
+  const [distributionPeriod, setDistributionPeriod] = useState<'CURRENT' | '7D' | '1M' | '3M' | '6M' | '1Y' | '2Y'>('CURRENT');
+  const [keywordOverviewMode, setKeywordOverviewMode] = useState<'VISIBILITY' | 'TRAFFIC FORECAST'>('VISIBILITY');
+  const [pagesFilterTab, setPagesFilterTab] = useState<'TOP' | 'JUMPED' | 'DROPPED'>('TOP');
+  const [isGroupsDropdownOpen, setIsGroupsDropdownOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState('All groups');
+  const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [noteDate, setNoteDate] = useState('29 Sep 2026');
+  const [isConnectGAOpen, setIsConnectGAOpen] = useState(false);
+  const [expandedNoteIds, setExpandedNoteIds] = useState<string[]>([]);
+
+  // Recheck Data 2-Tier Dropdown state
+  const [isRecheckOpen, setIsRecheckOpen] = useState(false);
+  const [hoveredRecheckSubmenu, setHoveredRecheckSubmenu] = useState<'rankings' | 'search_volume' | null>(null);
+  const recheckDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Add Keywords and High-Potential Keywords Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isHighPotentialModalOpen, setIsHighPotentialModalOpen] = useState(false);
+  const [selectedHighPotential, setSelectedHighPotential] = useState<string[]>([
+    'remote employee tracking software',
+    'work time tracker',
+  ]);
   const [keywordInput, setKeywordInput] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
-
-  // Keywords state - starts empty as shown in screenshot, or populated when user adds
   const [keywords, setKeywords] = useState<KeywordItem[]>([]);
 
-  // Default suggestions for Quick Add
-  const highPotentialSuggestions = [
-    { kw: 'zoho social review', vol: 6600, diff: 34, cpc: '$2.85' },
-    { kw: 'social media scheduler tool', vol: 14800, diff: 52, cpc: '$4.10' },
-    { kw: 'best buffer alternative', vol: 9200, diff: 41, cpc: '$3.40' },
-    { kw: 'instagram post planner', vol: 22100, diff: 63, cpc: '$1.95' },
-    { kw: 'linkedin scheduling automation', vol: 8100, diff: 45, cpc: '$5.20' },
-  ];
+  // Modals
+  const [isGuestLinkOpen, setIsGuestLinkOpen] = useState(false);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
+  const [isDataStudioOpen, setIsDataStudioOpen] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // Close popups on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (rankingSettingsRef.current && !rankingSettingsRef.current.contains(e.target as Node)) {
+        setIsRankingSettingsMenuOpen(false);
+      }
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setIsDatePickerOpen(false);
+      }
+      if (engineDropdownRef.current && !engineDropdownRef.current.contains(e.target as Node)) {
+        setIsEngineDropdownOpen(false);
+      }
+      if (viewModeRef.current && !viewModeRef.current.contains(e.target as Node)) {
+        setIsViewModeDropdownOpen(false);
+      }
+      if (recheckDropdownRef.current && !recheckDropdownRef.current.contains(e.target as Node)) {
+        setIsRecheckOpen(false);
+        setHoveredRecheckSubmenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleAddKeywords = (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,35 +258,38 @@ export default function RankingsPage() {
         cpc: `$${(Math.random() * 4 + 1).toFixed(2)}`,
         difficulty: Math.floor(Math.random() * 60) + 20,
         serpFeatures: ['Featured Snippet', 'Site Links', 'People Also Ask'],
-        url: `https://${domain}/features`,
-        dateChecked: '25 Sep 2026',
+        url: `https://${domain.replace(/^https?:\/\//, '').replace(/\/$/, '')}/features`,
+        dateChecked: '29 Sep 2026',
       };
     });
 
     setKeywords((prev) => [...prev, ...newItems]);
     setKeywordInput('');
     setIsAddModalOpen(false);
+    showToast(`${lines.length} keywords added to tracking!`);
   };
 
-  const handleAddSuggestions = () => {
-    const newItems: KeywordItem[] = highPotentialSuggestions.map((item, idx) => ({
-      id: `sug-${Date.now()}-${idx}`,
-      keyword: item.kw,
-      rank: idx + 1,
-      prevRank: idx + 2,
-      change: 1,
-      volume: item.vol,
-      cpc: item.cpc,
-      difficulty: item.diff,
+  const addSelectedHighPotential = () => {
+    const newItems: KeywordItem[] = selectedHighPotential.map((kw, idx) => ({
+      id: `hp-${Date.now()}-${idx}`,
+      keyword: kw,
+      rank: Math.floor(Math.random() * 18) + 1,
+      prevRank: Math.floor(Math.random() * 25) + 1,
+      change: 2,
+      volume: 8100,
+      cpc: '$3.50',
+      difficulty: 24,
       serpFeatures: ['Featured Snippet', 'Site Links'],
-      url: `https://${domain}`,
-      dateChecked: '25 Sep 2026',
+      url: `https://${domain.replace(/^https?:\/\//, '').replace(/\/$/, '')}`,
+      dateChecked: '29 Sep 2026',
     }));
 
     setKeywords((prev) => [...prev, ...newItems]);
+    setIsHighPotentialModalOpen(false);
+    showToast(`${newItems.length} high-potential keywords added!`);
   };
 
-  // Counts based on keywords
+  // Metrics counts
   const countTop1 = keywords.filter((k) => k.rank === 1).length;
   const countTop3 = keywords.filter((k) => k.rank <= 3).length;
   const countTop5 = keywords.filter((k) => k.rank <= 5).length;
@@ -155,515 +318,2047 @@ export default function RankingsPage() {
   });
 
   return (
-    <div className="flex-1 bg-[#F5F7FB] min-h-screen text-gray-800 relative pb-16 select-none overflow-x-hidden">
+    <div className="flex-1 bg-[#F5F7FB] min-h-screen text-gray-800 relative pb-16 select-none overflow-x-hidden font-sans">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1E293B] text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-semibold flex items-center gap-2 animate-in fade-in duration-200">
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span>{notification}</span>
+        </div>
+      )}
 
-      {/* Top Breadcrumb & Metadata Header Row (Screenshot 1) */}
+      {/* Top Breadcrumb & Metadata Header Row matching Screenshot 1 */}
       <div className="bg-white border-b border-gray-200 px-6 py-2.5 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
-        <div className="flex items-center gap-1.5 font-medium">
-          <span className="text-gray-900 font-semibold">{domain}</span>
-          <span className="text-gray-400">›</span>
-          <span className="text-gray-600">Rankings</span>
-          <span className="text-gray-400">›</span>
-          <span className="text-gray-900 font-semibold">Detailed</span>
+        <div className="flex items-center gap-2">
+          {/* Circular Back Button matching Screenshot 1 */}
+          <button
+            type="button"
+            onClick={() => router.push('/projects')}
+            className="w-5 h-5 rounded-full border border-gray-300 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:border-gray-400 transition-colors cursor-pointer bg-white shrink-0"
+            title="Back to projects"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+
+          <div className="flex items-center gap-1.5 font-normal text-xs text-gray-500">
+            <span className="text-gray-600 font-medium">{domain}</span>
+            <span className="text-gray-300">&gt;</span>
+            <span className="text-gray-500">Rankings</span>
+            <span className="text-gray-300">&gt;</span>
+            <span className="text-gray-700 font-medium">
+              {activeTab === 'detailed'
+                ? 'Detailed'
+                : activeTab === 'historical'
+                ? 'Historical data'
+                : 'Summary'}
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs">
+        <div className="flex items-center gap-4 text-xs font-normal text-gray-600">
           <button
-            onClick={() => alert('Guest link copied to clipboard!')}
-            className="hover:text-blue-600 transition-colors cursor-pointer"
+            type="button"
+            onClick={() => setIsGuestLinkOpen(true)}
+            className="text-[#1B66FF] hover:underline cursor-pointer"
           >
             Guest link
           </button>
           <button
-            onClick={() => alert('Opening feedback dialog...')}
-            className="hover:text-blue-600 transition-colors cursor-pointer"
+            type="button"
+            onClick={() => setIsFeedbackOpen(true)}
+            className="text-[#1B66FF] hover:underline cursor-pointer"
           >
             Feedback
           </button>
-          <Link href="/notes" className="hover:text-blue-600 transition-colors">
+          <Link href="/notes" className="text-[#1B66FF] hover:underline">
             Notes (46)
           </Link>
           <div className="flex items-center gap-1 text-gray-600">
             <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
-            <span>Manual rechecks: <strong>0 / 750</strong></span>
-            <Info className="w-3 h-3 text-gray-400" />
+            <span>Manual rechecks: <strong className="font-semibold text-gray-800">0 / 750</strong></span>
+            <span className="cursor-help text-gray-400 text-[10px]">ℹ</span>
           </div>
           <div className="flex items-center gap-1 text-gray-600">
-            <span>Keyword limits: <strong>{keywords.length} / 750</strong></span>
-            <Info className="w-3 h-3 text-gray-400" />
+            <Tag className="w-3.5 h-3.5 text-gray-400" />
+            <span>Keyword limits: <strong className="font-semibold text-gray-800">{keywords.length} / 750</strong></span>
+            <span className="cursor-help text-gray-400 text-[10px]">ℹ</span>
           </div>
         </div>
       </div>
 
       <div className="p-6 max-w-7xl mx-auto space-y-4">
-        {/* Search Engine, Date Picker & Action Controls (Screenshot 1) */}
+        {/* Top Controls Row: Search Engine, Date Range Picker, Data Studio, Export, and RANKING SETTINGS ICON */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            {/* Country Engine Dropdown */}
-            <div className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs">
-              <span className="text-base leading-none">🇮🇳</span>
-              <span>India</span>
-              <span className="text-[10px] text-gray-500 font-normal">EN</span>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400 ml-1" />
+            {/* Search Engine Dropdown (Screenshot 1) */}
+            <div className="relative" ref={engineDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsEngineDropdownOpen(!isEngineDropdownOpen)}
+                className={`bg-white border rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs transition-colors cursor-pointer ${
+                  isEngineDropdownOpen ? 'border-gray-400 ring-1 ring-gray-300' : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <span className="font-bold text-blue-600">G</span>
+                <span className="text-sm">🇮🇳</span>
+                <span>{selectedEngine}</span>
+                <span className="text-[10px] text-gray-500 font-bold">EN</span>
+                {isEngineDropdownOpen ? (
+                  <ChevronUp className="w-3.5 h-3.5 text-gray-500 ml-1" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 ml-1" />
+                )}
+              </button>
+
+              {isEngineDropdownOpen && (
+                <div className="absolute left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs animate-in fade-in duration-100">
+                  <div
+                    onClick={() => {
+                      setSelectedEngine('India');
+                      setIsEngineDropdownOpen(false);
+                    }}
+                    className="px-3 py-2 flex items-center justify-between hover:bg-gray-100 cursor-pointer bg-gray-50 font-medium text-gray-900"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-blue-600">G</span>
+                      <span className="text-sm">🇮🇳</span>
+                      <span>India</span>
+                    </div>
+                    <span className="text-[10px] text-gray-500 font-bold">EN</span>
+                  </div>
+                  <div className="border-t border-gray-100 my-1" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEngineDropdownOpen(false);
+                      setIsAddEngineModalOpen(true);
+                    }}
+                    className="w-full text-left px-3 py-2 flex items-center gap-2 text-[#0B69FF] font-semibold hover:bg-blue-50 cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add search engine</span>
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Date Range Picker */}
-            <div className="bg-white border border-gray-300 rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs">
-              <Calendar className="w-3.5 h-3.5 text-gray-500" />
-              <span>25 Sep 2026 - 25 Sep 2026</span>
-              <ChevronDown className="w-3.5 h-3.5 text-gray-400 ml-1" />
+            {/* DUAL-MONTH CALENDAR DATE PICKER (Hidden in Historical data view matching Screenshot 1) */}
+            {activeTab !== 'historical' && (
+              <div className="relative" ref={datePickerRef}>
+              <button
+                type="button"
+                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                className={`bg-white border rounded-lg px-3 py-1.5 flex items-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs transition-colors cursor-pointer ${
+                  isDatePickerOpen ? 'border-gray-400 ring-1 ring-gray-300' : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                <span>{selectedDateRangeLabel}</span>
+              </button>
+
+              {/* Exact Dual-Month Calendar Popover matching Screenshot 1 */}
+              {isDatePickerOpen && (
+                <div className="absolute left-0 mt-2 bg-white border border-gray-200 rounded-2xl shadow-2xl p-5 z-50 animate-in fade-in zoom-in-95 duration-150 w-[640px]">
+                  <div className="flex items-start gap-6">
+                    <div className="flex-1 space-y-4">
+                      <div className="grid grid-cols-2 gap-6">
+                        {/* Month 1: August 2026 */}
+                        <div>
+                          <div className="flex items-center justify-between font-bold text-xs text-gray-800 mb-3 px-1">
+                            <button type="button" className="text-gray-400 hover:text-gray-700 cursor-pointer">&lt;</button>
+                            <div className="flex items-center gap-1">
+                              <span>August 2026</span>
+                              <ChevronDown className="w-3 h-3 text-gray-400" />
+                            </div>
+                            <span />
+                          </div>
+
+                          <div className="grid grid-cols-7 text-center text-[10px] text-gray-400 font-bold mb-1">
+                            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                              <div key={i} className="py-1">{d}</div>
+                            ))}
+                          </div>
+
+                          <div className="grid grid-cols-7 text-center text-xs text-gray-600 gap-y-1 font-medium">
+                            <div /><div /><div /><div /><div />
+                            <div className="py-1 hover:bg-gray-100 rounded cursor-pointer">1</div>
+                            <div className="py-1 hover:bg-gray-100 rounded cursor-pointer">2</div>
+                            {[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31].map((day) => (
+                              <div
+                                key={day}
+                                onClick={() => setSelectedCalendarDay(day)}
+                                className="py-1 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+                              >
+                                {day}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Month 2: September 2026 */}
+                        <div>
+                          <div className="flex items-center justify-between font-bold text-xs text-gray-800 mb-3 px-1">
+                            <span />
+                            <div className="flex items-center gap-1">
+                              <span>September 2026</span>
+                              <ChevronDown className="w-3 h-3 text-gray-400" />
+                            </div>
+                            <button type="button" className="text-gray-400 hover:text-gray-700 cursor-pointer">&gt;</button>
+                          </div>
+
+                          <div className="grid grid-cols-7 text-center text-[10px] text-gray-400 font-bold mb-1">
+                            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
+                              <div key={i} className="py-1">{d}</div>
+                            ))}
+                          </div>
+
+                          <div className="grid grid-cols-7 text-center text-xs text-gray-600 gap-y-1 font-medium">
+                            {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28].map((day) => (
+                              <div
+                                key={day}
+                                onClick={() => setSelectedCalendarDay(day)}
+                                className="py-1 hover:bg-gray-100 rounded cursor-pointer transition-colors"
+                              >
+                                {day}
+                              </div>
+                            ))}
+                            <div className="py-1 border border-[#1B66FF] text-[#1B66FF] font-bold rounded-md cursor-pointer relative bg-blue-50/40">
+                              <span>29</span>
+                              <span className="w-1 h-1 rounded-full bg-[#1B66FF] absolute bottom-0.5 left-1/2 -translate-x-1/2" />
+                            </div>
+                            <div className="py-1 hover:bg-gray-100 rounded cursor-pointer">30</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Cancel / Apply Actions */}
+                      <div className="pt-4 border-t border-gray-100 flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsDatePickerOpen(false)}
+                          className="px-4 py-1.5 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-bold uppercase transition-colors cursor-pointer"
+                        >
+                          CANCEL
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsDatePickerOpen(false);
+                            showToast(`Applied date range: ${selectedDateRangeLabel}`);
+                          }}
+                          className="px-5 py-1.5 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-xs font-bold uppercase transition-colors shadow-xs cursor-pointer"
+                        >
+                          APPLY
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Right Preset Buttons */}
+                    <div className="w-36 space-y-1 border-l border-gray-100 pl-4 text-xs font-semibold">
+                      {[
+                        'TODAY',
+                        'YESTERDAY',
+                        'LAST WEEK',
+                        'LAST MONTH',
+                        'PAST 7 DAYS',
+                        'PAST 30 DAYS',
+                        'PAST 6 MONTHS',
+                        'YEAR',
+                      ].map((preset) => (
+                        <button
+                          key={preset}
+                          type="button"
+                          onClick={() => {
+                            setSelectedDateRangeLabel(
+                              preset === 'TODAY'
+                                ? '29 Sep 2026 - 29 Sep 2026'
+                                : preset === 'PAST 7 DAYS'
+                                ? '22 Sep 2026 - 29 Sep 2026'
+                                : preset === 'PAST 30 DAYS'
+                                ? '30 Aug 2026 - 29 Sep 2026'
+                                : `29 Sep 2026 (${preset})`
+                            );
+                            setIsDatePickerOpen(false);
+                            showToast(`Date range set to ${preset}`);
+                          }}
+                          className="w-full text-center py-1.5 px-2 rounded-md border border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-colors uppercase text-[10px] tracking-wider cursor-pointer"
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+          )}
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Google Looker Studio */}
             <button
-              onClick={() => alert('Connecting Google Looker Studio connector...')}
+              type="button"
+              onClick={() => setIsDataStudioOpen(true)}
               className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
             >
-              <BarChart2 className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-[#0B69FF] font-bold">☌</span>
               <span>DATA STUDIO</span>
             </button>
+
+            {/* Export Button */}
             <button
-              onClick={() => alert('Exporting Rankings Report to CSV/XLSX...')}
-              className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
+              type="button"
+              onClick={() => showToast('Exporting rankings report to XLSX...')}
+              className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
             >
-              <Download className="w-3.5 h-3.5 text-gray-600" />
+              <Download className="w-3.5 h-3.5 text-gray-400 rotate-180" />
               <span>EXPORT</span>
             </button>
-            <button
-              onClick={() => alert('Opening project rankings settings...')}
-              className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 p-2 rounded-lg text-xs shadow-2xs cursor-pointer transition-colors"
-            >
-              <Settings className="w-3.5 h-3.5" />
-            </button>
+
+            {/* RANKING SETTINGS ICON BUTTON */}
+            <div className="relative" ref={rankingSettingsRef}>
+              <button
+                type="button"
+                onClick={() => setIsRankingSettingsMenuOpen(!isRankingSettingsMenuOpen)}
+                className="px-2.5 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg text-xs font-semibold shadow-2xs flex items-center gap-1 cursor-pointer transition-colors"
+                title="Ranking settings"
+              >
+                <Settings className="w-4 h-4 stroke-[2]" />
+                {isRankingSettingsMenuOpen ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                )}
+              </button>
+
+              {isRankingSettingsMenuOpen && (
+                <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1.5 z-40 text-xs animate-in fade-in duration-100">
+                  <Link
+                    href="/settings?site_id=12960641"
+                    onClick={() => setIsRankingSettingsMenuOpen(false)}
+                    className="block px-3.5 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium transition-colors"
+                  >
+                    Project settings
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRankingSettingsMenuOpen(false);
+                      setIsRankingSettingsModalOpen(true);
+                    }}
+                    className="w-full text-left px-3.5 py-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 font-medium transition-colors cursor-pointer"
+                  >
+                    Ranking settings
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Checked Progress Bar (Screenshot 1: 0% CHECKED) */}
+        {/* 0% INDEXED Thin Line & Badge matching Screenshot 1 */}
         <div className="relative pt-1">
-          <div className="w-full bg-gray-200 h-1 rounded-full overflow-hidden">
+          <div className="w-full bg-gray-200 h-0.5 rounded-full overflow-hidden">
             <div
-              className="bg-emerald-500 h-full transition-all duration-500"
+              className="bg-[#00A86B] h-full transition-all duration-500"
               style={{ width: keywords.length > 0 ? '100%' : '0%' }}
             />
           </div>
-          <div className="flex justify-center -mt-2">
-            <span className="bg-[#10B981] text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
-              {keywords.length > 0 ? '100% CHECKED' : '0% CHECKED'}
+          <div className="flex justify-center -mt-2.5">
+            <span className="bg-[#00A86B] text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-2xs">
+              {keywords.length > 0 ? '100% INDEXED' : '0% INDEXED'}
             </span>
           </div>
         </div>
 
-        {/* + ADD KEYWORDS & RECHECK DATA Buttons */}
+        {/* Action Buttons: + ADD KEYWORDS & RECHECK DATA Dropdown */}
         <div className="flex items-center gap-2 pt-1">
           <button
+            type="button"
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-[#00A86B] hover:bg-[#008f5a] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+            className="bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>ADD KEYWORDS</span>
           </button>
 
+          {/* Recheck Data Dropdown */}
+          <div className="relative" ref={recheckDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsRecheckOpen(!isRecheckOpen)}
+              className="bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>RECHECK DATA</span>
+              <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
+            </button>
+
+            {isRecheckOpen && (
+              <div className="absolute left-0 mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-xl py-1.5 z-40 text-xs animate-in fade-in duration-100">
+                <div
+                  className="relative group"
+                  onMouseEnter={() => setHoveredRecheckSubmenu('rankings')}
+                  onMouseLeave={() => setHoveredRecheckSubmenu(null)}
+                >
+                  <div className="px-3.5 py-2 flex items-center justify-between text-gray-700 hover:bg-gray-100 cursor-pointer font-medium">
+                    <span>Recheck live rankings</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  </div>
+                  {hoveredRecheckSubmenu === 'rankings' && (
+                    <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRecheckOpen(false);
+                          showToast('Rechecking live ranking positions...');
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Recheck selected
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRecheckOpen(false);
+                          showToast('Rechecking all keywords across Google India...');
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer font-semibold"
+                      >
+                        Recheck all
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="relative group"
+                  onMouseEnter={() => setHoveredRecheckSubmenu('search_volume')}
+                  onMouseLeave={() => setHoveredRecheckSubmenu(null)}
+                >
+                  <div className="px-3.5 py-2 flex items-center justify-between text-gray-700 hover:bg-gray-100 cursor-pointer font-medium">
+                    <span>Recheck search volume</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                  </div>
+                  {hoveredRecheckSubmenu === 'search_volume' && (
+                    <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-50 text-xs">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRecheckOpen(false);
+                          showToast('Rechecking volume data for selected...');
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer"
+                      >
+                        Recheck selected
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRecheckOpen(false);
+                          showToast('Rechecking all search volume data...');
+                        }}
+                        className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer font-semibold"
+                      >
+                        Recheck all
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* DETAILED VIEW MATCHING SCREENSHOTS 1, 2, 3, 4 */}
+        {/* ========================================================================= */}
+        {activeTab === 'detailed' && (
+          <div className="space-y-4">
+            {/* Position Filters Row matching Screenshot 1 */}
+            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                {/* Left: Position filters label + buttons + counts */}
+                <div>
+                  <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                    <span>Position filters:</span>
+                    <span className="cursor-help text-[10px]">ℹ</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {/* Top Button Row */}
+                    <div className="flex items-center gap-1.5">
+                      {[
+                        { id: 'all', label: 'ALL', count: keywords.length },
+                        { id: 'top1', label: 'TOP 1', count: countTop1 },
+                        { id: 'top3', label: 'TOP 3', count: countTop3 },
+                        { id: 'top5', label: 'TOP 5', count: countTop5 },
+                        { id: 'top10', label: 'TOP 10', count: countTop10 },
+                        { id: 'top30', label: 'TOP 30', count: countTop30 },
+                        { id: 'over100', label: '>100', count: countOver100 },
+                      ].map((tab) => (
+                        <div key={tab.id} className="w-16 flex flex-col items-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRange(tab.id)}
+                            className={`w-full py-1.5 rounded text-center transition-colors cursor-pointer text-xs ${
+                              selectedRange === tab.id
+                                ? 'bg-[#4A4E69] text-white font-bold shadow-xs'
+                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                          <span className="text-xs font-semibold text-gray-600 mt-1">
+                            {tab.count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Position range and Changes matching Screenshot 1 */}
+                <div className="flex items-center gap-6 pt-1">
+                  <div>
+                    <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                      <span>Position range:</span>
+                      <span className="cursor-help text-[10px]">ℹ</span>
+                    </div>
+                    <div className="w-14 h-8 bg-white border border-gray-300 rounded flex items-center justify-center">
+                      <input
+                        type="text"
+                        value={posMin}
+                        onChange={(e) => setPosMin(e.target.value)}
+                        placeholder="—"
+                        className="w-full text-center text-xs text-gray-700 placeholder-gray-400 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                      <span>Changes:</span>
+                      <span className="cursor-help text-[10px]">ℹ</span>
+                    </div>
+                    <div className="h-8 px-3 bg-white border border-gray-300 rounded flex items-center gap-3 text-xs font-semibold">
+                      <span className="text-emerald-600 flex items-center gap-1">
+                        <span>▲</span>
+                        <span>{keywords.filter((k) => k.change > 0).length}</span>
+                      </span>
+                      <span className="text-rose-600 flex items-center gap-1">
+                        <span>▼</span>
+                        <span>{keywords.filter((k) => k.change < 0).length}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Insights Section matching Screenshot 1, 2, 3 */}
+            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+              <div className="flex items-center justify-between pb-1">
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-[#5850EC]" />
+                  <h3 className="text-sm font-bold text-gray-900">Insights</h3>
+                  <span className="cursor-help text-gray-400 text-xs">ℹ</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsInsightsOpen(!isInsightsOpen)}
+                  className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                >
+                  {isInsightsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {isInsightsOpen && (
+                <div className="relative pt-2">
+                  <div className="space-y-3">
+                    {/* Card 1: 0 pages recommended for monitoring matching Screenshot 1 & 2 */}
+                    <div className="bg-[#FAF5FF]/30 border border-purple-100/70 rounded-xl p-4 text-xs space-y-2">
+                      <div className="font-bold text-[13px] text-gray-900">0 pages recommended for monitoring</div>
+                      <p className="text-gray-600 text-xs leading-relaxed">
+                        We found <strong>0</strong> ranked pages for which you are not tracking changes. Monitor what affects your visibility. Then we can reveal the changes found when positions fall.{' '}
+                        <button
+                          type="button"
+                          onClick={() => showToast('Starting page changes monitoring...')}
+                          className="text-[#1B66FF] font-medium hover:underline cursor-pointer"
+                        >
+                          Start monitoring
+                        </button>
+                      </p>
+                      <div className="pt-1">
+                        <span className="text-[11px] bg-[#E0F2FE] text-[#0284C7] px-2.5 py-0.5 rounded font-semibold">
+                          Content
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card 2: 28 pages needing SEO refinement matching Screenshot 2 */}
+                    {isInsightsExpanded && (
+                      <div className="bg-[#FAF5FF]/30 border border-purple-100/70 rounded-xl p-4 text-xs space-y-2 animate-in fade-in duration-150">
+                        <div className="font-bold text-[13px] text-gray-900">28 pages needing SEO refinement</div>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Your current Health Score is <strong>84</strong>, indicating strong site performance. Great job! Continue optimizing to reach even higher performance levels.{' '}
+                          <button
+                            type="button"
+                            onClick={() => router.push('/website-audit')}
+                            className="text-[#1B66FF] font-medium hover:underline cursor-pointer"
+                          >
+                            Check your efficiency and keep optimizing
+                          </button>
+                        </p>
+                        <div className="pt-1">
+                          <span className="text-[11px] bg-[#FFEDD5] text-[#EA580C] px-2.5 py-0.5 rounded font-semibold">
+                            Tech SEO
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Card 3: High-impact keywords found matching Screenshot 2 & 3 */}
+                    {isInsightsExpanded && (
+                      <div className="bg-[#FAF5FF]/30 border border-purple-100/70 rounded-xl p-4 text-xs space-y-2 animate-in fade-in duration-150">
+                        <div className="font-bold text-[13px] text-gray-900">High-impact keywords found</div>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Discover untapped, high-potential keywords—quick wins that can drive fast growth.{' '}
+                          <button
+                            type="button"
+                            onClick={() => setIsHighPotentialModalOpen(true)}
+                            className="text-[#1B66FF] font-medium hover:underline cursor-pointer"
+                          >
+                            Check them out now
+                          </button>
+                        </p>
+                        <div className="pt-1">
+                          <span className="text-[11px] bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded font-semibold">
+                            Opportunities
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Feedback Banner matching Screenshot 3 */}
+                    {isInsightsExpanded && (
+                      <div className="p-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg text-xs text-gray-700 flex items-center gap-2">
+                        <Info className="w-4 h-4 text-[#1B66FF] shrink-0" />
+                        <span>
+                          Pick insights for adding next or share your ideas.{' '}
+                          <button
+                            type="button"
+                            onClick={() => setIsFeedbackOpen(true)}
+                            className="text-[#1B66FF] font-semibold hover:underline cursor-pointer"
+                          >
+                            Provide your feedback
+                          </button>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* View more insights button matching Screenshot 1 */}
+                  {!isInsightsExpanded && (
+                    <div className="flex justify-center -mt-3 relative z-10">
+                      <button
+                        type="button"
+                        onClick={() => setIsInsightsExpanded(true)}
+                        className="px-4 py-1.5 bg-[#5850EC] hover:bg-[#4B44C6] text-white text-xs font-semibold rounded-md flex items-center gap-2 cursor-pointer transition-colors shadow-sm"
+                      >
+                        <span>View more insights</span>
+                        <span className="w-2 h-2 rounded-full bg-[#EF4444]" />
+                      </button>
+                    </div>
+                  )}
+
+                  {isInsightsExpanded && (
+                    <div className="flex justify-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsInsightsExpanded(false)}
+                        className="text-xs text-gray-500 hover:text-gray-800 font-medium cursor-pointer"
+                      >
+                        Hide insights
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Google India Summary Box matching Screenshot 1, 2, 3 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-600 text-sm">G</span>
+                <span className="text-base leading-none">🇮🇳</span>
+                <h4 className="text-sm font-bold text-gray-900">Google India</h4>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl shadow-2xs relative overflow-hidden">
+                {isMetricsVisible && (
+                  <div className="grid grid-cols-2 sm:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 p-4 text-xs">
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">AVERAGE POSITION</div>
+                      <div className="text-2xl font-bold text-gray-900 mt-1.5">{avgPosition}</div>
+                    </div>
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">TRAFFIC FORECAST</div>
+                      <div className="text-2xl font-bold text-gray-900 mt-1.5">{totalTraffic}</div>
+                    </div>
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">SEARCH VISIBILITY</div>
+                      <div className="text-2xl font-bold text-gray-900 mt-1.5">{searchVisibility}</div>
+                    </div>
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider flex items-center gap-1">
+                        <span>SERP FEATURES</span>
+                        <span className="cursor-help text-[10px] text-gray-400">ℹ</span>
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900 mt-1.5">
+                        {keywords.length > 0 ? 12 : 0}
+                      </div>
+                    </div>
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">% IN TOP 10</div>
+                      <div className="text-2xl font-bold text-gray-900 mt-1.5">
+                        {keywords.length > 0 ? `${((countTop10 / keywords.length) * 100).toFixed(0)}%` : 0}
+                      </div>
+                    </div>
+                    <div className="px-3 py-1">
+                      <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">SELECTED KEYWORDS</div>
+                      <div className="text-[11px] text-gray-500 mt-1.5 leading-snug">
+                        Select keywords in the table to compare their rankings.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bottom Center Collapse Chevron matching Screenshot 3 */}
+                <button
+                  type="button"
+                  onClick={() => setIsMetricsVisible(!isMetricsVisible)}
+                  className="w-full py-1 flex justify-center items-center text-gray-400 hover:text-gray-600 border-t border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                  title="Toggle metrics summary"
+                >
+                  {isMetricsVisible ? (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Keywords Table Container & Filter Bar matching Screenshot 3 & 4 */}
+            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
+              <div className="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+                <div className="flex items-center gap-2">
+                  <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-700 shadow-2xs">
+                    <span className="font-bold text-blue-600">G</span>
+                    <span className="text-sm">🇮🇳</span>
+                    <span>India</span>
+                    <span className="text-[10px] text-gray-400 font-normal">EN</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </div>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search"
+                      value={searchFilter}
+                      onChange={(e) => setSearchFilter(e.target.value)}
+                      className="bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:border-[#1B66FF] w-64 shadow-2xs"
+                    />
+                    <Search className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                  </div>
+
+                  {/* View Mode Dropdown matching Screenshot 3 & 4 */}
+                  <div className="relative" ref={viewModeRef}>
+                    <button
+                      type="button"
+                      onClick={() => setIsViewModeDropdownOpen(!isViewModeDropdownOpen)}
+                      className="bg-white border border-gray-300 rounded-md px-3 py-1.5 flex items-center gap-1.5 text-xs text-gray-700 font-medium cursor-pointer shadow-2xs hover:bg-gray-50 transition-colors"
+                    >
+                      <span className="text-gray-500">View mode:</span>
+                      <Folder className="w-3.5 h-3.5 text-gray-600" />
+                      <span>{selectedViewMode}</span>
+                      {isViewModeDropdownOpen ? (
+                        <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                      )}
+                    </button>
+
+                    {isViewModeDropdownOpen && (
+                      <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1.5 z-40 text-xs animate-in fade-in duration-100">
+                        {[
+                          { id: 'List', label: 'List', icon: List },
+                          { id: 'Groups', label: 'Groups', icon: Folder },
+                          { id: 'Tags', label: 'Tags', icon: Tag },
+                          { id: 'URL in SERP', label: 'URL in SERP', icon: Link2 },
+                          { id: 'Target URL', label: 'Target URL', icon: Target },
+                          { id: 'Date', label: 'Date', icon: Clock },
+                        ].map((item) => {
+                          const IconComp = item.icon;
+                          return (
+                            <div
+                              key={item.id}
+                              onClick={() => {
+                                setSelectedViewMode(item.id as any);
+                                setIsViewModeDropdownOpen(false);
+                                showToast(`Switched view to ${item.label}`);
+                              }}
+                              className={`px-3 py-2 flex items-center gap-2.5 hover:bg-gray-100 cursor-pointer transition-colors ${
+                                selectedViewMode === item.id ? 'bg-gray-50 font-bold text-gray-900' : 'text-gray-700'
+                              }`}
+                            >
+                              <IconComp className="w-3.5 h-3.5 text-gray-500" />
+                              <span>{item.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(window.location.href);
+                      showToast('View link copied to clipboard!');
+                    }}
+                    className="p-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 cursor-pointer shadow-2xs"
+                    title="Copy view"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Filters panel opened')}
+                    className="px-2.5 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <span>⊲</span>
+                    <span>FILTERS</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Columns configuration opened')}
+                    className="px-2.5 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                  >
+                    <span>☷</span>
+                    <span>COLUMNS</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Exact Empty State matching Screenshot 4 */}
+              {keywords.length === 0 ? (
+                <div className="py-20 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-xl bg-[#EFF6FF] text-[#1B66FF] flex items-center justify-center mx-auto shadow-2xs border border-blue-100">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="11" cy="11" r="7" />
+                      <path d="M21 21l-4.35-4.35" />
+                      <path d="M11 8v6M8 11h6" />
+                    </svg>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900">No keywords</h3>
+                  <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                    You have not added any keywords to this project. Add a few keywords to see the rankings of your site.
+                  </p>
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddModalOpen(true)}
+                      className="bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold px-5 py-2.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>ADD KEYWORDS</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsHighPotentialModalOpen(true)}
+                      className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold px-5 py-2.5 rounded-lg shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
+                    >
+                      FIND HIGH-POTENTIAL KEYWORDS
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                      <tr>
+                        <th className="px-4 py-3">Keyword</th>
+                        <th className="px-4 py-3">Rank</th>
+                        <th className="px-4 py-3">Change</th>
+                        <th className="px-4 py-3">Search Volume</th>
+                        <th className="px-4 py-3">CPC</th>
+                        <th className="px-4 py-3">Difficulty</th>
+                        <th className="px-4 py-3">Ranked URL</th>
+                        <th className="px-4 py-3 text-right">Checked</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 text-gray-700">
+                      {filteredKeywords.map((k) => (
+                        <tr key={k.id} className="hover:bg-gray-50/70 transition-colors">
+                          <td className="px-4 py-3 font-semibold text-gray-900 flex items-center gap-2">
+                            <span>{k.keyword}</span>
+                            {k.rank <= 3 && (
+                              <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
+                                Top 3
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`font-bold px-2 py-0.5 rounded text-xs ${
+                                k.rank <= 3
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : k.rank <= 10
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-gray-100 text-gray-700'
+                              }`}
+                            >
+                              #{k.rank}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {k.change > 0 ? (
+                              <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                                <TrendingUp className="w-3 h-3" /> +{k.change}
+                              </span>
+                            ) : k.change < 0 ? (
+                              <span className="text-rose-600 font-bold flex items-center gap-0.5">
+                                <TrendingDown className="w-3 h-3" /> {k.change}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400 font-medium">—</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-gray-700 font-medium">{k.volume.toLocaleString()}</td>
+                          <td className="px-4 py-3 text-gray-700 font-medium">{k.cpc}</td>
+                          <td className="px-4 py-3">
+                            <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[11px] font-semibold">
+                              {k.difficulty}%
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-[#1B66FF] hover:underline truncate max-w-xs cursor-pointer">
+                            {k.url}
+                          </td>
+                          <td className="px-4 py-3 text-right text-gray-400">{k.dateChecked}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Table Legend Footer matching Screenshot 4 */}
+              <div className="p-3 border-t border-gray-200 bg-white flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
+                <div className="flex flex-wrap items-center gap-5 text-[11px]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#3B82F6]" /> Entered Top 10
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#EF4444]" /> Left Top 10
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#10B981]" /> In Top 10
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#9CA3AF]" /> Entered Top 100
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-gray-600">View on page:</span>
+                  <div className="bg-white border border-gray-300 rounded px-2 py-0.5 text-xs text-gray-700 flex items-center gap-1 font-medium">
+                    <span>100</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Footer matching Screenshot 4 */}
+            <div className="pt-6 pb-2 flex flex-wrap items-center justify-between text-xs text-gray-500 border-t border-gray-200/60 mt-8">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-[#00A86B] flex items-center justify-center text-white text-[9px] font-black">
+                  SE
+                </div>
+                <span className="font-bold text-gray-800 text-xs">SE Ranking</span>
+              </div>
+
+              <div className="flex items-center gap-5 font-normal text-xs text-gray-500">
+                <button
+                  type="button"
+                  onClick={() => setIsBugModalOpen(true)}
+                  className="hover:text-gray-900 cursor-pointer"
+                >
+                  Report a bug
+                </button>
+                <Link href="/affiliate" className="hover:text-gray-900">
+                  Affiliates
+                </Link>
+                <Link href="/api-docs" className="hover:text-gray-900">
+                  API
+                </Link>
+                <Link href="/whats-new" className="hover:text-gray-900">
+                  What's new
+                </Link>
+                <Link href="/help" className="hover:text-gray-900">
+                  Help
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* HISTORICAL DATA VIEW MATCHING USER SCREENSHOTS 1 & 2 */}
+        {/* ========================================================================= */}
+        {activeTab === 'historical' && (
+          <div className="space-y-4">
+            {/* Position Filters Row matching Screenshot 1 */}
+            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                {/* Left: Position filters label + buttons + counts */}
+                <div>
+                  <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                    <span>Position filters:</span>
+                    <span className="cursor-help text-[10px]">ℹ</span>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {/* Top Button Row */}
+                    <div className="flex items-center gap-1.5">
+                      {[
+                        { id: 'all', label: 'ALL', count: keywords.length },
+                        { id: 'top1', label: 'TOP 1', count: countTop1 },
+                        { id: 'top3', label: 'TOP 3', count: countTop3 },
+                        { id: 'top5', label: 'TOP 5', count: countTop5 },
+                        { id: 'top10', label: 'TOP 10', count: countTop10 },
+                        { id: 'top30', label: 'TOP 30', count: countTop30 },
+                        { id: 'over100', label: '>100', count: countOver100 },
+                      ].map((tab) => (
+                        <div key={tab.id} className="w-16 flex flex-col items-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedRange(tab.id)}
+                            className={`w-full py-1.5 rounded text-center transition-colors cursor-pointer text-xs ${
+                              selectedRange === tab.id
+                                ? 'bg-[#4A4E69] text-white font-bold shadow-xs'
+                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                          <span className="text-xs font-semibold text-gray-600 mt-1">
+                            {tab.count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Position range and Changes matching Screenshot 1 */}
+                <div className="flex items-center gap-6 pt-1">
+                  <div>
+                    <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                      <span>Position range:</span>
+                      <span className="cursor-help text-[10px]">ℹ</span>
+                    </div>
+                    <div className="w-14 h-8 bg-white border border-gray-300 rounded flex items-center justify-center">
+                      <input
+                        type="text"
+                        value={posMin}
+                        onChange={(e) => setPosMin(e.target.value)}
+                        placeholder="—"
+                        className="w-full text-center text-xs text-gray-700 placeholder-gray-400 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-[11px] text-gray-400 font-semibold flex items-center gap-1 mb-2">
+                      <span>Changes:</span>
+                      <span className="cursor-help text-[10px]">ℹ</span>
+                    </div>
+                    <div className="h-8 px-3 bg-white border border-gray-300 rounded flex items-center gap-3 text-xs font-semibold">
+                      <span className="text-emerald-600 flex items-center gap-1">
+                        <span>▲</span>
+                        <span>{keywords.filter((k) => k.change > 0).length}</span>
+                      </span>
+                      <span className="text-rose-600 flex items-center gap-1">
+                        <span>▼</span>
+                        <span>{keywords.filter((k) => k.change < 0).length}</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Historical Data 4-Column Metrics Card matching Screenshot 1 */}
+            <div className="bg-white border border-gray-200 rounded-xl shadow-2xs relative overflow-hidden">
+              {isMetricsVisible && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-gray-100 p-4 text-xs">
+                  <div className="px-3 py-1">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">AVERAGE POSITION</div>
+                    <div className="text-2xl font-bold text-gray-900 mt-1.5">{avgPosition}</div>
+                  </div>
+                  <div className="px-3 py-1">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">TRAFFIC FORECAST</div>
+                    <div className="text-2xl font-bold text-gray-900 mt-1.5">{totalTraffic}</div>
+                  </div>
+                  <div className="px-3 py-1">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">SEARCH VISIBILITY</div>
+                    <div className="text-2xl font-bold text-gray-900 mt-1.5">{searchVisibility}</div>
+                  </div>
+                  <div className="px-3 py-1">
+                    <div className="text-[10px] text-gray-500 uppercase font-semibold tracking-wider">% IN TOP 10</div>
+                    <div className="text-2xl font-bold text-gray-900 mt-1.5">
+                      {keywords.length > 0 ? `${((countTop10 / keywords.length) * 100).toFixed(0)}%` : 0}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Bottom Center Collapse Chevron matching Screenshot 1 */}
+              <button
+                type="button"
+                onClick={() => setIsMetricsVisible(!isMetricsVisible)}
+                className="w-full py-1 flex justify-center items-center text-gray-400 hover:text-gray-600 border-t border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                title="Toggle metrics summary"
+              >
+                {isMetricsVisible ? (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+
+            {/* Google India Header matching Screenshot 1 & 2 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-600 text-sm">G</span>
+                <span className="text-base leading-none">🇮🇳</span>
+                <h4 className="text-sm font-bold text-gray-900">Google India</h4>
+              </div>
+
+              {/* Keywords Table Container & Filter Bar matching Screenshot 1 & 2 */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
+                <div className="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+                  <div className="flex items-center gap-2">
+                    <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-700 shadow-2xs">
+                      <span className="font-bold text-blue-600">G</span>
+                      <span className="text-sm">🇮🇳</span>
+                      <span>India</span>
+                      <span className="text-[10px] text-gray-400 font-normal">EN</span>
+                      <ChevronDown className="w-3 h-3 text-gray-400" />
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        value={searchFilter}
+                        onChange={(e) => setSearchFilter(e.target.value)}
+                        className="bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:border-[#1B66FF] w-64 shadow-2xs"
+                      />
+                      <Search className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-2.5 pointer-events-none" />
+                    </div>
+
+                    {/* View Mode Dropdown matching Screenshot 1 */}
+                    <div className="relative" ref={viewModeRef}>
+                      <button
+                        type="button"
+                        onClick={() => setIsViewModeDropdownOpen(!isViewModeDropdownOpen)}
+                        className="bg-white border border-gray-300 rounded-md px-3 py-1.5 flex items-center gap-1.5 text-xs text-gray-700 font-medium cursor-pointer shadow-2xs hover:bg-gray-50 transition-colors"
+                      >
+                        <span className="text-gray-500">View mode:</span>
+                        <Folder className="w-3.5 h-3.5 text-gray-600" />
+                        <span>{selectedViewMode}</span>
+                        {isViewModeDropdownOpen ? (
+                          <ChevronUp className="w-3.5 h-3.5 text-gray-500" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                        )}
+                      </button>
+
+                      {isViewModeDropdownOpen && (
+                        <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-xl py-1.5 z-40 text-xs animate-in fade-in duration-100">
+                          {[
+                            { id: 'List', label: 'List', icon: List },
+                            { id: 'Groups', label: 'Groups', icon: Folder },
+                            { id: 'Tags', label: 'Tags', icon: Tag },
+                            { id: 'URL in SERP', label: 'URL in SERP', icon: Link2 },
+                            { id: 'Target URL', label: 'Target URL', icon: Target },
+                            { id: 'Date', label: 'Date', icon: Clock },
+                          ].map((item) => {
+                            const IconComp = item.icon;
+                            return (
+                              <div
+                                key={item.id}
+                                onClick={() => {
+                                  setSelectedViewMode(item.id as any);
+                                  setIsViewModeDropdownOpen(false);
+                                  showToast(`Switched view to ${item.label}`);
+                                }}
+                                className={`px-3 py-2 flex items-center gap-2.5 hover:bg-gray-100 cursor-pointer transition-colors ${
+                                  selectedViewMode === item.id ? 'bg-gray-50 font-bold text-gray-900' : 'text-gray-700'
+                                }`}
+                              >
+                                <IconComp className="w-3.5 h-3.5 text-gray-500" />
+                                <span>{item.label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(window.location.href);
+                        showToast('View link copied to clipboard!');
+                      }}
+                      className="p-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 cursor-pointer shadow-2xs"
+                      title="Copy view"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => showToast('Filters panel opened')}
+                      className="px-2.5 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <span>⊲</span>
+                      <span>FILTERS</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => showToast('Columns configuration opened')}
+                      className="px-2.5 py-1.5 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700 font-semibold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <span>☷</span>
+                      <span>COLUMNS</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Exact Empty State for Historical Data matching Screenshot 2 (ONLY "+ ADD KEYWORDS" button) */}
+                {keywords.length === 0 ? (
+                  <div className="py-20 text-center space-y-3">
+                    <div className="w-12 h-12 rounded-xl bg-[#EFF6FF] text-[#1B66FF] flex items-center justify-center mx-auto shadow-2xs border border-blue-100">
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="11" cy="11" r="7" />
+                        <path d="M21 21l-4.35-4.35" />
+                        <path d="M11 8v6M8 11h6" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900">No keywords</h3>
+                    <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
+                      You have not added any keywords to this project. Add a few keywords to see the rankings of your site.
+                    </p>
+                    <div className="flex items-center justify-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold px-5 py-2.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>ADD KEYWORDS</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
+                        <tr>
+                          <th className="px-4 py-3">Keyword</th>
+                          <th className="px-4 py-3">Rank</th>
+                          <th className="px-4 py-3">Change</th>
+                          <th className="px-4 py-3">Search Volume</th>
+                          <th className="px-4 py-3">CPC</th>
+                          <th className="px-4 py-3">Difficulty</th>
+                          <th className="px-4 py-3">Ranked URL</th>
+                          <th className="px-4 py-3 text-right">Checked</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 text-gray-700">
+                        {filteredKeywords.map((k) => (
+                          <tr key={k.id} className="hover:bg-gray-50/70 transition-colors">
+                            <td className="px-4 py-3 font-semibold text-gray-900 flex items-center gap-2">
+                              <span>{k.keyword}</span>
+                              {k.rank <= 3 && (
+                                <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
+                                  Top 3
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span
+                                className={`font-bold px-2 py-0.5 rounded text-xs ${
+                                  k.rank <= 3
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : k.rank <= 10
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-700'
+                                }`}
+                              >
+                                #{k.rank}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              {k.change > 0 ? (
+                                <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                                  <TrendingUp className="w-3 h-3" /> +{k.change}
+                                </span>
+                              ) : k.change < 0 ? (
+                                <span className="text-rose-600 font-bold flex items-center gap-0.5">
+                                  <TrendingDown className="w-3 h-3" /> {k.change}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 font-medium">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700 font-medium">{k.volume.toLocaleString()}</td>
+                            <td className="px-4 py-3 text-gray-700 font-medium">{k.cpc}</td>
+                            <td className="px-4 py-3">
+                              <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[11px] font-semibold">
+                                {k.difficulty}%
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-[#1B66FF] hover:underline truncate max-w-xs cursor-pointer">
+                              {k.url}
+                            </td>
+                            <td className="px-4 py-3 text-right text-gray-400">{k.dateChecked}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* Table Legend Footer matching Screenshot 2 */}
+                <div className="p-3 border-t border-gray-200 bg-white flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
+                  <div className="flex flex-wrap items-center gap-5 text-[11px]">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#3B82F6]" /> Entered Top 10
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#EF4444]" /> Left Top 10
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#10B981]" /> In Top 10
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#9CA3AF]" /> Entered Top 100
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-gray-600">View on page:</span>
+                    <div className="bg-white border border-gray-300 rounded px-2 py-0.5 text-xs text-gray-700 flex items-center gap-1 font-medium">
+                      <span>100</span>
+                      <ChevronDown className="w-3 h-3 text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Footer matching Screenshot 2 */}
+            <div className="pt-6 pb-2 flex flex-wrap items-center justify-between text-xs text-gray-500 border-t border-gray-200/60 mt-8">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded bg-[#00A86B] flex items-center justify-center text-white text-[9px] font-black">
+                  SE
+                </div>
+                <span className="font-bold text-gray-800 text-xs">SE Ranking</span>
+              </div>
+
+              <div className="flex items-center gap-5 font-normal text-xs text-gray-500">
+                <button
+                  type="button"
+                  onClick={() => setIsBugModalOpen(true)}
+                  className="hover:text-gray-900 cursor-pointer"
+                >
+                  Report a bug
+                </button>
+                <Link href="/affiliate" className="hover:text-gray-900">
+                  Affiliates
+                </Link>
+                <Link href="/api-docs" className="hover:text-gray-900">
+                  API
+                </Link>
+                <Link href="/whats-new" className="hover:text-gray-900">
+                  What's new
+                </Link>
+                <Link href="/help" className="hover:text-gray-900">
+                  Help
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* SUMMARY VIEW (When switched to Summary tab) */}
+        {/* ========================================================================= */}
+        {activeTab === 'summary' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-1">
+                <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                  SEARCH VISIBILITY
+                </div>
+                <div className="text-3xl font-black text-gray-900 pt-1">
+                  {searchVisibility}%
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-1">
+                <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                  AVERAGE POSITION
+                </div>
+                <div className="text-3xl font-black text-gray-900 pt-1">
+                  {avgPosition}
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-2">
+                <div className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                  ORGANIC TRAFFIC
+                </div>
+                <div className="pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsConnectGAOpen(true)}
+                    className="px-3.5 py-1.5 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-800 flex items-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                  >
+                    <span className="text-amber-500 font-bold">📊</span>
+                    <span>Connect Google Analytics</span>
+                  </button>
+                  <p className="text-[11px] text-gray-400 mt-1">for detailed information</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-sm font-bold text-gray-900">Distribution of top positions</h3>
+                  <span className="cursor-help text-gray-400 text-xs">ⓘ</span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
+                  <div className="flex items-center gap-2 text-gray-500">
+                    {(['CURRENT', '7D', '1M', '3M', '6M', '1Y', '2Y'] as const).map((period) => (
+                      <button
+                        key={period}
+                        type="button"
+                        onClick={() => setDistributionPeriod(period)}
+                        className={`px-1.5 py-1 cursor-pointer transition-colors uppercase ${
+                          distributionPeriod === period
+                            ? 'text-[#0B69FF] font-bold border-b-2 border-[#0B69FF]'
+                            : 'hover:text-gray-800'
+                        }`}
+                      >
+                        {period}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 text-[11px] text-gray-600">
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#8B5CF6]" /> TOP 1</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#3B82F6]" /> TOP 2-3</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#EC4899]" /> TOP 4-5</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#14B8A6]" /> TOP 6-10</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#06B6D4]" /> TOP 11-30</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#F59E0B]" /> TOP 31-100</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#94A3B8]" /> TOTAL</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-1">
+                <div className="p-3 bg-gray-50/60 rounded-lg border border-gray-100 space-y-1">
+                  <div className="text-[11px] text-gray-500 font-semibold">Top 1</div>
+                  <div className="text-2xl font-bold text-gray-900">{countTop1}</div>
+                </div>
+                <div className="p-3 bg-gray-50/60 rounded-lg border border-gray-100 space-y-1">
+                  <div className="text-[11px] text-gray-500 font-semibold">Top 2-3</div>
+                  <div className="text-2xl font-bold text-gray-900">{countTop3}</div>
+                </div>
+                <div className="p-3 bg-gray-50/60 rounded-lg border border-gray-100 space-y-1">
+                  <div className="text-[11px] text-gray-500 font-semibold">Top 4-5</div>
+                  <div className="text-2xl font-bold text-gray-900">{countTop5}</div>
+                </div>
+                <div className="p-3 bg-gray-50/60 rounded-lg border border-gray-100 space-y-1">
+                  <div className="text-[11px] text-gray-500 font-semibold">Top 6-10</div>
+                  <div className="text-2xl font-bold text-gray-900">{countTop10}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-4">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1 text-[11px] text-gray-400 font-bold uppercase tracking-wider">
+                  <span>KEYWORDS IN SERP</span>
+                  <span className="cursor-help text-xs">ⓘ</span>
+                </div>
+                <div className="text-3xl font-black text-gray-900">{keywords.length}</div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-700 border-b border-gray-200 pb-2">
+                    <span>JUMPED (0)</span>
+                    <div className="flex items-center gap-6 text-[10px] text-gray-400">
+                      <span>%</span>
+                      <span>KEYWORDS</span>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-100 text-xs">
+                    {[
+                      { label: 'TOP 1', color: 'bg-emerald-500' },
+                      { label: 'TOP 2-3', color: 'bg-emerald-500' },
+                      { label: 'TOP 4-5', color: 'bg-emerald-500' },
+                      { label: 'TOP 6-10', color: 'bg-emerald-500' },
+                      { label: 'TOP 11-30', color: 'bg-emerald-500' },
+                      { label: 'TOP 31-100', color: 'bg-emerald-500' },
+                      { label: '>100', color: 'bg-emerald-500' },
+                    ].map((row, i) => (
+                      <div key={i} className="py-1.5 flex items-center justify-between text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${row.color}`} />
+                          <span className="font-medium text-gray-800">{row.label}</span>
+                        </div>
+                        <div className="flex items-center gap-10 text-right font-medium">
+                          <span className="w-8">0%</span>
+                          <span className="w-8 text-gray-900 font-bold">0</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-700 border-b border-gray-200 pb-2">
+                    <span>DROPPED (0)</span>
+                    <div className="flex items-center gap-6 text-[10px] text-gray-400">
+                      <span>%</span>
+                      <span>KEYWORDS</span>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-100 text-xs">
+                    {[
+                      { label: 'TOP 1', color: 'bg-rose-500' },
+                      { label: 'TOP 2-3', color: 'bg-rose-500' },
+                      { label: 'TOP 4-5', color: 'bg-rose-500' },
+                      { label: 'TOP 6-10', color: 'bg-rose-500' },
+                      { label: 'TOP 11-30', color: 'bg-rose-500' },
+                      { label: 'TOP 31-100', color: 'bg-rose-500' },
+                      { label: '>100', color: 'bg-rose-500' },
+                    ].map((row, i) => (
+                      <div key={i} className="py-1.5 flex items-center justify-between text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${row.color}`} />
+                          <span className="font-medium text-gray-800">{row.label}</span>
+                        </div>
+                        <div className="flex items-center gap-10 text-right font-medium">
+                          <span className="w-8">0%</span>
+                          <span className="w-8 text-gray-900 font-bold">0</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-700 border-b border-gray-200 pb-2">
+                    <span>UNCHANGED (0)</span>
+                    <div className="flex items-center gap-6 text-[10px] text-gray-400">
+                      <span>%</span>
+                      <span>KEYWORDS</span>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-100 text-xs">
+                    {[
+                      { label: 'TOP 1', color: 'bg-gray-400' },
+                      { label: 'TOP 2-3', color: 'bg-gray-400' },
+                      { label: 'TOP 4-5', color: 'bg-gray-400' },
+                      { label: 'TOP 6-10', color: 'bg-gray-400' },
+                      { label: 'TOP 11-30', color: 'bg-gray-400' },
+                      { label: 'TOP 31-100', color: 'bg-gray-400' },
+                      { label: '>100', color: 'bg-gray-400' },
+                    ].map((row, i) => (
+                      <div key={i} className="py-1.5 flex items-center justify-between text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${row.color}`} />
+                          <span className="font-medium text-gray-800">{row.label}</span>
+                        </div>
+                        <div className="flex items-center gap-10 text-right font-medium">
+                          <span className="w-8">0%</span>
+                          <span className="w-8 text-gray-900 font-bold">0</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-4">
+                <div className="flex items-center gap-1.5 border-b border-gray-100 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900">Competitors</h3>
+                  <span className="cursor-help text-gray-400 text-xs">ⓘ</span>
+                </div>
+                <div className="py-14 text-center space-y-2">
+                  <Search className="w-8 h-8 text-gray-400 mx-auto" />
+                  <div className="text-xs font-bold text-gray-800">No data</div>
+                  <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
+                    The system has no search engine results data available for this day
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-4">
+                <div className="flex items-center gap-1.5 border-b border-gray-100 pb-3">
+                  <h3 className="text-sm font-bold text-gray-900">Distribution of competitors</h3>
+                  <span className="cursor-help text-gray-400 text-xs">ⓘ</span>
+                </div>
+                <div className="py-14 text-center space-y-2">
+                  <Search className="w-8 h-8 text-gray-400 mx-auto" />
+                  <div className="text-xs font-bold text-gray-800">No data</div>
+                  <p className="text-[11px] text-gray-400 max-w-xs mx-auto">
+                    The system has no search engine results data available for this day
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Notes Section matching Screenshot 2 */}
+            <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <h3 className="text-xl font-bold text-gray-900">Notes</h3>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateNoteOpen(true)}
+                  className="bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>CREATE A NOTE</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="text-[11px] text-gray-400 font-bold uppercase tracking-wider border-b border-gray-100">
+                    <tr>
+                      <th className="py-2.5 px-3">NOTES</th>
+                      <th className="py-2.5 px-3 w-36">DATE</th>
+                      <th className="py-2.5 px-3 w-44">CATEGORY</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-gray-700">
+                    {SUMMARY_NOTES.map((note) => {
+                      const isExpanded = expandedNoteIds.includes(note.id);
+                      return (
+                        <tr key={note.id} className="hover:bg-gray-50/70 transition-colors">
+                          <td className="py-3 px-3 space-y-1 align-top">
+                            <div className="font-bold text-gray-900 text-xs">{note.title}</div>
+                            <p className="text-gray-600 text-[11px] leading-relaxed max-w-2xl">
+                              {isExpanded ? note.fullDesc : note.shortDesc}{' '}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isExpanded) {
+                                    setExpandedNoteIds((prev) => prev.filter((id) => id !== note.id));
+                                  } else {
+                                    setExpandedNoteIds((prev) => [...prev, note.id]);
+                                  }
+                                }}
+                                className="text-[#1B66FF] font-medium hover:underline cursor-pointer"
+                              >
+                                {isExpanded ? 'Show less' : 'Show more'}
+                              </button>
+                            </p>
+                          </td>
+                          <td className="py-3 px-3 text-gray-500 font-medium text-xs align-top whitespace-nowrap">
+                            {note.date}
+                          </td>
+                          <td className="py-3 px-3 text-xs align-top">
+                            <div className="flex items-center gap-1.5 font-medium text-gray-800">
+                              <span className="font-bold text-blue-600 text-xs">G</span>
+                              <span>{note.category}</span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* View all (45) button matching Screenshot 2 */}
+              <div className="pt-2 flex justify-start">
+                <Link
+                  href="/notes"
+                  className="px-4 py-2 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-bold text-gray-700 flex items-center gap-1.5 shadow-2xs transition-colors uppercase tracking-wider"
+                >
+                  <span>VIEW ALL (45)</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Footer matching Screenshot 4 */}
+        <footer className="mt-8 pt-4 pb-4 border-t border-gray-200/90 flex items-center justify-between text-xs text-gray-500 w-full select-none">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-[#0B69FF] rounded-xs flex items-center justify-center text-white font-black text-[10px]">
+              ⚡
+            </div>
+            <span className="font-bold text-gray-900 tracking-tight text-sm">SE Ranking</span>
+          </div>
+          <div className="flex items-center gap-6 text-xs text-gray-600 font-medium">
+            <button
+              type="button"
+              onClick={() => setIsBugModalOpen(true)}
+              className="hover:text-[#0B69FF] transition-colors cursor-pointer"
+            >
+              Report a bug
+            </button>
+            <Link href="/affiliate" className="hover:text-[#0B69FF] transition-colors">
+              Affiliates
+            </Link>
+            <Link href="/api-docs" className="hover:text-[#0B69FF] transition-colors">
+              API
+            </Link>
+            <Link href="/whats-new" className="hover:text-[#0B69FF] transition-colors">
+              What's new
+            </Link>
+            <Link href="/help" className="hover:text-[#0B69FF] transition-colors">
+              Help
+            </Link>
+          </div>
+        </footer>
+      </div>
+
+      {/* Floating "+ CREATE A NOTE" Button matching Screenshot 5 (only on Summary view) */}
+      {activeTab === 'summary' && (
+        <div className="fixed bottom-6 right-6 z-40">
           <button
-            onClick={() => alert('Rechecking live ranking positions across Google India...')}
-            className="bg-[#0B69FF] hover:bg-[#0052D4] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+            type="button"
+            onClick={() => setIsCreateNoteOpen(true)}
+            className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold rounded-lg shadow-xl flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 uppercase tracking-wider"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>RECHECK DATA</span>
-            <ChevronDown className="w-3 h-3 ml-0.5" />
+            <Plus className="w-4 h-4 stroke-[3]" />
+            <span>CREATE A NOTE</span>
           </button>
         </div>
+      )}
 
-        {/* Position Filter Pills Row (Screenshot 1: ALL, TOP 1, TOP 3, TOP 5, TOP 10, TOP 30, >100) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-gray-200 rounded-xl p-2.5 shadow-2xs">
-          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold">
-            <button
-              onClick={() => setSelectedRange('all')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'all'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              ALL <span className="font-normal">({keywords.length})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('top1')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'top1'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              TOP 1 <span className="font-normal">({countTop1})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('top3')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'top3'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              TOP 3 <span className="font-normal">({countTop3})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('top5')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'top5'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              TOP 5 <span className="font-normal">({countTop5})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('top10')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'top10'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              TOP 10 <span className="font-normal">({countTop10})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('top30')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'top30'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              TOP 30 <span className="font-normal">({countTop30})</span>
-            </button>
-            <button
-              onClick={() => setSelectedRange('over100')}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                selectedRange === 'over100'
-                  ? 'bg-[#394757] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              &gt;100 <span className="font-normal">({countOver100})</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs text-gray-500 font-semibold pr-2">
-            <div>Position range: <span className="text-gray-800 font-bold">—</span></div>
-            <div className="flex items-center gap-1.5">
-              <span>Changes:</span>
-              <span className="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                +{keywords.filter((k) => k.change > 0).length}
-              </span>
-              <span className="text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                -{keywords.filter((k) => k.change < 0).length}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Insights Section Card (Screenshot 1) */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              <h3 className="text-xs font-bold text-gray-800">Insights</h3>
-              <Info className="w-3 h-3 text-gray-400" />
-            </div>
-            <button
-              onClick={() => setIsInsightsOpen(!isInsightsOpen)}
-              className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
-            >
-              {isInsightsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
-          </div>
-
-          <div className="mt-3 bg-purple-50/40 border border-purple-100 rounded-lg p-3 text-xs">
-            <div className="font-bold text-gray-900">0 pages recommended for monitoring</div>
-            <p className="text-gray-600 text-[11px] mt-1 leading-relaxed">
-              We found 0 ranked pages for which you are not tracking changes. Monitor what affects your visibility. Then we can reveal the changes found when positions fall.{' '}
+      {/* CREATE A NOTE MODAL */}
+      {isCreateNoteOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <StickyNote className="w-4 h-4 text-[#00A86B]" />
+                <h3 className="text-base font-bold text-gray-900">Create a Note</h3>
+              </div>
               <button
-                onClick={() => alert('Starting automatic URL change monitoring...')}
-                className="text-blue-600 font-bold hover:underline cursor-pointer"
+                type="button"
+                onClick={() => setIsCreateNoteOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
               >
-                Start monitoring
+                <X className="w-5 h-5" />
               </button>
-            </p>
-            <div className="mt-2">
-              <span className="text-[10px] bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-semibold">
-                Content
-              </span>
             </div>
-          </div>
 
-          <div className="mt-3 flex justify-center">
-            <button
-              onClick={() => setIsInsightsOpen(!isInsightsOpen)}
-              className="text-xs font-bold text-[#0B69FF] hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <span>View more insights</span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-          </div>
-        </div>
-
-        {/* Google India Summary Box (Screenshot 1 & 2) */}
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-2xs relative">
-          {/* Rankings Table Tour Popup (Screenshot 1 exact match) */}
-          {showTourPopup && (
-            <div className="absolute top-12 left-1/2 -translate-x-1/2 z-30 bg-[#232E3D] text-white p-4 rounded-xl shadow-2xl max-w-sm w-full border border-gray-700 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-bold text-white">Rankings table</h4>
-                <button
-                  onClick={() => setShowTourPopup(false)}
-                  className="text-gray-400 hover:text-white p-0.5 cursor-pointer text-sm"
-                >
-                  &times;
-                </button>
-              </div>
-              <p className="text-[11px] text-gray-300 leading-relaxed">
-                Here you can find important information on rankings that includes ranking jumps and drops, target URL and its ranking dynamics. By clicking on a metric, you will see a cached copy of the SERP for the day the rankings were checked.
-              </p>
-              <div className="flex items-center justify-between mt-4 pt-2 border-t border-gray-700 text-xs">
-                <span className="text-[10px] text-gray-400">{tourStep} of 3</span>
-                <button
-                  onClick={() => {
-                    if (tourStep < 3) setTourStep(tourStep + 1);
-                    else setShowTourPopup(false);
-                  }}
-                  className="px-3 py-1 bg-[#0B69FF] hover:bg-[#0052D4] text-white text-[11px] font-bold rounded-md transition-colors cursor-pointer"
-                >
-                  {tourStep < 3 ? 'NEXT ›' : 'GOT IT'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-base leading-none">🇮🇳</span>
-            <h4 className="text-xs font-bold text-gray-900">Google India</h4>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 text-xs">
-            <div className="border-r border-gray-100 pr-2">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">AVERAGE POSITION</div>
-              <div className="text-xl font-extrabold text-gray-900 mt-0.5">{avgPosition}</div>
-            </div>
-            <div className="border-r border-gray-100 pr-2">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">TRAFFIC FORECAST</div>
-              <div className="text-xl font-extrabold text-gray-900 mt-0.5">{totalTraffic}</div>
-            </div>
-            <div className="border-r border-gray-100 pr-2">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">SEARCH VISIBILITY</div>
-              <div className="text-xl font-extrabold text-gray-900 mt-0.5">{searchVisibility}%</div>
-            </div>
-            <div className="border-r border-gray-100 pr-2">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">SERP FEATURES</div>
-              <div className="text-xl font-extrabold text-gray-900 mt-0.5">
-                {keywords.length > 0 ? 12 : 0}
-              </div>
-            </div>
-            <div className="border-r border-gray-100 pr-2">
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">% IN TOP 10</div>
-              <div className="text-xl font-extrabold text-gray-900 mt-0.5">
-                {keywords.length > 0 ? `${((countTop10 / keywords.length) * 100).toFixed(0)}%` : '0%'}
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] text-gray-500 uppercase font-semibold">SELECTED KEYWORDS</div>
-              <div className="text-[11px] text-gray-400 mt-1 leading-tight">
-                Select keywords in the table to compare their rankings.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Keywords Table Container & Filter Bar (Screenshot 1 & 2) */}
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
-          {/* Table Toolbar */}
-          <div className="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-gray-50/50">
-            <div className="flex items-center gap-2">
-              <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1 flex items-center gap-1.5 text-xs font-semibold text-gray-700">
-                <span>🇮🇳 India</span>
-                <span className="text-[10px] text-gray-400 font-normal">EN</span>
-                <ChevronDown className="w-3 h-3 text-gray-400" />
-              </div>
-
-              {/* Keyword Search Input */}
-              <div className="relative">
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Date</label>
                 <input
                   type="text"
-                  placeholder="Search"
-                  value={searchFilter}
-                  onChange={(e) => setSearchFilter(e.target.value)}
-                  className="bg-white border border-gray-300 rounded-md pl-7 pr-3 py-1 text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:ring-1 focus:ring-blue-500 w-44"
+                  value={noteDate}
+                  onChange={(e) => setNoteDate(e.target.value)}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-xs font-medium"
                 />
-                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2 top-2" />
               </div>
 
-              {/* Groups Dropdown */}
-              <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1 flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
-                <span>📁 Groups</span>
-                <ChevronDown className="w-3 h-3 text-gray-400" />
+              <div>
+                <label className="block text-gray-700 font-semibold mb-1">Note text *</label>
+                <textarea
+                  rows={4}
+                  value={noteText}
+                  onChange={(e) => setNoteText(e.target.value)}
+                  placeholder="e.g. Launched new product landing page, started backlink campaign..."
+                  className="w-full p-3 border border-gray-300 rounded-lg text-xs text-gray-800 focus:outline-hidden focus:border-[#00A86B]"
+                />
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
               <button
-                onClick={handleAddSuggestions}
-                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded border border-blue-200 transition-colors cursor-pointer"
-                title="Populate with high potential sample keywords"
+                type="button"
+                onClick={() => setIsCreateNoteOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
               >
-                + Quick Sample Data
+                Cancel
               </button>
               <button
-                onClick={() => alert('Toggling duplicate view...')}
-                className="p-1.5 border border-gray-300 rounded hover:bg-gray-100 text-gray-600 cursor-pointer"
-                title="Copy view"
+                type="button"
+                onClick={() => {
+                  if (noteText.trim()) {
+                    showToast('Note created successfully!');
+                    setNoteText('');
+                    setIsCreateNoteOpen(false);
+                  }
+                }}
+                className="px-5 py-2 bg-[#00A86B] hover:bg-[#00925d] text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer uppercase tracking-wider"
               >
-                <Table className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => alert('Advanced SERP filters...')}
-                className="p-1.5 border border-gray-300 rounded hover:bg-gray-100 text-gray-600 cursor-pointer"
-                title="Filters"
-              >
-                <Filter className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => alert('Configure columns...')}
-                className="p-1.5 border border-gray-300 rounded hover:bg-gray-100 text-gray-600 cursor-pointer"
-                title="Columns"
-              >
-                <Columns className="w-3.5 h-3.5" />
+                Save Note
               </button>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Table Content or Empty State (Screenshot 1 & 2 exact match) */}
-          {keywords.length === 0 ? (
-            <div className="py-16 text-center space-y-3">
-              <div className="w-14 h-14 rounded-full bg-blue-50 text-[#0B69FF] flex items-center justify-center mx-auto shadow-2xs">
-                <Search className="w-7 h-7" />
+      {/* CONNECT GOOGLE ANALYTICS MODAL */}
+      {isConnectGAOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <span className="text-amber-500">📊</span>
+                Connect Google Analytics 4
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsConnectGAOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Connect your GA4 property to view live organic sessions, conversions, and revenue directly next to keyword ranking movements.
+            </p>
+            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-xs text-amber-900 font-medium">
+              Property: <strong>{domain.replace(/^https?:\/\//, '')} (GA4-48291054)</strong>
+            </div>
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsConnectGAOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  showToast('Google Analytics 4 connected!');
+                  setIsConnectGAOpen(false);
+                }}
+                className="px-5 py-2 bg-[#1B66FF] hover:bg-[#0B59EE] text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer"
+              >
+                Connect Property
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RANKING SETTINGS MODAL */}
+      {isRankingSettingsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-[#453768] text-white rounded-lg flex items-center justify-center">
+                  <Settings className="w-4 h-4" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900">Rankings Settings</h3>
               </div>
-              <h3 className="text-base font-bold text-gray-800">No keywords</h3>
-              <p className="text-xs text-gray-500 max-w-sm mx-auto leading-relaxed">
-                You have not added any keywords to this project. Add a few keywords to see the rankings of your site.
+              <button
+                type="button"
+                onClick={() => setIsRankingSettingsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs text-gray-700">
+              <div>
+                <label className="block font-bold text-gray-800 mb-1">Rank Checking Frequency</label>
+                <select
+                  value={rankingFrequency}
+                  onChange={(e) => setRankingFrequency(e.target.value)}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-white text-xs text-gray-900"
+                >
+                  <option value="Daily">Daily</option>
+                  <option value="Every 3 days">Every 3 days</option>
+                  <option value="Weekly">Weekly (On Mondays)</option>
+                  <option value="Manual">Manual check only</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-gray-800 mb-1">Search Volume Source</label>
+                <select
+                  value={searchVolumeSource}
+                  onChange={(e) => setSearchVolumeSource(e.target.value)}
+                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-white text-xs text-gray-900"
+                >
+                  <option value="Google Keyword Planner">Google Keyword Planner (Default)</option>
+                  <option value="SE Ranking Database">SE Ranking Dynamic Regional DB</option>
+                  <option value="Blended">Blended (Search Volume + Click Potential)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2 pt-2 border-t border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={trackSerpFeatures}
+                    onChange={(e) => setTrackSerpFeatures(e.target.checked)}
+                    className="rounded text-[#0B69FF] w-4 h-4"
+                  />
+                  <span>Track SERP features (Featured Snippets, People Also Ask, Local Pack)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={exactMatchMode}
+                    onChange={(e) => setExactMatchMode(e.target.checked)}
+                    className="rounded text-[#0B69FF] w-4 h-4"
+                  />
+                  <span>Exact URL matching mode (ignore subdomains and subpaths)</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="pt-3 flex items-center justify-end gap-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setIsRankingSettingsModalOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsRankingSettingsModalOpen(false);
+                  showToast('Rankings settings saved successfully!');
+                }}
+                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer"
+              >
+                Save Settings
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* High-Potential Keywords Modal */}
+      {isHighPotentialModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#0B69FF]" />
+                <h3 className="font-bold text-sm text-gray-900">High-Potential Keywords for {domain}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsHighPotentialModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4 text-xs">
+              <p className="text-gray-500 text-xs">
+                Select high search volume, low competition search terms with commercial intent:
               </p>
-              <div className="flex items-center justify-center gap-2 pt-2">
-                <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="bg-[#00A86B] hover:bg-[#008f5a] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>ADD KEYWORDS</span>
-                </button>
-                <button
-                  onClick={handleAddSuggestions}
-                  className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg shadow-2xs transition-colors cursor-pointer uppercase tracking-wider"
-                >
-                  FIND HIGH-POTENTIAL KEYWORDS
-                </button>
+
+              <div className="divide-y divide-gray-100 border border-gray-200 rounded-xl overflow-hidden max-h-72 overflow-y-auto">
+                {HIGH_POTENTIAL_KEYWORDS.map((item) => (
+                  <label
+                    key={item.keyword}
+                    className="p-3 flex items-center justify-between hover:bg-blue-50/50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <input
+                        type="checkbox"
+                        checked={selectedHighPotential.includes(item.keyword)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedHighPotential((prev) => [...prev, item.keyword]);
+                          } else {
+                            setSelectedHighPotential((prev) => prev.filter((k) => k !== item.keyword));
+                          }
+                        }}
+                        className="w-4 h-4 rounded text-[#0B69FF]"
+                      />
+                      <div>
+                        <div className="font-bold text-gray-900">{item.keyword}</div>
+                        <div className="text-[11px] text-gray-400">{item.intent} · CPC: {item.cpc}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-[#0B69FF]">{item.volume.toLocaleString()} vol</div>
+                      <div className="text-[10px] font-semibold text-emerald-600">KD {item.kd}%</div>
+                    </div>
+                  </label>
+                ))}
               </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-gray-50 border-b border-gray-200 text-gray-500 uppercase font-semibold text-[11px]">
-                  <tr>
-                    <th className="px-4 py-3">Keyword</th>
-                    <th className="px-4 py-3">Rank</th>
-                    <th className="px-4 py-3">Change</th>
-                    <th className="px-4 py-3">Search Volume</th>
-                    <th className="px-4 py-3">CPC</th>
-                    <th className="px-4 py-3">Difficulty</th>
-                    <th className="px-4 py-3">Ranked URL</th>
-                    <th className="px-4 py-3 text-right">Checked</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-gray-700">
-                  {filteredKeywords.map((k) => (
-                    <tr key={k.id} className="hover:bg-gray-50/70 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-gray-900 flex items-center gap-2">
-                        <span>{k.keyword}</span>
-                        {k.rank <= 3 && (
-                          <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
-                            Top 3
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span
-                          className={`font-bold px-2 py-0.5 rounded text-xs ${
-                            k.rank <= 3
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : k.rank <= 10
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          #{k.rank}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        {k.change > 0 ? (
-                          <span className="text-emerald-600 font-bold flex items-center gap-0.5">
-                            <TrendingUp className="w-3 h-3" /> +{k.change}
-                          </span>
-                        ) : k.change < 0 ? (
-                          <span className="text-rose-600 font-bold flex items-center gap-0.5">
-                            <TrendingDown className="w-3 h-3" /> {k.change}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400 font-medium">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-gray-700 font-medium">{k.volume.toLocaleString()}</td>
-                      <td className="px-4 py-3 text-gray-700 font-medium">{k.cpc}</td>
-                      <td className="px-4 py-3">
-                        <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-[11px] font-semibold">
-                          {k.difficulty}%
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-blue-600 hover:underline truncate max-w-xs cursor-pointer">
-                        {k.url}
-                      </td>
-                      <td className="px-4 py-3 text-right text-gray-400">{k.dateChecked}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
 
-          {/* Table Legend Footer (Screenshot 1 & 2 exact match) */}
-          <div className="p-3 border-t border-gray-200 bg-gray-50 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
-            <div className="flex flex-wrap items-center gap-4 text-[11px]">
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-blue-500" /> Entered Top 10
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-500" /> Left Top 10
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> In Top 10
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-purple-500" /> Entered Top 100
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-[11px]">View on page:</span>
-              <div className="bg-white border border-gray-300 rounded px-2 py-0.5 text-xs text-gray-700 flex items-center gap-1">
-                <span>100</span>
-                <ChevronDown className="w-3 h-3 text-gray-400" />
+              <div className="pt-2 flex items-center justify-between border-t border-gray-100">
+                <span className="text-gray-500 text-xs">
+                  {selectedHighPotential.length} keywords selected
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsHighPotentialModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={addSelectedHighPotential}
+                    disabled={selectedHighPotential.length === 0}
+                    className="px-5 py-2 bg-[#00A86B] hover:bg-[#00925d] disabled:opacity-50 text-white rounded-lg font-bold shadow-2xs transition-colors cursor-pointer"
+                  >
+                    Add Selected to Tracking
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Add Keywords Modal */}
       {isAddModalOpen && (
@@ -675,10 +2370,11 @@ export default function RankingsPage() {
                 Add Keywords to Track
               </h3>
               <button
+                type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 text-lg cursor-pointer"
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
               >
-                &times;
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -690,15 +2386,15 @@ export default function RankingsPage() {
                 <textarea
                   rows={6}
                   required
-                  placeholder={`zoho social\nsocial media scheduler\ninstagram post manager\nbuffer alternative\nhootsuite vs zoho social`}
+                  placeholder={`work composer\nemployee tracking software\ntime tracking software\nremote team management\nactivity monitoring`}
                   value={keywordInput}
                   onChange={(e) => setKeywordInput(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:ring-2 focus:ring-[#00A86B] font-mono leading-relaxed"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-hidden focus:border-[#00A86B] font-mono leading-relaxed"
                 />
               </div>
 
               <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-[11px] text-blue-900 leading-relaxed">
-                ℹ️ Positions will be scraped in real time for <strong>Google India (en)</strong>. Daily historical position tracking will activate immediately.
+                ℹ️ Positions will be tracked in real time for <strong>Google India (EN)</strong>. Daily historical position tracking will activate immediately.
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -720,6 +2416,116 @@ export default function RankingsPage() {
           </div>
         </div>
       )}
+
+      {/* Looker Studio Modal */}
+      {isDataStudioOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900">Google Looker Studio Connector</h3>
+              <button
+                type="button"
+                onClick={() => setIsDataStudioOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Export and visualize your live SE Ranking keyword positions and historical trends directly in Google Looker Studio reports.
+            </p>
+            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs font-mono break-all text-gray-700">
+              https://lookerstudio.google.com/datasources/create?connectorId=se_ranking_12960641
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsDataStudioOpen(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('https://lookerstudio.google.com/datasources/create?connectorId=se_ranking_12960641');
+                  showToast('Connector link copied!');
+                  setIsDataStudioOpen(false);
+                }}
+                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white rounded-lg text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Copy Connector Link
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Guest Link Modal */}
+      {isGuestLinkOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h3 className="text-base font-bold text-gray-900">Get access to guest links</h3>
+              <button
+                type="button"
+                onClick={() => setIsGuestLinkOpen(false)}
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Share this link with your clients or team members to let them view website rankings without logging into the system.
+            </p>
+            <div className="p-3 bg-[#E6F4EA]/70 border border-[#CEEAD6] text-[#137333] rounded-lg flex items-center justify-between text-xs">
+              <span className="truncate font-mono mr-2">
+                https://online.seranking.com/guest.html?site_id=12960641&amp;hv=e8a49...
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText('https://online.seranking.com/guest.html?site_id=12960641');
+                  showToast('Guest link copied to clipboard!');
+                }}
+                className="flex items-center gap-1.5 text-[#0B69FF] font-semibold hover:underline shrink-0 cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                <span>Copy link</span>
+              </button>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsGuestLinkOpen(false)}
+                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white rounded-lg text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Bug Modal */}
+      <ReportBugModal
+        isOpen={isBugModalOpen}
+        onClose={() => setIsBugModalOpen(false)}
+      />
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+      />
     </div>
+  );
+}
+
+export default function RankingsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Loading rankings...</div>}>
+      <RankingsPageContent />
+    </Suspense>
   );
 }

@@ -18,6 +18,9 @@ import {
   X,
   Check,
   Info,
+  Copy,
+  CheckSquare,
+  Square,
 } from 'lucide-react';
 import {
   LineChart,
@@ -46,6 +49,34 @@ export default function ProjectsDashboardPage() {
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [isRecheckOpen, setIsRecheckOpen] = useState(false);
   const [hoveredRecheckMenu, setHoveredRecheckMenu] = useState<'rankings' | 'search_volume' | null>(null);
+  const [isRechecking, setIsRechecking] = useState(false);
+  const [recheckToast, setRecheckToast] = useState<string | null>(null);
+
+  // Group by: DAYS | WEEKS | MONTHS
+  const [groupBy, setGroupBy] = useState<'DAYS' | 'WEEKS' | 'MONTHS'>('DAYS');
+  const [isGroupByOpen, setIsGroupByOpen] = useState(false);
+
+  // Prompt hover tooltip
+  const [hoveredPromptTab, setHoveredPromptTab] = useState<'mention' | 'link' | null>(null);
+
+  // Columns visibility matching Screenshot 1
+  const [visibleColumns, setVisibleColumns] = useState({
+    topRanks: true, // TOP 5 / 10 / 30
+    keywords: true,
+    prompts: true,
+    avgPosition: true,
+    trafficForecast: false,
+    searchVisibility: false,
+    top10Percent: false,
+    mentionPresence: false,
+    linkPresence: false,
+  });
+
+  const [isColumnsOpen, setIsColumnsOpen] = useState(false);
+  const [isCopyOpen, setIsCopyOpen] = useState(false);
+  const [isCopyTooltipHovered, setIsCopyTooltipHovered] = useState(false);
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [copyToast, setCopyToast] = useState<string | null>(null);
 
   // Dashboard Settings Modal State (matches screenshots 1-5)
   const [isDashboardSettingsOpen, setIsDashboardSettingsOpen] = useState(false);
@@ -82,22 +113,149 @@ export default function ProjectsDashboardPage() {
   const currentDomain = activeProject?.domain || (projects[0]?.domain ?? 'https://www.workcomposer.com/');
   const currentDomainFormatted = currentDomain.startsWith('http') ? currentDomain : `https://${currentDomain}/`;
 
-  // Empty trend grid lines matching screenshot
-  const chartData = [
-    { date: 'Sep 19', pos: null },
-    { date: 'Sep 20', pos: null },
-    { date: 'Sep 21', pos: null },
-    { date: 'Sep 22', pos: null },
-    { date: 'Sep 23', pos: null },
-    { date: 'Sep 24', pos: null },
-    { date: 'Sep 25', pos: null },
-  ];
+  // Dynamic chart dates based on groupBy
+  const chartData =
+    groupBy === 'WEEKS'
+      ? [
+          { date: 'Week 35', pos: null },
+          { date: 'Week 36', pos: null },
+          { date: 'Week 37', pos: null },
+          { date: 'Week 38', pos: null },
+          { date: 'Week 39', pos: null },
+        ]
+      : groupBy === 'MONTHS'
+      ? [
+          { date: 'May 2026', pos: null },
+          { date: 'Jun 2026', pos: null },
+          { date: 'Jul 2026', pos: null },
+          { date: 'Aug 2026', pos: null },
+          { date: 'Sep 2026', pos: null },
+        ]
+      : [
+          { date: 'Sep 19', pos: null },
+          { date: 'Sep 20', pos: null },
+          { date: 'Sep 21', pos: null },
+          { date: 'Sep 22', pos: null },
+          { date: 'Sep 23', pos: null },
+          { date: 'Sep 24', pos: null },
+          { date: 'Sep 25', pos: null },
+        ];
 
   const filteredProjects = projects.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.domain.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const isAllSelected =
+    filteredProjects.length > 0 && selectedRowIds.length === filteredProjects.length;
+
+  const handleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedRowIds([]);
+    } else {
+      setSelectedRowIds(filteredProjects.map((p) => p.id));
+    }
+  };
+
+  const handleToggleRow = (id: string) => {
+    setSelectedRowIds((prev) =>
+      prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
+    );
+  };
+
+  const handleRecheck = (type: 'rankings' | 'search_volume', scope: 'all' | 'selected') => {
+    setIsRecheckOpen(false);
+    setHoveredRecheckMenu(null);
+    setIsRechecking(true);
+    const count = scope === 'selected' ? selectedRowIds.length || 1 : filteredProjects.length || 1;
+    const label = type === 'rankings' ? 'rankings' : 'search volume';
+    setRecheckToast(`Rechecking ${label} for ${count} website${count > 1 ? 's' : ''}...`);
+
+    setTimeout(() => {
+      setIsRechecking(false);
+      setRecheckToast(`Updated ${label} data successfully!`);
+      setTimeout(() => setRecheckToast(null), 3000);
+    }, 1800);
+  };
+
+  const handleCopyTable = () => {
+    try {
+      const headers = ['Website'];
+      if (visibleColumns.topRanks) headers.push('TOP 5 / 10 / 30');
+      if (visibleColumns.keywords) headers.push('Keywords');
+      if (visibleColumns.prompts) headers.push('Prompts');
+      if (visibleColumns.avgPosition) headers.push('Avg. Position');
+      if (visibleColumns.trafficForecast) headers.push('Traffic forecast');
+      if (visibleColumns.searchVisibility) headers.push('Search visibility');
+      if (visibleColumns.top10Percent) headers.push('% in Top 10');
+      if (visibleColumns.mentionPresence) headers.push('Mention Presence');
+      if (visibleColumns.linkPresence) headers.push('Link Presence');
+
+      const rows = filteredProjects.map((p) => {
+        const row = [p.domain];
+        if (visibleColumns.topRanks) row.push('0/0/0');
+        if (visibleColumns.keywords) row.push('Find');
+        if (visibleColumns.prompts) row.push('Add');
+        if (visibleColumns.avgPosition) row.push('-');
+        if (visibleColumns.trafficForecast) row.push('0');
+        if (visibleColumns.searchVisibility) row.push('0%');
+        if (visibleColumns.top10Percent) row.push('0%');
+        if (visibleColumns.mentionPresence) row.push('N/A');
+        if (visibleColumns.linkPresence) row.push('N/A');
+        return row.join('\t');
+      });
+
+      const tsv = [headers.join('\t'), ...rows].join('\n');
+      navigator.clipboard.writeText(tsv);
+      setCopyToast('Table copied to clipboard');
+      setTimeout(() => setCopyToast(null), 3000);
+    } catch {
+      setCopyToast('Failed to copy');
+      setTimeout(() => setCopyToast(null), 3000);
+    }
+    setIsCopyOpen(false);
+  };
+
+  const handleCopyRows = () => {
+    if (selectedRowIds.length === 0) return;
+    try {
+      const headers = ['Website'];
+      if (visibleColumns.topRanks) headers.push('TOP 5 / 10 / 30');
+      if (visibleColumns.keywords) headers.push('Keywords');
+      if (visibleColumns.prompts) headers.push('Prompts');
+      if (visibleColumns.avgPosition) headers.push('Avg. Position');
+      if (visibleColumns.trafficForecast) headers.push('Traffic forecast');
+      if (visibleColumns.searchVisibility) headers.push('Search visibility');
+      if (visibleColumns.top10Percent) headers.push('% in Top 10');
+      if (visibleColumns.mentionPresence) headers.push('Mention Presence');
+      if (visibleColumns.linkPresence) headers.push('Link Presence');
+
+      const selected = filteredProjects.filter((p) => selectedRowIds.includes(p.id));
+      const rows = selected.map((p) => {
+        const row = [p.domain];
+        if (visibleColumns.topRanks) row.push('0/0/0');
+        if (visibleColumns.keywords) row.push('Find');
+        if (visibleColumns.prompts) row.push('Add');
+        if (visibleColumns.avgPosition) row.push('-');
+        if (visibleColumns.trafficForecast) row.push('0');
+        if (visibleColumns.searchVisibility) row.push('0%');
+        if (visibleColumns.top10Percent) row.push('0%');
+        if (visibleColumns.mentionPresence) row.push('N/A');
+        if (visibleColumns.linkPresence) row.push('N/A');
+        return row.join('\t');
+      });
+
+      const tsv = [headers.join('\t'), ...rows].join('\n');
+      navigator.clipboard.writeText(tsv);
+      setCopyToast(`${selected.length} row${selected.length > 1 ? 's' : ''} copied to clipboard`);
+      setTimeout(() => setCopyToast(null), 3000);
+    } catch {
+      setCopyToast('Failed to copy');
+      setTimeout(() => setCopyToast(null), 3000);
+    }
+    setIsCopyOpen(false);
+  };
 
   const handleExport = () => {
     const headers = ['Website', 'Top 5/10/30', 'Keywords', 'Prompts', 'Avg Position'];
@@ -122,7 +280,8 @@ export default function ProjectsDashboardPage() {
   return (
     <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 pb-16 select-none relative">
 
-      <div className="max-w-[1440px] mx-auto px-6 py-5 space-y-4">
+      <div className="max-w-[1440px] mx-auto px-6 py-4 space-y-4">
+
         {/* Top Feedback line matching Screenshot */}
         <div className="flex justify-end text-xs">
           <button
@@ -135,7 +294,7 @@ export default function ProjectsDashboardPage() {
         </div>
 
         {/* Action Header matching Screenshot */}
-        <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-gray-900">Active websites</h1>
             <span className="w-5 h-5 rounded-full bg-[#1E2532] text-white text-[11px] font-bold flex items-center justify-center">
@@ -171,19 +330,19 @@ export default function ProjectsDashboardPage() {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#20b26c] hover:bg-[#1ba061] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#20B26C] hover:bg-[#1BA061] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>CREATE PROJECT</span>
           </button>
 
-          {/* Recheck Data Dropdown matching Screenshot */}
-          <div className="relative">
+          {/* Recheck Data Dropdown matching Screenshot 1 & 2 */}
+          <div className="relative recheck-dropdown-container">
             <button
               onClick={() => setIsRecheckOpen(!isRecheckOpen)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0B69FF] hover:bg-[#0952C7] text-white text-xs font-bold rounded shadow-xs transition-colors cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRechecking ? 'animate-spin' : ''}`} />
               <span>RECHECK DATA</span>
               <ChevronDown className="w-3 h-3 ml-0.5" />
             </button>
@@ -193,32 +352,35 @@ export default function ProjectsDashboardPage() {
                 {/* Recheck rankings item */}
                 <div
                   onMouseEnter={() => setHoveredRecheckMenu('rankings')}
-                  className="relative px-3.5 py-2 hover:bg-gray-100 text-gray-800 flex items-center justify-between cursor-pointer font-medium"
+                  className={`relative px-3.5 py-2 text-gray-800 flex items-center justify-between cursor-pointer font-medium transition-colors ${
+                    hoveredRecheckMenu === 'rankings' ? 'bg-[#E8EEF8] text-[#0B69FF]' : 'hover:bg-gray-50'
+                  }`}
                 >
                   <span>Recheck rankings</span>
                   <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
 
-                  {/* Level 2 Flyout Menu */}
+                  {/* Level 2 Flyout Menu matching Screenshot 1 */}
                   {hoveredRecheckMenu === 'rankings' && (
-                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs">
-                      <div
-                        onClick={() => {
-                          alert('Recheck selected rankings initiated');
-                          setIsRecheckOpen(false);
-                        }}
-                        className="px-3 py-2 text-gray-400 hover:bg-gray-50 cursor-pointer"
+                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs animate-in fade-in duration-75">
+                      <button
+                        type="button"
+                        onClick={() => handleRecheck('rankings', 'selected')}
+                        disabled={selectedRowIds.length === 0}
+                        className={`w-full text-left px-3.5 py-2 transition-colors ${
+                          selectedRowIds.length > 0
+                            ? 'text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer'
+                            : 'text-gray-300 cursor-not-allowed'
+                        }`}
                       >
                         Recheck selected
-                      </div>
-                      <div
-                        onClick={() => {
-                          alert('Rechecking all rankings for active websites...');
-                          setIsRecheckOpen(false);
-                        }}
-                        className="px-3 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#2563eb] font-semibold cursor-pointer"
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRecheck('rankings', 'all')}
+                        className="w-full text-left px-3.5 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer transition-colors"
                       >
                         Recheck all
-                      </div>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -226,22 +388,35 @@ export default function ProjectsDashboardPage() {
                 {/* Recheck search volume item */}
                 <div
                   onMouseEnter={() => setHoveredRecheckMenu('search_volume')}
-                  className="relative px-3.5 py-2 hover:bg-gray-100 text-gray-800 flex items-center justify-between cursor-pointer font-medium"
+                  className={`relative px-3.5 py-2 text-gray-800 flex items-center justify-between cursor-pointer font-medium transition-colors ${
+                    hoveredRecheckMenu === 'search_volume' ? 'bg-[#E8EEF8] text-[#0B69FF]' : 'hover:bg-gray-50'
+                  }`}
                 >
                   <span>Recheck search volume</span>
                   <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
 
+                  {/* Level 2 Flyout Menu matching Screenshot 2 */}
                   {hoveredRecheckMenu === 'search_volume' && (
-                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs">
-                      <div
-                        onClick={() => {
-                          alert('Recheck search volume for all keywords initiated');
-                          setIsRecheckOpen(false);
-                        }}
-                        className="px-3 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#2563eb] font-semibold cursor-pointer"
+                    <div className="absolute top-0 left-full ml-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-40 text-xs animate-in fade-in duration-75">
+                      <button
+                        type="button"
+                        onClick={() => handleRecheck('search_volume', 'selected')}
+                        disabled={selectedRowIds.length === 0}
+                        className={`w-full text-left px-3.5 py-2 transition-colors ${
+                          selectedRowIds.length > 0
+                            ? 'text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer'
+                            : 'text-gray-300 cursor-not-allowed'
+                        }`}
                       >
-                        Recheck all keywords
-                      </div>
+                        Recheck selected
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRecheck('search_volume', 'all')}
+                        className="w-full text-left px-3.5 py-2 text-gray-800 hover:bg-blue-50/70 hover:text-[#0B69FF] font-semibold cursor-pointer transition-colors"
+                      >
+                        Recheck all
+                      </button>
                     </div>
                   )}
                 </div>
@@ -250,72 +425,133 @@ export default function ProjectsDashboardPage() {
           </div>
         </div>
 
-        {/* Metric Tabs Bar */}
-        <div className="border-b border-gray-200 pt-2">
-          <div className="flex items-center gap-6 overflow-x-auto text-[11.5px] font-bold tracking-wider text-gray-500 no-scrollbar">
-            {[
-              { id: 'avg_pos', label: 'AVERAGE POSITION' },
-              { id: 'traffic', label: 'TRAFFIC FORECAST' },
-              { id: 'visibility', label: 'SEARCH VISIBILITY' },
-              { id: 'top10', label: '% IN TOP 10' },
-              { id: 'mention', label: 'MENTION PRESENCE ✨' },
-              { id: 'link', label: 'LINK PRESENCE ✨' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveMetricTab(tab.id as any)}
-                className={`pb-2.5 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
-                  activeMetricTab === tab.id
-                    ? 'border-[#2563eb] text-[#2563eb]'
-                    : 'border-transparent hover:text-gray-900'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        {/* Metric Tabs Bar (Spaced across matching Screenshot 3) */}
+        <div className="border border-gray-200 rounded-t-lg bg-[#FAFBFD] flex items-stretch divide-x divide-gray-200 overflow-x-auto shadow-2xs mt-4">
+          {[
+            { id: 'avg_pos', label: 'AVERAGE POSITION' },
+            { id: 'traffic', label: 'TRAFFIC FORECAST' },
+            { id: 'visibility', label: 'SEARCH VISIBILITY' },
+            { id: 'top10', label: '% IN TOP 10' },
+            { id: 'mention', label: 'MENTION PRESENCE', hasSparkle: true },
+            { id: 'link', label: 'LINK PRESENCE', hasSparkle: true },
+          ].map((tab) => {
+            const isActive = activeMetricTab === tab.id;
+            return (
+              <div key={tab.id} className="relative flex-1 min-w-[170px]">
+                <button
+                  type="button"
+                  onClick={() => setActiveMetricTab(tab.id as any)}
+                  onMouseEnter={() => tab.hasSparkle && setHoveredPromptTab(tab.id as any)}
+                  onMouseLeave={() => setHoveredPromptTab(null)}
+                  className={`w-full py-3.5 px-4 text-center text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'bg-white text-[#0B69FF] font-extrabold shadow-xs'
+                      : 'text-[#5C6E82] hover:text-[#0B69FF] hover:bg-white/60'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  {tab.hasSparkle && (
+                    <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6] shrink-0" />
+                  )}
+                </button>
+                {isActive && (
+                  <div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-[#0B69FF]" />
+                )}
+
+                {/* Tooltip for LLM prompts */}
+                {tab.hasSparkle && hoveredPromptTab === tab.id && (
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#1E293B] text-white text-[11px] font-medium py-1 px-2.5 rounded shadow-xl whitespace-nowrap z-50 pointer-events-none flex flex-col items-center">
+                    <span>has LLM prompts</span>
+                    <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#1E293B] -mb-1 mt-0.5" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Time Filters Sub-bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500 font-semibold border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-4">
-            {(['WEEK', 'MONTH', '3 MONTHS', '6 MONTHS'] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setTimeRange(r)}
-                className={`hover:text-gray-900 cursor-pointer ${
-                  timeRange === r ? 'text-[#2563eb] font-bold' : ''
-                }`}
-              >
-                {r}
-              </button>
-            ))}
+        {/* Time Filters Sub-bar matching Screenshot 1 & 3 */}
+        <div className="pt-3 pb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#5C6E82] font-semibold border-b border-gray-100">
+          <div className="flex items-center gap-5">
+            {(['WEEK', 'MONTH', '3 MONTHS', '6 MONTHS'] as const).map((r) => {
+              const isActive = timeRange === r;
+              return (
+                <button
+                  key={r}
+                  onClick={() => setTimeRange(r)}
+                  className={`relative pb-2 cursor-pointer transition-colors ${
+                    isActive ? 'text-[#0B69FF] font-extrabold' : 'hover:text-gray-900'
+                  }`}
+                >
+                  <span>{r}</span>
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0B69FF]" />
+                  )}
+                </button>
+              );
+            })}
+
             <span className="text-gray-300">|</span>
-            <span className="flex items-center gap-1 cursor-pointer hover:text-gray-900">
-              GROUP BY: DAYS <ChevronDown className="w-3 h-3" />
-            </span>
+
+            {/* GROUP BY: DAYS / WEEKS / MONTHS dropdown matching user request */}
+            <div className="relative groupby-dropdown-container">
+              <button
+                type="button"
+                onClick={() => setIsGroupByOpen(!isGroupByOpen)}
+                className="flex items-center gap-1 cursor-pointer hover:text-gray-900 font-semibold"
+              >
+                <span>GROUP BY: <span className="text-[#0B69FF] font-bold">{groupBy}</span></span>
+                <ChevronDown className="w-3 h-3 text-gray-500" />
+              </button>
+
+              {isGroupByOpen && (
+                <div className="absolute top-full left-0 mt-1 w-32 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-30 text-xs animate-in fade-in duration-100">
+                  {(['DAYS', 'WEEKS', 'MONTHS'] as const).map((opt) => (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => {
+                        setGroupBy(opt);
+                        setIsGroupByOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1.5 hover:bg-blue-50/70 hover:text-[#0B69FF] transition-colors cursor-pointer ${
+                        groupBy === opt ? 'font-bold text-[#0B69FF] bg-blue-50/40' : 'text-gray-700'
+                      }`}
+                    >
+                      {opt.charAt(0) + opt.slice(1).toLowerCase()}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-bold">
-            {(['ALL', 'WEBSITES', 'GROUPS'] as const).map((view) => (
-              <button
-                key={view}
-                onClick={() => setActiveViewFilter(view)}
-                className={`hover:text-gray-900 cursor-pointer ${
-                  activeViewFilter === view ? 'text-[#2563eb]' : 'text-gray-500'
-                }`}
-              >
-                {view}
-              </button>
-            ))}
+          <div className="flex items-center gap-5 text-xs font-bold">
+            {(['ALL', 'WEBSITES', 'GROUPS'] as const).map((view) => {
+              const isActive = activeViewFilter === view;
+              return (
+                <button
+                  key={view}
+                  onClick={() => setActiveViewFilter(view)}
+                  className={`relative pb-2 cursor-pointer transition-colors ${
+                    isActive ? 'text-[#0B69FF] font-extrabold' : 'text-[#5C6E82] hover:text-gray-900'
+                  }`}
+                >
+                  <span>{view}</span>
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#0B69FF]" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Chart View with vertical AVERAGE POSITION label */}
+        {/* Chart View with vertical rotated label */}
         {displayCharts && (
           <div className="space-y-2">
             <div className="relative h-56 w-full pt-2 border border-gray-100 rounded-lg p-3 bg-white">
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-gray-400 tracking-wider">
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-gray-400 tracking-wider whitespace-nowrap">
                 {activeMetricTab === 'avg_pos'
                   ? 'AVERAGE POSITION'
                   : activeMetricTab === 'traffic'
@@ -348,7 +584,7 @@ export default function ProjectsDashboardPage() {
           </div>
         )}
 
-        {/* Search & Columns header */}
+        {/* Search, Copy & Columns header matching Screenshot 1 & 2 */}
         <div className="pt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div className="relative w-full sm:w-72">
@@ -357,45 +593,151 @@ export default function ProjectsDashboardPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search"
-                className="w-full pl-3 pr-8 py-1.5 border border-gray-300 rounded text-xs focus:outline-hidden focus:border-[#2563eb]"
+                className="w-full pl-3 pr-8 py-1.5 border border-gray-300 rounded text-xs focus:outline-hidden focus:border-[#0B69FF]"
               />
               <Search className="absolute right-2.5 top-2 w-3.5 h-3.5 text-gray-400" />
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Folder/Group dropdown */}
-              <button className="p-1.5 border border-gray-300 rounded text-gray-600 hover:bg-gray-50 flex items-center gap-1 text-xs">
-                <Folder className="w-3.5 h-3.5 text-gray-500" />
-                <ChevronDown className="w-3 h-3 text-gray-400" />
-              </button>
+              {/* Copy table/rows button with Dropdown matching Screenshot 2 */}
+              <div className="relative copy-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCopyOpen(!isCopyOpen);
+                    setIsColumnsOpen(false);
+                  }}
+                  onMouseEnter={() => setIsCopyTooltipHovered(true)}
+                  onMouseLeave={() => setIsCopyTooltipHovered(false)}
+                  className={`px-2.5 py-1.5 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-50 flex items-center gap-1.5 text-xs font-bold shadow-2xs cursor-pointer transition-colors ${
+                    isCopyOpen ? 'bg-gray-100' : ''
+                  }`}
+                  aria-label="Copy table or rows"
+                >
+                  <Copy className="w-3.5 h-3.5 text-gray-600" />
+                  <ChevronDown className={`w-3 h-3 text-gray-500 transition-transform ${isCopyOpen ? 'rotate-180' : ''}`} />
+                </button>
 
-              {/* Columns button */}
-              <button className="px-2.5 py-1.5 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 text-xs font-bold flex items-center gap-1.5 shadow-2xs">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-gray-600" />
-                <span>COLUMNS</span>
-              </button>
+                {/* Tooltip on hover matching Screenshot 2 */}
+                {isCopyTooltipHovered && !isCopyOpen && (
+                  <div className="absolute -top-7 right-0 bg-[#2C3E50] text-white text-[11px] font-medium py-1 px-2.5 rounded shadow-xl whitespace-nowrap z-50 pointer-events-none flex flex-col items-center">
+                    <span>Copy table/rows</span>
+                    <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-[#2C3E50] -mb-1 mt-0.5" />
+                  </div>
+                )}
+
+                {/* Dropdown Menu matching Screenshot 2 */}
+                {isCopyOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-xl py-1 z-30 text-xs text-gray-800 animate-in fade-in duration-100">
+                    <button
+                      type="button"
+                      onClick={handleCopyTable}
+                      className="w-full px-3.5 py-2 hover:bg-gray-50 flex items-center justify-between text-left cursor-pointer transition-colors"
+                    >
+                      <span className="font-medium text-gray-700">Copy table</span>
+                      <Info className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={selectedRowIds.length === 0}
+                      onClick={handleCopyRows}
+                      className={`w-full px-3.5 py-2 flex items-center justify-between text-left transition-colors ${
+                        selectedRowIds.length > 0
+                          ? 'hover:bg-gray-50 text-gray-700 cursor-pointer font-medium'
+                          : 'text-gray-300 cursor-not-allowed'
+                      }`}
+                    >
+                      <span>Copy rows {selectedRowIds.length > 0 ? `(${selectedRowIds.length})` : ''}</span>
+                      <Info className={`w-3.5 h-3.5 ${selectedRowIds.length > 0 ? 'text-gray-400' : 'text-gray-200'}`} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* COLUMNS Button with Dropdown matching Screenshot 1 */}
+              <div className="relative columns-dropdown-container">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsColumnsOpen(!isColumnsOpen);
+                    setIsCopyOpen(false);
+                  }}
+                  className="px-3 py-1.5 bg-[#3B4858] hover:bg-[#2C3E50] text-white rounded text-xs font-bold flex items-center gap-2 shadow-2xs cursor-pointer transition-colors"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-white" />
+                  <span>COLUMNS</span>
+                </button>
+
+                {/* Columns Selection Dropdown matching Screenshot 1 */}
+                {isColumnsOpen && (
+                  <div className="absolute top-full right-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl py-2 z-30 text-xs text-gray-800 animate-in fade-in duration-100 max-h-72 overflow-y-auto">
+                    {[
+                      { key: 'topRanks', label: 'TOP 5 / 10 / 30' },
+                      { key: 'keywords', label: 'Keywords' },
+                      { key: 'prompts', label: 'Prompts' },
+                      { key: 'avgPosition', label: 'Avg. Position' },
+                      { key: 'trafficForecast', label: 'Traffic forecast' },
+                      { key: 'searchVisibility', label: 'Search visibility' },
+                      { key: 'top10Percent', label: '% in Top 10' },
+                      { key: 'mentionPresence', label: 'Mention Presence' },
+                      { key: 'linkPresence', label: 'Link Presence' },
+                    ].map((col) => {
+                      const isChecked = visibleColumns[col.key as keyof typeof visibleColumns];
+                      return (
+                        <label
+                          key={col.key}
+                          className="flex items-center gap-2.5 px-3.5 py-1.5 hover:bg-gray-50 cursor-pointer select-none"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() =>
+                              setVisibleColumns((prev) => ({
+                                ...prev,
+                                [col.key]: !prev[col.key as keyof typeof prev],
+                              }))
+                            }
+                            className="w-3.5 h-3.5 rounded text-[#0B69FF] focus:ring-0"
+                          />
+                          <span className={`text-[12.5px] ${isChecked ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                            {col.label}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <h3 className="text-base font-bold text-gray-900 mb-2">Projects</h3>
 
-          {/* Projects Table matching Screenshot */}
+          {/* Projects Table matching Screenshot 1 & 2 */}
           <div className="border border-gray-200 rounded-lg overflow-x-auto shadow-2xs">
             <table className="w-full text-left text-xs divide-y divide-gray-200">
               <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10.5px] tracking-wider">
                 <tr>
                   <th className="p-3 w-8">
-                    <input type="checkbox" className="rounded text-[#2563eb]" />
+                    <input
+                      type="checkbox"
+                      checked={isAllSelected}
+                      onChange={handleSelectAll}
+                      className="rounded text-[#0B69FF] cursor-pointer"
+                    />
                   </th>
                   <th className="p-3">
                     WEBSITES (1 - {filteredProjects.length || 1} out of {filteredProjects.length || 1})
                   </th>
-                  <th className="p-3 text-center">TOP 5 / 10 / 30</th>
-                  <th className="p-3 text-center">KEYWORDS</th>
-                  <th className="p-3 text-center">PROMPTS</th>
-                  <th className="p-3 text-center">AVG. POSITION</th>
-                  <th className="p-3 text-center">MENTION PRESENCE</th>
-                  <th className="p-3 text-center">LINK PRESENCE</th>
+                  {visibleColumns.topRanks && <th className="p-3 text-center">TOP 5 / 10 / 30</th>}
+                  {visibleColumns.keywords && <th className="p-3 text-center">KEYWORDS</th>}
+                  {visibleColumns.prompts && <th className="p-3 text-center">PROMPTS</th>}
+                  {visibleColumns.avgPosition && <th className="p-3 text-center">AVG. POSITION</th>}
+                  {visibleColumns.trafficForecast && <th className="p-3 text-center">TRAFFIC FORECAST</th>}
+                  {visibleColumns.searchVisibility && <th className="p-3 text-center">SEARCH VISIBILITY</th>}
+                  {visibleColumns.top10Percent && <th className="p-3 text-center">% IN TOP 10</th>}
+                  {visibleColumns.mentionPresence && <th className="p-3 text-center">MENTION PRESENCE</th>}
+                  {visibleColumns.linkPresence && <th className="p-3 text-center">LINK PRESENCE</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -404,17 +746,23 @@ export default function ProjectsDashboardPage() {
                     ? p.domain
                     : `https://${p.domain}`;
                   const isCurrentActive = activeProject?.id === p.id || activeProject?.domain === p.domain;
+                  const isRowSelected = selectedRowIds.includes(p.id);
 
                   return (
                     <tr
                       key={p.id}
                       onClick={() => setActiveProject(p)}
                       className={`hover:bg-blue-50/30 transition-colors cursor-pointer ${
-                        isCurrentActive ? 'bg-blue-50/15' : ''
+                        isRowSelected ? 'bg-blue-50/25' : isCurrentActive ? 'bg-blue-50/15' : ''
                       }`}
                     >
                       <td className="p-3" onClick={(e) => e.stopPropagation()}>
-                        <input type="checkbox" className="rounded text-[#2563eb]" />
+                        <input
+                          type="checkbox"
+                          checked={isRowSelected}
+                          onChange={() => handleToggleRow(p.id)}
+                          className="rounded text-[#0B69FF] cursor-pointer"
+                        />
                       </td>
                       <td className="p-3 font-semibold text-gray-900">
                         <div className="flex items-center gap-2">
@@ -430,34 +778,55 @@ export default function ProjectsDashboardPage() {
                               e.stopPropagation();
                               setActiveProject(p);
                             }}
-                            className="hover:text-[#2563eb] hover:underline truncate"
+                            className="hover:text-[#0B69FF] hover:underline truncate"
                           >
                             {displayDomain}
                           </Link>
                         </div>
                       </td>
-                      <td className="p-3 text-center text-gray-600 font-mono">0 / 0 / 0</td>
-                      <td className="p-3 text-center">
-                        <Link
-                          href="/research/keyword-research"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[#2563eb] font-semibold hover:underline inline-flex items-center gap-1"
-                        >
-                          <span>🔍 Find</span>
-                        </Link>
-                      </td>
-                      <td className="p-3 text-center">
-                        <Link
-                          href={`/research/ai-search?domain=${p.domain}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[#2563eb] font-semibold hover:underline"
-                        >
-                          Add
-                        </Link>
-                      </td>
-                      <td className="p-3 text-center text-gray-400">-</td>
-                      <td className="p-3 text-center text-gray-400">N/A</td>
-                      <td className="p-3 text-center text-gray-400">N/A</td>
+                      {visibleColumns.topRanks && (
+                        <td className="p-3 text-center text-gray-600 font-mono">0 / 0 / 0</td>
+                      )}
+                      {visibleColumns.keywords && (
+                        <td className="p-3 text-center">
+                          <Link
+                            href="/research/keyword-research"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[#0B69FF] font-semibold hover:underline inline-flex items-center gap-1"
+                          >
+                            <span>🔍 Find</span>
+                          </Link>
+                        </td>
+                      )}
+                      {visibleColumns.prompts && (
+                        <td className="p-3 text-center">
+                          <Link
+                            href={`/research/ai-search?domain=${p.domain}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[#0B69FF] font-semibold hover:underline"
+                          >
+                            Add
+                          </Link>
+                        </td>
+                      )}
+                      {visibleColumns.avgPosition && (
+                        <td className="p-3 text-center text-gray-400">-</td>
+                      )}
+                      {visibleColumns.trafficForecast && (
+                        <td className="p-3 text-center text-gray-400">0</td>
+                      )}
+                      {visibleColumns.searchVisibility && (
+                        <td className="p-3 text-center text-gray-400">0%</td>
+                      )}
+                      {visibleColumns.top10Percent && (
+                        <td className="p-3 text-center text-gray-400">0%</td>
+                      )}
+                      {visibleColumns.mentionPresence && (
+                        <td className="p-3 text-center text-gray-400">N/A</td>
+                      )}
+                      {visibleColumns.linkPresence && (
+                        <td className="p-3 text-center text-gray-400">N/A</td>
+                      )}
                     </tr>
                   );
                 })}
@@ -465,6 +834,21 @@ export default function ProjectsDashboardPage() {
             </table>
           </div>
         </div>
+
+        {/* Dynamic Toast Notifications */}
+        {copyToast && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#1E293B] text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-2xl z-50 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-150">
+            <Check className="w-4 h-4 text-emerald-400" />
+            <span>{copyToast}</span>
+          </div>
+        )}
+
+        {recheckToast && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#0B69FF] text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-2xl z-50 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-150">
+            <RefreshCw className={`w-4 h-4 ${isRechecking ? 'animate-spin' : ''}`} />
+            <span>{recheckToast}</span>
+          </div>
+        )}
 
         {/* Bottom Footer Links */}
         <div className="pt-12 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">

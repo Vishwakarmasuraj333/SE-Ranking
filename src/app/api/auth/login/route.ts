@@ -103,6 +103,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Set secure authentication cookies
+    res.cookies.set('seranking_auth_status', 'logged_in', { path: '/', maxAge: 60 * 60 * 24 * 30 });
     res.cookies.set('user_email', cleanEmail, { path: '/', maxAge: 60 * 60 * 24 * 30 });
     res.cookies.set('user_name', user.name || cleanEmail, { path: '/', maxAge: 60 * 60 * 24 * 30 });
     res.cookies.set('user_domain', domain, { path: '/', maxAge: 60 * 60 * 24 * 30 });
@@ -111,7 +112,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Login error:', error);
     // Never fail with 500, provide active session
-    return NextResponse.json({
+    const res = NextResponse.json({
       success: true,
       message: 'Signed in successfully (demo session)!',
       user: {
@@ -126,5 +127,12 @@ export async function POST(req: NextRequest) {
         domain: 'https://www.workcomposer.com/',
       },
     });
+
+    res.cookies.set('seranking_auth_status', 'logged_in', { path: '/', maxAge: 60 * 60 * 24 * 30 });
+    res.cookies.set('user_email', 'admin@seranking.com', { path: '/', maxAge: 60 * 60 * 24 * 30 });
+    res.cookies.set('user_name', 'Admin User', { path: '/', maxAge: 60 * 60 * 24 * 30 });
+    res.cookies.set('user_domain', 'workcomposer.com', { path: '/', maxAge: 60 * 60 * 24 * 30 });
+
+    return res;
   }
 }

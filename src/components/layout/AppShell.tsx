@@ -45,6 +45,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/api-docs/keywords' ||
     pathname === '/api-docs/backlinks' ||
     pathname === '/api-docs/domains' ||
+    pathname.startsWith('/help') ||
+    pathname.startsWith('/whats-new') ||
     pathname.startsWith('/logout') ||
     pathname.startsWith('/admin.site.wizard');
 

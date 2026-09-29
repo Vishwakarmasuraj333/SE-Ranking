@@ -779,10 +779,8 @@ export function MarketingHeader({
                         </>
                       ) : (
                         <>
-                          <a
-                            href="https://help.seranking.com"
-                            target="_blank"
-                            rel="noreferrer"
+                          <Link
+                            href="/help"
                             className="px-2.5 py-1.5 rounded-lg hover:bg-gray-50 flex items-center gap-2.5 transition-colors group cursor-pointer"
                           >
                             <div className="w-7 h-7 rounded-md bg-blue-50 text-[#0B69FF] flex items-center justify-center shrink-0">
@@ -791,7 +789,7 @@ export function MarketingHeader({
                             <span className="text-xs font-normal text-gray-800 group-hover:text-[#0B69FF]">
                               {t.nav.helpCenter || 'Help Center'}
                             </span>
-                          </a>
+                          </Link>
                           <Link
                             href="/landing"
                             onClick={() => setActiveMenu(null)}

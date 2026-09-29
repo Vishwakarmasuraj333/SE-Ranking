@@ -8,16 +8,26 @@ export default function LogoutPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // Clear cookies and local sessions
+    // Clear cookies and local sessions completely
     if (typeof document !== 'undefined') {
+      document.cookie = 'seranking_auth_status=; path=/; max-age=0;';
       document.cookie = 'user_email=; path=/; max-age=0;';
       document.cookie = 'user_name=; path=/; max-age=0;';
       document.cookie = 'user_domain=; path=/; max-age=0;';
+      document.cookie = 'seranking_user=; path=/; max-age=0;';
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('seranking_auth_status');
+      sessionStorage.removeItem('seranking_auth_status');
+      localStorage.removeItem('seranking_user');
+      localStorage.removeItem('user_email');
+      localStorage.removeItem('user_name');
+      window.dispatchEvent(new CustomEvent('seranking_auth_change'));
     }
     // Redirect to login page
     setTimeout(() => {
       router.push('/login');
-    }, 600);
+    }, 400);
   }, [router]);
 
   return (
