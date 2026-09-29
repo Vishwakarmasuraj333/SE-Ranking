@@ -448,14 +448,13 @@ export function TopHeader() {
                   {appWrapData.notifications.unread_total} New
                 </span>
               </div>
-              <div className="p-3 bg-red-50/60 rounded-lg border border-red-200 space-y-1">
-                <div className="flex items-center gap-1.5 text-red-900 font-bold">
-                  <span className="w-2 h-2 rounded-full bg-red-500" />
-                  <span>Important message</span>
+              <div className="p-3 bg-blue-50/60 rounded-lg border border-blue-200 space-y-1">
+                <div className="flex items-center gap-1.5 text-blue-900 font-bold">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span>System Status</span>
                 </div>
                 <p className="text-gray-700 text-[11px] leading-relaxed">
-                  Your Free Trial has 10 days remaining. Upgrade now to preserve all keyword
-                  rankings history and AI visibility tracker records.
+                  All SEO tracking modules and keyword research databases are operational and up-to-date.
                 </p>
               </div>
             </div>

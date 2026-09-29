@@ -35,8 +35,8 @@ export function GlobalShadowGuide({ isOpen, onClose }: GlobalShadowGuideProps) {
       position: 'top-44 left-1/3',
     },
     {
-      title: '10% Trial Discount Coupon',
-      text: 'Your trial includes a personal 10% discount on any annual or monthly plan. Click the pink floating tab anytime to view your timer and copy code ABT10NK.',
+      title: 'API & Integrations Hub',
+      text: 'Connect Looker Studio, Google Search Console, Google Analytics, or leverage our high-throughput REST API and MCP server endpoints.',
       position: 'top-1/2 right-16',
     },
   ];

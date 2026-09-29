@@ -179,15 +179,6 @@ export default function KeywordGrouperPage() {
         className="hidden"
       />
 
-      {/* Floating 10% Discount Tab matching Screenshot 1, 2, 3 */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-bottom-right rotate-90 translate-x-[2px] hidden md:block">
-        <a
-          href="/pricing"
-          className="bg-[#FF6077] hover:bg-[#ff4a64] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-md shadow-md tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <span>10% discount just for you</span>
-        </a>
-      </div>
 
       {viewState === 'results' && clusters.length > 0 ? (
         /* Results View */

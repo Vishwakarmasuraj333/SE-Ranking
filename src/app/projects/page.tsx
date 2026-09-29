@@ -121,16 +121,6 @@ export default function ProjectsDashboardPage() {
 
   return (
     <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 pb-16 select-none relative">
-      {/* 10% Discount Floating Badge matching user's screenshot */}
-      <div className="fixed right-0 top-[45%] -translate-y-1/2 z-40">
-        <Link
-          href="/pricing"
-          className="block bg-[#FF4D6D] hover:bg-[#E03B5B] text-white text-[11px] font-semibold py-3 px-1.5 rounded-l shadow-md transition-all hover:pr-2.5 cursor-pointer select-none [writing-mode:vertical-rl] rotate-180 tracking-wide"
-          title="Claim special 10% discount"
-        >
-          10% discount just for you
-        </Link>
-      </div>
 
       <div className="max-w-[1440px] mx-auto px-6 py-5 space-y-4">
         {/* Top Feedback line matching Screenshot */}

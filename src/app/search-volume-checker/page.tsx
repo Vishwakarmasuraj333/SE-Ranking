@@ -158,15 +158,6 @@ export default function SearchVolumeCheckerPage() {
         className="hidden"
       />
 
-      {/* Floating 10% Discount Tab matching Screenshot 1 & 2 */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-bottom-right rotate-90 translate-x-[2px] hidden md:block">
-        <a
-          href="/pricing"
-          className="bg-[#FF6077] hover:bg-[#ff4a64] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-md shadow-md tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <span>10% discount just for you</span>
-        </a>
-      </div>
 
       <div className="max-w-[1240px] mx-auto p-4 sm:p-6 space-y-4">
         {/* Notice Info Banner matching Screenshot 1 & 2 */}
@@ -543,11 +534,11 @@ export default function SearchVolumeCheckerPage() {
 
             <div className="space-y-2 border border-gray-200 rounded-xl p-4 bg-gray-50/60">
               <div className="flex items-center justify-between font-bold text-sm text-gray-900">
-                <span>Free Trial Included Queries</span>
-                <span className="text-[#10B981]">1,000 Free</span>
+                <span>Monthly Included Queries</span>
+                <span className="text-[#10B981]">1,000 Active</span>
               </div>
               <p className="text-xs text-gray-500">
-                You have 9 days of free trial left on your account. You can run keyword checks immediately without extra charges.
+                Your account includes 1,000 monthly keyword search queries ready to use.
               </p>
             </div>
 

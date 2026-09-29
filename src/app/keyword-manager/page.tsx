@@ -106,15 +106,6 @@ export default function KeywordManagerPage() {
 
   return (
     <div className="flex-1 bg-white min-h-[calc(100vh-80px)] flex flex-col justify-between text-gray-900 select-none relative overflow-x-hidden">
-      {/* 10% Discount Just For You floating badge matching Screenshot 1 & 2 */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-bottom-right rotate-90 translate-x-[2px] hidden md:block">
-        <a
-          href="/pricing"
-          className="bg-[#FF6077] hover:bg-[#ff4a64] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-md shadow-md tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <span>10% discount just for you</span>
-        </a>
-      </div>
 
       {lists.length === 0 ? (
         /* Empty State / Start View matching Screenshot 1 exactly */

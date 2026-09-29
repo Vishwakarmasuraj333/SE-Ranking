@@ -331,15 +331,6 @@ export default function SearchAutocompletePage() {
 
   return (
     <div className="flex-1 bg-white min-h-[calc(100vh-80px)] text-[#2C384A] select-none pb-24 relative">
-      {/* 10% Discount Just For You floating badge matching SE Ranking UI */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-40 origin-bottom-right rotate-90 translate-x-[2px] hidden md:block">
-        <a
-          href="/pricing"
-          className="bg-[#FF6077] hover:bg-[#ff4a64] text-white text-[11px] font-bold px-3.5 py-1.5 rounded-t-md shadow-md tracking-wider flex items-center gap-1 cursor-pointer transition-colors"
-        >
-          <span>10% discount just for you</span>
-        </a>
-      </div>
 
       <div className="max-w-[1040px] mx-auto p-4 sm:p-8 space-y-6">
         {/* Title & Subtitle matching Screenshot 1 */}
