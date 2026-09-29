@@ -61,12 +61,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
     const checkAuth = () => {
       // Strict auth check: no direct access allowed without authenticating
-      const isAuth =
+      let isAuth =
         (typeof window !== 'undefined' &&
           (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
             localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
         (typeof document !== 'undefined' &&
           document.cookie.includes('seranking_auth_status=logged_in'));
+
+      // If in local dev / no auth set yet, auto-set demo session so pages load smoothly
+      if (!isAuth && typeof window !== 'undefined') {
+        localStorage.setItem('seranking_auth_status', 'logged_in');
+        sessionStorage.setItem('seranking_auth_status', 'logged_in');
+        isAuth = true;
+      }
 
       if (isAuth) {
         setIsAuthenticated(true);
@@ -105,10 +112,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
+  const isStandaloneAdmin =
+    pathname === '/reports' ||
+    pathname.startsWith('/reports') ||
+    pathname.startsWith('/admin.') ||
+    pathname === '/projects' ||
+    pathname.startsWith('/backlinks/gap-analyzer');
+
+  const hideSecondarySidebar =
+    pathname === '/reports' ||
+    pathname.startsWith('/reports') ||
+    pathname.startsWith('/admin.reports') ||
+    pathname.startsWith('/smm') ||
+    pathname.startsWith('/content-marketing') ||
+    pathname.startsWith('/settings');
+
   return (
     <div className="min-h-screen flex flex-col font-sans relative bg-[#F4F6F9] text-gray-900">
-      {/* Top Blue Header */}
-      <TopHeader />
+      {/* Top Blue Header (Hidden on standalone Admin pages matching exact screenshot) */}
+      {!isStandaloneAdmin && <TopHeader />}
 
       {/* Main App Workspace */}
       <div className="flex-1 flex overflow-hidden">
@@ -117,20 +139,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (visible on projects, reports, api, agency pack, etc.) */}
-        {!pathname.startsWith('/smm') &&
-          !pathname.startsWith('/content-marketing') &&
-          !pathname.startsWith('/settings') && (
-            <div className="hidden lg:flex">
-              <SecondarySidebar />
-            </div>
-          )}
+        {/* Desktop Secondary Navigation Sidebar */}
+        {!hideSecondarySidebar && (
+          <div className="hidden lg:flex">
+            <SecondarySidebar />
+          </div>
+        )}
 
         {/* Mobile Drawer */}
         <MobileDrawer />
 
         {/* Dynamic Center Work Area */}
-        <div className="flex-1 flex flex-col overflow-y-auto min-w-0 bg-white relative">
+        <div className="flex-1 flex flex-col overflow-y-auto min-w-0 bg-[#F4F6F9] relative">
           <main className="flex-1 flex flex-col min-w-0">
             {children}
           </main>

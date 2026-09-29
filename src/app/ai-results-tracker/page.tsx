@@ -27,6 +27,7 @@ import {
 import { useApp } from '@/components/providers/AppProviders';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
+import { AiCompetitorsView } from '@/components/ai-results-tracker/AiCompetitorsView';
 
 interface LlmPromptItem {
   id: string;
@@ -158,6 +159,18 @@ function AiResultsTrackerContent() {
   };
 
   const hasPrompts = promptsList.length > 0;
+
+  if (tabParam === 'competitors') {
+    const rawDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return (
+      <div className="flex-1 bg-[#F5F7FB] dark:bg-slate-900 min-h-screen p-4 sm:p-6 select-none font-sans">
+        <AiCompetitorsView
+          projectId={activeProject?.id || '12960641'}
+          projectDomain={rawDomain || 'workcomposer.com'}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 bg-[#F5F7FB] min-h-screen text-gray-800 relative pb-12 select-none overflow-x-hidden font-sans flex flex-col justify-between">

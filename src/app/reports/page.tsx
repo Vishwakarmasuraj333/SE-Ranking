@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 
 interface ReportRow {
   id: string;
@@ -16,85 +17,82 @@ interface ReportRow {
 }
 
 export default function ReportBuilderPage() {
-  // Navigation tabs: 'reports' | 'templates'
-  const [activeTab, setActiveTab] = useState<'reports' | 'templates'>('reports');
+  // Tabs: 'my' | 'shared'
+  const [activeTab, setActiveTab] = useState<'my' | 'shared'>('my');
 
-  // Filter type: 'my' | 'shared'
-  const [filterType, setFilterType] = useState<'my' | 'shared'>('my');
+  // Filter dropdown: 'All reports' | 'With schedule' | 'Without schedule'
+  const [scheduleFilter, setScheduleFilter] = useState<'All reports' | 'With schedule' | 'Without schedule'>('All reports');
+  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState(false);
 
-  // Modes filter: 'All reports' | 'Without schedule' | 'With schedule'
-  const [scheduleFilter, setScheduleFilter] = useState<'All reports' | 'Without schedule' | 'With schedule'>('All reports');
-  const [isModesDropdownOpen, setIsModesDropdownOpen] = useState(false);
-
-  // Search input
+  // Search query
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Rows per page dropdown
+  // Rows per page
   const [rowsPerPage, setRowsPerPage] = useState('20');
   const [isRowsDropdownOpen, setIsRowsDropdownOpen] = useState(false);
 
-  // Dismissible Banners
-  const [showModularBanner, setShowModularBanner] = useState(true);
-  const [showInfoNotification, setShowInfoNotification] = useState(true);
-  const [showWarningNotification, setShowWarningNotification] = useState(true);
+  // Dismissible banners (matching screenshot)
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
+  const [showWarningBanner, setShowWarningBanner] = useState(true);
 
-  // Accordions
-  const [isStartFromTemplateOpen, setIsStartFromTemplateOpen] = useState(true);
+  // Accordion for "My templates"
   const [isMyTemplatesOpen, setIsMyTemplatesOpen] = useState(false);
-  const [templatePage, setTemplatePage] = useState(0); // 0: 1-7, 1: 8-12
 
-  // Modals & Feedback
-  const [isCreateReportModalOpen, setIsCreateReportModalOpen] = useState(false);
+  // Modals
   const [isCreateTemplateModalOpen, setIsCreateTemplateModalOpen] = useState(false);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [feedbackSent, setFeedbackSent] = useState(false);
-  const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [isCreateReportModalOpen, setIsCreateReportModalOpen] = useState(false);
+  const [selectedReportForPreview, setSelectedReportForPreview] = useState<ReportRow | null>(null);
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
+  const [bugMessage, setBugMessage] = useState('');
+  const [bugSubmitted, setBugSubmitted] = useState(false);
 
-  // Create report form
-  const [newTitle, setNewTitle] = useState('workcomposer.com Custom Report');
-  const [newFrequency, setNewFrequency] = useState('Every week, on: Wednesday');
-  const [newLanguage, setNewLanguage] = useState('English');
-  const [newPeriod, setNewPeriod] = useState('Sep-21 2026 - Sep-27 2026');
+  // Selected row checkboxes
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
 
-  // 12 Templates matching exact user screenshot & HTML
-  const allTemplates = [
-    { name: 'Rankings Overview' },
-    { name: 'Monthly Report: Rankings & Traffic' },
-    { name: 'Traffic Overview' },
-    { name: 'Organic Traffic' },
-    { name: 'Rankings & Competitors' },
-    { name: 'Competitor Overview' },
-    { name: 'Rankings & Website Audit' },
-    { name: 'SEO report' },
-    { name: 'Website Audit Overview' },
-    { name: 'Website Audit Issues' },
-    { name: 'Social Media Overview' },
-    { name: 'Google Ads' },
+  // System templates for "My templates" dropdown
+  const templatesList = [
+    { name: 'Rankings Overview', desc: 'Keyword positions, top movers, and search volume overview' },
+    { name: 'Monthly Report: Rankings & Traffic', desc: 'Full monthly SEO summary with Google Analytics & GSC' },
+    { name: 'Traffic Overview', desc: 'Organic traffic growth, top landing pages, and search engines' },
+    { name: 'Organic Traffic', desc: 'Organic keywords and SERP features distribution' },
+    { name: 'Rankings & Competitors', desc: 'SERP comparison against key domain competitors' },
+    { name: 'Competitor Overview', desc: 'Share of voice and competitor backlink gap' },
+    { name: 'SEO Report', desc: 'Comprehensive technical and organic ranking audit' },
+    { name: 'Website Audit Overview', desc: 'Core Web Vitals, crawlability score, and technical errors' },
   ];
 
-  // Reports data
+  // Reports data matching screenshot exactly:
+  // workcomposer.com Project Report | Sep-29 2026 | - | Every week, on: Tuesday | English | Sep-23 2026 - Sep-29 2026
   const [reports, setReports] = useState<ReportRow[]>([
     {
       id: '10075967',
-      title: 'zohosocial.com Project Report',
+      title: 'workcomposer.com Project Report',
       domain: 'workcomposer.com',
-      updated: 'Sep-23 2026',
+      updated: 'Sep-29 2026',
       sent: '-',
-      frequency: 'Every week, on: Wednesday',
+      frequency: 'Every week, on: Tuesday',
       language: 'English',
-      period: 'Sep-21 2026 - Sep-27 2026',
+      period: 'Sep-23 2026 - Sep-29 2026',
       hasSchedule: true,
     },
   ]);
 
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [hoveredRowId, setHoveredRowId] = useState<string | null>(null);
+  // New report form state
+  const [newTitle, setNewTitle] = useState('workcomposer.com Project Report');
+  const [newFrequency, setNewFrequency] = useState('Every week, on: Tuesday');
+  const [newLanguage, setNewLanguage] = useState('English');
+  const [newPeriod, setNewPeriod] = useState('Sep-23 2026 - Sep-29 2026');
 
+  // New template form state
+  const [newTemplateName, setNewTemplateName] = useState('');
+
+  // Handle select all
   const toggleSelectAll = () => {
-    if (selectedIds.length === reports.length) {
+    if (selectedIds.length === filteredReports.length && filteredReports.length > 0) {
       setSelectedIds([]);
     } else {
-      setSelectedIds(reports.map((r) => r.id));
+      setSelectedIds(filteredReports.map((r) => r.id));
     }
   };
 
@@ -104,20 +102,20 @@ export default function ReportBuilderPage() {
     );
   };
 
-  const handleTemplateClick = (templateName: string) => {
-    setNewTitle(`https://www.workcomposer.com/ - ${templateName}`);
-    setIsCreateReportModalOpen(true);
+  const handleDeleteReport = (id: string) => {
+    setReports((prev) => prev.filter((r) => r.id !== id));
+    setSelectedIds((prev) => prev.filter((i) => i !== id));
   };
 
   const handleCreateReport = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
-    const newReport: ReportRow = {
+    const created: ReportRow = {
       id: String(Date.now()),
       title: newTitle.trim(),
       domain: 'workcomposer.com',
-      updated: 'Sep-27 2026',
+      updated: 'Sep-29 2026',
       sent: '-',
       frequency: newFrequency,
       language: newLanguage,
@@ -125,638 +123,851 @@ export default function ReportBuilderPage() {
       hasSchedule: newFrequency !== 'Without schedule',
     };
 
-    setReports([newReport, ...reports]);
+    setReports([created, ...reports]);
     setIsCreateReportModalOpen(false);
   };
 
-  const handleDeleteReport = (id: string) => {
-    setReports((prev) => prev.filter((r) => r.id !== id));
-    setSelectedIds((prev) => prev.filter((i) => i !== id));
-  };
-
+  // Filter reports
   const filteredReports = reports.filter((r) => {
-    if (filterType === 'shared') return false;
+    if (activeTab === 'shared') return false;
     if (searchQuery.trim() && !r.title.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
     }
-    if (scheduleFilter === 'Without schedule' && r.hasSchedule) return false;
     if (scheduleFilter === 'With schedule' && !r.hasSchedule) return false;
+    if (scheduleFilter === 'Without schedule' && r.hasSchedule) return false;
     return true;
   });
 
   return (
-    <div className="section-template section-wrapper__section-content min-h-screen bg-[#F4F6F9] text-[#171B24] font-sans flex flex-col justify-between">
-      <div>
-        {/* ===================== TOP MODULAR BANNER (Exact match to user screenshot) ===================== */}
-        {showModularBanner && (
-          <div className="bg-white border-b border-[#E1E6EB] px-6 py-2.5 text-xs text-[#5B6370] flex items-center justify-between shadow-2xs select-none">
-            <div className="flex-1 pr-6 leading-relaxed">
-              Create reports using the modular approach: add the cover page and the table of contents, edit the contents of the report and add comments to separate sections when necessary. Ready-to-go reports can be saved as a template, downloaded in .PDF, .HTML or .XLS file formats or sent to an email address.
+    <div className="min-h-screen bg-[#F4F6F9] text-[#171B24] font-sans flex flex-col justify-between p-4 sm:p-6 lg:p-6 space-y-4">
+      <div className="space-y-4">
+        {/* ===================== ROW 1: MY TEMPLATES ACCORDION ===================== */}
+        <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-3.5 sm:p-4 shadow-2xs transition-all">
+          <div className="flex items-center justify-between">
+            {/* Accordion Toggle */}
+            <div
+              onClick={() => setIsMyTemplatesOpen(!isMyTemplatesOpen)}
+              className="flex items-center gap-2 cursor-pointer select-none group"
+            >
+              <svg
+                className={`w-4 h-4 text-[#8C95A6] group-hover:text-[#171B24] transition-transform duration-200 ${
+                  isMyTemplatesOpen ? 'rotate-90' : ''
+                }`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+              <span className="text-sm font-semibold text-[#171B24] group-hover:text-[#2870ED] transition-colors">
+                My templates
+              </span>
             </div>
+
+            {/* + CREATE TEMPLATE BUTTON (Exact match: green outline & text) */}
             <button
-              onClick={() => setShowModularBanner(false)}
-              className="text-[#7A8391] hover:text-[#171B24] p-1 cursor-pointer shrink-0"
-              title="Close banner"
+              onClick={() => setIsCreateTemplateModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-[#F0FDF4] active:bg-[#DCFCE7] text-[#10B981] font-bold text-xs rounded-[6px] border border-[#10B981] transition-colors cursor-pointer uppercase tracking-wider"
+            >
+              <span className="text-base font-bold leading-none">+</span>
+              <span>CREATE TEMPLATE</span>
+            </button>
+          </div>
+
+          {/* Accordion Expand Body */}
+          {isMyTemplatesOpen && (
+            <div className="pt-4 mt-3 border-t border-[#F0F2F5] animate-in fade-in duration-150">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                {templatesList.map((tpl, i) => (
+                  <div
+                    key={i}
+                    onClick={() => {
+                      setNewTitle(`workcomposer.com - ${tpl.name}`);
+                      setIsCreateReportModalOpen(true);
+                    }}
+                    className="p-3 bg-[#FAFBFD] hover:bg-white border border-[#E2E8F0] hover:border-[#10B981] rounded-[8px] cursor-pointer transition-all group shadow-2xs hover:shadow-xs"
+                  >
+                    <div className="text-xs font-bold text-[#171B24] group-hover:text-[#10B981] mb-1">
+                      {tpl.name}
+                    </div>
+                    <div className="text-[11px] text-[#64748B] line-clamp-2">
+                      {tpl.desc}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ===================== ROW 2: BLUE COMBINED INFO BANNER ===================== */}
+        {showInfoBanner && (
+          <div className="bg-[#EDF5FF] border border-[#B8D7FF] rounded-[8px] p-3.5 sm:p-4 relative flex items-start gap-3 shadow-2xs animate-in fade-in duration-200">
+            {/* Info Icon (Blue circle with white i) */}
+            <div className="shrink-0 mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-[#1976D2] text-white flex items-center justify-center text-xs font-black shadow-2xs">
+                i
+              </div>
+            </div>
+
+            {/* Banner Text (Exact match from screenshot) */}
+            <div className="flex-1 text-xs text-[#1E3A8A] leading-relaxed pr-6">
+              We combined manual and scheduled reports into a single report. You can configure its sending schedule, download it immediately, or select both options in the report&apos;s settings. When you download the report, you can be confident that it contains up-to-date information. Below, you will find all your reports, which were previously separated into two tabs. These reports can be filtered based on whether or not they have a sending schedule.
+            </div>
+
+            {/* Close Button */}
+            <button
+              onClick={() => setShowInfoBanner(false)}
+              className="absolute top-3.5 right-3.5 text-[#1976D2]/70 hover:text-[#1976D2] p-1 cursor-pointer transition-colors"
+              title="Close notice"
             >
               ✕
             </button>
           </div>
         )}
 
-        {/* ===================== TOP CONTROL PANEL ===================== */}
-        <div className="section-wrapper__top-control bg-white border-b border-[#E1E6EB] px-6 py-2">
-          <div className="top-control-panel flex items-center justify-between">
-            
-            {/* Breadcrumbs */}
-            <div className="top-control-panel__cell top-control-panel__cell_grow flex items-center">
-              <div className="se-breadcrumbs">
-                <ul className="se-breadcrumbs__list flex items-center gap-1.5 text-xs">
-                  <li className="se-breadcrumbs__item">
-                    <Link href="/reports" className="se-breadcrumbs__link text-[#5B6370] hover:text-[#2870ED] transition-colors">
-                      Report Builder
-                    </Link>
-                  </li>
-                  <li className="text-gray-300">/</li>
-                  <li className="se-breadcrumbs__item">
-                    <span className="se-breadcrumbs__link text-[#171B24] font-semibold">Reports</span>
-                  </li>
-                </ul>
+        {/* ===================== ROW 3: YELLOW WARNING BANNER ===================== */}
+        {showWarningBanner && (
+          <div className="bg-[#FEF9E7] border border-[#FDE68A] rounded-[8px] p-3.5 sm:p-4 relative flex items-start gap-3 shadow-2xs animate-in fade-in duration-200">
+            {/* Warning Icon (Amber/Yellow circle with !) */}
+            <div className="shrink-0 mt-0.5">
+              <div className="w-5 h-5 rounded-full bg-[#F59E0B] text-white flex items-center justify-center text-xs font-black shadow-2xs">
+                !
               </div>
             </div>
 
-            {/* Right side: Feedback & Scheduled reporting 1 / 5 */}
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setIsFeedbackOpen(true)}
-                className="se-table-link text-xs text-[#5B6370] hover:text-[#2870ED] cursor-pointer transition-colors"
+            {/* Banner Text (Exact match from screenshot) */}
+            <div className="flex-1 text-xs text-[#92400E] leading-relaxed pr-6">
+              We&apos;ve updated our Traffic Forecast algorithm, which might affect your scheduled reports with traffic data. Please ensure that you take into account possible deviations from previous values.{' '}
+              <a
+                href="https://help.seranking.com/hc/en-us/articles/16332595832604-Overview-section"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#2563EB] hover:underline font-semibold cursor-pointer ml-1"
               >
-                Feedback
-              </button>
-
-              {/* Amber limit pill: Scheduled reporting 1 / 5 (Matching screenshot) */}
-              <div className="bg-[#FFF8E6] text-[#B78103] border border-[#FFE29A] rounded-full px-3 py-1 flex items-center gap-1.5 text-xs font-bold shadow-2xs">
-                <svg className="w-3.5 h-3.5 text-[#B78103]" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.38 8.57l-1.23 1.85a8 8 0 0 1-.22 7.58H5.07A8 8 0 0 1 15.58 6.85l1.85-1.23A10 10 0 0 0 3.35 19a2 2 0 0 0 1.72 1h13.85a2 2 0 0 0 1.74-1 10 10 0 0 0-.27-10.43zM10.59 15.41a2 2 0 1 0 2.83-2.83l-4.24-4.24-1.42 1.41 2.83 2.83a2 2 0 0 0 0 2.83z" />
-                </svg>
-                <span>Scheduled reporting</span>
-                <span className="text-[#171B24]">1 / 5</span>
-              </div>
+                Learn more
+              </a>
             </div>
 
+            {/* Close Button */}
+            <button
+              onClick={() => setShowWarningBanner(false)}
+              className="absolute top-3.5 right-3.5 text-[#D97706]/70 hover:text-[#D97706] p-1 cursor-pointer transition-colors"
+              title="Close notice"
+            >
+              ✕
+            </button>
           </div>
-        </div>
+        )}
 
-        {/* ===================== SECTION WRAPPER CONTENT ===================== */}
-        <div className="section-wrapper__content max-w-7xl mx-auto px-6 py-6">
-          <div className="app-main vue-app space-y-5">
-            
-            {/* TOP PAGE SECTION: Title & + CREATE REPORT */}
-            <div className="top-page-section list__top-section flex flex-wrap items-center justify-between gap-4">
-              <div className="top-page-section__title text-2xl font-bold text-[#171B24] tracking-tight">
-                Report Builder
-              </div>
-              <div className="top-page-section__wrapper">
-                <div className="list__box flex items-center gap-4">
-                  
-                  {/* Menu Tabs */}
-                  <div className="menu-tabs flex items-center bg-[#ECEFF3] p-0.5 rounded-[8px] text-xs font-semibold">
-                    <button
-                      onClick={() => setActiveTab('reports')}
-                      className={`menu-tabs__tab px-3.5 py-1.5 rounded-[6px] transition-all cursor-pointer ${
-                        activeTab === 'reports'
-                          ? 'menu-tabs__tab_active bg-white text-[#171B24] shadow-xs'
-                          : 'text-[#5B6370] hover:text-[#171B24]'
-                      }`}
-                    >
-                      <div className="menu-tabs__tab-title">Reports</div>
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('templates')}
-                      className={`menu-tabs__tab px-3.5 py-1.5 rounded-[6px] transition-all cursor-pointer ${
-                        activeTab === 'templates'
-                          ? 'menu-tabs__tab_active bg-white text-[#171B24] shadow-xs'
-                          : 'text-[#5B6370] hover:text-[#171B24]'
-                      }`}
-                    >
-                      <div className="menu-tabs__tab-title">Templates</div>
-                    </button>
-                  </div>
-
-                  {/* + CREATE REPORT button (Exact match to screenshot) */}
+        {/* ===================== ROW 4: MAIN WHITE CONTAINER WITH TABLE ===================== */}
+        <div className="bg-white border border-[#E2E8F0] rounded-[8px] shadow-2xs overflow-hidden">
+          
+          {/* Top Controls Bar */}
+          <div className="p-3.5 sm:p-4 border-b border-[#F0F2F5]">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                
+                {/* Switch Tabs: MY REPORTS 1 | SHARED REPORTS 0 */}
+                <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => setIsCreateReportModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#10B981] hover:bg-[#059669] active:bg-[#047857] text-white font-bold text-xs rounded-[8px] uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                    onClick={() => setActiveTab('my')}
+                    className={`px-3 py-1.5 rounded-[6px] text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'my'
+                        ? 'bg-[#4D4D6B] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#555C68] hover:bg-[#E9ECF0]'
+                    }`}
                   >
-                    <span className="text-base font-black leading-none">+</span>
-                    <span>CREATE REPORT</span>
+                    <span>MY REPORTS</span>
+                    <span
+                      className={`text-[11px] font-bold px-1.5 py-0.2 rounded-full ${
+                        activeTab === 'my'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-[#E1E4EA] text-[#555C68]'
+                      }`}
+                    >
+                      {reports.length}
+                    </span>
                   </button>
 
-                </div>
-              </div>
-            </div>
-
-            {/* ===================== ACCORDION 1: START FROM TEMPLATE ===================== */}
-            <div className="se-page__row bg-white border border-[#E1E6EB] rounded-[12px] p-4 shadow-xs">
-              <div className="template-list">
-                <div className="template-list__head flex items-center justify-between pb-3 border-b border-[#F0F2F5]">
-                  
-                  <div
-                    onClick={() => setIsStartFromTemplateOpen(!isStartFromTemplateOpen)}
-                    className="template-list__box flex items-center gap-2 cursor-pointer select-none"
+                  <button
+                    onClick={() => setActiveTab('shared')}
+                    className={`px-3 py-1.5 rounded-[6px] text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'shared'
+                        ? 'bg-[#4D4D6B] text-white shadow-2xs'
+                        : 'bg-[#F2F4F7] text-[#555C68] hover:bg-[#E9ECF0]'
+                    }`}
                   >
-                    <div className="template-list__name flex items-center gap-1">
-                      <div className={`transition-transform duration-200 ${isStartFromTemplateOpen ? 'rotate-90' : ''}`}>
-                        <svg className="w-5 h-5 text-[#5B6370]" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                        </svg>
-                      </div>
-                      <div className="template-list__title text-sm font-bold text-[#171B24]">
-                        Start from template
-                      </div>
-                    </div>
-                    <span className="text-xs font-semibold text-[#5B6370] bg-[#F2F5F8] px-2 py-0.5 rounded-full">
-                      12
+                    <span>SHARED REPORTS</span>
+                    <span className="text-[11px] font-bold px-1.5 py-0.2 rounded-full bg-[#E1E4EA] text-[#555C68]">
+                      0
                     </span>
-                  </div>
+                  </button>
+                </div>
 
-                  {isStartFromTemplateOpen && (
-                    <div className="template-list__active flex items-center gap-3 text-xs text-[#5B6370]">
-                      <div className="font-medium">
-                        Templates: {templatePage === 0 ? '1 - 7 out of 12' : '8 - 12 out of 12'}
-                      </div>
-                      <div className="flex items-center gap-1">
+                {/* Search Input with Magnifying Glass on the right */}
+                <div className="relative w-48 sm:w-60">
+                  <input
+                    type="text"
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-3 pr-8 py-1.5 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] placeholder-[#98A2B3] focus:outline-hidden focus:border-[#2870ED] transition-colors"
+                  />
+                  <svg
+                    className="w-4 h-4 text-[#98A2B3] absolute right-2.5 top-2.5 pointer-events-none"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+
+                {/* All reports Dropdown Filter */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+                    className="px-3 py-1.5 bg-white border border-[#D0D5DD] hover:bg-[#F9FAFB] rounded-[6px] text-xs font-medium text-[#344054] flex items-center gap-2 cursor-pointer transition-colors select-none"
+                  >
+                    <span>{scheduleFilter}</span>
+                    <svg
+                      className={`w-3.5 h-3.5 text-[#667085] transition-transform ${
+                        isFilterDropdownOpen ? 'rotate-180' : ''
+                      }`}
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                    >
+                      <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                    </svg>
+                  </button>
+
+                  {isFilterDropdownOpen && (
+                    <div className="absolute left-0 mt-1 w-44 bg-white border border-[#E2E8F0] rounded-[6px] shadow-lg py-1 z-30 text-xs">
+                      {(['All reports', 'With schedule', 'Without schedule'] as const).map((mode) => (
                         <button
-                          onClick={() => setTemplatePage(0)}
-                          disabled={templatePage === 0}
-                          className={`p-1.5 rounded-[6px] border border-[#E1E6EB] transition-colors ${
-                            templatePage === 0
-                              ? 'opacity-35 cursor-not-allowed bg-gray-50'
-                              : 'hover:bg-[#F2F5F8] text-[#171B24] cursor-pointer'
+                          key={mode}
+                          onClick={() => {
+                            setScheduleFilter(mode);
+                            setIsFilterDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 hover:bg-[#F2F5F8] cursor-pointer flex items-center justify-between ${
+                            scheduleFilter === mode
+                              ? 'font-bold text-[#2870ED] bg-blue-50/40'
+                              : 'text-[#171B24]'
                           }`}
                         >
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-                          </svg>
+                          <span>{mode}</span>
+                          {scheduleFilter === mode && <span>✓</span>}
                         </button>
-                        <button
-                          onClick={() => setTemplatePage(1)}
-                          disabled={templatePage === 1}
-                          className={`p-1.5 rounded-[6px] border border-[#E1E6EB] transition-colors ${
-                            templatePage === 1
-                              ? 'opacity-35 cursor-not-allowed bg-gray-50'
-                              : 'hover:bg-[#F2F5F8] text-[#171B24] cursor-pointer'
-                          }`}
-                        >
-                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-                          </svg>
-                        </button>
-                      </div>
+                      ))}
                     </div>
                   )}
                 </div>
 
-                {/* Templates Grid Cards (Matching screenshot) */}
-                {isStartFromTemplateOpen && (
-                  <div className="template-list__body pt-4 animate-in fade-in duration-200">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                      {allTemplates
-                        .slice(templatePage * 7, templatePage * 7 + 7)
-                        .map((tpl, i) => (
-                          <div
-                            key={i}
-                            onClick={() => handleTemplateClick(tpl.name)}
-                            className="template-item group cursor-pointer"
-                          >
-                            <div className="bg-white border border-[#E1E6EB] border-t-4 border-t-[#E5E7EB] group-hover:border-t-[#2870ED] rounded-[8px] p-3 h-24 flex items-center justify-center text-center transition-all group-hover:shadow-xs">
-                              <span className="text-xs font-semibold text-[#171B24] group-hover:text-[#2870ED] leading-snug">
-                                {tpl.name}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
               </div>
+
+              {/* + CREATE REPORT ACTION BUTTON */}
+              <div>
+                <button
+                  onClick={() => setIsCreateReportModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-[6px] shadow-xs cursor-pointer uppercase tracking-wider transition-colors"
+                >
+                  <span className="text-sm font-bold leading-none">+</span>
+                  <span>NEW REPORT</span>
+                </button>
+              </div>
+
             </div>
+          </div>
 
-            {/* ===================== ACCORDION 2: MY TEMPLATES ===================== */}
-            <div className="se-page__row bg-white border border-[#E1E6EB] rounded-[12px] p-4 shadow-xs">
-              <div className="template-list template-list-pointer">
-                <div className="template-list__head flex items-center justify-between">
-                  <div
-                    onClick={() => setIsMyTemplatesOpen(!isMyTemplatesOpen)}
-                    className="flex items-center gap-2 cursor-pointer select-none"
-                  >
-                    <div className={`transition-transform duration-200 ${isMyTemplatesOpen ? 'rotate-90' : ''}`}>
-                      <svg className="w-5 h-5 text-[#5B6370]" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" />
-                      </svg>
-                    </div>
-                    <div className="text-sm font-bold text-[#171B24]">
-                      My templates
-                    </div>
-                  </div>
-
-                  {/* + CREATE TEMPLATE button (Matching screenshot) */}
-                  <button
-                    onClick={() => setIsCreateTemplateModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-emerald-50 text-[#10B981] font-bold text-xs rounded-[6px] border border-[#10B981] transition-colors cursor-pointer uppercase tracking-wider"
-                  >
-                    <span>+</span>
-                    <span>CREATE TEMPLATE</span>
-                  </button>
-                </div>
-
-                {isMyTemplatesOpen && (
-                  <div className="pt-4 border-t border-[#F0F2F5] mt-3 text-center py-6 text-xs text-[#5B6370]">
-                    No custom templates created yet. Click <b>&quot;+ CREATE TEMPLATE&quot;</b> above to save your first custom report format.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ===================== BLUE COMBINED NOTIFICATION ===================== */}
-            {showInfoNotification && (
-              <div className="se-page__row animate-in fade-in duration-200">
-                <div className="bg-[#F0F7FF] border border-[#B8D7FF] rounded-[10px] p-3.5 relative">
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0 mt-0.5 text-[#1976D2]">
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
-                      </svg>
-                    </div>
-
-                    <div className="flex-1 text-xs text-[#1E3A8A] leading-relaxed pr-6">
-                      We combined manual and scheduled reports into a single report. You can configure its sending schedule, download it immediately, or select both options in the report’s settings. When you download the report, you can be confident that it contains up-to-date information. Below, you will find all your reports, which were previously separated into two tabs. These reports can be filtered based on whether or not they have a sending schedule.
-                    </div>
-
-                    <button
-                      onClick={() => setShowInfoNotification(false)}
-                      className="absolute top-3 right-3 text-[#1976D2] hover:text-[#0D47A1] p-1 cursor-pointer"
-                      title="Dismiss notification"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ===================== WARNING NOTIFICATION ===================== */}
-            {showWarningNotification && (
-              <div className="se-page__row animate-in fade-in duration-200">
-                <div className="bg-[#FFFBEB] border border-[#FDE68A] rounded-[10px] p-3.5 relative">
-                  <div className="flex items-start gap-3">
-                    <div className="shrink-0 mt-0.5 text-[#D97706]">
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
-                      </svg>
-                    </div>
-
-                    <div className="flex-1 text-xs text-[#92400E] leading-relaxed pr-6">
-                      We&apos;ve updated our Traffic Forecast algorithm, which might affect your scheduled reports with traffic data. Please ensure that you take into account possible deviations from previous values.{' '}
-                      <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href="https://help.seranking.com/hc/en-us/articles/16332595832604-Overview-section#:~:text=lists%2C%20tables%2C%20etc.-,New%20Update%3A,-With%20the%20latest"
-                        className="font-bold underline hover:text-[#B45309]"
-                      >
-                        Learn more
-                      </a>
-                    </div>
-
-                    <button
-                      onClick={() => setShowWarningNotification(false)}
-                      className="absolute top-3 right-3 text-[#D97706] hover:text-[#78350F] p-1 cursor-pointer"
-                      title="Dismiss notification"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ===================== REPORTS TABLE TILE ===================== */}
-            <div className="bg-white border border-[#E1E6EB] rounded-[12px] shadow-xs overflow-hidden">
-              
-              {/* Header Controls */}
-              <div className="p-4 border-b border-[#F0F2F5]">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div className="flex flex-wrap items-center gap-4">
-                    
-                    {/* Switch Bar: My Reports vs Shared Reports */}
-                    <div className="flex items-center bg-[#F2F5F8] p-1 rounded-[8px] border border-[#E1E6EB]">
-                      <button
-                        onClick={() => setFilterType('my')}
-                        className={`px-3 py-1.5 rounded-[6px] text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                          filterType === 'my'
-                            ? 'bg-white text-[#171B24] shadow-xs'
-                            : 'text-[#5B6370] hover:text-[#171B24]'
-                        }`}
-                      >
-                        <span>My Reports</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#E8DAEF] text-[#56565B]">
-                          {reports.length}
-                        </span>
-                      </button>
-                      <button
-                        onClick={() => setFilterType('shared')}
-                        className={`px-3 py-1.5 rounded-[6px] text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-                          filterType === 'shared'
-                            ? 'bg-white text-[#171B24] shadow-xs'
-                            : 'text-[#5B6370] hover:text-[#171B24]'
-                        }`}
-                      >
-                        <span>Shared Reports</span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#EFEFF4] text-[#56565B]">
-                          0
-                        </span>
-                      </button>
-                    </div>
-
-                    {/* Search Input */}
-                    <div className="relative w-64">
+          {/* Table Container */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse min-w-[850px]">
+              <thead>
+                <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[#667085] font-bold text-[11px] tracking-wide select-none">
+                  <th className="py-2.5 px-4 w-[340px]">
+                    <div className="flex items-center gap-3">
                       <input
-                        type="text"
-                        placeholder="Search"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-1.5 border border-[#E1E6EB] rounded-[8px] text-xs text-[#171B24] placeholder-[#7A8391] focus:outline-hidden focus:ring-1 focus:ring-[#2870ED]"
+                        type="checkbox"
+                        checked={filteredReports.length > 0 && selectedIds.length === filteredReports.length}
+                        onChange={toggleSelectAll}
+                        className="w-3.5 h-3.5 rounded-[3px] border-[#CBD5E1] text-[#2870ED] focus:ring-0 cursor-pointer"
                       />
-                      <svg className="w-4 h-4 text-[#7A8391] absolute left-3 top-2.5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                      </svg>
+                      <span>REPORT TITLE</span>
                     </div>
-
-                    {/* Modes Dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setIsModesDropdownOpen(!isModesDropdownOpen)}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-[#E1E6EB] hover:bg-[#F8FAFC] text-xs font-medium text-[#171B24] rounded-[8px] transition-colors cursor-pointer select-none"
-                      >
-                        <span>{scheduleFilter}</span>
-                        <svg className={`w-3.5 h-3.5 transition-transform ${isModesDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                        </svg>
-                      </button>
-
-                      {isModesDropdownOpen && (
-                        <div className="absolute left-0 mt-1 w-44 bg-white border border-[#E1E6EB] rounded-[8px] shadow-lg py-1 z-20 text-xs">
-                          {(['All reports', 'Without schedule', 'With schedule'] as const).map((mode) => (
-                            <button
-                              key={mode}
-                              onClick={() => {
-                                setScheduleFilter(mode);
-                                setIsModesDropdownOpen(false);
-                              }}
-                              className={`w-full text-left px-3 py-1.5 hover:bg-[#F2F5F8] cursor-pointer flex items-center justify-between ${
-                                scheduleFilter === mode ? 'font-bold text-[#2870ED]' : 'text-[#171B24]'
-                              }`}
-                            >
-                              <span>{mode}</span>
-                              {scheduleFilter === mode && <span>✓</span>}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
-                </div>
-              </div>
-
-              {/* Table Rows */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[900px]">
-                  <thead>
-                    <tr className="border-b border-[#E1E6EB] bg-[#F8FAFC] text-[#5B6370] font-semibold">
-                      <th className="py-3 px-4" style={{ width: '360px' }}>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={reports.length > 0 && selectedIds.length === reports.length}
-                            onChange={toggleSelectAll}
-                            className="rounded border-gray-300 text-[#2870ED] focus:ring-[#2870ED] cursor-pointer"
-                          />
-                          <span>Report title</span>
-                        </div>
-                      </th>
-                      <th className="py-3 px-4" style={{ width: '170px' }}>
-                        <div className="flex items-center gap-1 cursor-pointer">
-                          <span>Updated</span>
-                          <svg className="w-3.5 h-3.5 text-[#2870ED]" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
-                          </svg>
-                        </div>
-                      </th>
-                      <th className="py-3 px-4" style={{ width: '170px' }}>Sent</th>
-                      <th className="py-3 px-4" style={{ width: '320px' }}>Frequency</th>
-                      <th className="py-3 px-4" style={{ width: '100px' }}>Language</th>
-                      <th className="py-3 px-4">Report period</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {filteredReports.map((row) => {
-                      const isSelected = selectedIds.includes(row.id);
-                      const isHovered = hoveredRowId === row.id;
-
-                      return (
-                        <tr
-                          key={row.id}
-                          onMouseEnter={() => setHoveredRowId(row.id)}
-                          onMouseLeave={() => setHoveredRowId(null)}
-                          className={`border-b border-[#F0F2F5] transition-colors ${
-                            isSelected ? 'bg-blue-50/50' : 'hover:bg-[#F8FAFC]'
-                          }`}
-                        >
-                          <td className="py-3 px-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => toggleSelectOne(row.id)}
-                                  className="rounded border-gray-300 text-[#2870ED] focus:ring-[#2870ED] cursor-pointer"
-                                />
-                                <div className="w-5 h-5 rounded bg-red-100 text-red-600 flex items-center justify-center font-bold text-[9px] shrink-0">
-                                  PDF
-                                </div>
-                                <span className="font-semibold text-[#171B24] hover:text-[#2870ED] cursor-pointer transition-colors">
-                                  {row.title}
-                                </span>
-                              </div>
-
-                              <div className={`flex items-center gap-1.5 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
-                                <button
-                                  onClick={() => alert(`Edit: ${row.title}`)}
-                                  title="Edit report"
-                                  className="p-1 text-[#5B6370] hover:text-[#171B24] hover:bg-gray-100 rounded cursor-pointer"
-                                >
-                                  ✎
-                                </button>
-                                <button
-                                  onClick={() => alert(`Downloading PDF: ${row.title}`)}
-                                  title="Download"
-                                  className="p-1 text-[#5B6370] hover:text-[#171B24] hover:bg-gray-100 rounded cursor-pointer"
-                                >
-                                  ⬇
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteReport(row.id)}
-                                  title="Delete report"
-                                  className="p-1 text-[#5B6370] hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-
-                          <td className="py-3 px-4 text-[#5B6370]">{row.updated}</td>
-                          <td className="py-3 px-4 text-[#5B6370]">{row.sent}</td>
-                          <td className="py-3 px-4 text-[#171B24] font-medium">{row.frequency}</td>
-                          <td className="py-3 px-4 text-[#5B6370]">{row.language}</td>
-                          <td className="py-3 px-4 text-[#5B6370]">{row.period}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Footer */}
-              <div className="p-3 border-t border-[#F0F2F5] flex items-center justify-between text-xs text-[#5B6370]">
-                <div>Showing {filteredReports.length} of {reports.length} reports</div>
-                <div className="flex items-center gap-2">
-                  <span>Rows per page:</span>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsRowsDropdownOpen(!isRowsDropdownOpen)}
-                      className="px-2.5 py-1 bg-white border border-[#E1E6EB] rounded-[6px] text-xs font-semibold text-[#171B24] flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>{rowsPerPage}</span>
-                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                  </th>
+                  <th className="py-2.5 px-4 w-[160px]">
+                    <div className="flex items-center gap-1 cursor-pointer hover:text-[#171B24]">
+                      <span>UPDATED</span>
+                      <svg className="w-3.5 h-3.5 text-[#2870ED]" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
                       </svg>
-                    </button>
+                    </div>
+                  </th>
+                  <th className="py-2.5 px-4 w-[120px]">SENT</th>
+                  <th className="py-2.5 px-4 w-[240px]">FREQUENCY</th>
+                  <th className="py-2.5 px-4 w-[130px]">LANGUAGE</th>
+                  <th className="py-2.5 px-4">REPORT PERIOD</th>
+                </tr>
+              </thead>
 
-                    {isRowsDropdownOpen && (
-                      <div className="absolute right-0 bottom-full mb-1 w-20 bg-white border border-[#E1E6EB] rounded-[6px] shadow-md py-1 z-20 text-xs">
-                        {['20', '50', '100'].map((val) => (
-                          <button
-                            key={val}
-                            onClick={() => {
-                              setRowsPerPage(val);
-                              setIsRowsDropdownOpen(false);
-                            }}
-                            className="w-full text-left px-3 py-1 hover:bg-[#F2F5F8] cursor-pointer"
-                          >
-                            {val}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <tbody>
+                {filteredReports.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-10 text-center text-xs text-[#667085]">
+                      {activeTab === 'shared'
+                        ? 'No shared reports available.'
+                        : 'No reports found matching your criteria.'}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredReports.map((row) => {
+                    const isSelected = selectedIds.includes(row.id);
+                    const isHovered = hoveredRowId === row.id;
 
-            </div>
+                    return (
+                      <tr
+                        key={row.id}
+                        onMouseEnter={() => setHoveredRowId(row.id)}
+                        onMouseLeave={() => setHoveredRowId(null)}
+                        className={`border-b border-[#F0F2F5] transition-colors group ${
+                          isSelected ? 'bg-blue-50/40' : 'bg-white hover:bg-[#F8FAFC]'
+                        }`}
+                      >
+                        {/* Report Title & PDF Icon */}
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleSelectOne(row.id)}
+                                className="w-3.5 h-3.5 rounded-[3px] border-[#CBD5E1] text-[#2870ED] focus:ring-0 cursor-pointer"
+                              />
 
+                              {/* Red PDF Icon matching exact screenshot */}
+                              <div className="w-4 h-4 rounded-[2px] bg-[#E53935] text-white flex items-center justify-center font-bold text-[8px] tracking-tight shrink-0 shadow-2xs">
+                                PDF
+                              </div>
+
+                              {/* Clickable Title opens realistic preview modal */}
+                              <span
+                                onClick={() => setSelectedReportForPreview(row)}
+                                className="font-semibold text-[#171B24] hover:text-[#2870ED] cursor-pointer transition-colors"
+                              >
+                                {row.title}
+                              </span>
+                            </div>
+
+                            {/* Hover Quick Actions */}
+                            <div
+                              className={`flex items-center gap-1 transition-opacity ${
+                                isHovered ? 'opacity-100' : 'opacity-0'
+                              }`}
+                            >
+                              <button
+                                onClick={() => setSelectedReportForPreview(row)}
+                                title="View & Download Report"
+                                className="p-1 text-[#667085] hover:text-[#2870ED] hover:bg-blue-50 rounded cursor-pointer transition-colors"
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                  <circle cx="12" cy="12" r="3" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedReportForPreview(row);
+                                  setTimeout(() => window.print(), 300);
+                                }}
+                                title="Download PDF"
+                                className="p-1 text-[#667085] hover:text-[#10B981] hover:bg-emerald-50 rounded cursor-pointer transition-colors"
+                              >
+                                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                  <polyline points="7 10 12 15 17 10" />
+                                  <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleDeleteReport(row.id)}
+                                title="Delete report"
+                                className="p-1 text-[#667085] hover:text-red-600 hover:bg-red-50 rounded cursor-pointer transition-colors"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-4 text-[#667085]">{row.updated}</td>
+                        <td className="py-3 px-4 text-[#667085]">{row.sent}</td>
+                        <td className="py-3 px-4 text-[#171B24] font-medium">{row.frequency}</td>
+                        <td className="py-3 px-4 text-[#667085]">{row.language}</td>
+                        <td className="py-3 px-4 text-[#667085]">{row.period}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
+
+          {/* Table Footer with Rows selector: 20 ˅ (Matching exact screenshot) */}
+          <div className="p-3 border-t border-[#F0F2F5] flex items-center justify-end">
+            <div className="relative">
+              <button
+                onClick={() => setIsRowsDropdownOpen(!isRowsDropdownOpen)}
+                className="px-2.5 py-1 bg-white border border-[#D0D5DD] hover:bg-[#F9FAFB] rounded-[6px] text-xs font-medium text-[#344054] flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <span>{rowsPerPage}</span>
+                <svg
+                  className={`w-3 h-3 text-[#667085] transition-transform ${
+                    isRowsDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z" />
+                </svg>
+              </button>
+
+              {isRowsDropdownOpen && (
+                <div className="absolute right-0 bottom-full mb-1 w-20 bg-white border border-[#E2E8F0] rounded-[6px] shadow-lg py-1 z-30 text-xs">
+                  {['20', '50', '100'].map((val) => (
+                    <button
+                      key={val}
+                      onClick={() => {
+                        setRowsPerPage(val);
+                        setIsRowsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-1 hover:bg-[#F2F5F8] cursor-pointer ${
+                        rowsPerPage === val ? 'font-bold text-[#2870ED]' : 'text-[#171B24]'
+                      }`}
+                    >
+                      {val}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
         </div>
       </div>
 
-      {/* Footer Utility bar */}
-      <div className="border-t border-[#E1E6EB] bg-white px-6 py-3 text-xs text-[#7A8391] flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-bold text-[#323842]">
-          <div className="w-4 h-4 rounded bg-[#10B981] flex items-center justify-center text-white text-[9px] font-black">
-            RB
-          </div>
-          <span>SE Ranking Report Builder</span>
+      {/* ===================== PAGE BOTTOM FOOTER BAR ===================== */}
+      {/* Exact match from screenshot: SE Ranking logo on left, links on right */}
+      <div className="pt-6 pb-2 flex flex-wrap items-center justify-between gap-4 text-xs text-[#667085] select-none">
+        {/* Left: SE Ranking Dark Logo */}
+        <div className="flex items-center gap-2">
+          <SeRankingLogo variant="dark" width={95} height={20} />
         </div>
 
-        <div className="flex items-center gap-5">
+        {/* Right Links matching screenshot */}
+        <div className="flex items-center gap-5 font-normal">
           <button
-            onClick={() => setIsFeedbackOpen(true)}
+            onClick={() => setIsBugReportOpen(true)}
             className="hover:text-[#2870ED] transition-colors cursor-pointer"
           >
-            Feedback
+            Report a bug
           </button>
+          <a
+            href="https://seranking.com/affiliate.html"
+            target="_blank"
+            rel="noreferrer"
+            className="hover:text-[#2870ED] transition-colors"
+          >
+            Affiliates
+          </a>
           <Link href="/api-docs" className="hover:text-[#2870ED] transition-colors">
             API
           </Link>
-          <Link href="/pricing" className="hover:text-[#2870ED] transition-colors">
-            Pricing
+          <Link href="/whats-new" className="hover:text-[#2870ED] transition-colors">
+            What&apos;s new
+          </Link>
+          <Link href="/help" className="hover:text-[#2870ED] transition-colors">
+            Help
           </Link>
         </div>
       </div>
+
+      {/* ===================== MODAL: REPORT VIEWER & PDF EXPORTER ===================== */}
+      {selectedReportForPreview && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col border border-[#E2E8F0] overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 bg-[#1E293B] text-white flex items-center justify-between border-b border-gray-700">
+              <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded bg-[#E53935] text-white flex items-center justify-center font-black text-[9px]">
+                  PDF
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm leading-tight text-white">
+                    {selectedReportForPreview.title}
+                  </h3>
+                  <p className="text-[11px] text-gray-400">
+                    Domain: https://www.workcomposer.com/ • Period: {selectedReportForPreview.period}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white rounded-[6px] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6 9 6 2 18 2 18 9" />
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                    <rect x="6" y="14" width="12" height="8" />
+                  </svg>
+                  <span>DOWNLOAD / PRINT PDF</span>
+                </button>
+                <button
+                  onClick={() => setSelectedReportForPreview(null)}
+                  className="text-gray-400 hover:text-white p-1 rounded-full text-lg cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Scrollable Body - Realistic SEO Executive Report */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAFBFD] print:p-0 print:bg-white">
+              
+              {/* Cover Summary Banner */}
+              <div className="bg-white border border-[#E2E8F0] rounded-[10px] p-5 shadow-2xs flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <div className="text-[11px] font-bold text-[#10B981] uppercase tracking-wider mb-1">
+                    Scheduled Weekly SEO Performance Audit
+                  </div>
+                  <h2 className="text-xl font-bold text-[#171B24]">
+                    workcomposer.com Project Report
+                  </h2>
+                  <p className="text-xs text-[#64748B] mt-1">
+                    Generated automatically on <b>Sep-29 2026</b> for active website monitoring.
+                  </p>
+                </div>
+
+                <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-[8px] p-3 text-right text-xs space-y-1">
+                  <div><b>Frequency:</b> Every week, on: Tuesday</div>
+                  <div><b>Language:</b> English</div>
+                  <div><b>Target Market:</b> Global / English</div>
+                </div>
+              </div>
+
+              {/* KPI Stat Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-3.5 shadow-2xs">
+                  <div className="text-[11px] text-[#64748B] font-semibold">Average Position</div>
+                  <div className="text-2xl font-black text-[#171B24] mt-1">3.8</div>
+                  <div className="text-[10px] text-[#10B981] font-bold mt-1">▲ +0.6 vs last week</div>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-3.5 shadow-2xs">
+                  <div className="text-[11px] text-[#64748B] font-semibold">Est. Organic Traffic</div>
+                  <div className="text-2xl font-black text-[#171B24] mt-1">42,850</div>
+                  <div className="text-[10px] text-[#10B981] font-bold mt-1">▲ +12.4% traffic growth</div>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-3.5 shadow-2xs">
+                  <div className="text-[11px] text-[#64748B] font-semibold">Total Ranked Keywords</div>
+                  <div className="text-2xl font-black text-[#171B24] mt-1">1,420</div>
+                  <div className="text-[10px] text-[#2870ED] font-bold mt-1">128 in Top 10</div>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-3.5 shadow-2xs">
+                  <div className="text-[11px] text-[#64748B] font-semibold">Website Health Score</div>
+                  <div className="text-2xl font-black text-[#10B981] mt-1">94 / 100</div>
+                  <div className="text-[10px] text-[#10B981] font-bold mt-1">0 Critical Errors</div>
+                </div>
+              </div>
+
+              {/* Section 1: Top Keywords Table */}
+              <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-4 shadow-2xs">
+                <h4 className="font-bold text-xs text-[#171B24] mb-3 uppercase tracking-wider">
+                  Top Ranked Keywords Summary
+                </h4>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-[#F0F2F5] text-[#64748B] font-semibold">
+                        <th className="pb-2">Keyword</th>
+                        <th className="pb-2">Position</th>
+                        <th className="pb-2">Volume</th>
+                        <th className="pb-2">Difficulty</th>
+                        <th className="pb-2">URL</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#F0F2F5]">
+                      {[
+                        { kw: 'employee productivity tracker', pos: '1', vol: '14,200', diff: '34%', url: '/features/tracker' },
+                        { kw: 'workcomposer desktop app', pos: '1', vol: '8,100', diff: '18%', url: '/download' },
+                        { kw: 'remote team monitoring software', pos: '2', vol: '22,400', diff: '45%', url: '/solutions/remote' },
+                        { kw: 'automatic time tracker windows', pos: '3', vol: '6,700', diff: '29%', url: '/windows-tracking' },
+                        { kw: 'best employee screenshot software', pos: '4', vol: '5,300', diff: '41%', url: '/screenshots' },
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-[#F8FAFC]">
+                          <td className="py-2 font-semibold text-[#171B24]">{item.kw}</td>
+                          <td className="py-2 text-[#10B981] font-black">{item.pos}</td>
+                          <td className="py-2 text-[#64748B]">{item.vol}</td>
+                          <td className="py-2 text-[#64748B]">{item.diff}</td>
+                          <td className="py-2 text-[#2870ED] truncate max-w-[150px]">{item.url}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Section 2: AI Search Studio & Competitor Presence */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-4 shadow-2xs">
+                  <h4 className="font-bold text-xs text-[#171B24] mb-2 uppercase tracking-wider">
+                    AI Search Engine Presence
+                  </h4>
+                  <div className="space-y-2.5 mt-3 text-xs">
+                    <div>
+                      <div className="flex justify-between text-[#64748B] mb-1">
+                        <span>ChatGPT Search Citations</span>
+                        <span className="font-bold text-[#171B24]">72%</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="bg-[#10B981] h-full rounded-full" style={{ width: '72%' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[#64748B] mb-1">
+                        <span>Google AI Overviews</span>
+                        <span className="font-bold text-[#171B24]">65%</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="bg-[#2870ED] h-full rounded-full" style={{ width: '65%' }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[#64748B] mb-1">
+                        <span>Perplexity.ai Source Mentions</span>
+                        <span className="font-bold text-[#171B24]">58%</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="bg-[#8B5CF6] h-full rounded-full" style={{ width: '58%' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-[#E2E8F0] rounded-[8px] p-4 shadow-2xs">
+                  <h4 className="font-bold text-xs text-[#171B24] mb-2 uppercase tracking-wider">
+                    Competitor Share of Voice
+                  </h4>
+                  <div className="space-y-2 mt-3 text-xs">
+                    <div className="flex items-center justify-between p-2 rounded bg-[#F8FAFC]">
+                      <span className="font-bold text-[#171B24]">workcomposer.com (Your Site)</span>
+                      <span className="text-[#10B981] font-bold">44.2%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded">
+                      <span className="text-[#64748B]">timecamp.com</span>
+                      <span className="font-semibold text-[#171B24]">26.8%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded">
+                      <span className="text-[#64748B]">zohosocial.com</span>
+                      <span className="font-semibold text-[#171B24]">18.4%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Bottom Bar */}
+            <div className="p-3 bg-white border-t border-[#E2E8F0] flex items-center justify-between text-xs">
+              <span className="text-[#64748B]">
+                Automated weekly dispatch configured for: <b>Every week, on: Tuesday</b>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedReportForPreview(null)}
+                  className="px-4 py-1.5 border border-[#D0D5DD] hover:bg-gray-50 text-[#344054] rounded-[6px] cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    alert('Report link copied to clipboard!');
+                  }}
+                  className="px-4 py-1.5 bg-[#2870ED] hover:bg-[#1C5CD1] text-white font-bold rounded-[6px] cursor-pointer"
+                >
+                  Share Report
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ===================== MODAL: CREATE TEMPLATE ===================== */}
+      {isCreateTemplateModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 border border-[#E2E8F0] relative">
+            <button
+              onClick={() => setIsCreateTemplateModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+            >
+              ✕
+            </button>
+            <h3 className="text-base font-bold text-[#171B24] mb-1">Create Report Template</h3>
+            <p className="text-xs text-[#64748B] mb-4">
+              Configure custom modular sections to reuse across your client and project reports.
+            </p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setIsCreateTemplateModalOpen(false);
+                alert(`Template "${newTemplateName || 'Custom Template'}" created and added to "My templates"!`);
+                setNewTemplateName('');
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-[#344054] mb-1">
+                  Template Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Weekly Executive Rankings & AI Citations"
+                  value={newTemplateName}
+                  onChange={(e) => setNewTemplateName(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#10B981]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#344054] mb-1.5">
+                  Included Modules
+                </label>
+                <div className="space-y-1.5 text-xs text-[#344054]">
+                  {['Rankings Summary & Movers', 'Traffic & Analytics Overview', 'AI Search Engine Visibility', 'Website Technical Audit', 'Competitor Comparison'].map((mod, i) => (
+                    <label key={i} className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" defaultChecked className="rounded text-[#10B981] focus:ring-0" />
+                      <span>{mod}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-[#F0F2F5] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateTemplateModalOpen(false)}
+                  className="px-3.5 py-1.5 border border-[#D0D5DD] text-[#344054] text-xs rounded-[6px] hover:bg-gray-50 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-[6px] cursor-pointer"
+                >
+                  Save Template
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ===================== MODAL: CREATE REPORT ===================== */}
       {isCreateReportModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-[#E1E6EB] relative">
+          <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-5 border border-[#E2E8F0] relative">
             <button
               onClick={() => setIsCreateReportModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
             >
               ✕
             </button>
 
-            <form onSubmit={handleCreateReport} className="space-y-4">
-              <h3 className="text-base font-bold text-[#171B24]">Create Report</h3>
+            <h3 className="text-base font-bold text-[#171B24] mb-1">Create Report</h3>
+            <p className="text-xs text-[#64748B] mb-4">
+              Schedule or generate an instant SEO performance report for your project.
+            </p>
+
+            <form onSubmit={handleCreateReport} className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Report Title</label>
+                <label className="block text-xs font-semibold text-[#344054] mb-1">Report Title</label>
                 <input
                   type="text"
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  className="w-full px-3 py-2 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#2870ED]"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Frequency</label>
+                  <label className="block text-xs font-semibold text-[#344054] mb-1">Frequency</label>
                   <select
                     value={newFrequency}
                     onChange={(e) => setNewFrequency(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#2870ED]"
                   >
+                    <option value="Every week, on: Tuesday">Every week, on: Tuesday</option>
                     <option value="Every week, on: Wednesday">Every week, on: Wednesday</option>
                     <option value="Every Monday morning">Every Monday morning</option>
                     <option value="Monthly, on the 1st">Monthly, on the 1st</option>
                     <option value="Without schedule">Without schedule</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">Language</label>
+                  <label className="block text-xs font-semibold text-[#344054] mb-1">Language</label>
                   <select
                     value={newLanguage}
                     onChange={(e) => setNewLanguage(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                    className="w-full px-3 py-2 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#2870ED]"
                   >
                     <option value="English">English</option>
                     <option value="German">German</option>
                     <option value="French">French</option>
+                    <option value="Spanish">Spanish</option>
                   </select>
                 </div>
               </div>
-              <div className="pt-2 flex justify-end gap-2 border-t border-gray-100">
+
+              <div>
+                <label className="block text-xs font-semibold text-[#344054] mb-1">Report Period</label>
+                <input
+                  type="text"
+                  value={newPeriod}
+                  onChange={(e) => setNewPeriod(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#2870ED]"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-[#F0F2F5] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsCreateReportModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 text-xs rounded-lg cursor-pointer"
+                  className="px-3.5 py-1.5 border border-[#D0D5DD] text-[#344054] text-xs rounded-[6px] hover:bg-gray-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#10B981] hover:bg-[#059669] text-white font-bold text-xs rounded-lg cursor-pointer"
+                  className="px-4 py-1.5 bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold rounded-[6px] cursor-pointer"
                 >
                   Save Report
                 </button>
@@ -766,97 +977,67 @@ export default function ReportBuilderPage() {
         </div>
       )}
 
-      {/* ===================== MODAL: CREATE TEMPLATE ===================== */}
-      {isCreateTemplateModalOpen && (
+      {/* ===================== MODAL: REPORT A BUG ===================== */}
+      {isBugReportOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-[#E1E6EB] relative">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-5 border border-[#E2E8F0] relative">
             <button
-              onClick={() => setIsCreateTemplateModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer"
+              onClick={() => setIsBugReportOpen(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
             >
               ✕
             </button>
-            <div className="space-y-4">
-              <h3 className="text-base font-bold text-[#171B24]">Create Custom Template</h3>
-              <p className="text-xs text-[#5B6370]">Save section presets, custom charts, and white-label branding.</p>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Template Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Executive Client Monthly Pack"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-[#10B981]"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  onClick={() => setIsCreateTemplateModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 text-xs rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setIsCreateTemplateModalOpen(false);
-                    alert('Template saved to "My Templates"!');
-                  }}
-                  className="px-5 py-2 bg-[#10B981] text-white text-xs font-bold rounded-lg"
-                >
-                  Save Template
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+            <h3 className="text-base font-bold text-[#171B24] mb-1">Report a Bug</h3>
+            <p className="text-xs text-[#64748B] mb-3">
+              Encountered an issue with Report Builder? Let our technical engineering team know.
+            </p>
 
-      {/* ===================== MODAL: FEEDBACK ===================== */}
-      {isFeedbackOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-[#E1E6EB] relative">
-            <button
-              onClick={() => setIsFeedbackOpen(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer"
-            >
-              ✕
-            </button>
-            {feedbackSent ? (
+            {bugSubmitted ? (
               <div className="text-center py-6 space-y-2">
-                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-lg">
+                <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-lg font-bold">
                   ✓
                 </div>
-                <h4 className="font-bold text-[#171B24]">Thank you!</h4>
-                <p className="text-xs text-[#5B6370]">Your feedback was sent to the Report Builder team.</p>
+                <div className="font-bold text-[#171B24] text-sm">Bug report submitted</div>
+                <p className="text-xs text-[#64748B]">Thank you for helping us improve SE Ranking Studio.</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Send Feedback</h3>
+              <div className="space-y-3">
                 <textarea
                   rows={4}
-                  value={feedbackMsg}
-                  onChange={(e) => setFeedbackMsg(e.target.value)}
-                  placeholder="Tell us what you think about Report Builder..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
+                  value={bugMessage}
+                  onChange={(e) => setBugMessage(e.target.value)}
+                  placeholder="Describe what happened or what didn't load..."
+                  className="w-full p-2.5 border border-[#D0D5DD] rounded-[6px] text-xs text-[#171B24] focus:outline-hidden focus:border-[#2870ED]"
                 />
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 pt-2 border-t border-[#F0F2F5]">
                   <button
-                    onClick={() => setIsFeedbackOpen(false)}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 text-xs rounded-lg"
+                    onClick={() => setIsBugReportOpen(false)}
+                    className="px-3.5 py-1.5 border border-[#D0D5DD] text-[#344054] text-xs rounded-[6px] hover:bg-gray-50 cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={() => {
-                      if (!feedbackMsg.trim()) return;
-                      setFeedbackSent(true);
+                    onClick={async () => {
+                      if (!bugMessage.trim()) return;
+                      try {
+                        await fetch('/api/bug-report', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ message: bugMessage, page: 'Report Builder' }),
+                        });
+                      } catch {
+                        // ignore
+                      }
+                      setBugSubmitted(true);
                       setTimeout(() => {
-                        setFeedbackSent(false);
-                        setFeedbackMsg('');
-                        setIsFeedbackOpen(false);
-                      }, 1200);
+                        setBugSubmitted(false);
+                        setBugMessage('');
+                        setIsBugReportOpen(false);
+                      }, 1500);
                     }}
-                    className="px-5 py-2 bg-[#10B981] text-white text-xs font-bold rounded-lg"
+                    className="px-4 py-1.5 bg-[#2870ED] hover:bg-[#1C5CD1] text-white text-xs font-bold rounded-[6px] cursor-pointer"
                   >
-                    Send
+                    Send Report
                   </button>
                 </div>
               </div>

@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@internal-seo/ui": ["./src/components/ui/internal-ui.tsx"]
     }
   },
   "include": [

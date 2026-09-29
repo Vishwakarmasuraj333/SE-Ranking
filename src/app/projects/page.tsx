@@ -35,6 +35,7 @@ import { useApp } from '@/components/providers/AppProviders';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
+import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 
 export default function ProjectsDashboardPage() {
   const { projects, activeProject, setActiveProject } = useApp();
@@ -113,32 +114,34 @@ export default function ProjectsDashboardPage() {
   const currentDomain = activeProject?.domain || (projects[0]?.domain ?? 'https://www.workcomposer.com/');
   const currentDomainFormatted = currentDomain.startsWith('http') ? currentDomain : `https://${currentDomain}/`;
 
-  // Dynamic chart dates based on groupBy
+  // Dynamic chart dates based on groupBy and active metric
+  const metricVal = activeMetricTab === 'avg_pos' ? 100 : 0;
+
   const chartData =
     groupBy === 'WEEKS'
       ? [
-          { date: 'Week 35', pos: null },
-          { date: 'Week 36', pos: null },
-          { date: 'Week 37', pos: null },
-          { date: 'Week 38', pos: null },
-          { date: 'Week 39', pos: null },
+          { date: 'Week 35', val: metricVal },
+          { date: 'Week 36', val: metricVal },
+          { date: 'Week 37', val: metricVal },
+          { date: 'Week 38', val: metricVal },
+          { date: 'Week 39', val: metricVal },
         ]
       : groupBy === 'MONTHS'
       ? [
-          { date: 'May 2026', pos: null },
-          { date: 'Jun 2026', pos: null },
-          { date: 'Jul 2026', pos: null },
-          { date: 'Aug 2026', pos: null },
-          { date: 'Sep 2026', pos: null },
+          { date: 'May 2026', val: metricVal },
+          { date: 'Jun 2026', val: metricVal },
+          { date: 'Jul 2026', val: metricVal },
+          { date: 'Aug 2026', val: metricVal },
+          { date: 'Sep 2026', val: metricVal },
         ]
       : [
-          { date: 'Sep 19', pos: null },
-          { date: 'Sep 20', pos: null },
-          { date: 'Sep 21', pos: null },
-          { date: 'Sep 22', pos: null },
-          { date: 'Sep 23', pos: null },
-          { date: 'Sep 24', pos: null },
-          { date: 'Sep 25', pos: null },
+          { date: 'Sep 23', val: metricVal },
+          { date: 'Sep 24', val: metricVal },
+          { date: 'Sep 25', val: metricVal },
+          { date: 'Sep 26', val: metricVal },
+          { date: 'Sep 27', val: metricVal },
+          { date: 'Sep 28', val: metricVal },
+          { date: 'Sep 29', val: metricVal },
         ];
 
   const filteredProjects = projects.filter(
@@ -547,11 +550,11 @@ export default function ProjectsDashboardPage() {
           </div>
         </div>
 
-        {/* Chart View with vertical rotated label */}
+        {/* Chart View with vertical rotated label (Matching Screenshots 1 & 2) */}
         {displayCharts && (
-          <div className="space-y-2">
-            <div className="relative h-56 w-full pt-2 border border-gray-100 rounded-lg p-3 bg-white">
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-gray-400 tracking-wider whitespace-nowrap">
+          <div className="space-y-3">
+            <div className="relative h-60 w-full pt-2 border border-gray-100 rounded-lg p-3 bg-white">
+              <div className="absolute left-1 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold text-gray-400 tracking-wider whitespace-nowrap select-none">
                 {activeMetricTab === 'avg_pos'
                   ? 'AVERAGE POSITION'
                   : activeMetricTab === 'traffic'
@@ -569,17 +572,64 @@ export default function ProjectsDashboardPage() {
                   <LineChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F5" />
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                    <Tooltip />
+                    <YAxis
+                      domain={[0, 100]}
+                      ticks={activeMetricTab === 'avg_pos' ? [0, 50, 100] : [0, 50, 100]}
+                      tick={{ fontSize: 10, fill: '#9CA3AF' }}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const metricLabel =
+                            activeMetricTab === 'avg_pos'
+                              ? 'AVERAGE POSITION'
+                              : activeMetricTab === 'traffic'
+                              ? 'TRAFFIC FORECAST'
+                              : activeMetricTab === 'visibility'
+                              ? 'SEARCH VISIBILITY'
+                              : activeMetricTab === 'top10'
+                              ? '% IN TOP 10'
+                              : activeMetricTab === 'mention'
+                              ? 'MENTION PRESENCE'
+                              : 'LINK PRESENCE';
+
+                          const val = payload[0].value ?? (activeMetricTab === 'avg_pos' ? 100 : 0);
+
+                          return (
+                            <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-xl text-xs space-y-1 z-50">
+                              <div className="text-[11px] font-bold text-gray-800 tracking-wider">
+                                SEP-29 2026
+                              </div>
+                              <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                                {metricLabel}
+                              </div>
+                              <div className="flex items-center gap-1.5 pt-1 text-gray-900 font-medium">
+                                <span className="w-2 h-2 rounded-full bg-[#D946EF]" />
+                                <span>workcomposer.com: {val}</span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="val"
+                      stroke="#D946EF"
+                      strokeWidth={1.5}
+                      dot={{ r: 3.5, fill: '#D946EF', stroke: '#FFFFFF', strokeWidth: 2 }}
+                      activeDot={{ r: 6, fill: '#FFFFFF', stroke: '#D946EF', strokeWidth: 3 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Project indicator under chart */}
-            <div className="flex items-center gap-2 text-xs font-medium text-gray-700">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-              <span>{currentDomainFormatted}</span>
+            {/* Project indicator under chart (Matching Screenshot: magenta dot + domain) */}
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#171B24]">
+              <span className="w-2 h-2 rounded-full bg-[#D946EF]" />
+              <span>workcomposer.com</span>
             </div>
           </div>
         )}
@@ -713,120 +763,111 @@ export default function ProjectsDashboardPage() {
 
           <h3 className="text-base font-bold text-gray-900 mb-2">Projects</h3>
 
-          {/* Projects Table matching Screenshot 1 & 2 */}
+          {/* Projects Table matching Screenshot 1 & 2 & 3 */}
           <div className="border border-gray-200 rounded-lg overflow-x-auto shadow-2xs">
             <table className="w-full text-left text-xs divide-y divide-gray-200">
-              <thead className="bg-[#FAFBFD] font-bold text-gray-600 uppercase text-[10.5px] tracking-wider">
+              <thead className="bg-[#FAFBFD] font-bold text-[#64748B] uppercase text-[10.5px] tracking-wider select-none">
                 <tr>
                   <th className="p-3 w-8">
                     <input
                       type="checkbox"
                       checked={isAllSelected}
                       onChange={handleSelectAll}
-                      className="rounded text-[#0B69FF] cursor-pointer"
+                      className="w-3.5 h-3.5 rounded-[3px] text-[#2870ED] focus:ring-0 cursor-pointer"
                     />
                   </th>
-                  <th className="p-3">
+                  <th className="p-3 min-w-[220px]">
                     WEBSITES (1 - {filteredProjects.length || 1} out of {filteredProjects.length || 1})
                   </th>
-                  {visibleColumns.topRanks && <th className="p-3 text-center">TOP 5 / 10 / 30</th>}
-                  {visibleColumns.keywords && <th className="p-3 text-center">KEYWORDS</th>}
-                  {visibleColumns.prompts && <th className="p-3 text-center">PROMPTS</th>}
-                  {visibleColumns.avgPosition && <th className="p-3 text-center">AVG. POSITION</th>}
-                  {visibleColumns.trafficForecast && <th className="p-3 text-center">TRAFFIC FORECAST</th>}
-                  {visibleColumns.searchVisibility && <th className="p-3 text-center">SEARCH VISIBILITY</th>}
-                  {visibleColumns.top10Percent && <th className="p-3 text-center">% IN TOP 10</th>}
-                  {visibleColumns.mentionPresence && <th className="p-3 text-center">MENTION PRESENCE</th>}
-                  {visibleColumns.linkPresence && <th className="p-3 text-center">LINK PRESENCE</th>}
+                  <th className="p-3 text-center">TOP 5 / 10 / 30</th>
+                  <th className="p-3 text-center">KEYWORDS</th>
+                  <th className="p-3 text-center">PROMPTS</th>
+                  <th className="p-3 text-center">AVG. POSITION</th>
+                  <th className="p-3 text-center">MENTION PRESENCE</th>
+                  <th className="p-3 text-center">LINK PRESENCE</th>
+                  <th className="p-3 text-center">DT</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredProjects.map((p) => {
-                  const displayDomain = p.domain.startsWith('http')
-                    ? p.domain
-                    : `https://${p.domain}`;
-                  const isCurrentActive = activeProject?.id === p.id || activeProject?.domain === p.domain;
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {filteredProjects.map((p, idx) => {
+                  const displayDomain = p.domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                  const isCurrentActive = idx === 0 || activeProject?.id === p.id || activeProject?.domain === p.domain;
                   const isRowSelected = selectedRowIds.includes(p.id);
 
                   return (
                     <tr
                       key={p.id}
                       onClick={() => setActiveProject(p)}
-                      className={`hover:bg-blue-50/30 transition-colors cursor-pointer ${
-                        isRowSelected ? 'bg-blue-50/25' : isCurrentActive ? 'bg-blue-50/15' : ''
-                      }`}
+                      className={`hover:bg-blue-50/20 transition-colors cursor-pointer ${
+                        isCurrentActive ? 'border-l-[3px] border-[#D946EF] bg-fuchsia-50/10' : ''
+                      } ${isRowSelected ? 'bg-blue-50/30' : ''}`}
                     >
                       <td className="p-3" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={isRowSelected}
                           onChange={() => handleToggleRow(p.id)}
-                          className="rounded text-[#0B69FF] cursor-pointer"
+                          className="w-3.5 h-3.5 rounded-[3px] text-[#2870ED] focus:ring-0 cursor-pointer"
                         />
                       </td>
-                      <td className="p-3 font-semibold text-gray-900">
+                      <td className="p-3 font-semibold text-[#171B24]">
                         <div className="flex items-center gap-2">
-                          <ChevronRight className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-                          <img
-                            src={`https://www.google.de/s2/favicons?domain=${p.domain || 'workcomposer.com'}`}
-                            alt=""
-                            className="w-4 h-4 rounded-xs shrink-0"
-                          />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                          <div className="w-4 h-4 rounded-[3px] bg-[#1976D2] text-white flex items-center justify-center font-bold text-[9px] shrink-0">
+                            w
+                          </div>
                           <Link
                             href={`/project-overview`}
                             onClick={(e) => {
                               e.stopPropagation();
                               setActiveProject(p);
                             }}
-                            className="hover:text-[#0B69FF] hover:underline truncate"
+                            className="hover:text-[#2870ED] hover:underline font-bold text-[#171B24] truncate flex items-center gap-1.5"
                           >
-                            {displayDomain}
+                            <span>{displayDomain}</span>
+                            <Sparkles className="w-3.5 h-3.5 text-[#8B5CF6] shrink-0" />
                           </Link>
                         </div>
                       </td>
-                      {visibleColumns.topRanks && (
-                        <td className="p-3 text-center text-gray-600 font-mono">0 / 0 / 0</td>
-                      )}
-                      {visibleColumns.keywords && (
-                        <td className="p-3 text-center">
-                          <Link
-                            href="/research/keyword-research"
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-[#0B69FF] font-semibold hover:underline inline-flex items-center gap-1"
-                          >
-                            <span>🔍 Find</span>
-                          </Link>
-                        </td>
-                      )}
-                      {visibleColumns.prompts && (
-                        <td className="p-3 text-center">
-                          <Link
-                            href={`/research/ai-search?domain=${p.domain}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="text-[#0B69FF] font-semibold hover:underline"
-                          >
-                            Add
-                          </Link>
-                        </td>
-                      )}
-                      {visibleColumns.avgPosition && (
-                        <td className="p-3 text-center text-gray-400">-</td>
-                      )}
-                      {visibleColumns.trafficForecast && (
-                        <td className="p-3 text-center text-gray-400">0</td>
-                      )}
-                      {visibleColumns.searchVisibility && (
-                        <td className="p-3 text-center text-gray-400">0%</td>
-                      )}
-                      {visibleColumns.top10Percent && (
-                        <td className="p-3 text-center text-gray-400">0%</td>
-                      )}
-                      {visibleColumns.mentionPresence && (
-                        <td className="p-3 text-center text-gray-400">N/A</td>
-                      )}
-                      {visibleColumns.linkPresence && (
-                        <td className="p-3 text-center text-gray-400">N/A</td>
-                      )}
+                      <td className="p-3 text-center text-gray-700 font-medium">0 / 0 / 0</td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href="/rankings"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[#2870ED] font-bold hover:underline"
+                        >
+                          20
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href="/ai-results-tracker"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[#2870ED] font-bold hover:underline"
+                        >
+                          10
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center text-gray-800 font-medium">100</td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href="/research/ai-search"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[#2870ED] font-bold hover:underline"
+                        >
+                          0
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href="/research/ai-search"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-[#2870ED] font-bold hover:underline"
+                        >
+                          0
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center text-gray-400 font-bold">•</td>
                     </tr>
                   );
                 })}
@@ -852,12 +893,9 @@ export default function ProjectsDashboardPage() {
 
         {/* Bottom Footer Links */}
         <div className="pt-12 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-          <Link href="/projects" className="flex items-center gap-2 font-bold text-gray-700 hover:text-gray-900 cursor-pointer">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#2563eb]">
-              <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-            </svg>
-            <span>SE Ranking</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <SeRankingLogo variant="dark" width={95} height={20} />
+          </div>
 
           <div className="flex items-center gap-5 text-gray-400">
             <button onClick={() => setIsBugModalOpen(true)} className="hover:text-gray-600 cursor-pointer">

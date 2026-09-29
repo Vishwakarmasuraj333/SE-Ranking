@@ -107,7 +107,7 @@ export function LeftRail() {
       id: 'reports',
       label: 'Report Builder',
       icon: PieChart,
-      href: '/reports',
+      href: '/admin.reports.list.html#/reports',
       onClick: () => setActiveRail('reports'),
     },
     {
@@ -149,11 +149,17 @@ export function LeftRail() {
           } else if (item.id === 'research') {
             isActive = activeRail === 'research' && pathname.startsWith('/research') && !pathname.startsWith('/research/ai-search');
           } else if (item.id === 'backlinks') {
-            isActive = pathname.startsWith('/backlinks') || activeRail === 'backlinks';
+            isActive =
+              pathname.startsWith('/backlinks') ||
+              pathname.startsWith('/admin.backlinks') ||
+              activeRail === 'backlinks';
           } else if (item.id === 'audit') {
             isActive = pathname.startsWith('/website-audit') || activeRail === 'audit';
           } else if (item.id === 'reports') {
-            isActive = pathname.startsWith('/reports') || activeRail === 'reports';
+            isActive =
+              pathname.startsWith('/reports') ||
+              pathname.startsWith('/admin.reports') ||
+              activeRail === 'reports';
           } else {
             isActive = activeRail === item.id || pathname.startsWith(item.href);
           }
@@ -168,14 +174,16 @@ export function LeftRail() {
               title={item.label}
               className={`w-[60px] min-h-[54px] py-1.5 px-0.5 flex flex-col items-center justify-center rounded-lg transition-all duration-150 relative group text-center cursor-pointer ${
                 isActive
-                  ? 'bg-[#1e2d42] text-white font-medium shadow-xs'
+                  ? 'bg-[#313c4e] text-white font-medium shadow-xs'
                   : 'hover:bg-white/10 hover:text-white text-[#9DA8B6]'
               }`}
             >
-              {/* Arrow Notch pointing to secondary sidebar when active */}
-              {isActive && (
-                <div className="absolute -right-[1px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-[#242E3D]" />
-              )}
+              {/* Arrow Notch pointing to secondary sidebar when active (only when secondary sidebar is shown) */}
+              {isActive &&
+                !pathname.startsWith('/reports') &&
+                !pathname.startsWith('/admin.reports') && (
+                  <div className="absolute -right-[1px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-[#242E3D]" />
+                )}
 
               <div className="relative flex items-center justify-center">
                 {item.isBoxedIcon ? (

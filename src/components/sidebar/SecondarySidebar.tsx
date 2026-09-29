@@ -43,6 +43,42 @@ import {
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
+function BacklinkCheckerIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
+  );
+}
+
+function BacklinkGapAnalyzerIcon({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 16H7a4 4 0 0 1 0-8h2" />
+      <path d="M14 8h2a4 4 0 0 1 3.8 2.6" />
+      <line x1="8" y1="12" x2="15" y2="12" />
+      <line x1="18" y1="14" x2="18" y2="20" strokeWidth="2.2" />
+      <line x1="15" y1="17" x2="21" y2="17" strokeWidth="2.2" />
+    </svg>
+  );
+}
 
 export function SecondarySidebar() {
   const pathname = usePathname();
@@ -132,9 +168,14 @@ export function SecondarySidebar() {
   // Determine active section
   const effectiveSection = (() => {
     if (pathname.startsWith('/local-marketing')) return 'local-marketing';
-    if (pathname.startsWith('/api') || pathname.startsWith('/api-docs')) return 'api';
-    if (pathname.startsWith('/backlinks')) return 'projects';
-    if (pathname.startsWith('/website-audit')) return 'audit';
+    if (
+      pathname.startsWith('/backlinks') ||
+      pathname.startsWith('/admin.backlinks') ||
+      activeRail === 'backlinks'
+    ) {
+      if (pathname === '/backlinks-monitor') return 'projects';
+      return 'backlinks';
+    }
     if (pathname.startsWith('/reports')) return 'projects';
     if (
       pathname.startsWith('/agency-pack') ||
@@ -532,7 +573,34 @@ export function SecondarySidebar() {
 
           {/* Navigation Links List */}
           <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 no-scrollbar">
-            {effectiveSection === 'api' ? (
+            {effectiveSection === 'backlinks' ? (
+              /* Backlinks Mode Menu matching exact user screenshot */
+              <div className="space-y-1">
+                <Link
+                  href="/backlinks"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] transition-colors ${
+                    pathname === '/backlinks' || pathname.startsWith('/admin.backlink_checker')
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <BacklinkCheckerIcon className="w-4 h-4 text-gray-400" />
+                  <span>Backlink Checker</span>
+                </Link>
+
+                <Link
+                  href="/admin.backlinks.builder.html#/"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] transition-colors ${
+                    pathname.startsWith('/admin.backlinks') || pathname.startsWith('/backlinks/gap-analyzer')
+                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <BacklinkGapAnalyzerIcon className="w-4 h-4 text-gray-400" />
+                  <span>Backlink Gap Analyzer</span>
+                </Link>
+              </div>
+            ) : effectiveSection === 'api' ? (
               /* API Mode Menu matching Screenshot 1 */
               <>
                 <Link
@@ -1449,33 +1517,6 @@ export function SecondarySidebar() {
                   )}
                 </div>
               </div>
-            ) : effectiveSection === 'backlinks' ? (
-              /* Backlinks Submenu */
-              <>
-                <Link
-                  href="/backlinks"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/backlinks'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Link2 className="w-4 h-4 text-gray-400" />
-                  <span>Backlink Checker</span>
-                </Link>
-
-                <Link
-                  href="/backlinks/gap-analyzer"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname === '/backlinks/gap-analyzer'
-                      ? 'bg-[#394757] text-white font-medium'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <FolderTree className="w-4 h-4 text-gray-400" />
-                  <span>Backlink Gap Analyzer</span>
-                </Link>
-              </>
             ) : effectiveSection === 'audit' ? (
               /* Audit Submenu (Exact 1:1 match to screenshot) */
               <div className="space-y-0.5">
