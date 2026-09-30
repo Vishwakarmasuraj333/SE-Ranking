@@ -52,6 +52,37 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
     }, 800);
   };
 
+  const distribution = {
+    top1: 0,
+    top2_3: 0,
+    top4_5: 0,
+    top6_10: 0,
+    top11_30: 0,
+    top31_100: 0,
+    greaterThan100: 0,
+    ...(data?.distribution || {}),
+  };
+
+  const movement = {
+    jumpedCount: 0,
+    jumpedPercentage: 0,
+    droppedCount: 0,
+    droppedPercentage: 0,
+    unchangedCount: 0,
+    unchangedPercentage: 0,
+    jumpedByBucket: { top1_3: 0, top4_10: 0, top11_30: 0, top31_100: 0 },
+    droppedByBucket: { top1_3: 0, top4_10: 0, top11_30: 0, top31_100: 0 },
+    unchangedByBucket: { top1_3: 0, top4_10: 0, top11_30: 0, top31_100: 0 },
+    ...(data?.movement || {}),
+  };
+
+  const topKeywords = data?.topKeywords || [];
+  const jumpedKeywords = data?.jumpedKeywords || [];
+  const droppedKeywords = data?.droppedKeywords || [];
+  const topPages = data?.topPages || [];
+  const competitors = data?.competitors || [];
+  const algorithmNotes = data?.algorithmNotes || [];
+
   return (
     <div className="space-y-6 pb-16">
       {/* Centralized Rankings Header */}
@@ -209,7 +240,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                 <span className="text-xs text-slate-400">/ {data.totalKeywordsTracked} tracked</span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 pt-1">
-                {data.distribution.greaterThan100} unranked keywords (&gt;100)
+                {distribution.greaterThan100} unranked keywords (&gt;100)
               </p>
             </div>
 
@@ -276,7 +307,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 1
                 </span>
                 <p className="text-2xl font-extrabold text-emerald-900 dark:text-emerald-100">
-                  {data.distribution.top1}
+                  {distribution.top1}
                 </p>
                 <span className="text-[10px] text-emerald-700 dark:text-emerald-400">Position 1</span>
               </div>
@@ -287,7 +318,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 2-3
                 </span>
                 <p className="text-2xl font-extrabold text-green-900 dark:text-green-100">
-                  {data.distribution.top2_3}
+                  {distribution.top2_3}
                 </p>
                 <span className="text-[10px] text-green-700 dark:text-green-400">Positions 2–3</span>
               </div>
@@ -298,7 +329,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 4-5
                 </span>
                 <p className="text-2xl font-extrabold text-teal-900 dark:text-teal-100">
-                  {data.distribution.top4_5}
+                  {distribution.top4_5}
                 </p>
                 <span className="text-[10px] text-teal-700 dark:text-teal-400">Positions 4–5</span>
               </div>
@@ -309,7 +340,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 6-10
                 </span>
                 <p className="text-2xl font-extrabold text-blue-900 dark:text-blue-100">
-                  {data.distribution.top6_10}
+                  {distribution.top6_10}
                 </p>
                 <span className="text-[10px] text-blue-700 dark:text-blue-400">Page 1 Bottom</span>
               </div>
@@ -320,7 +351,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 11-30
                 </span>
                 <p className="text-2xl font-extrabold text-indigo-900 dark:text-indigo-100">
-                  {data.distribution.top11_30}
+                  {distribution.top11_30}
                 </p>
                 <span className="text-[10px] text-indigo-700 dark:text-indigo-400">Pages 2–3</span>
               </div>
@@ -331,7 +362,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   Top 31-100
                 </span>
                 <p className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">
-                  {data.distribution.top31_100}
+                  {distribution.top31_100}
                 </p>
                 <span className="text-[10px] text-slate-500">Pages 4–10</span>
               </div>
@@ -342,7 +373,7 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                   &gt; 100
                 </span>
                 <p className="text-2xl font-extrabold text-slate-700 dark:text-slate-300">
-                  {data.distribution.greaterThan100}
+                  {distribution.greaterThan100}
                 </p>
                 <span className="text-[10px] text-slate-400">Unranked</span>
               </div>
@@ -354,39 +385,39 @@ export function RankingsSummaryWorkspace({ project }: RankingsSummaryWorkspacePr
                 {data.totalKeywordsTracked > 0 && (
                   <>
                     <div
-                      style={{ width: `${(data.distribution.top1 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top1 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-emerald-500 h-full"
-                      title={`Top 1: ${data.distribution.top1}`}
+                      title={`Top 1: ${distribution.top1}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.top2_3 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top2_3 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-green-500 h-full"
-                      title={`Top 2-3: ${data.distribution.top2_3}`}
+                      title={`Top 2-3: ${distribution.top2_3}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.top4_5 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top4_5 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-teal-500 h-full"
-                      title={`Top 4-5: ${data.distribution.top4_5}`}
+                      title={`Top 4-5: ${distribution.top4_5}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.top6_10 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top6_10 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-blue-500 h-full"
-                      title={`Top 6-10: ${data.distribution.top6_10}`}
+                      title={`Top 6-10: ${distribution.top6_10}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.top11_30 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top11_30 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-indigo-500 h-full"
-                      title={`Top 11-30: ${data.distribution.top11_30}`}
+                      title={`Top 11-30: ${distribution.top11_30}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.top31_100 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.top31_100 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-slate-400 h-full"
-                      title={`Top 31-100: ${data.distribution.top31_100}`}
+                      title={`Top 31-100: ${distribution.top31_100}`}
                     />
                     <div
-                      style={{ width: `${(data.distribution.greaterThan100 / data.totalKeywordsTracked) * 100}%` }}
+                      style={{ width: `${(distribution.greaterThan100 / data.totalKeywordsTracked) * 100}%` }}
                       className="bg-slate-200 dark:bg-slate-700 h-full"
-                      title={`>100: ${data.distribution.greaterThan100}`}
+                      title={`>100: ${distribution.greaterThan100}`}
                     />
                   </>
                 )}
