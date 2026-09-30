@@ -100,6 +100,34 @@ app.post("/api/v1/auth/refresh", (_req: Request, res: Response) => {
   });
 });
 
+app.post(["/api/v1/auth/signup", "/api/v1/auth/register", "/api/auth/register"], (req: Request, res: Response) => {
+  const { email, firstName, lastName, password } = req.body || {};
+  if (!email) return errorResponse(res, "Email is required.", 400);
+
+  const newUser: User = {
+    id: `user-${Date.now()}`,
+    email: email.trim(),
+    firstName: firstName || email.split("@")[0],
+    lastName: lastName || "",
+    fullName: firstName ? `${firstName} ${lastName || ""}`.trim() : email.split("@")[0],
+    role: "SuperAdmin",
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    assignedProjectIds: ["workco", "portal"],
+    passwordHash: password || "Admin123#",
+  };
+  users.push(newUser);
+
+  const token = `token-${newUser.id}-${Date.now()}`;
+  return successResponse(res, {
+    accessToken: token,
+    refreshToken: `refresh-${newUser.id}`,
+    expiresAt: new Date(Date.now() + 86400000 * 7).toISOString(),
+    user: newUser,
+  });
+});
+
 app.get("/api/v1/auth/me", (req: Request, res: Response) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -228,6 +256,141 @@ app.get("/api/v1/projects/:id/members", (req: Request, res: Response) => {
     assignedAt: new Date().toISOString(),
   }));
   return successResponse(res, members);
+});
+
+// -------------------------------------------------------------
+// 3b. DASHBOARD (/api/v1/dashboard & /api/v1/projects/:id/dashboard)
+// -------------------------------------------------------------
+app.get(["/api/v1/dashboard", "/api/dashboard"], (_req: Request, res: Response) => {
+  const globalProjects = projects.map((p) => {
+    const pKeywords = getProjectKeywords(p.id);
+    const pTasks = tasks.filter((t) => t.projectId === p.id);
+    return {
+      projectId: p.id,
+      name: p.name,
+      primaryDomain: p.primaryDomain,
+      healthScore: 88,
+      trackedKeywords: pKeywords.length,
+      openTasks: pTasks.filter((t) => t.status !== "Done").length,
+      overdueTasks: 0,
+      lastCrawledAt: new Date().toISOString(),
+      lastSyncedAt: new Date().toISOString(),
+      gscSyncStatus: "Active",
+    };
+  });
+
+  return successResponse(res, {
+    totalProjects: globalProjects.length,
+    totalTrackedKeywords: globalProjects.reduce((acc, p) => acc + p.trackedKeywords, 0),
+    averageHealthScore: Math.round(
+      globalProjects.reduce((acc, p) => acc + (p.healthScore || 85), 0) / (globalProjects.length || 1)
+    ),
+    totalOpenTasks: globalProjects.reduce((acc, p) => acc + p.openTasks, 0),
+    totalOverdueTasks: 0,
+    projects: globalProjects,
+  });
+});
+
+app.get(["/api/v1/projects/:id/dashboard", "/api/projects/:id/dashboard"], (req: Request, res: Response) => {
+  const proj = findProject(req.params.id);
+  const pKeywords = getProjectKeywords(proj.id);
+  const pTasks = tasks.filter((t) => t.projectId === proj.id);
+
+  const totalKeywords = pKeywords.length;
+  const rankedKeywords = pKeywords.filter((k) => k.currentPosition != null && k.currentPosition <= 100);
+  const avgPos = rankedKeywords.length > 0
+    ? Number((rankedKeywords.reduce((acc, k) => acc + (k.currentPosition || 100), 0) / rankedKeywords.length).toFixed(1))
+    : 8.4;
+
+  const top3 = pKeywords.filter((k) => k.currentPosition != null && k.currentPosition <= 3).length;
+  const top10 = pKeywords.filter((k) => k.currentPosition != null && k.currentPosition <= 10).length;
+  const top20 = pKeywords.filter((k) => k.currentPosition != null && k.currentPosition <= 20).length;
+  const top100 = rankedKeywords.length;
+
+  const improved = pKeywords.filter((k) => (k.positionChange || 0) > 0).length;
+  const declined = pKeywords.filter((k) => (k.positionChange || 0) < 0).length;
+  const unchanged = Math.max(0, totalKeywords - improved - declined);
+
+  const data = {
+    projectId: proj.id,
+    projectName: proj.name,
+    primaryDomain: proj.primaryDomain,
+    freshness: {
+      isRankingsStale: false,
+      lastRankCheckAt: new Date(Date.now() - 3600 * 1000 * 14).toISOString(),
+      lastAuditCrawlAt: new Date(Date.now() - 3600 * 1000 * 28).toISOString(),
+      lastGscSyncAt: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
+      gscSyncStatus: "Active",
+    },
+    health: {
+      healthScore: 88,
+      errorsCount: 4,
+      warningsCount: 18,
+      totalUrlsCrawled: 245,
+    },
+    rankings: {
+      totalKeywords,
+      averagePosition: avgPos,
+      searchVisibility: 74.2,
+      top3Count: top3,
+      top10Count: top10,
+      top20Count: top20,
+      top100Count: top100,
+      improvedCount: improved,
+      declinedCount: declined,
+      unchangedCount: unchanged,
+    },
+    gsc: {
+      syncStatus: "Active",
+      lastSyncedAt: new Date(Date.now() - 3600 * 1000 * 4).toISOString(),
+      totalClicks: 14850,
+      totalImpressions: 215400,
+      averageCtr: 0.0689,
+      averagePosition: 6.2,
+      startDate: "2026-08-20",
+      endDate: "2026-09-17",
+      dailySeries: Array.from({ length: 28 }, (_, i) => {
+        const d = new Date(Date.now() - (27 - i) * 86400 * 1000);
+        const dateStr = d.toISOString().substring(5, 10);
+        const clicks = Math.round(420 + Math.sin(i / 3) * 120 + (i % 5) * 20);
+        return {
+          date: dateStr,
+          clicks,
+          impressions: clicks * 15,
+        };
+      }),
+    },
+    tasks: {
+      totalCount: pTasks.length || 18,
+      openCount: pTasks.filter((t) => t.status === "Todo").length || 5,
+      inProgressCount: pTasks.filter((t) => t.status === "InProgress").length || 4,
+      readyForVerificationCount: pTasks.filter((t) => t.status === "Review").length || 3,
+      closedCount: pTasks.filter((t) => t.status === "Done").length || 6,
+      overdueCount: 1,
+    },
+    criticalIssues: [
+      {
+        id: "issue-1",
+        ruleCode: "HTTP_5XX_SERVER_ERROR",
+        firstSeenAt: new Date(Date.now() - 3600 * 1000 * 24).toISOString(),
+        affectedUrl: `https://${proj.primaryDomain}/api/v1/health-check`,
+      },
+      {
+        id: "issue-2",
+        ruleCode: "CANONICAL_POINTS_TO_404",
+        firstSeenAt: new Date(Date.now() - 3600 * 1000 * 48).toISOString(),
+        affectedUrl: `https://${proj.primaryDomain}/features/team-tracking`,
+      },
+      {
+        id: "issue-3",
+        ruleCode: "TITLE_TAG_MISSING",
+        firstSeenAt: new Date(Date.now() - 3600 * 1000 * 72).toISOString(),
+        affectedUrl: `https://${proj.primaryDomain}/downloads/changelog-v4`,
+      },
+    ],
+  };
+
+  return successResponse(res, data);
 });
 
 // -------------------------------------------------------------
