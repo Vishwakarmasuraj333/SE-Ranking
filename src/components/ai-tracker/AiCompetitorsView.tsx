@@ -1960,19 +1960,24 @@ export function AiCompetitorsView({
                   </div>
 
                   {/* Footer status row */}
-                  <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 px-1">
-                    <span>
-                      {filteredPromptItems.length} of {PROMPT_ITEMS.length} prompts
-                    </span>
-                    {promptFilterQuery && (
-                      <button
-                        type="button"
-                        onClick={() => setPromptFilterQuery("")}
-                        className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
-                      >
-                        Clear filter
-                      </button>
-                    )}
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-1 text-[11px] text-slate-400 px-1">
+                    <div className="flex items-center justify-between">
+                      <span>
+                        {filteredPromptItems.length} of {PROMPT_ITEMS.length} prompts
+                      </span>
+                      {promptFilterQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setPromptFilterQuery("")}
+                          className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
+                        >
+                          Clear filter
+                        </button>
+                      )}
+                    </div>
+                    <div className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
+                      These are all the prompts for the selected search engine
+                    </div>
                   </div>
                 </div>
               )}

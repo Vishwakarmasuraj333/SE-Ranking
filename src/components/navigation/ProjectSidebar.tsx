@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CheckSquare } from "lucide-react";
+import { CheckSquare, TrendingUp, Link2, ShieldCheck } from "lucide-react";
 import { ProjectDetailDto } from "../../lib/types";
 
 interface ProjectSidebarProps {
@@ -123,9 +123,7 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
       href: `${baseHref}/insights`,
       isImplemented: true,
       icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
+        <TrendingUp className="w-4 h-4" />
       ),
     },
     {
@@ -133,9 +131,7 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
       href: `${baseHref}/backlink-checker/overview`,
       isImplemented: true,
       icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
+        <Link2 className="w-4 h-4" />
       ),
     },
     {
@@ -148,14 +144,10 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
     },
     {
       name: "Website Audit",
-      href: `${baseHref}/audit`,
+      href: `${baseHref}/audit/overview`,
       isImplemented: true,
       icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <rect x="3" y="3" width="18" height="18" rx="2.5" strokeWidth="2" />
-          <circle cx="11" cy="11" r="3" strokeWidth="2" />
-          <path d="M13.5 13.5L16.5 16.5" strokeWidth="2" strokeLinecap="round" />
-        </svg>
+        <ShieldCheck className="w-4 h-4" />
       ),
     },
     {

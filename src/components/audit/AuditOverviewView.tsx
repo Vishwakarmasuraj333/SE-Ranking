@@ -35,8 +35,9 @@ import {
   Lock,
 } from "lucide-react";
 
-interface AuditOverviewViewProps {
-  project: ProjectDetailDto;
+export interface AuditOverviewViewProps {
+  project?: ProjectDetailDto;
+  projectId?: string;
   overview?: AuditOverviewDto | null;
   issues?: AuditIssueDto[];
   onNavigateTab?: (tab: "issues" | "pages" | "resources" | "links" | "compare") => void;
@@ -45,6 +46,7 @@ interface AuditOverviewViewProps {
 
 export function AuditOverviewView({
   project,
+  projectId,
   overview,
   issues,
   onNavigateTab,
@@ -66,7 +68,7 @@ export function AuditOverviewView({
   const [currentDate] = useState("Sep 22, 2026 14:04:08");
   const [compareDate] = useState("Sep 15, 2026 14:14:01");
 
-  const projectDomain = project.primaryDomain || "acme.example";
+  const projectDomain = project?.primaryDomain || "workcomposer.com";
 
   const handleExport = (useCaseName: string) => {
     setExportNotice(`Export started for "${useCaseName}"`);
