@@ -1,0 +1,6 @@
+@InternalSEO.Api_HostAddress = http://localhost:5020
+
+GET {{InternalSEO.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
