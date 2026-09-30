@@ -24,6 +24,9 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
   const pathname = usePathname();
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isAnalyticsExpanded, setIsAnalyticsExpanded] = useState(true);
+  const [isRankingsExpanded, setIsRankingsExpanded] = useState(() =>
+    pathname.includes("/rankings") || pathname.includes("/projects/")
+  );
   const [isCompetitorsExpanded, setIsCompetitorsExpanded] = useState(() =>
     pathname.includes("/competitors")
   );
@@ -32,6 +35,9 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
   );
   const [isAuditExpanded, setIsAuditExpanded] = useState(() =>
     pathname.includes("/audit")
+  );
+  const [isBacklinkMonitorExpanded, setIsBacklinkMonitorExpanded] = useState(() =>
+    pathname.includes("/backlink")
   );
 
   const projectId = project?.id || "";
@@ -93,8 +99,8 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
       href: `${baseHref}/analytics`,
       isImplemented: true,
       icon: (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+        <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>
       ),
     },
@@ -152,9 +158,8 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
     },
     {
       name: "Page Changes Monitor",
-      href: "#",
-      isImplemented: false,
-      phaseLabel: "Phase 3",
+      href: `${baseHref}/audit/overview`,
+      isImplemented: true,
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -163,9 +168,8 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
     },
     {
       name: "Backlink Monitor",
-      href: "#",
-      isImplemented: false,
-      phaseLabel: "Phase 5",
+      href: `${baseHref}/backlink-checker/overview`,
+      isImplemented: true,
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -317,6 +321,70 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
           }
 
           const isRankings = item.name === "Rankings";
+          if (isRankings) {
+            return (
+              <div key={item.name} className="space-y-0.5">
+                <div
+                  className={`flex items-center justify-between rounded-md transition ${
+                    isActive
+                      ? "bg-blue-600 text-white font-semibold shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-slate-700/70"
+                  }`}
+                >
+                  <Link
+                    href={item.href}
+                    className="flex-1 flex items-center gap-2.5 px-2.5 py-2 text-xs font-medium truncate"
+                  >
+                    <span className={isActive ? "text-white" : "text-slate-400"}>
+                      {item.icon}
+                    </span>
+                    <span className="truncate">{item.name}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label="Toggle Rankings menu"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsRankingsExpanded(!isRankingsExpanded);
+                    }}
+                    className="px-2.5 py-2 text-xs opacity-75 hover:opacity-100 transition cursor-pointer text-slate-400 hover:text-white"
+                  >
+                    <span>{isRankingsExpanded ? "▴" : "▾"}</span>
+                  </button>
+                </div>
+
+                {isRankingsExpanded && (
+                  <div className="pl-6 pr-1 py-1 space-y-0.5 border-l border-slate-700/60 ml-4">
+                    {[
+                      { name: "Summary", href: `${baseHref}/rankings` },
+                      { name: "Detailed", href: `${baseHref}/rankings/detailed` },
+                      { name: "Historical data", href: `${baseHref}/rankings/historical` },
+                    ].map((sub) => {
+                      const isSubActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.name}
+                          href={sub.href}
+                          className={`flex items-center gap-2 px-2 py-1 rounded text-[11px] transition ${
+                            isSubActive
+                              ? "text-blue-400 font-semibold bg-slate-900/80 shadow-sm"
+                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                          }`}
+                        >
+                          <span className={isSubActive ? "text-blue-400 font-bold" : "text-slate-500"}>
+                            •
+                          </span>
+                          <span className="truncate">{sub.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           const isAnalytics = item.name === "Analytics & Traffic";
           const isCompetitors = item.name === "My Competitors";
 
@@ -721,6 +789,74 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
             );
           }
 
+          const isBacklinkMonitor = item.name === "Backlink Monitor";
+          if (isBacklinkMonitor) {
+            return (
+              <div key={item.name} className="space-y-0.5">
+                <div
+                  className={`flex items-center justify-between rounded-md transition ${
+                    isActive
+                      ? "bg-blue-600 text-white font-semibold shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-slate-700/70"
+                  }`}
+                >
+                  <Link
+                    href={item.href}
+                    className="flex-1 flex items-center gap-2.5 px-2.5 py-2 text-xs font-medium truncate"
+                  >
+                    <span className={isActive ? "text-white" : "text-slate-400"}>
+                      {item.icon}
+                    </span>
+                    <span className="truncate">{item.name}</span>
+                  </Link>
+                  <button
+                    type="button"
+                    aria-label="Toggle Backlink Monitor menu"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setIsBacklinkMonitorExpanded(!isBacklinkMonitorExpanded);
+                    }}
+                    className="px-2.5 py-2 text-xs opacity-75 hover:opacity-100 transition cursor-pointer text-slate-400 hover:text-white"
+                  >
+                    <span>{isBacklinkMonitorExpanded ? "▴" : "▾"}</span>
+                  </button>
+                </div>
+
+                {isBacklinkMonitorExpanded && (
+                  <div className="pl-6 pr-1 py-1 space-y-0.5 border-l border-slate-700/60 ml-4">
+                    {[
+                      { name: "Backlinks", href: `${baseHref}/backlink-checker/overview` },
+                      { name: "Domains", href: `${baseHref}/backlink-checker/domains` },
+                      { name: "Anchor Texts", href: `${baseHref}/backlink-checker/overview` },
+                      { name: "Pages", href: `${baseHref}/backlink-checker/overview` },
+                      { name: "IPs/Subnets", href: `${baseHref}/backlink-checker/overview` },
+                      { name: "Disavow", href: `${baseHref}/backlink-checker/overview` },
+                    ].map((sub) => {
+                      const isSubActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.name}
+                          href={sub.href}
+                          className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs transition duration-150 ${
+                            isSubActive
+                              ? "bg-slate-700/60 text-white font-medium shadow-sm"
+                              : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
+                          }`}
+                        >
+                          <span className={`text-[10px] leading-none ${isSubActive ? "text-white font-bold" : "text-slate-500"}`}>
+                            •
+                          </span>
+                          <span className="truncate">{sub.name}</span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <div key={item.name} className="space-y-0.5">
               <Link
@@ -736,42 +872,6 @@ export function ProjectSidebar({ project, isCollapsed, onToggleCollapse }: Proje
                 </span>
                 <span className="truncate">{item.name}</span>
               </Link>
-
-              {/* Rankings Sub-navigation */}
-              {isRankings && isActive && (
-                <div className="pl-7 pr-1 py-1 space-y-0.5 border-l border-slate-700/60 ml-4">
-                  <Link
-                    href={`${baseHref}/rankings`}
-                    className={`block px-2 py-1 rounded text-[11px] transition ${
-                      pathname === `${baseHref}/rankings` || pathname === `${baseHref}/rankings/summary`
-                        ? "text-blue-400 font-semibold bg-slate-900/60"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                    }`}
-                  >
-                    Summary
-                  </Link>
-                  <Link
-                    href={`${baseHref}/rankings/detailed`}
-                    className={`block px-2 py-1 rounded text-[11px] transition ${
-                      pathname.startsWith(`${baseHref}/rankings/detailed`)
-                        ? "text-blue-400 font-semibold bg-slate-900/60"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                    }`}
-                  >
-                    Detailed
-                  </Link>
-                  <Link
-                    href={`${baseHref}/rankings/historical`}
-                    className={`block px-2 py-1 rounded text-[11px] transition ${
-                      pathname.startsWith(`${baseHref}/rankings/historical`)
-                        ? "text-blue-400 font-semibold bg-slate-900/60"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
-                    }`}
-                  >
-                    Historical Data
-                  </Link>
-                </div>
-              )}
             </div>
           );
         })}
