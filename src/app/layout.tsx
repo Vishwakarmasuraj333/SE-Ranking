@@ -9,6 +9,8 @@ export const metadata: Metadata = {
     'Monitor domain citations and brand mentions in AI answers, and identify their sources with SE Ranking AI Search Studio.',
 };
 
+import { AuthProvider } from '@/context/AuthContext';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,9 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-[#F4F6F9] text-gray-900 min-h-screen font-sans">
-        <AppProviders>
-          <AppShell>{children}</AppShell>
-        </AppProviders>
+        <AuthProvider>
+          <AppProviders>
+            <AppShell>{children}</AppShell>
+          </AppProviders>
+        </AuthProvider>
       </body>
     </html>
   );
