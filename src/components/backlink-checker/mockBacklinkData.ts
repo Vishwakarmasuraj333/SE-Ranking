@@ -412,7 +412,7 @@ export const MOCK_WORKCOMPOSER_ANCHORS: AnchorData[] = [
 export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
   {
     id: "zoho-1",
-    anchorText: "zohosocial.com",
+    anchorText: "workco.com",
     referringDomains: 26,
     backlinks: 33,
     dofollowCount: 10,
@@ -429,15 +429,15 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "softwareadvice.com", dt: 79, links: 3 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://techcrunch.com/2024/03/09/social-media-management-tools/", targetUrl: "https://zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://www.g2.com/products/zoho-social/reviews", targetUrl: "https://zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://www.capterra.com/p/142981/Zoho-Social/", targetUrl: "https://zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://www.trustradius.com/products/zoho-social/reviews", targetUrl: "https://zohosocial.com", isDofollow: false },
+      { sourceUrl: "https://techcrunch.com/2024/03/09/social-media-management-tools/", targetUrl: "https://workco.com", isDofollow: true },
+      { sourceUrl: "https://www.g2.com/products/zoho-social/reviews", targetUrl: "https://workco.com", isDofollow: true },
+      { sourceUrl: "https://www.capterra.com/p/142981/Zoho-Social/", targetUrl: "https://workco.com", isDofollow: true },
+      { sourceUrl: "https://www.trustradius.com/products/zoho-social/reviews", targetUrl: "https://workco.com", isDofollow: false },
     ],
   },
   {
     id: "zoho-2",
-    anchorText: "Zoho Social",
+    anchorText: "WorkCo Digital",
     referringDomains: 7,
     backlinks: 8,
     dofollowCount: 4,
@@ -454,13 +454,13 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "socialpilot.co", dt: 76, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://forbes.com/advisor/business/software/best-social-media-management-software/", targetUrl: "https://zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://blog.hubspot.com/marketing/social-media-management-tools", targetUrl: "https://zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://forbes.com/advisor/business/software/best-social-media-management-software/", targetUrl: "https://workco.com", isDofollow: true },
+      { sourceUrl: "https://blog.hubspot.com/marketing/social-media-management-tools", targetUrl: "https://workco.com", isDofollow: true },
     ],
   },
   {
     id: "zoho-3",
-    anchorText: "http://zohosocial.com",
+    anchorText: "http://workco.com",
     referringDomains: 3,
     backlinks: 7,
     dofollowCount: 6,
@@ -475,8 +475,8 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "producthunt.com", dt: 87, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://medium.com/@marketingguru/top-marketing-stacks-2024", targetUrl: "http://zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://www.quora.com/What-is-the-best-social-media-management-tool", targetUrl: "http://zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://medium.com/@marketingguru/top-marketing-stacks-2024", targetUrl: "http://workco.com", isDofollow: true },
+      { sourceUrl: "https://www.quora.com/What-is-the-best-social-media-management-tool", targetUrl: "http://workco.com", isDofollow: true },
     ],
   },
   {
@@ -494,12 +494,12 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "marketingdirecto.com", dt: 68, links: 3 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.marketingdirecto.com/digital-general/herramientas-redes-sociales", targetUrl: "https://zohosocial.com/es/pricing", isDofollow: false },
+      { sourceUrl: "https://www.marketingdirecto.com/digital-general/herramientas-redes-sociales", targetUrl: "https://workco.com/es/pricing", isDofollow: false },
     ],
   },
   {
     id: "zoho-5",
-    anchorText: "Probar Zoho Social gratis",
+    anchorText: "Probar WorkCo Digital gratis",
     referringDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -512,12 +512,12 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "marketingdirecto.com", dt: 68, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.marketingdirecto.com/digital-general/guia-zoho-social-2025", targetUrl: "https://zohosocial.com/es/signup", isDofollow: false },
+      { sourceUrl: "https://www.marketingdirecto.com/digital-general/guia-zoho-social-2025", targetUrl: "https://workco.com/es/signup", isDofollow: false },
     ],
   },
   {
     id: "zoho-6",
-    anchorText: "https://www.zohosocial.com",
+    anchorText: "https://www.workco.com",
     referringDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -530,7 +530,7 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "dev.to", dt: 82, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://dev.to/community/social-scheduler-api-breakdown", targetUrl: "https://www.zohosocial.com", isDofollow: false },
+      { sourceUrl: "https://dev.to/community/social-scheduler-api-breakdown", targetUrl: "https://www.workco.com", isDofollow: false },
     ],
   },
   {
@@ -548,12 +548,12 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "dribbble.com", dt: 89, links: 2 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://dribbble.com/shots/zoho-social-dashboard-concept", targetUrl: "https://zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://dribbble.com/shots/zoho-social-dashboard-concept", targetUrl: "https://workco.com", isDofollow: true },
     ],
   },
   {
     id: "zoho-8",
-    anchorText: "Tool #5: Zoho Social",
+    anchorText: "Tool #5: WorkCo Digital",
     referringDomains: 1,
     backlinks: 1,
     dofollowCount: 1,
@@ -566,12 +566,12 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "searchenginejournal.com", dt: 89, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.searchenginejournal.com/top-social-management-platforms/492011/", targetUrl: "https://zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://www.searchenginejournal.com/top-social-management-platforms/492011/", targetUrl: "https://workco.com", isDofollow: true },
     ],
   },
   {
     id: "zoho-9",
-    anchorText: "ZohoSocial",
+    anchorText: "WorkCo",
     referringDomains: 1,
     backlinks: 7,
     dofollowCount: 0,
@@ -584,7 +584,7 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "reddit.com", dt: 96, links: 7 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.reddit.com/r/socialmedia/comments/zoho_social_review/", targetUrl: "https://zohosocial.com", isDofollow: false },
+      { sourceUrl: "https://www.reddit.com/r/socialmedia/comments/zoho_social_review/", targetUrl: "https://workco.com", isDofollow: false },
     ],
   },
   {
@@ -602,7 +602,7 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "habr.com", dt: 84, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://habr.com/ru/articles/691238/", targetUrl: "https://zohosocial.com", isDofollow: false },
+      { sourceUrl: "https://habr.com/ru/articles/691238/", targetUrl: "https://workco.com", isDofollow: false },
     ],
   },
   {
@@ -620,7 +620,7 @@ export const MOCK_ZOHO_ANCHORS: AnchorData[] = [
       { domain: "wordpress.org", dt: 97, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://wordpress.org/support/topic/zoho-social-integration-typo/", targetUrl: "https://zohosocial.com", isDofollow: false },
+      { sourceUrl: "https://wordpress.org/support/topic/zoho-social-integration-typo/", targetUrl: "https://workco.com", isDofollow: false },
     ],
   },
 ];
@@ -1862,7 +1862,7 @@ export interface ZohoPageItem {
 export const MOCK_ZOHO_PAGES: ZohoPageItem[] = [
   {
     id: "zoho-p-1",
-    url: "https://zohosocial.com/",
+    url: "https://workco.com/",
     protocol: "https",
     backlinksCount: 36,
     refDomainsCount: 30,
@@ -1879,14 +1879,14 @@ export const MOCK_ZOHO_PAGES: ZohoPageItem[] = [
       { domain: "forbes.com", dt: 94, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://buffer.com/resources/social-media-management-tools", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social platform", isDofollow: true },
-      { sourceUrl: "https://sproutsocial.com/insights/best-social-media-tools", targetUrl: "https://zohosocial.com/", anchor: "https://zohosocial.com/", isDofollow: true },
-      { sourceUrl: "https://blog.hubspot.com/marketing/social-publishing-software", targetUrl: "https://zohosocial.com/", anchor: "social media suite", isDofollow: false },
+      { sourceUrl: "https://buffer.com/resources/social-media-management-tools", targetUrl: "https://workco.com/", anchor: "WorkCo Digital platform", isDofollow: true },
+      { sourceUrl: "https://sproutsocial.com/insights/best-social-media-tools", targetUrl: "https://workco.com/", anchor: "https://workco.com/", isDofollow: true },
+      { sourceUrl: "https://blog.hubspot.com/marketing/social-publishing-software", targetUrl: "https://workco.com/", anchor: "social media suite", isDofollow: false },
     ],
   },
   {
     id: "zoho-p-2",
-    url: "http://zohosocial.com/",
+    url: "http://workco.com/",
     protocol: "http",
     backlinksCount: 24,
     refDomainsCount: 6,
@@ -1901,13 +1901,13 @@ export const MOCK_ZOHO_PAGES: ZohoPageItem[] = [
       { domain: "capterra.com", dt: 87, links: 5 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.producthunt.com/products/zoho-social-2", targetUrl: "http://zohosocial.com/", anchor: "zohosocial.com", isDofollow: true },
-      { sourceUrl: "https://www.g2.com/products/zoho-social/reviews", targetUrl: "http://zohosocial.com/", anchor: "Visit Website", isDofollow: false },
+      { sourceUrl: "https://www.producthunt.com/products/zoho-social-2", targetUrl: "http://workco.com/", anchor: "workco.com", isDofollow: true },
+      { sourceUrl: "https://www.g2.com/products/zoho-social/reviews", targetUrl: "http://workco.com/", anchor: "Visit Website", isDofollow: false },
     ],
   },
   {
     id: "zoho-p-3",
-    url: "https://www.zohosocial.com/",
+    url: "https://www.workco.com/",
     protocol: "https",
     backlinksCount: 2,
     refDomainsCount: 2,
@@ -1921,12 +1921,12 @@ export const MOCK_ZOHO_PAGES: ZohoPageItem[] = [
       { domain: "reddit.com", dt: 92, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://medium.com/@marketingguru/tools-for-scheduling-2024", targetUrl: "https://www.zohosocial.com/", anchor: "www.zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://medium.com/@marketingguru/tools-for-scheduling-2024", targetUrl: "https://www.workco.com/", anchor: "www.workco.com", isDofollow: true },
     ],
   },
   {
     id: "zoho-p-4",
-    url: "http://www.zohosocial.com/",
+    url: "http://www.workco.com/",
     protocol: "http",
     backlinksCount: 3,
     refDomainsCount: 2,
@@ -1940,7 +1940,7 @@ export const MOCK_ZOHO_PAGES: ZohoPageItem[] = [
       { domain: "trustradius.com", dt: 82, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://www.quora.com/What-is-the-best-social-media-tool", targetUrl: "http://www.zohosocial.com/", anchor: "http://www.zohosocial.com/", isDofollow: true },
+      { sourceUrl: "https://www.quora.com/What-is-the-best-social-media-tool", targetUrl: "http://www.workco.com/", anchor: "http://www.workco.com/", isDofollow: true },
     ],
   },
 ];
@@ -2176,7 +2176,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
       { domain: "socialnews.ro", dt: 52, links: 3 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://techhub-eu.ro/top-tools-2026", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social", isDofollow: true },
+      { sourceUrl: "https://techhub-eu.ro/top-tools-2026", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true },
     ],
   },
   {
@@ -2193,7 +2193,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
       { domain: "techverband.de", dt: 70, links: 2 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://marketing-berlin.de/software", targetUrl: "https://zohosocial.com/", anchor: "zohosocial.com", isDofollow: true },
+      { sourceUrl: "https://marketing-berlin.de/software", targetUrl: "https://workco.com/", anchor: "workco.com", isDofollow: true },
     ],
   },
   {
@@ -2210,7 +2210,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
       { domain: "startupsuite.co", dt: 68, links: 3 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://cloudtimes.io/review/zoho", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social review", isDofollow: true },
+      { sourceUrl: "https://cloudtimes.io/review/zoho", targetUrl: "https://workco.com/", anchor: "WorkCo Digital review", isDofollow: true },
     ],
   },
   {
@@ -2227,7 +2227,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
       { domain: "asia-saas.com", dt: 65, links: 1 },
     ],
     sampleBacklinks: [
-      { sourceUrl: "https://techinsingapore.sg/saas-leaders", targetUrl: "https://zohosocial.com/", anchor: "zoho social", isDofollow: true },
+      { sourceUrl: "https://techinsingapore.sg/saas-leaders", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true },
     ],
   },
   {
@@ -2240,7 +2240,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "vienna-digital.at", dt: 54, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://vienna-digital.at/post/social", targetUrl: "https://zohosocial.com/", anchor: "social media suite", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://vienna-digital.at/post/social", targetUrl: "https://workco.com/", anchor: "social media suite", isDofollow: true }],
   },
   {
     id: "ip-z-6",
@@ -2252,7 +2252,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 2,
     sampleRefDomains: [{ domain: "usbusinesshub.net", dt: 62, links: 2 }],
-    sampleBacklinks: [{ sourceUrl: "https://usbusinesshub.net/directory", targetUrl: "https://zohosocial.com/", anchor: "https://zohosocial.com/", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://usbusinesshub.net/directory", targetUrl: "https://workco.com/", anchor: "https://workco.com/", isDofollow: true }],
   },
   {
     id: "ip-z-7",
@@ -2264,7 +2264,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "nordicgrowth.dk", dt: 57, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://nordicgrowth.dk/tools", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social", isDofollow: false }],
+    sampleBacklinks: [{ sourceUrl: "https://nordicgrowth.dk/tools", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: false }],
   },
   {
     id: "ip-z-8",
@@ -2276,7 +2276,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 10,
     sampleRefDomains: [{ domain: "leparisien-tech.fr", dt: 75, links: 10 }],
-    sampleBacklinks: [{ sourceUrl: "https://leparisien-tech.fr/comparatif", targetUrl: "https://zohosocial.com/", anchor: "outil de gestion", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://leparisien-tech.fr/comparatif", targetUrl: "https://workco.com/", anchor: "outil de gestion", isDofollow: true }],
   },
   {
     id: "ip-z-9",
@@ -2288,7 +2288,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 6,
     sampleRefDomains: [{ domain: "reseaux-sociaux.fr", dt: 68, links: 6 }],
-    sampleBacklinks: [{ sourceUrl: "https://reseaux-sociaux.fr/logiciels", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://reseaux-sociaux.fr/logiciels", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true }],
   },
   {
     id: "ip-z-10",
@@ -2300,7 +2300,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "californiastartup.org", dt: 56, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://californiastartup.org/stack", targetUrl: "https://zohosocial.com/", anchor: "zoho social", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://californiastartup.org/stack", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true }],
   },
   {
     id: "ip-z-11",
@@ -2312,7 +2312,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "globalsocial.cn", dt: 60, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://globalsocial.cn/overseas-tools", targetUrl: "https://zohosocial.com/", anchor: "zoho social", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://globalsocial.cn/overseas-tools", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true }],
   },
   {
     id: "ip-z-12",
@@ -2324,7 +2324,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 2,
     sampleRefDomains: [{ domain: "marketingstack.co", dt: 63, links: 2 }],
-    sampleBacklinks: [{ sourceUrl: "https://marketingstack.co/social", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social app", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://marketingstack.co/social", targetUrl: "https://workco.com/", anchor: "WorkCo Digital app", isDofollow: true }],
   },
   {
     id: "ip-z-13",
@@ -2336,7 +2336,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "netinsiders.com", dt: 51, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://netinsiders.com/article/zoho", targetUrl: "https://zohosocial.com/", anchor: "zohosocial", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://netinsiders.com/article/zoho", targetUrl: "https://workco.com/", anchor: "WorkCo", isDofollow: true }],
   },
   {
     id: "ip-z-14",
@@ -2348,7 +2348,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "uktechdigest.co.uk", dt: 69, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://uktechdigest.co.uk/review", targetUrl: "https://zohosocial.com/", anchor: "Zoho", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://uktechdigest.co.uk/review", targetUrl: "https://workco.com/", anchor: "Zoho", isDofollow: true }],
   },
   {
     id: "ip-z-15",
@@ -2360,7 +2360,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "onlinemarketing-magazin.de", dt: 64, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://onlinemarketing-magazin.de/software", targetUrl: "https://zohosocial.com/", anchor: "Social Media Tool", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://onlinemarketing-magazin.de/software", targetUrl: "https://workco.com/", anchor: "Social Media Tool", isDofollow: true }],
   },
   {
     id: "ip-z-16",
@@ -2372,7 +2372,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "austin-startups.com", dt: 55, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://austin-startups.com/growth", targetUrl: "https://zohosocial.com/", anchor: "https://zohosocial.com/", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://austin-startups.com/growth", targetUrl: "https://workco.com/", anchor: "https://workco.com/", isDofollow: true }],
   },
   {
     id: "ip-z-17",
@@ -2384,7 +2384,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "london-social.co.uk", dt: 58, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://london-social.co.uk/blog", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social suite", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://london-social.co.uk/blog", targetUrl: "https://workco.com/", anchor: "WorkCo Digital suite", isDofollow: true }],
   },
   {
     id: "ip-z-18",
@@ -2396,7 +2396,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "sofia-tech.bg", dt: 49, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://sofia-tech.bg/resources", targetUrl: "https://zohosocial.com/", anchor: "zoho", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://sofia-tech.bg/resources", targetUrl: "https://workco.com/", anchor: "zoho", isDofollow: true }],
   },
   {
     id: "ip-z-19",
@@ -2408,7 +2408,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "frankfurt-cloud.de", dt: 63, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://frankfurt-cloud.de/saas", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social platform", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://frankfurt-cloud.de/saas", targetUrl: "https://workco.com/", anchor: "WorkCo Digital platform", isDofollow: true }],
   },
   {
     id: "ip-z-20",
@@ -2420,7 +2420,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 4,
     sampleRefDomains: [{ domain: "gcp-partners-portal.com", dt: 71, links: 4 }],
-    sampleBacklinks: [{ sourceUrl: "https://gcp-partners-portal.com/tools", targetUrl: "https://zohosocial.com/", anchor: "Zoho Social", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://gcp-partners-portal.com/tools", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true }],
   },
   {
     id: "ip-z-21",
@@ -2432,7 +2432,7 @@ export const MOCK_ZOHO_IPS: ZohoIpItem[] = [
     refDomainsCount: 1,
     backlinksCount: 1,
     sampleRefDomains: [{ domain: "toronto-saas.ca", dt: 61, links: 1 }],
-    sampleBacklinks: [{ sourceUrl: "https://toronto-saas.ca/directory", targetUrl: "https://zohosocial.com/", anchor: "zoho social", isDofollow: true }],
+    sampleBacklinks: [{ sourceUrl: "https://toronto-saas.ca/directory", targetUrl: "https://workco.com/", anchor: "WorkCo Digital", isDofollow: true }],
   },
 ];
 

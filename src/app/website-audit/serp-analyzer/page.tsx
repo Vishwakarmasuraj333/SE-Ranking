@@ -31,7 +31,7 @@ interface SerpItem {
 
 export default function SerpAnalyzerPage() {
   const { activeProject } = useApp();
-  const domain = activeProject?.domain || 'zohosocial.com';
+  const domain = activeProject?.domain || 'workco.com';
 
   const [keyword, setKeyword] = useState('social media management tool');
   const [country, setCountry] = useState('India');
@@ -41,7 +41,7 @@ export default function SerpAnalyzerPage() {
   const [serpResults, setSerpResults] = useState<SerpItem[]>([
     {
       pos: 1,
-      title: 'Zoho Social: Social Media Management Platform for Businesses',
+      title: 'WorkCo: Digital Product & Platform Engineering for Enterprises',
       url: `https://${domain}/`,
       domain: domain,
       domainTrust: 78,

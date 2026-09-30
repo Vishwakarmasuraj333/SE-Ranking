@@ -780,7 +780,7 @@ export default function ReportBuilderPage() {
                       <span className="font-semibold text-[#171B24]">26.8%</span>
                     </div>
                     <div className="flex items-center justify-between p-2 rounded">
-                      <span className="text-[#64748B]">zohosocial.com</span>
+                      <span className="text-[#64748B]">workco.com</span>
                       <span className="font-semibold text-[#171B24]">18.4%</span>
                     </div>
                   </div>

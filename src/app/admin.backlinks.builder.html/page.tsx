@@ -76,7 +76,7 @@ export default function BacklinkGapAnalyzerPage() {
       {
         id: `comp-${Date.now()}`,
         type: '*.domain.com/*',
-        url: competitors.length === 1 ? 'zohosocial.com' : '',
+        url: competitors.length === 1 ? 'workco.com' : '',
       },
     ]);
   };

@@ -59,11 +59,11 @@ interface AuditIssue {
 const INITIAL_AUDITS: AuditItem[] = [
   {
     id: 'aud-1',
-    domain: 'zohosocial.com',
+    domain: 'workco.com',
     folder: 'General',
     type: 'Project-based',
     lastUpdate: 'Sep 27 2026',
-    healthScore: 84,
+    healthScore: 88,
     errors: 2,
     pagesCrawled: 79,
   },
@@ -159,7 +159,7 @@ function WebsiteAuditContent() {
   const [newAuditPageLimit, setNewAuditPageLimit] = useState(100);
 
   // Single Domain Dashboard State
-  const activeDomain = paramDomain || (audits[0] ? audits[0].domain : 'zohosocial.com');
+  const activeDomain = paramDomain || (audits[0] ? audits[0].domain : 'workco.com');
   const [healthScore, setHealthScore] = useState(84);
   const [isAuditing, setIsAuditing] = useState(false);
   const [selectedSeverity, setSelectedSeverity] = useState<'All' | 'Error' | 'Warning' | 'Notice'>('All');

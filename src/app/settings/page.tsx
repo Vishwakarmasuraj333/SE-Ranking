@@ -41,7 +41,7 @@ export default function ProjectSettingsWizardPage() {
   // Match or default project matching screenshot (https://www.workcomposer.com/)
   const currentProject =
     (siteIdParam ? projects.find((p) => String(p.id) === String(siteIdParam)) : null) ||
-    projects.find((p) => p.name?.toLowerCase().includes('workcomposer') || p.name?.toLowerCase().includes('zohosocial') || p.domain?.toLowerCase().includes('workcomposer')) || {
+    projects.find((p) => p.name?.toLowerCase().includes('workcomposer') || p.name?.toLowerCase().includes('workco') || p.domain?.toLowerCase().includes('workcomposer')) || {
       id: '12960641',
       name: 'https://www.workcomposer.com/',
       domain: 'workcomposer.com',
@@ -90,7 +90,7 @@ export default function ProjectSettingsWizardPage() {
   const [keywords, setKeywords] = useState([
     { keyword: 'social media management tool', searchVolume: '22,200', tag: 'Core' },
     { keyword: 'social media scheduling software', searchVolume: '14,800', tag: 'High-Intent' },
-    { keyword: 'zoho social alternative', searchVolume: '6,600', tag: 'Competitor' },
+    { keyword: 'enterprise design systems agency', searchVolume: '6,600', tag: 'Core' },
     { keyword: 'workcomposer productivity', searchVolume: '2,900', tag: 'Brand' },
   ]);
   const [newKeywordInput, setNewKeywordInput] = useState('');
@@ -206,7 +206,7 @@ export default function ProjectSettingsWizardPage() {
           {/* Project Title & Subtitle */}
           <div className="mb-7">
             <h1 className="text-2xl sm:text-[26px] font-bold text-white tracking-tight leading-snug truncate">
-              {currentProject.name || 'zohosocial.com'}
+              {currentProject.name || 'workco.com'}
             </h1>
             <p className="text-white/80 text-sm mt-0.5 font-normal tracking-wide">
               Settings

@@ -108,15 +108,15 @@ export const appWrapData = {
   active_project_id: 12960641,
   active_project: {
     site_id: 12960641,
-    site_title: "zohosocial.com",
-    site_name: "zohosocial.com",
+    site_title: "workco.com",
+    site_name: "WorkCo Digital Platform",
     site_color: "#04fb63",
-    domain: "zohosocial.com",
-    domain_encoded: "zohosocial.com",
+    domain: "workco.com",
+    domain_encoded: "workco.com",
   },
   breadcrumbs: {
     items: [
-      { text: "zohosocial.com", href: "/rankings" },
+      { text: "workco.com", href: "/rankings" },
       { text: "Project Overview", href: "/project-overview" },
     ],
   },

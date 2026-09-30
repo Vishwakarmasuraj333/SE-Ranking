@@ -16,12 +16,12 @@ interface PagesTabProps {
 }
 
 export function PagesTab({
-  projectDomain = "zohosocial.com",
+  projectDomain = "workco.com",
   showSubTabs = true,
   onNavigateTab,
 }: PagesTabProps) {
-  // Active domain (default zohosocial.com, toggles to workcomposer.com)
-  const [activeDomain, setActiveDomain] = useState<string>(projectDomain || "zohosocial.com");
+  // Active domain (default workco.com, toggles to workcomposer.com)
+  const [activeDomain, setActiveDomain] = useState<string>(projectDomain || "workco.com");
 
   useEffect(() => {
     if (projectDomain) {
@@ -217,7 +217,7 @@ export function PagesTab({
 
   // Source items
   const sourcePages: ZohoPageItem[] = useMemo(() => {
-    if (activeDomain.includes("zohosocial") || activeDomain === "zohosocial.com") {
+    if (activeDomain.includes("WorkCo") || activeDomain === "workco.com") {
       return MOCK_ZOHO_PAGES;
     }
     return MOCK_WORKCOMPOSER_PAGES;
@@ -410,7 +410,7 @@ export function PagesTab({
         {/* Breadcrumb path */}
         <div className="flex items-center gap-2 font-medium">
           <button
-            onClick={() => setActiveDomain(activeDomain === "zohosocial.com" ? "workcomposer.com" : "zohosocial.com")}
+            onClick={() => setActiveDomain(activeDomain === "workco.com" ? "workcomposer.com" : "workco.com")}
             className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer font-medium"
             title="Click to toggle domain"
           >

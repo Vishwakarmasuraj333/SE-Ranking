@@ -22,7 +22,7 @@ import { useApp } from '@/components/providers/AppProviders';
 
 export default function OnPageCheckerPage() {
   const { activeProject } = useApp();
-  const domain = activeProject?.domain || 'zohosocial.com';
+  const domain = activeProject?.domain || 'workco.com';
 
   const [urlInput, setUrlInput] = useState(`https://${domain}/`);
   const [keywordInput, setKeywordInput] = useState('social media management');

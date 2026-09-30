@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 let reportsStore = [
   {
     id: '10075967',
-    title: 'zohosocial.com Project Report',
+    title: 'workco.com Project Report',
     domain: 'workcomposer.com',
     updated: 'Sep-23 2026',
     sent: '-',

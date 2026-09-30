@@ -136,7 +136,7 @@ export function IpsTab({
   showSubTabs = true,
   onNavigateTab,
 }: IpsTabProps) {
-  // Domain selection (workcomposer.com as in screenshot, or zohosocial.com)
+  // Domain selection (workcomposer.com as in screenshot, or workco.com)
   const [activeDomain, setActiveDomain] = useState<string>(projectDomain || "workcomposer.com");
 
   useEffect(() => {
@@ -291,7 +291,7 @@ export function IpsTab({
 
   // Source Items
   const sourceIps: ZohoIpItem[] = useMemo(() => {
-    if (activeDomain.includes("zohosocial") || activeDomain === "zohosocial.com") {
+    if (activeDomain.includes("WorkCo") || activeDomain === "workco.com") {
       return MOCK_ZOHO_IPS;
     }
     return MOCK_WORKCOMPOSER_IPS;
@@ -567,7 +567,7 @@ export function IpsTab({
         {/* Breadcrumb path */}
         <div className="flex items-center gap-2 font-medium">
           <button
-            onClick={() => setActiveDomain(activeDomain === "zohosocial.com" ? "workcomposer.com" : "zohosocial.com")}
+            onClick={() => setActiveDomain(activeDomain === "workco.com" ? "workcomposer.com" : "workco.com")}
             className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer font-medium"
             title="Click to toggle domain"
           >

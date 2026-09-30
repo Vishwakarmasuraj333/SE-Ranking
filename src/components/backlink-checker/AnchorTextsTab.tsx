@@ -19,11 +19,11 @@ export function AnchorTextsTab({
   showSubTabs = true,
   onNavigateTab,
 }: AnchorTextsTabProps) {
-  // Domain selection (workcomposer.com as in screenshot, or zohosocial.com)
-  const isZoho = (projectDomain || "").toLowerCase().includes("zohosocial");
+  // Domain selection (workcomposer.com as in screenshot, or workco.com)
+  const isZoho = (projectDomain || "").toLowerCase().includes("WorkCo");
   const [activeDomain, setActiveDomain] = useState<string>(projectDomain || "workcomposer.com");
 
-  // Banners - in screenshot, trial banner is only shown for zohosocial
+  // Banners - in screenshot, trial banner is only shown for WorkCo
   const [showTrialBanner, setShowTrialBanner] = useState(isZoho);
   const [showNoticeBanner, setShowNoticeBanner] = useState(true);
   const [showGuideBanner, setShowGuideBanner] = useState(true);
@@ -42,7 +42,7 @@ export function AnchorTextsTab({
   useEffect(() => {
     if (projectDomain) {
       setActiveDomain(projectDomain);
-      const isZ = projectDomain.toLowerCase().includes("zohosocial");
+      const isZ = projectDomain.toLowerCase().includes("WorkCo");
       setLastCheckDate(isZ ? "September 23, 2026" : "September 26, 2026");
       setShowTrialBanner(isZ);
     }
@@ -183,13 +183,13 @@ export function AnchorTextsTab({
       id: "n-1",
       author: "Alex Morgan",
       date: "23 Sep 2026",
-      text: "Primary branded anchor texts verified. High concentration on 'zohosocial.com' root URL.",
+      text: "Primary branded anchor texts verified. High concentration on 'workco.com' root URL.",
     },
     {
       id: "n-2",
       author: "David Chen",
       date: "19 Sep 2026",
-      text: "Spanish campaigns generated anchors like 'Probar gratis' and 'Probar Zoho Social gratis'.",
+      text: "Spanish campaigns generated anchors like 'Probar gratis' and 'Probar WorkCo Digital gratis'.",
     },
     {
       id: "n-3",
@@ -519,14 +519,14 @@ export function AnchorTextsTab({
           <button
             type="button"
             onClick={() => {
-              const nextDomain = activeDomain === "zohosocial.com" ? "workcomposer.com" : "zohosocial.com";
+              const nextDomain = activeDomain === "workco.com" ? "workcomposer.com" : "workco.com";
               setActiveDomain(nextDomain);
-              const isZ = nextDomain.toLowerCase().includes("zohosocial");
+              const isZ = nextDomain.toLowerCase().includes("WorkCo");
               setLastCheckDate(isZ ? "September 23, 2026" : "September 26, 2026");
               setShowTrialBanner(isZ);
             }}
             className="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition cursor-pointer font-medium"
-            title="Click to toggle between workcomposer.com and zohosocial.com"
+            title="Click to toggle between workcomposer.com and workco.com"
           >
             {activeDomain}
           </button>

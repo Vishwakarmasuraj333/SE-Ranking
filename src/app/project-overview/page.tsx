@@ -141,12 +141,12 @@ export default function ProjectOverviewPage() {
   const [defaultPeriod, setDefaultPeriod] = useState('Last 30 days');
 
   // Interactive Section Dropdown States
-  const [aiSearchBrand, setAiSearchBrand] = useState('Zoho');
+  const [aiSearchBrand, setAiSearchBrand] = useState('WorkCo');
   const [isAiSearchBrandOpen, setIsAiSearchBrandOpen] = useState(false);
   const [aiSearchPeriod, setAiSearchPeriod] = useState('Last 30 days');
   const [isAiSearchPeriodOpen, setIsAiSearchPeriodOpen] = useState(false);
 
-  const [aiTrackerBrand, setAiTrackerBrand] = useState('Zoho');
+  const [aiTrackerBrand, setAiTrackerBrand] = useState('WorkCo');
   const [isAiTrackerBrandOpen, setIsAiTrackerBrandOpen] = useState(false);
   const [aiTrackerEngines, setAiTrackerEngines] = useState('1 AI engines · 0 prompts');
   const [isAiTrackerEnginesOpen, setIsAiTrackerEnginesOpen] = useState(false);
@@ -328,7 +328,7 @@ export default function ProjectOverviewPage() {
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className="font-bold text-gray-900 text-sm">Competitive Research - AI Search ⓘ</span>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-600 font-medium">Brand: Zoho</span>
+                <span className="text-gray-600 font-medium">Brand: WorkCo</span>
                 <span className="text-gray-600 font-medium">Last 30 days</span>
               </div>
             )}
@@ -693,7 +693,7 @@ export default function ProjectOverviewPage() {
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className="font-bold text-gray-900 text-sm">AI Results Tracker ⓘ</span>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-600 font-medium">Brand: Zoho</span>
+                <span className="text-gray-600 font-medium">Brand: WorkCo</span>
                 <span className="text-gray-600 font-medium">1 AI engines · 0 prompts</span>
                 <span className="text-gray-600 font-medium">27 Sept - 29 Sept, 2026</span>
               </div>

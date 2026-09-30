@@ -181,7 +181,7 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
   // ==========================================
   const [reportOrientation, setReportOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [reportTitle, setReportTitle] = useState('Monthly SEO Performance Report');
-  const [reportSubtitle, setReportSubtitle] = useState('Prepared for Zoho Social');
+  const [reportSubtitle, setReportSubtitle] = useState('Prepared for WorkCo Digital');
   const [reportAccentColor, setReportAccentColor] = useState('#0B69FF');
   const [isReportModified, setIsReportModified] = useState(false);
 
@@ -191,9 +191,9 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
   const [widgets, setWidgets] = useState<LeadWidget[]>([
     {
       id: 'w-1',
-      name: 'Zoho Social Audit Widget',
+      name: 'WorkCo Digital Audit Widget',
       type: 'Pop-up',
-      targetDomain: 'zohosocial.com',
+      targetDomain: 'workco.com',
       created: 'Sep 26, 2026',
       leadsCount: 14,
       status: 'Active',
@@ -202,7 +202,7 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
   const [isAddWidgetModalOpen, setIsAddWidgetModalOpen] = useState(false);
   const [newWidgetName, setNewWidgetName] = useState('');
   const [newWidgetType, setNewWidgetType] = useState<LeadWidget['type']>('Pop-up');
-  const [newWidgetDomain, setNewWidgetDomain] = useState('zohosocial.com');
+  const [newWidgetDomain, setNewWidgetDomain] = useState('workco.com');
 
   const handleAddWidget = (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,7 +212,7 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
       id: `w-${Date.now()}`,
       name: newWidgetName.trim(),
       type: newWidgetType,
-      targetDomain: newWidgetDomain.trim() || 'zohosocial.com',
+      targetDomain: newWidgetDomain.trim() || 'workco.com',
       created: 'Sep 27, 2026',
       leadsCount: 0,
       status: 'Active',
@@ -1071,7 +1071,7 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
                 type="button"
                 onClick={() => {
                   setReportTitle('Monthly SEO Performance Report');
-                  setReportSubtitle('Prepared for Zoho Social');
+                  setReportSubtitle('Prepared for WorkCo Digital');
                   setReportAccentColor('#0B69FF');
                   setIsReportModified(false);
                   showToast('Report branding reset.');
