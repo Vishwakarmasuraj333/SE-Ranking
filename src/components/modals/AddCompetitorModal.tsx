@@ -2,21 +2,41 @@
 
 import React, { useState } from 'react';
 import { X, Globe, Tag, AlertCircle } from 'lucide-react';
+import { AddCompetitorModal as ProjectCompetitorModal } from '../competitors/AddCompetitorModal';
+import { CompetitorDto } from '@/lib/types';
 
-interface AddCompetitorModalProps {
+export interface AddCompetitorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  analysisId: string;
-  onSuccess: (newComp: any) => void;
-  currentCount: number;
+  projectId?: string;
+  analysisId?: string;
+  onSuccess: (competitor: CompetitorDto | any) => void;
+  currentCount?: number;
 }
 
-export function AddCompetitorModal({
+export function AddCompetitorModal(props: AddCompetitorModalProps) {
+  // If projectId is provided, render the project competitor modal requested by user
+  if (props.projectId) {
+    return (
+      <ProjectCompetitorModal
+        projectId={props.projectId}
+        isOpen={props.isOpen}
+        onClose={props.onClose}
+        onSuccess={props.onSuccess}
+      />
+    );
+  }
+
+  // Otherwise, render the analysis competitor modal (for AI Search Dashboard)
+  return <AnalysisCompetitorModal {...props} />;
+}
+
+function AnalysisCompetitorModal({
   isOpen,
   onClose,
-  analysisId,
+  analysisId = '',
   onSuccess,
-  currentCount,
+  currentCount = 0,
 }: AddCompetitorModalProps) {
   const [domain, setDomain] = useState('');
   const [brandName, setBrandName] = useState('');
@@ -140,3 +160,5 @@ export function AddCompetitorModal({
     </div>
   );
 }
+
+export default AddCompetitorModal;

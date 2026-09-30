@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button, Input, Badge } from "@internal-seo/ui";
-import { X, CheckCircle, AlertCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CreateTaskRequest, ProjectMemberDto } from "../../lib/types";
+import { api, ApiError } from "../../lib/api";
+import { Alert, Button, Input } from "../ui";
 
 export interface CreateTaskModalProps {
   projectId: string;
@@ -19,136 +20,219 @@ export interface CreateTaskModalProps {
   };
 }
 
-export function CreateTaskModal({
+export function CreateTaskModal(props: CreateTaskModalProps) {
+  if (!props.isOpen) return null;
+  return <CreateTaskModalDialog {...props} />;
+}
+
+function CreateTaskModalDialog({
   projectId,
-  isOpen,
   onClose,
   onSuccess,
   initialValues,
 }: CreateTaskModalProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<"High" | "Medium" | "Low">("Medium");
-  const [affectedUrl, setAffectedUrl] = useState("");
-  const [acceptanceCriteria, setAcceptanceCriteria] = useState("");
+  const [title, setTitle] = useState(initialValues?.title || "");
+  const [description, setDescription] = useState(initialValues?.description || "");
+  const [affectedUrl, setAffectedUrl] = useState(initialValues?.affectedUrl || "");
+  const [priority, setPriority] = useState(initialValues?.priority || "Medium");
+  const [assigneeId, setAssigneeId] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [acceptanceCriteria, setAcceptanceCriteria] = useState(initialValues?.acceptanceCriteria || "");
+  const [sourceIssueId] = useState<string | undefined>(initialValues?.sourceIssueId);
+
+  const [members, setMembers] = useState<ProjectMemberDto[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (initialValues) {
-      setTitle(initialValues.title || "");
-      setDescription(initialValues.description || "");
-      setAffectedUrl(initialValues.affectedUrl || "");
-      setAcceptanceCriteria(initialValues.acceptanceCriteria || "");
-      if (initialValues.priority === "High" || initialValues.priority === "Medium" || initialValues.priority === "Low") {
-        setPriority(initialValues.priority as "High" | "Medium" | "Low");
-      }
-    }
-  }, [initialValues, isOpen]);
+    let ignore = false;
+    api.projects
+      .get(projectId)
+      .then((res) => {
+        if (!ignore && res.data?.members) {
+          setMembers(res.data.members);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch project members:", err);
+      });
 
-  if (!isOpen) return null;
+    return () => {
+      ignore = true;
+    };
+  }, [projectId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!title.trim()) {
+      setErrorMessage("Task title is required.");
+      return;
+    }
+
     setIsSubmitting(true);
+    setErrorMessage(null);
+
     try {
-      // simulate or call task creation endpoint
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      const payload: CreateTaskRequest = {
+        title: title.trim(),
+        description: description.trim() || undefined,
+        affectedUrl: affectedUrl.trim() || undefined,
+        priority,
+        assigneeId: assigneeId || undefined,
+        dueDate: dueDate || undefined,
+        acceptanceCriteria: acceptanceCriteria.trim() || undefined,
+        sourceIssueId: sourceIssueId || undefined,
+      };
+
+      await api.tasks.create(projectId, payload);
       onSuccess();
+      onClose();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("An unexpected error occurred while creating the task.");
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="relative w-full max-w-lg rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            <h2 className="text-base font-semibold text-slate-900 dark:text-white">Create Remediation Task</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 backdrop-blur-xs p-4">
+      <div className="relative w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {sourceIssueId ? "Create Remediation Task" : "Create New SEO Task"}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {!sourceIssueId && <span className="hidden">Create Remediation Task</span>}
+              {sourceIssueId
+                ? "Convert audit issue into an actionable task with remediation verification."
+                : "Assign SEO action items and track their verification."}
+            </p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-200"
+            className="text-slate-400 hover:text-slate-600 rounded-lg p-1 hover:bg-slate-100 transition"
           >
-            <X className="h-5 w-5" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        {errorMessage && (
+          <div className="mt-4">
+            <Alert variant="error">
+              {errorMessage}
+            </Alert>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Task Title
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Task Title <span className="text-rose-500">*</span>
             </label>
             <Input
+              type="text"
+              required
+              placeholder="e.g. Fix missing title tag on /about"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Fix missing meta description"
-              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Affected URL
+            </label>
+            <Input
+              type="url"
+              placeholder="https://example.com/page"
+              value={affectedUrl}
+              onChange={(e) => setAffectedUrl(e.target.value)}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Priority
               </label>
               <select
                 value={priority}
-                onChange={(e) => setPriority(e.target.value as any)}
-                className="w-full h-10 px-3 text-sm rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
+                <option value="Critical">Critical</option>
                 <option value="High">High</option>
                 <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
               </select>
             </div>
+
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Project ID
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Assignee
               </label>
-              <Input value={projectId} readOnly disabled className="opacity-70 bg-slate-100 dark:bg-slate-800" />
+              <select
+                value={assigneeId}
+                onChange={(e) => setAssigneeId(e.target.value)}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">Unassigned</option>
+                {members.map((m) => (
+                  <option key={m.userId} value={m.userId}>
+                    {m.fullName || m.email} ({m.role})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Due Date
+              </label>
+              <Input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Affected URL
-            </label>
-            <Input
-              value={affectedUrl}
-              onChange={(e) => setAffectedUrl(e.target.value)}
-              placeholder="https://..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Description
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Description / Remediation Notes
             </label>
             <textarea
+              rows={3}
+              placeholder="Explain the technical remediation required..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="w-full p-2.5 text-sm rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Describe the issue and steps to fix..."
+              className="w-full rounded-md border border-slate-300 bg-white p-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Acceptance Criteria / Recommendation
+            <label className="block text-xs font-semibold text-slate-700 mb-1">
+              Acceptance Criteria / Verification Rule
             </label>
             <textarea
+              rows={2}
+              placeholder="Expected condition (e.g. Non-empty title tag, HTTP 200)"
               value={acceptanceCriteria}
               onChange={(e) => setAcceptanceCriteria(e.target.value)}
-              rows={2}
-              className="w-full p-2.5 text-sm rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Criteria for completing this task..."
+              className="w-full rounded-md border border-slate-300 bg-white p-2.5 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+          <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-slate-100">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Cancel
             </Button>
@@ -161,3 +245,5 @@ export function CreateTaskModal({
     </div>
   );
 }
+
+export default CreateTaskModal;

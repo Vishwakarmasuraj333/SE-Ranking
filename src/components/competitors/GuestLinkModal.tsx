@@ -1,21 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-
-export const GUEST_MODULE_DEFINITIONS: {
-  key: string;
-  label: string;
-  icon: string;
-  description: string;
-}[] = [
-  { key: "overview", label: "Project Overview", icon: "📊", description: "Summary metrics and project visibility" },
-  { key: "rankings", label: "Rankings", icon: "📈", description: "Detailed keyword positions and search engine ranks" },
-  { key: "analytics", label: "Analytics & Traffic", icon: "📉", description: "Traffic share and search trends" },
-  { key: "competitors", label: "My Competitors", icon: "⚔️", description: "Added competitors and SERP competitor overlap" },
-  { key: "aiResultsTracker", label: "AI Results Tracker", icon: "🤖", description: "AI Overview rankings and citations" },
-  { key: "websiteAudit", label: "Website Audit", icon: "🔍", description: "Technical health and crawl issue reports" },
-  { key: "marketingPlan", label: "Marketing Plan", icon: "🎯", description: "SEO task checklists and roadmaps" },
-];
+import React, { useState, useEffect, useMemo } from "react";
 
 export interface GuestLinkModalProps {
   isOpen: boolean;
@@ -31,29 +16,52 @@ export interface GuestLinkModalProps {
   onCopied?: (url: string) => void;
 }
 
+export const GUEST_MODULE_DEFINITIONS: { key: string; label: string; icon: string; description: string }[] = [
+  { key: "overview", label: "Overview", icon: "📊", description: "Summary metrics and project visibility" },
+  { key: "rankings", label: "Rankings", icon: "📈", description: "Detailed keyword positions and search engine ranks" },
+  { key: "analytics", label: "Analytics", icon: "📉", description: "Traffic share and search trends" },
+  { key: "competitors", label: "Competitors", icon: "⚔️", description: "Added competitors and SERP competitor overlap" },
+  { key: "aiResults", label: "AI Results", icon: "🤖", description: "AI Overview rankings and citations" },
+  { key: "audit", label: "Website Audit", icon: "🔍", description: "Technical health and crawl issue reports" },
+  { key: "marketing", label: "Marketing Plan", icon: "🎯", description: "SEO task checklists and roadmaps" },
+];
+
 export function GuestLinkModal({
   isOpen,
   onClose,
   projectId,
-  projectDomain = "example.com",
+  projectDomain = "workcomposer.com",
   hideSearchVolume = false,
   setHideSearchVolume,
   includeFilterSort = true,
   setIncludeFilterSort,
   guestModules = {
-    overview: true,
-    rankings: true,
-    analytics: true,
+    overview: false,
+    rankings: false,
+    analytics: false,
     competitors: true,
-    aiResultsTracker: true,
-    websiteAudit: true,
-    marketingPlan: true,
+    aiResults: false,
+    audit: false,
+    marketing: false,
   },
   setGuestModules,
   onCopied,
 }: GuestLinkModalProps) {
   const [copied, setCopied] = useState(false);
 
+  // Close on Escape key press
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Construct dynamic guest link
   const guestUrl = useMemo(() => {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://app.internalseoplatform.com";
     const activeMods = Object.entries(guestModules)
@@ -71,10 +79,8 @@ export function GuestLinkModal({
     if (includeFilterSort) {
       params.set("filterSort", "1");
     }
-    params.set(
-      "token",
-      `gst_${projectId.replace(/[^a-zA-Z0-9]/g, "")}_${projectDomain.replace(/[^a-zA-Z0-9]/g, "")}`
-    );
+    // Stable demo share token
+    params.set("token", `gst_${projectId.replace(/[^a-zA-Z0-9]/g, "")}_${projectDomain.replace(/[^a-zA-Z0-9]/g, "")}`);
 
     return `${origin}/guest/projects/${projectId}?${params.toString()}`;
   }, [projectId, projectDomain, guestModules, hideSearchVolume, includeFilterSort]);
@@ -92,23 +98,36 @@ export function GuestLinkModal({
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleSelectAll = () => {
+  const handleToggleModule = (modKey: string) => {
     if (setGuestModules) {
-      const all: Record<string, boolean> = {};
-      GUEST_MODULE_DEFINITIONS.forEach((m) => {
-        all[m.key] = true;
-      });
-      setGuestModules(all);
+      setGuestModules((prev) => ({
+        ...prev,
+        [modKey]: !prev[modKey],
+      }));
     }
   };
 
-  const handleClearAll = () => {
+  const handleSelectAllModules = () => {
     if (setGuestModules) {
-      const none: Record<string, boolean> = {};
-      GUEST_MODULE_DEFINITIONS.forEach((m) => {
-        none[m.key] = false;
+      setGuestModules((prev) => {
+        const updated: Record<string, boolean> = {};
+        Object.keys(prev).forEach((k) => {
+          updated[k] = true;
+        });
+        return updated;
       });
-      setGuestModules(none);
+    }
+  };
+
+  const handleDeselectAllModules = () => {
+    if (setGuestModules) {
+      setGuestModules((prev) => {
+        const updated: Record<string, boolean> = {};
+        Object.keys(prev).forEach((k) => {
+          updated[k] = false;
+        });
+        return updated;
+      });
     }
   };
 
@@ -123,7 +142,7 @@ export function GuestLinkModal({
       }}
     >
       <div
-        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150 flex flex-col text-xs text-slate-800 dark:text-slate-200"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-150 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -147,7 +166,7 @@ export function GuestLinkModal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close guest link modal"
+            aria-label="Close modal"
             className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
             ✕
@@ -173,7 +192,6 @@ export function GuestLinkModal({
               <button
                 type="button"
                 onClick={handleCopy}
-                aria-label="Copy link"
                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition shrink-0 cursor-pointer"
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -216,12 +234,12 @@ export function GuestLinkModal({
                 type="checkbox"
                 checked={hideSearchVolume}
                 onChange={(e) => setHideSearchVolume && setHideSearchVolume(e.target.checked)}
-                aria-label="Hide search volume"
+                data-testid="guest-link-hide-sv-toggle"
                 className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
             </label>
 
-            {/* Toggle 2: Include filtering and sorting */}
+            {/* Toggle 2: Include filters and sorting */}
             <label className="flex items-start justify-between gap-3 cursor-pointer select-none pt-2 border-t border-slate-200/60 dark:border-slate-700/50">
               <div className="space-y-0.5">
                 <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
@@ -235,7 +253,7 @@ export function GuestLinkModal({
                 type="checkbox"
                 checked={includeFilterSort}
                 onChange={(e) => setIncludeFilterSort && setIncludeFilterSort(e.target.checked)}
-                aria-label="Include filters and sorting"
+                data-testid="guest-link-include-filters-toggle"
                 className="mt-1 h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
               />
             </label>
@@ -255,7 +273,7 @@ export function GuestLinkModal({
               <div className="flex items-center gap-2 text-[11px]">
                 <button
                   type="button"
-                  onClick={handleSelectAll}
+                  onClick={handleSelectAllModules}
                   className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer font-medium"
                 >
                   Select all
@@ -263,7 +281,7 @@ export function GuestLinkModal({
                 <span className="text-slate-300 dark:text-slate-600">|</span>
                 <button
                   type="button"
-                  onClick={handleClearAll}
+                  onClick={handleDeselectAllModules}
                   className="text-slate-500 hover:underline cursor-pointer font-medium"
                 >
                   Clear all
@@ -286,14 +304,8 @@ export function GuestLinkModal({
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() =>
-                        setGuestModules &&
-                        setGuestModules((prev) => ({
-                          ...prev,
-                          [mod.key]: !prev[mod.key],
-                        }))
-                      }
-                      aria-label={mod.label}
+                      onChange={() => handleToggleModule(mod.key)}
+                      data-testid={`guest-module-${mod.key}`}
                       className="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     <div className="min-w-0">
@@ -316,9 +328,7 @@ export function GuestLinkModal({
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 rounded-b-2xl">
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>
-              Link access: <strong>Read-only</strong>
-            </span>
+            <span>Link access: <strong>Read-only</strong></span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -342,4 +352,5 @@ export function GuestLinkModal({
     </div>
   );
 }
+
 export default GuestLinkModal;
