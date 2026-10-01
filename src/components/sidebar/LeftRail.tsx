@@ -21,28 +21,34 @@ import { useApp, RailSection } from '../providers/AppProviders';
 
 export function LeftRail() {
   const pathname = usePathname();
-  const { activeRail, setActiveRail } = useApp();
+  const { activeRail, setActiveRail, hasCreatedProject, setIsAddWebsiteModalOpen } = useApp();
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isProjectsActive =
-    pathname === '/' ||
-    pathname === '/projects' ||
-    pathname === '/project-overview' ||
-    pathname.startsWith('/rankings') ||
-    pathname.startsWith('/analytics') ||
-    pathname.startsWith('/competitors') ||
-    pathname.startsWith('/ai-results-tracker') ||
-    pathname.startsWith('/insights') ||
-    pathname.startsWith('/admin.insights') ||
-    pathname === '/marketing-plan' ||
-    pathname === '/page-changes' ||
-    pathname === '/backlinks-monitor' ||
-    pathname === '/settings' ||
-    (activeRail === 'projects' &&
-      !pathname.startsWith('/research') &&
-      !pathname.startsWith('/backlinks') &&
-      !pathname.startsWith('/local-marketing') &&
-      !pathname.startsWith('/agency-pack') &&
-      !pathname.startsWith('/api-docs'));
+    hasCreatedProject &&
+    (pathname === '/' ||
+      pathname === '/projects' ||
+      pathname === '/project-overview' ||
+      pathname.startsWith('/rankings') ||
+      pathname.startsWith('/analytics') ||
+      pathname.startsWith('/competitors') ||
+      pathname.startsWith('/ai-results-tracker') ||
+      pathname.startsWith('/insights') ||
+      pathname.startsWith('/admin.insights') ||
+      pathname === '/marketing-plan' ||
+      pathname === '/page-changes' ||
+      pathname === '/backlinks-monitor' ||
+      pathname === '/settings' ||
+      (activeRail === 'projects' &&
+        !pathname.startsWith('/research') &&
+        !pathname.startsWith('/backlinks') &&
+        !pathname.startsWith('/local-marketing') &&
+        !pathname.startsWith('/agency-pack') &&
+        !pathname.startsWith('/api-docs')));
 
   const railItems: Array<{
     id: RailSection;
@@ -111,7 +117,7 @@ export function LeftRail() {
       id: 'reports',
       label: 'Report Builder',
       icon: PieChart,
-      href: '/admin.reports.list.html#/reports',
+      href: '/reports',
       onClick: () => setActiveRail('reports'),
     },
     {
@@ -146,44 +152,61 @@ export function LeftRail() {
       <div className="flex flex-col items-center gap-1 overflow-y-auto no-scrollbar">
         {railItems.map((item) => {
           let isActive = false;
-          if (item.id === 'projects') {
-            isActive = isProjectsActive;
-          } else if (item.label === 'AI Search') {
-            isActive = pathname.startsWith('/research/ai-search');
-          } else if (item.id === 'research') {
-            isActive = activeRail === 'research' && pathname.startsWith('/research') && !pathname.startsWith('/research/ai-search');
-          } else if (item.id === 'backlinks') {
-            isActive =
-              pathname.startsWith('/backlinks') ||
-              pathname.startsWith('/admin.backlinks') ||
-              activeRail === 'backlinks';
-          } else if (item.id === 'audit') {
-            isActive = pathname.startsWith('/website-audit') || activeRail === 'audit';
-          } else if (item.id === 'reports') {
-            isActive =
-              pathname.startsWith('/reports') ||
-              pathname.startsWith('/admin.reports') ||
-              activeRail === 'reports';
-          } else {
-            isActive = activeRail === item.id || pathname.startsWith(item.href);
+          if (hasCreatedProject) {
+            if (item.id === 'projects') {
+              isActive = isProjectsActive;
+            } else if (item.label === 'AI Search') {
+              isActive = pathname.startsWith('/research/ai-search');
+            } else if (item.id === 'research') {
+              isActive =
+                activeRail === 'research' &&
+                pathname.startsWith('/research') &&
+                !pathname.startsWith('/research/ai-search');
+            } else if (item.id === 'backlinks') {
+              isActive =
+                pathname.startsWith('/backlinks') ||
+                pathname.startsWith('/admin.backlinks') ||
+                activeRail === 'backlinks';
+            } else if (item.id === 'audit') {
+              isActive = pathname.startsWith('/website-audit') || activeRail === 'audit';
+            } else if (item.id === 'reports') {
+              isActive =
+                pathname.startsWith('/reports') ||
+                pathname.startsWith('/admin.reports') ||
+                activeRail === 'reports';
+            } else {
+              isActive = activeRail === item.id || pathname.startsWith(item.href);
+            }
           }
 
           const Icon = item.icon;
 
+          const isMuted = isMounted && !hasCreatedProject;
+
           return (
             <Link
               key={`${item.id}-${item.label}`}
-              href={item.href}
-              onClick={item.onClick}
-              title={item.label}
+              href={isMuted ? '#' : item.href}
+              onClick={(e) => {
+                if (isMuted) {
+                  e.preventDefault();
+                  setIsAddWebsiteModalOpen(true);
+                } else if (item.onClick) {
+                  item.onClick();
+                }
+              }}
+              title={isMuted ? `${item.label} (Add your first website to unlock)` : item.label}
               className={`w-[60px] min-h-[54px] py-1.5 px-0.5 flex flex-col items-center justify-center rounded-lg transition-all duration-150 relative group text-center cursor-pointer ${
-                isActive
+                isMuted
+                  ? 'cursor-not-allowed opacity-35 hover:opacity-50 text-[#8B98A5]'
+                  : isActive
                   ? 'bg-[#313c4e] text-white font-medium shadow-xs'
                   : 'hover:bg-white/10 hover:text-white text-[#9DA8B6]'
               }`}
             >
-              {/* Arrow Notch pointing to secondary sidebar when active (only when secondary sidebar is shown) */}
+              {/* Arrow Notch pointing to secondary sidebar when active */}
               {isActive &&
+                !isMuted &&
                 !pathname.startsWith('/reports') &&
                 !pathname.startsWith('/admin.reports') && (
                   <div className="absolute -right-[1px] top-1/2 -translate-y-1/2 w-0 h-0 border-y-[6px] border-y-transparent border-r-[6px] border-r-[#242E3D]" />
@@ -191,29 +214,45 @@ export function LeftRail() {
 
               <div className="relative flex items-center justify-center">
                 {item.isBoxedIcon ? (
-                  <div className={`p-1 rounded border ${isActive ? 'border-white/50 text-white' : 'border-gray-500/40 text-[#9DA8B6] group-hover:text-white'}`}>
+                  <div
+                    className={`p-1 rounded border ${
+                      isMuted
+                        ? 'border-gray-600/40 text-[#8B98A5]'
+                        : isActive
+                        ? 'border-white/50 text-white'
+                        : 'border-gray-500/40 text-[#9DA8B6] group-hover:text-white'
+                    }`}
+                  >
                     <Icon className="w-4 h-4" />
                   </div>
                 ) : (
                   <Icon
-                    className={`w-[20px] h-[20px] transition-transform duration-150 group-hover:scale-105 ${
-                      isActive ? 'text-white' : 'text-[#9DA8B6] group-hover:text-white'
+                    className={`w-[20px] h-[20px] ${
+                      isMuted
+                        ? 'text-[#8B98A5]'
+                        : isActive
+                        ? 'text-white'
+                        : 'text-[#8B98A5] group-hover:text-white'
                     }`}
                   />
                 )}
-
-                {item.hasMarker && (
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#20b26c] border border-[#0c192c]" />
-                )}
               </div>
 
-              <span className="text-[11px] leading-tight px-0.5 mt-1 text-center line-clamp-2 max-w-[58px] font-normal tracking-tight">
+              <span
+                className={`text-[11px] leading-tight px-0.5 mt-1 text-center line-clamp-2 max-w-[58px] font-normal tracking-tight ${
+                  isMuted
+                    ? 'text-[#8B98A5]'
+                    : isActive
+                    ? 'text-white'
+                    : 'text-[#8B98A5] group-hover:text-white'
+                }`}
+              >
                 {item.label}
               </span>
 
-              {item.badge && (
+              {item.badge && !isMuted && (
                 <span
-                  className={`mt-0.5 text-[9.5px] font-bold px-1.5 py-0.2 rounded-full tracking-tight ${item.badgeColor}`}
+                  className={`mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-full tracking-tight ${item.badgeColor}`}
                 >
                   {item.badge}
                 </span>
@@ -232,7 +271,7 @@ export function LeftRail() {
         >
           <div className="relative">
             <div className="w-6 h-6 rounded-full bg-[#1b3459] text-blue-200 flex items-center justify-center text-[10px] font-bold border border-blue-400/40">
-              GV
+              SV
             </div>
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#2563eb] border border-[#0c192c]" />
           </div>

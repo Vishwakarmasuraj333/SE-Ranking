@@ -50,6 +50,70 @@ export function CreateNoteModal({
     initialKeyword || availableKeywords[0] || 'employee monitoring software'
   );
 
+  // Calendar Date Picker State
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [calendarYear, setCalendarYear] = useState(2026);
+  const [calendarMonth, setCalendarMonth] = useState(8); // September (0-indexed)
+  const [selectedDay, setSelectedDay] = useState(30);
+  const datePickerRef = React.useRef<HTMLDivElement>(null);
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const shortMonthNames = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const firstDayOfWeek = new Date(calendarYear, calendarMonth, 1).getDay();
+
+  const changeMonth = (offset: number) => {
+    let newMonth = calendarMonth + offset;
+    let newYear = calendarYear;
+    if (newMonth < 0) {
+      newMonth = 11;
+      newYear -= 1;
+    } else if (newMonth > 11) {
+      newMonth = 0;
+      newYear += 1;
+    }
+    setCalendarMonth(newMonth);
+    setCalendarYear(newYear);
+  };
+
+  const selectCalendarDate = (day: number) => {
+    setSelectedDay(day);
+    const formatted = `${day} ${shortMonthNames[calendarMonth]} ${calendarYear}`;
+    setNoteDate(formatted);
+    setIsDatePickerOpen(false);
+  };
+
+  const setToday = () => {
+    const now = new Date();
+    setCalendarYear(now.getFullYear());
+    setCalendarMonth(now.getMonth());
+    setSelectedDay(now.getDate());
+    const formatted = `${now.getDate()} ${shortMonthNames[now.getMonth()]} ${now.getFullYear()}`;
+    setNoteDate(formatted);
+    setIsDatePickerOpen(false);
+  };
+
+  // Close calendar popover on click outside
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setIsDatePickerOpen(false);
+      }
+    };
+    if (isDatePickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isDatePickerOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -191,19 +255,117 @@ export function CreateNoteModal({
                 />
               </div>
 
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                   Date:
                 </label>
-                <div className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:border-[#524B76] focus-within:ring-1 focus-within:ring-[#524B76]">
-                  <Calendar className="w-4 h-4 text-gray-600 shrink-0" />
-                  <input
-                    type="text"
-                    value={noteDate}
-                    onChange={(e) => setNoteDate(e.target.value)}
-                    className="w-full bg-transparent text-xs font-medium text-gray-900 focus:outline-none"
-                  />
+                <div
+                  onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
+                  className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 bg-white hover:border-gray-400 focus-within:border-[#524B76] focus-within:ring-1 focus-within:ring-[#524B76] cursor-pointer select-none"
+                >
+                  <Calendar className="w-4 h-4 text-[#524B76] shrink-0" />
+                  <span className="w-full text-xs font-medium text-gray-900">
+                    {noteDate}
+                  </span>
                 </div>
+
+                {/* Professional Interactive Calendar Popover */}
+                {isDatePickerOpen && (
+                  <div
+                    ref={datePickerRef}
+                    className="absolute right-0 sm:left-0 top-full mt-1.5 z-50 bg-white border border-gray-200 rounded-xl shadow-2xl p-4 w-72 animate-in fade-in zoom-in-95 duration-150 select-none text-gray-900"
+                  >
+                    {/* Month / Year header with navigation */}
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          changeMonth(-1);
+                        }}
+                        className="p-1 rounded-md hover:bg-gray-100 text-gray-600 cursor-pointer"
+                      >
+                        ◀
+                      </button>
+                      <span className="text-xs font-bold text-gray-900">
+                        {monthNames[calendarMonth]} {calendarYear}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          changeMonth(1);
+                        }}
+                        className="p-1 rounded-md hover:bg-gray-100 text-gray-600 cursor-pointer"
+                      >
+                        ▶
+                      </button>
+                    </div>
+
+                    {/* Weekday headers */}
+                    <div className="grid grid-cols-7 gap-1 text-center py-2 text-[10px] font-bold text-gray-400">
+                      <span>Su</span>
+                      <span>Mo</span>
+                      <span>Tu</span>
+                      <span>We</span>
+                      <span>Th</span>
+                      <span>Fr</span>
+                      <span>Sa</span>
+                    </div>
+
+                    {/* Days grid */}
+                    <div className="grid grid-cols-7 gap-1 text-center text-xs">
+                      {Array.from({ length: firstDayOfWeek }).map((_, i) => (
+                        <div key={`empty-${i}`} className="w-8 h-8" />
+                      ))}
+                      {Array.from({ length: daysInMonth }).map((_, i) => {
+                        const dayNum = i + 1;
+                        const isSelected = selectedDay === dayNum;
+                        return (
+                          <button
+                            key={dayNum}
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              selectCalendarDate(dayNum);
+                            }}
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center font-medium text-xs transition-colors cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#524B76] text-white font-bold shadow-xs'
+                                : 'text-gray-800 hover:bg-gray-100'
+                            }`}
+                          >
+                            {dayNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Quick shortcuts */}
+                    <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setToday();
+                        }}
+                        className="text-[#0B69FF] font-semibold hover:underline cursor-pointer"
+                      >
+                        Today
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsDatePickerOpen(false);
+                        }}
+                        className="text-gray-500 hover:text-gray-800 cursor-pointer"
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

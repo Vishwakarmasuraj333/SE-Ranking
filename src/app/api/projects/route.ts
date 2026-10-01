@@ -36,20 +36,16 @@ export async function GET() {
     let projects = await prisma.project.findMany({
       where: {
         isArchived: false,
-        OR: [
-          { domain: { contains: 'workcomposer' } },
-          { name: { contains: 'workcomposer' } },
-        ],
       },
       orderBy: { createdAt: 'asc' },
       include: {
         _count: {
-          select: { analyses: true },
+          select: { analyses: true, keywords: true, auditIssues: true, tasks: true },
         },
       },
     });
 
-    // Ensure WorkComposer exists in DB
+    // Ensure at least one default project exists in DB if table is empty
     if (projects.length === 0) {
       try {
         const fp = fallbackProjects[0];
@@ -63,16 +59,16 @@ export async function GET() {
           },
         });
         projects = await prisma.project.findMany({
-          where: { isArchived: false, domain: { contains: 'workcomposer' } },
+          where: { isArchived: false },
           orderBy: { createdAt: 'asc' },
           include: {
             _count: {
-              select: { analyses: true },
+              select: { analyses: true, keywords: true, auditIssues: true, tasks: true },
             },
           },
         });
       } catch (seedErr) {
-        console.warn('Could not seed WorkComposer into DB, using fallback list', seedErr);
+        console.warn('Could not seed default project into DB, using fallback list', seedErr);
       }
     }
 
@@ -88,6 +84,9 @@ export async function GET() {
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
         analysesCount: p._count?.analyses ?? 0,
+        keywordsCount: p._count?.keywords ?? 0,
+        auditIssuesCount: p._count?.auditIssues ?? 0,
+        tasksCount: p._count?.tasks ?? 0,
       }));
       return NextResponse.json({ success: true, projects: formatted });
     }

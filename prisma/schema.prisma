@@ -8,28 +8,184 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  role      String    @default("user")
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  projects  Project[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  role         String        @default("user")
+  passwordHash String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  projects     Project[]
+  tasks        Task[]
+  notifications Notification[]
 }
 
 model Project {
-  id          String     @id @default(cuid())
-  name        String
-  domain      String
-  brandName   String?
-  country     String     @default("India")
-  countryCode String     @default("in")
-  isArchived  Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  userId      String?
-  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  analyses    Analysis[]
+  id                  String              @id @default(cuid())
+  name                String
+  domain              String
+  brandName           String?
+  protocol            String              @default("https://")
+  country             String              @default("India")
+  countryCode         String              @default("in")
+  primaryLocation     String?
+  languageCode        String              @default("en")
+  timezone            String              @default("America/New_York")
+  defaultSearchEngine String              @default("google")
+  defaultDevice       String              @default("desktop")
+  status              String              @default("Active") // Active, Paused, Archived
+  isArchived          Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  userId              String?
+  user                User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  analyses            Analysis[]
+  keywords            Keyword[]
+  projectCompetitors  ProjectCompetitor[]
+  auditIssues         AuditIssue[]
+  tasks               Task[]
+  backlinks           Backlink[]
+  reports             Report[]
+  notes               Note[]
+}
+
+model Keyword {
+  id                  String   @id @default(cuid())
+  projectId           String
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keywordText         String
+  searchEngine        String   @default("google")
+  countryCode         String   @default("us")
+  device              String   @default("desktop")
+  targetUrl           String?
+  searchIntent        String?  // Commercial, Informational, Navigational, Transactional
+  monthlySearchVolume Int?     @default(0)
+  keywordDifficulty   Int?     @default(0)
+  cpcUsd              Float?   @default(0.0)
+  isActive            Boolean  @default(true)
+  currentPosition     Int?
+  previousPosition    Int?
+  positionChange      Int?
+  rankedUrl           String?
+  serpFeatures        String?  // JSON array string
+  groupId             String?
+  groupName           String?
+  tags                String?  // JSON array string
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model ProjectCompetitor {
+  id                  String   @id @default(cuid())
+  projectId           String
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name                String
+  domain              String
+  visibilityScore     Float?   @default(0)
+  avgPosition         Float?   @default(0)
+  commonKeywordsCount Int?     @default(0)
+  totalKeywords       Int?     @default(0)
+  organicTraffic      String?
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model AuditIssue {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ruleId         String
+  title          String
+  category       String   // Crawlability, Performance, Content, Links, Security
+  severity       String   // Error, Warning, Notice
+  url            String
+  description    String
+  recommendation String
+  status         String   @default("Open") // Open, Resolved, Ignored
+  foundAt        DateTime @default(now())
+}
+
+model Task {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title            String
+  description      String?
+  priority         String   @default("Medium") // High, Medium, Low
+  status           String   @default("Todo")   // Todo, InProgress, Review, Done
+  assignedToUserId String?
+  assignedToUser   User?    @relation(fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  assignedToName   String?
+  dueDate          DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String?
+  title     String
+  message   String
+  type      String   @default("info") // info, warning, success, error
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Backlink {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceUrl     String
+  targetUrl     String
+  anchorText    String?
+  domainTrust   Int?     @default(50)
+  pageTrust     Int?     @default(50)
+  isDoFollow    Boolean  @default(true)
+  isLost        Boolean  @default(false)
+  firstSeenDate DateTime @default(now())
+  lastSeenDate  DateTime @default(now())
+  createdAt     DateTime @default(now())
+}
+
+model Report {
+  id              String    @id @default(cuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name            String
+  type            String    @default("Overview") // Overview, Rankings, Audit, Competitor
+  schedule        String?   // "Weekly", "Monthly", or null
+  recipients      String?   // JSON array or comma separated
+  format          String    @default("PDF") // PDF, CSV, Excel
+  status          String    @default("Ready")
+  lastGeneratedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  color     String   @default("yellow")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userName   String?
+  action     String
+  entityType String
+  entityId   String
+  details    String?
+  ipAddress  String   @default("127.0.0.1")
+  createdAt  DateTime @default(now())
 }
 
 model Analysis {
@@ -125,3 +281,47 @@ model ApiUsage {
   status      String   @default("success")
   createdAt   DateTime @default(now())
 }
+
+model SocialBrand {
+  id              String        @id @default(cuid())
+  projectId       String?
+  name            String
+  workspaceName   String?
+  platforms       String        // JSON array string e.g. ["Facebook", "Instagram", "LinkedIn"]
+  workspacesCount Int           @default(1)
+  postsCount      Int           @default(0)
+  status          String        @default("Active") // Active, Paused, Archived
+  posts           SocialPost[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model SocialPost {
+  id            String       @id @default(cuid())
+  brandId       String
+  brand         SocialBrand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  platform      String       // Facebook, Instagram, LinkedIn, YouTube, X, TikTok, Pinterest, Threads, Google Business
+  title         String?
+  caption       String
+  mediaUrl      String?
+  status        String       @default("Scheduled") // Draft, InReview, Scheduled, Published
+  scheduledFor  DateTime?
+  likes         Int          @default(0)
+  comments      Int          @default(0)
+  shares        Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model GoogleAccount {
+  id           String   @id @default(cuid())
+  googleId     String   @unique
+  email        String
+  name         String?
+  picture      String?
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+

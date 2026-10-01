@@ -28,6 +28,7 @@ import { CountryFlag } from '@/components/ui/CountryFlag';
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreated?: (newProject?: any) => void;
 }
 
 const POPULAR_COUNTRIES = [
@@ -60,7 +61,7 @@ const LANGUAGES = [
   'Polish',
 ];
 
-export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProjectModalProps) {
   const router = useRouter();
   const { refreshProjects, setActiveProject } = useApp();
 
@@ -69,8 +70,8 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
     setMounted(true);
   }, []);
 
-  // Mode: simple (1-screen matching Image 1) vs advanced (6-step wizard matching Image 2)
-  const [advancedSettings, setAdvancedSettings] = useState(false);
+  // Blue 6-step project wizard (Default as requested)
+  const [advancedSettings, setAdvancedSettings] = useState(true);
 
   // Active Wizard Step: 1 to 6 (for advanced mode)
   const [currentStep, setCurrentStep] = useState(1);
@@ -300,6 +301,26 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
       console.warn('Failed to cache project in localStorage', storageErr);
     }
 
+    if (createdProject?.id && keywordsText.trim()) {
+      try {
+        const kwList = keywordsText
+          .split('\n')
+          .map((k) => k.trim())
+          .filter(Boolean);
+        await fetch(`/api/projects/${createdProject.id}/keywords`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords: kwList }),
+        }).catch(() => null);
+      } catch (err) {
+        console.warn('Keywords API sync warning:', err);
+      }
+    }
+
+    if (onCreated) {
+      onCreated(createdProject);
+    }
+
     await refreshProjects();
     setActiveProject(createdProject);
     onClose();
@@ -441,18 +462,22 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
 
               <div className="flex items-center gap-8">
                 {/* Advanced settings toggle */}
-                <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center gap-2 cursor-pointer select-none"
+                  onClick={() => setAdvancedSettings(!advancedSettings)}
+                >
                   <button
                     type="button"
-                    onClick={() => setAdvancedSettings(!advancedSettings)}
                     className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors ${
                       advancedSettings ? 'bg-[#2870ED]' : 'bg-gray-300'
                     }`}
                   >
                     <div
-                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                        advancedSettings ? 'translate-x-4' : 'translate-x-0'
-                      }`}
+                      className="bg-white w-4 h-4 rounded-full shadow-md pointer-events-none"
+                      style={{
+                        transform: advancedSettings ? 'translateX(16px)' : 'translateX(0px)',
+                        transition: 'transform 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+                      }}
                     />
                   </button>
                   <div className="flex items-center gap-1 text-xs text-gray-700 font-medium">
@@ -981,18 +1006,22 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
 
             <div className="flex items-center gap-8">
               {/* Advanced settings toggle */}
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2 cursor-pointer select-none"
+                onClick={() => setAdvancedSettings(!advancedSettings)}
+              >
                 <button
                   type="button"
-                  onClick={() => setAdvancedSettings(!advancedSettings)}
                   className={`w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer transition-colors ${
                     advancedSettings ? 'bg-[#2870ED]' : 'bg-gray-300'
                   }`}
                 >
                   <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                      advancedSettings ? 'translate-x-4' : 'translate-x-0'
-                    }`}
+                    className="bg-white w-4 h-4 rounded-full shadow-md pointer-events-none"
+                    style={{
+                      transform: advancedSettings ? 'translateX(16px)' : 'translateX(0px)',
+                      transition: 'transform 150ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
                   />
                 </button>
                 <div className="flex items-center gap-1 text-xs text-gray-700 font-medium">

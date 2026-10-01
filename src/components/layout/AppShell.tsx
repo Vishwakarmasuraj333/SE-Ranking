@@ -3,17 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
-import { TrialBanner } from '@/components/layout/TrialBanner';
+import { GoogleUpdateAlertBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
 import { AppFooter } from '@/components/layout/AppFooter';
-import { Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { useApp } from '@/components/providers/AppProviders';
+import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { hasCreatedProject, isAddWebsiteModalOpen, setIsAddWebsiteModalOpen, setActiveProject } = useApp();
 
   // Auth, public landing pages, and standalone Project Settings Wizard have NO admin header, NO sidebar
   const isAuthOrPublicPage =
@@ -61,7 +62,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
 
     const checkAuth = () => {
-      // Strict auth check: no direct access allowed without authenticating
       let isAuth =
         (typeof window !== 'undefined' &&
           (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
@@ -69,7 +69,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         (typeof document !== 'undefined' &&
           document.cookie.includes('seranking_auth_status=logged_in'));
 
-      // If in local dev / no auth set yet, auto-set demo session so pages load smoothly
       if (!isAuth && typeof window !== 'undefined') {
         localStorage.setItem('seranking_auth_status', 'logged_in');
         sessionStorage.setItem('seranking_auth_status', 'logged_in');
@@ -80,7 +79,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        // Cleanly redirect unauthenticated visitors to login
         router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
       }
     };
@@ -102,7 +100,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If waiting for auth or unauthenticated, display professional loading screen without leaking dashboard
   if (isAuthenticated === null || isAuthenticated === false) {
     return (
       <div className="min-h-screen bg-[#F4F6F9] flex flex-col items-center justify-center p-6 text-center select-none font-sans">
@@ -119,6 +116,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/admin.site.wizard';
 
   const hideSecondarySidebar =
+    !hasCreatedProject ||
+    pathname === '/projects' ||
+    pathname === '/admin.dashboard.html' ||
     pathname === '/reports' ||
     pathname.startsWith('/reports') ||
     pathname.startsWith('/admin.reports') ||
@@ -128,8 +128,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col font-sans relative bg-[#F4F6F9] text-gray-900">
-      {/* Top Blue Header (Hidden on standalone Admin pages matching exact screenshot) */}
-      {!isStandaloneAdmin && <TopHeader />}
+      {/* Top Red Alert Banner and Dark Blue Header */}
+      {!isStandaloneAdmin && (
+        <div className="w-full shrink-0 z-50">
+          <GoogleUpdateAlertBanner />
+          <TopHeader />
+        </div>
+      )}
 
       {/* Main App Workspace */}
       <div className="flex-1 flex overflow-hidden lg:overflow-visible relative">
@@ -138,8 +143,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar */}
-        {!hideSecondarySidebar && (
+        {/* Desktop Secondary Navigation Sidebar (Only shown when project is active) */}
+        {!hideSecondarySidebar && hasCreatedProject && (
           <div className="hidden lg:flex shrink-0 relative z-30">
             <SecondarySidebar />
           </div>
@@ -157,6 +162,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <AppFooter />
         </div>
       </div>
+
+      {/* Global Add Website Modal */}
+      {isAddWebsiteModalOpen && (
+        <CreateProjectModal
+          isOpen={isAddWebsiteModalOpen}
+          onClose={() => setIsAddWebsiteModalOpen(false)}
+          onCreated={(newProject) => {
+            setIsAddWebsiteModalOpen(false);
+            if (newProject) {
+              setActiveProject(newProject);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

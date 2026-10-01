@@ -1,18 +1,12 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
+import React, { Suspense } from 'react';
+import { SEWizardView } from '@/components/settings/SEWizardView';
 
 export default function WizardStandalonePage() {
-  const router = useRouter();
-
   return (
-    <div className="min-h-screen bg-white">
-      <CreateProjectModal
-        isOpen={true}
-        onClose={() => router.push('/projects')}
-      />
-    </div>
+    <Suspense fallback={<div className="min-h-screen bg-[#F4F6F9]" />}>
+      <SEWizardView />
+    </Suspense>
   );
 }

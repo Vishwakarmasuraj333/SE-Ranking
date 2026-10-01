@@ -1728,7 +1728,7 @@ export default function ProjectOverviewPage() {
                   rows={6}
                   value={newKeywordsText}
                   onChange={(e) => setNewKeywordsText(e.target.value)}
-                  placeholder="social media management&#10;best social scheduling tool&#10;instagram scheduler app"
+                  placeholder="Enter keywords to track, one per line..."
                   className="w-full p-3 border border-gray-300 rounded-lg text-xs font-mono text-gray-900 focus:outline-hidden focus:border-[#0B69FF]"
                   required
                 />

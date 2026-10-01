@@ -53,7 +53,6 @@ export function AuditOverviewView({
   onInspectIssue,
 }: AuditOverviewViewProps) {
   // Banner dismiss states
-  const [showTrialBanner, setShowTrialBanner] = useState(false);
   const [showIpBanner, setShowIpBanner] = useState(true);
   const [showBottomFeedback, setShowBottomFeedback] = useState(true);
 
@@ -92,33 +91,6 @@ export function AuditOverviewView({
         </div>
       )}
 
-      {/* 1. TOP NOTICE BANNERS */}
-      {showTrialBanner && (
-        <div className="bg-[#e6f4ea] dark:bg-emerald-950/40 border border-[#c3e6cb] dark:border-emerald-800/60 rounded-xl px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-emerald-900 dark:text-emerald-200 shadow-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-            <span>
-              You have <strong className="font-bold text-emerald-950 dark:text-emerald-100">5 days</strong> of free trial left. Choose your preferred subscription plan to unlock all features.
-            </span>
-          </div>
-          <div className="flex items-center gap-3 self-end sm:self-auto">
-            <button
-              type="button"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-[11px] tracking-wide uppercase transition shadow-xs cursor-pointer"
-            >
-              SEE PRICING PLANS
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowTrialBanner(false)}
-              className="text-emerald-700 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-200 cursor-pointer p-0.5"
-              aria-label="Dismiss trial banner"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
 
       {showIpBanner && (
         <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 rounded-xl px-4 py-3 flex items-start justify-between gap-3 text-xs text-blue-900 dark:text-blue-200 shadow-xs">

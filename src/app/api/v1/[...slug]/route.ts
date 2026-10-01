@@ -1,158 +1,74 @@
 import { NextRequest, NextResponse } from "next/server";
+import { handleApiV1 } from "@/lib/server/apiV1Handler";
 
-const API_SERVER_URL = process.env.API_SERVER_URL || "http://localhost:5000";
+const API_SERVER_URL = process.env.API_SERVER_URL;
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
-  const { slug } = await params;
+async function tryProxy(request: NextRequest, slug: string[]) {
+  // Only attempt proxy if API_SERVER_URL is explicitly set and not localhost:5000 in unified dev
+  if (!API_SERVER_URL || API_SERVER_URL.includes("localhost:5000")) {
+    return null;
+  }
+
   const path = slug.join("/");
   const url = `${API_SERVER_URL}/api/v1/${path}${request.nextUrl.search}`;
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 1200);
+
+    const body = ["POST", "PUT", "PATCH"].includes(request.method) ? await request.text() : undefined;
     const res = await fetch(url, {
+      method: request.method,
       headers: {
         "Content-Type": "application/json",
         Authorization: request.headers.get("Authorization") || "",
         "X-Correlation-ID": request.headers.get("X-Correlation-ID") || crypto.randomUUID(),
       },
+      body,
       cache: "no-store",
+      signal: controller.signal,
     });
+    clearTimeout(timeout);
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        errors: [`Backend Node.js API connection failed: ${(error as Error).message}`],
-      },
-      { status: 502 }
-    );
+  } catch {
+    // If proxy failed, fall back to native Next.js Prisma API handler
+    return null;
   }
+}
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
+  const { slug } = await params;
+  const proxyRes = await tryProxy(request, slug);
+  if (proxyRes) return proxyRes;
+  return handleApiV1(request, slug);
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const path = slug.join("/");
-  const url = `${API_SERVER_URL}/api/v1/${path}`;
-
-  try {
-    const body = await request.text();
-    const res = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: request.headers.get("Authorization") || "",
-        "X-Correlation-ID": request.headers.get("X-Correlation-ID") || crypto.randomUUID(),
-      },
-      body,
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        errors: [`Backend Node.js API connection failed: ${(error as Error).message}`],
-      },
-      { status: 502 }
-    );
-  }
+  const proxyRes = await tryProxy(request, slug);
+  if (proxyRes) return proxyRes;
+  return handleApiV1(request, slug);
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const path = slug.join("/");
-  const url = `${API_SERVER_URL}/api/v1/${path}`;
-
-  try {
-    const body = await request.text();
-    const res = await fetch(url, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: request.headers.get("Authorization") || "",
-        "X-Correlation-ID": request.headers.get("X-Correlation-ID") || crypto.randomUUID(),
-      },
-      body,
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        errors: [`Backend Node.js API connection failed: ${(error as Error).message}`],
-      },
-      { status: 502 }
-    );
-  }
+  const proxyRes = await tryProxy(request, slug);
+  if (proxyRes) return proxyRes;
+  return handleApiV1(request, slug);
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const path = slug.join("/");
-  const url = `${API_SERVER_URL}/api/v1/${path}`;
-
-  try {
-    const res = await fetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: request.headers.get("Authorization") || "",
-        "X-Correlation-ID": request.headers.get("X-Correlation-ID") || crypto.randomUUID(),
-      },
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        errors: [`Backend Node.js API connection failed: ${(error as Error).message}`],
-      },
-      { status: 502 }
-    );
-  }
+  const proxyRes = await tryProxy(request, slug);
+  if (proxyRes) return proxyRes;
+  return handleApiV1(request, slug);
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
-  const path = slug.join("/");
-  const url = `${API_SERVER_URL}/api/v1/${path}`;
-
-  try {
-    const body = await request.text();
-    const res = await fetch(url, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: request.headers.get("Authorization") || "",
-        "X-Correlation-ID": request.headers.get("X-Correlation-ID") || crypto.randomUUID(),
-      },
-      body: body || undefined,
-      cache: "no-store",
-    });
-
-    const data = await res.json();
-    return NextResponse.json(data, { status: res.status });
-  } catch (error) {
-    return NextResponse.json(
-      {
-        success: false,
-        data: null,
-        errors: [`Backend Node.js API connection failed: ${(error as Error).message}`],
-      },
-      { status: 502 }
-    );
-  }
+  const proxyRes = await tryProxy(request, slug);
+  if (proxyRes) return proxyRes;
+  return handleApiV1(request, slug);
 }

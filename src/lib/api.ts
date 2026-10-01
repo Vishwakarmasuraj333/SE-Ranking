@@ -71,7 +71,12 @@ import {
   RankingsHistoricalResponseDto,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL !== undefined
+    ? process.env.NEXT_PUBLIC_API_URL
+    : typeof window !== "undefined"
+    ? ""
+    : (process.env.API_SERVER_URL || "http://localhost:5000");
 
 export class ApiError extends Error {
   status: number;

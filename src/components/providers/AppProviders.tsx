@@ -29,6 +29,10 @@ interface AppContextType {
   setIsSidebarCollapsed: (c: boolean) => void;
   isMobileDrawerOpen: boolean;
   setIsMobileDrawerOpen: (o: boolean) => void;
+  hasCreatedProject: boolean;
+  setHasCreatedProject: (v: boolean) => void;
+  isAddWebsiteModalOpen: boolean;
+  setIsAddWebsiteModalOpen: (o: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -67,18 +71,34 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const [projects, setProjects] = useState<ProjectData[]>([DEFAULT_WORKCOMPOSER_PROJECT]);
-  const [activeProject, setActiveProjectState] = useState<ProjectData | null>(DEFAULT_WORKCOMPOSER_PROJECT);
+  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [activeProject, setActiveProjectState] = useState<ProjectData | null>(null);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisOverview | null>(null);
-  const [activeRail, setActiveRail] = useState<RailSection>('research');
+  const [activeRail, setActiveRail] = useState<RailSection>('projects');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [hasCreatedProject, setHasCreatedProjectState] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('se_ranking_has_project') === 'true';
+    }
+    return false;
+  });
+  const [isAddWebsiteModalOpen, setIsAddWebsiteModalOpen] = useState(false);
+
+  const setHasCreatedProject = (v: boolean) => {
+    setHasCreatedProjectState(v);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('se_ranking_has_project', v ? 'true' : 'false');
+    }
+  };
 
   const setActiveProject = (p: ProjectData | null) => {
     setActiveProjectState(p);
     if (typeof window !== 'undefined') {
       if (p) {
         localStorage.setItem('se_ranking_active_project_id', p.id);
+        localStorage.setItem('se_ranking_has_project', 'true');
+        setHasCreatedProjectState(true);
       } else {
         localStorage.removeItem('se_ranking_active_project_id');
       }
@@ -90,26 +110,23 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/projects');
       if (res.ok) {
         const data = await res.json();
-        const list: ProjectData[] = (data.projects || []).filter(
-          (p: ProjectData) =>
-            p.domain.toLowerCase().includes('workcomposer') ||
-            p.name.toLowerCase().includes('workcomposer')
-        );
+        const list: ProjectData[] = data.projects || [];
+        setProjects(list);
 
         if (list.length > 0) {
-          setProjects(list);
-          setActiveProject(list[0]);
-        } else {
-          setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
-          setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
+          const savedId = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_active_project_id') : null;
+          const matched = savedId ? list.find((p) => p.id === savedId) : null;
+          const current = matched || list[0];
+          setActiveProjectState(current);
+
+          const hasProjStored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_has_project') : null;
+          if (hasProjStored === 'true') {
+            setHasCreatedProjectState(true);
+          }
         }
-      } else {
-        setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
-        setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
       }
     } catch {
-      setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
-      setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
+      // network fallback
     }
   };
 
@@ -133,6 +150,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           setIsSidebarCollapsed,
           isMobileDrawerOpen,
           setIsMobileDrawerOpen,
+          hasCreatedProject,
+          setHasCreatedProject,
+          isAddWebsiteModalOpen,
+          setIsAddWebsiteModalOpen,
         }}
       >
         {children}

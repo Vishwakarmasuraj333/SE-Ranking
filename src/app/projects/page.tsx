@@ -21,6 +21,8 @@ import {
   Copy,
   CheckSquare,
   Square,
+  BarChart2,
+  KeyRound,
 } from 'lucide-react';
 import {
   LineChart,
@@ -38,7 +40,7 @@ import { FeedbackModal } from '@/components/modals/FeedbackModal';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 
 export default function ProjectsDashboardPage() {
-  const { projects, activeProject, setActiveProject } = useApp();
+  const { projects, activeProject, setActiveProject, hasCreatedProject, setHasCreatedProject } = useApp();
   const [activeMetricTab, setActiveMetricTab] = useState<
     'avg_pos' | 'traffic' | 'visibility' | 'top10' | 'mention' | 'link'
   >('avg_pos');
@@ -350,6 +352,157 @@ export default function ProjectsDashboardPage() {
     link.click();
     document.body.removeChild(link);
   };
+
+  if (!hasCreatedProject) {
+    return (
+      <div className="flex-1 overflow-y-auto bg-[#F8FAFC] min-h-[calc(100vh-80px)] text-gray-900 pb-16 select-none relative flex flex-col justify-between">
+        {/* Floating Feedback button on right margin matching screenshot */}
+        <div className="w-full max-w-5xl mx-auto px-6 pt-5 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setIsFeedbackModalOpen(true)}
+            className="text-[#0B69FF] hover:underline cursor-pointer font-medium text-xs transition-colors"
+          >
+            Feedback
+          </button>
+        </div>
+
+        {/* Main Onboarding Canvas matching screenshot */}
+        <div className="w-full max-w-5xl mx-auto px-6 py-4 flex-1 flex flex-col items-center justify-center">
+          {/* Hero Title & Subtitle */}
+          <div className="text-center space-y-2 mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              All essential SEO tools on one platform
+            </h1>
+            <p className="text-sm text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              SE Ranking will help you fix any SEO related issue—from checking search volume to finding broken links
+            </p>
+          </div>
+
+          {/* Emerald Green Hero Card matching Screenshot */}
+          <div className="w-full bg-[#00A86B] rounded-2xl p-7 sm:p-9 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-sm relative overflow-hidden">
+            {/* Subtle organic vector waves decoration */}
+            <svg
+              className="absolute right-0 top-0 h-full w-2/3 pointer-events-none opacity-20"
+              viewBox="0 0 600 200"
+              fill="none"
+              preserveAspectRatio="none"
+            >
+              <path d="M0,120 C180,240 380,20 600,100 L600,200 L0,200 Z" fill="#ffffff" />
+              <circle cx="520" cy="40" r="140" fill="#ffffff" opacity="0.3" />
+              <path d="M150,150 C300,220 450,80 600,140" stroke="#ffffff" strokeWidth="2" opacity="0.4" />
+            </svg>
+
+            <div className="space-y-1 relative z-10">
+              <h2 className="text-2xl sm:text-[26px] font-bold tracking-tight">
+                Add your first website
+              </h2>
+              <p className="text-white/90 text-sm font-normal">
+                Track your search rankings, audit your site, monitor your competitors
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="bg-white hover:bg-gray-50 text-[#00A86B] font-bold text-xs sm:text-sm px-6 py-3 rounded-xl shadow-xs transition-colors flex items-center gap-2 shrink-0 cursor-pointer uppercase tracking-wider self-start sm:self-center relative z-10"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>ADD WEBSITE</span>
+            </button>
+          </div>
+
+          {/* 3 SEO Tool Feature Cards Grid matching Screenshot */}
+          <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            {/* Card 1: Rankings */}
+            <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#3B82F6] flex items-center justify-center text-white mb-5 shadow-2xs">
+                  <BarChart2 className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">Rankings</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Track website rankings and analyze search results to evaluate your SEO strategy
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B69FF] hover:underline cursor-pointer text-left"
+              >
+                <span>Learn more</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Card 2: Keyword Research */}
+            <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#F97316] flex items-center justify-center text-white mb-5 shadow-2xs">
+                  <KeyRound className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">Keyword Research</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Create a target keyword list from scratch or expand your current list of keywords
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B69FF] hover:underline cursor-pointer text-left"
+              >
+                <span>Learn more</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Card 3: Website Audit */}
+            <div className="bg-white border border-gray-200/90 rounded-2xl p-6 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-[#10B981] flex items-center justify-center text-white mb-5 shadow-2xs">
+                  <Search className="w-6 h-6 stroke-[2.2]" />
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">Website Audit</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Check 130 website parameters and get tips on how to fix all of the found issues
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B69FF] hover:underline cursor-pointer text-left"
+              >
+                <span>Learn more</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Quick Switch to Active Projects if database has existing projects */}
+          {projects.length > 0 && (
+            <div className="text-center pt-8">
+              <button
+                type="button"
+                onClick={() => setHasCreatedProject(true)}
+                className="text-xs text-gray-500 hover:text-gray-900 underline cursor-pointer"
+              >
+                Switch to Active Projects view ({projects.length} website{projects.length > 1 ? 's' : ''})
+              </button>
+            </div>
+          )}
+        </div>
+
+        <CreateProjectModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+        />
+        <FeedbackModal
+          isOpen={isFeedbackModalOpen}
+          onClose={() => setIsFeedbackModalOpen(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 pb-16 select-none relative">
@@ -1467,6 +1620,16 @@ export default function ProjectsDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Global Modals */}
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      />
     </div>
   );
 }
