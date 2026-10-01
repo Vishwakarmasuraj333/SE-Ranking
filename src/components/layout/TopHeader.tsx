@@ -72,7 +72,7 @@ export function TopHeader() {
   // Dynamic User Profile state
   const [userProfile, setUserProfile] = useState({
     name: appWrapData.account.full_name || 'Suraj Vishwakarma',
-    email: appWrapData.account.email || 'suraj.vishwakarma@gvilab.com',
+    email: appWrapData.account.email || 'support@workcomposer.com',
     id: appWrapData.account.id || 5269343,
     initials: 'SV',
   });
@@ -113,7 +113,7 @@ export function TopHeader() {
       }
 
       if (!name) name = appWrapData.account.full_name || 'Suraj Vishwakarma';
-      if (!email) email = appWrapData.account.email || 'suraj.vishwakarma@gvilab.com';
+      if (!email) email = appWrapData.account.email || 'support@workcomposer.com';
 
       const parts = name.trim().split(/\s+/);
       const initials = parts.length > 1

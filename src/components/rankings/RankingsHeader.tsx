@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ProjectDetailDto } from "@/lib/types";
 import { RankingsSubnav } from "./RankingsSubnav";
 import { useAuth } from "@/context/AuthContext";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 import {
   RankingSettingsState,
@@ -304,16 +305,6 @@ export function RankingsHeader({
     }
   };
 
-  const getCountryFlag = (loc: string) => {
-    const l = loc.toLowerCase();
-    if (l.includes("india") || l.includes("in")) return "🇮🇳";
-    if (l.includes("united states") || l.includes("us") || l.includes("usa")) return "🇺🇸";
-    if (l.includes("united kingdom") || l.includes("uk") || l.includes("gb")) return "🇬🇧";
-    if (l.includes("canada") || l.includes("ca")) return "🇨🇦";
-    if (l.includes("australia") || l.includes("au")) return "🇦🇺";
-    if (l.includes("germany") || l.includes("de")) return "🇩🇪";
-    return "🌐";
-  };
 
   const badgeColorClass = {
     blue: "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300",
@@ -635,7 +626,7 @@ export function RankingsHeader({
 
             {/* Country */}
             <div className="px-2 py-1 flex items-center gap-1.5 border-r border-slate-200 dark:border-slate-700">
-              <span>{getCountryFlag(displayCountry)}</span>
+              <CountryFlag name={displayCountry} size="sm" />
               <span>{displayCountry}</span>
             </div>
 

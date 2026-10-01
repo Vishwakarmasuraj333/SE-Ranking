@@ -8,6 +8,7 @@ import {
   MOCK_COUNTRY_DISTRIBUTION,
   TimeSeriesPoint,
 } from "./mockBacklinkData";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 interface BacklinkCheckerOverviewProps {
   projectDomain: string;
@@ -1016,7 +1017,7 @@ export function BacklinkCheckerOverview({
                   {MOCK_COUNTRY_DISTRIBUTION.map((item, i) => (
                     <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                       <td className="py-2 text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                        <span className="text-sm">{item.flag}</span>
+                        <CountryFlag code={item.countryCode} name={item.countryName} />
                         <span className="truncate max-w-[120px]">{item.countryName}</span>
                       </td>
                       <td className="py-2 text-right text-blue-600 dark:text-blue-400 font-medium">

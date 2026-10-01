@@ -41,6 +41,19 @@ export function useApp() {
   return context;
 }
 
+const DEFAULT_WORKCOMPOSER_PROJECT: ProjectData = {
+  id: 'proj-workcomposer',
+  name: 'workcomposer.com',
+  domain: 'https://www.workcomposer.com',
+  brandName: 'WorkComposer',
+  country: 'India',
+  countryCode: 'in',
+  isArchived: false,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  analysesCount: 4,
+};
+
 export function AppProviders({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
@@ -54,8 +67,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const [projects, setProjects] = useState<ProjectData[]>([]);
-  const [activeProject, setActiveProjectState] = useState<ProjectData | null>(null);
+  const [projects, setProjects] = useState<ProjectData[]>([DEFAULT_WORKCOMPOSER_PROJECT]);
+  const [activeProject, setActiveProjectState] = useState<ProjectData | null>(DEFAULT_WORKCOMPOSER_PROJECT);
   const [currentAnalysis, setCurrentAnalysis] = useState<AnalysisOverview | null>(null);
   const [activeRail, setActiveRail] = useState<RailSection>('research');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -64,7 +77,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const setActiveProject = (p: ProjectData | null) => {
     setActiveProjectState(p);
     if (typeof window !== 'undefined') {
-      if (p?.id) {
+      if (p) {
         localStorage.setItem('se_ranking_active_project_id', p.id);
       } else {
         localStorage.removeItem('se_ranking_active_project_id');
@@ -77,56 +90,26 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       const res = await fetch('/api/projects');
       if (res.ok) {
         const data = await res.json();
-        let list: ProjectData[] = data.projects || [];
+        const list: ProjectData[] = (data.projects || []).filter(
+          (p: ProjectData) =>
+            p.domain.toLowerCase().includes('workcomposer') ||
+            p.name.toLowerCase().includes('workcomposer')
+        );
 
-        // Merge any client-created projects from localStorage
-        try {
-          const stored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_user_projects') : null;
-          if (stored) {
-            const localList: ProjectData[] = JSON.parse(stored);
-            const existingIds = new Set(list.map((p) => p.id));
-            const existingDomains = new Set(list.map((p) => p.domain.toLowerCase()));
-            for (const lp of localList) {
-              if (!existingIds.has(lp.id) && !existingDomains.has(lp.domain.toLowerCase())) {
-                list = [lp, ...list];
-              }
-            }
-          }
-        } catch (e) {
-          // ignore
-        }
-
-        setProjects(list);
         if (list.length > 0) {
-          let selected = null;
-          const savedId = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_active_project_id') : null;
-          if (savedId) {
-            selected = list.find((p: ProjectData) => p.id === savedId);
-          }
-          if (!selected) {
-            selected = list.find(
-              (p: ProjectData) =>
-                p.domain.toLowerCase().includes('workcomposer') ||
-                p.name.toLowerCase().includes('workcomposer')
-            );
-          }
-          setActiveProject(selected || list[0]);
+          setProjects(list);
+          setActiveProject(list[0]);
+        } else {
+          setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
+          setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
         }
+      } else {
+        setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
+        setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
       }
-    } catch (e) {
-      console.warn('Failed to load projects from server, loading from local cache:', e);
-      try {
-        const stored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_user_projects') : null;
-        if (stored) {
-          const localList: ProjectData[] = JSON.parse(stored);
-          if (localList.length > 0) {
-            setProjects(localList);
-            setActiveProject(localList[0]);
-          }
-        }
-      } catch (err) {
-        // ignore
-      }
+    } catch {
+      setProjects([DEFAULT_WORKCOMPOSER_PROJECT]);
+      setActiveProject(DEFAULT_WORKCOMPOSER_PROJECT);
     }
   };
 

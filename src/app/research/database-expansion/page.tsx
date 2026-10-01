@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { SCOPE_OPTIONS, SUPPORTED_COUNTRIES } from '@/lib/constants';
 import { useApp } from '@/components/providers/AppProviders';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 
 export default function DatabaseExpansionPage() {
   const { activeProject } = useApp();
@@ -152,7 +153,7 @@ export default function DatabaseExpansionPage() {
                 onClick={() => setIsCountryOpen(!isCountryOpen)}
                 className="px-2.5 py-1.5 border border-gray-300 rounded-lg text-xs bg-white hover:border-gray-400 flex items-center gap-1.5 cursor-pointer font-medium"
               >
-                <span>{selectedCountry.flag}</span>
+                <CountryFlag code={selectedCountry.code} size="sm" />
                 <ChevronDown className="w-3 h-3 text-gray-400" />
               </button>
 
@@ -168,7 +169,7 @@ export default function DatabaseExpansionPage() {
                       }}
                       className="w-full text-left px-3 py-1.5 hover:bg-gray-50 flex items-center gap-2"
                     >
-                      <span>{c.flag}</span>
+                      <CountryFlag code={c.code} size="sm" />
                       <span className="truncate">{c.name}</span>
                     </button>
                   ))}
@@ -280,51 +281,7 @@ export default function DatabaseExpansionPage() {
         </div>
       </div>
 
-      {/* Footer matching Screenshot 3 */}
-      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between">
-        <div className="flex items-center gap-2 font-semibold text-gray-700">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
-            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-          </svg>
-          <span>SE Ranking</span>
-        </div>
 
-        <div className="flex items-center gap-5">
-          <button
-            onClick={() => alert('Bug report dialog opened.')}
-            className="hover:underline text-gray-600 cursor-pointer"
-          >
-            Report a bug
-          </button>
-          <a
-            href="https://seranking.com/affiliate.html"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:underline text-gray-600"
-          >
-            Affiliates
-          </a>
-          <a href="/api-docs" className="hover:underline text-gray-600">
-            API
-          </a>
-          <a
-            href="https://seranking.com/whats-new.html"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:underline text-gray-600"
-          >
-            What&apos;s new
-          </a>
-          <a
-            href="https://help.seranking.com"
-            target="_blank"
-            rel="noreferrer"
-            className="hover:underline text-gray-600"
-          >
-            Help
-          </a>
-        </div>
-      </footer>
 
       {/* Upgrade Subscription Modal */}
       {isUpgradeModalOpen && (

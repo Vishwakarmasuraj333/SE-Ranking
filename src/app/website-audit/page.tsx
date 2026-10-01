@@ -34,7 +34,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
-import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 interface AuditItem {
   id: string;
@@ -59,7 +58,7 @@ interface AuditIssue {
 const INITIAL_AUDITS: AuditItem[] = [
   {
     id: 'aud-1',
-    domain: 'workco.com',
+    domain: 'workcomposer.com',
     folder: 'General',
     type: 'Project-based',
     lastUpdate: 'Sep 27 2026',
@@ -424,32 +423,7 @@ function WebsiteAuditContent() {
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
-          <div className="flex items-center gap-2 font-semibold text-gray-700">
-            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
-              <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-            </svg>
-            <span>SE Ranking</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <button onClick={() => alert('Bug report dialog opened.')} className="hover:underline text-gray-600 cursor-pointer">
-              Report a bug
-            </button>
-            <a href="https://seranking.com/affiliate.html" target="_blank" rel="noreferrer" className="hover:underline text-gray-600">
-              Affiliates
-            </a>
-            <a href="/api-docs" className="hover:underline text-gray-600">
-              API
-            </a>
-            <a href="https://seranking.com/whats-new.html" target="_blank" rel="noreferrer" className="hover:underline text-gray-600">
-              What&apos;s new
-            </a>
-            <a href="https://help.seranking.com" target="_blank" rel="noreferrer" className="hover:underline text-gray-600">
-              Help
-            </a>
-          </div>
-        </footer>
+
       </div>
     );
   }
@@ -902,43 +876,12 @@ function WebsiteAuditContent() {
         </div>
       )}
 
-      {/* Footer matching Screenshot 1 */}
-      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
-        <Link href="/projects" className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
-            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-          </svg>
-          <span>SE Ranking</span>
-        </Link>
-        <div className="flex items-center gap-5">
-          <button onClick={() => setIsBugModalOpen(true)} className="hover:underline text-gray-600 cursor-pointer">
-            Report a bug
-          </button>
-          <Link href="/affiliate" className="hover:underline text-gray-600">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:underline text-gray-600">
-            API
-          </Link>
-          <Link href="/whats-new" className="hover:underline text-gray-600">
-            What&apos;s new
-          </Link>
-          <Link href="/help" className="hover:underline text-gray-600">
-            Help
-          </Link>
-        </div>
-      </footer>
+
 
       {/* Tell us what you think Feedback Modal matching Screenshot */}
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}
-      />
-
-      {/* SE Ranking support request Modal matching Screenshot */}
-      <ReportBugModal
-        isOpen={isBugModalOpen}
-        onClose={() => setIsBugModalOpen(false)}
       />
     </div>
   );

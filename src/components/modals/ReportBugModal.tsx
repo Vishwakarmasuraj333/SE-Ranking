@@ -11,7 +11,7 @@ interface ReportBugModalProps {
 
 export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
   const [name, setName] = useState('Suraj');
-  const [email, setEmail] = useState('suraj.vishwakarma@gvilab.com');
+  const [email, setEmail] = useState('support@workcomposer.com');
   const [url, setUrl] = useState('https://online.seranking.com/admin.dashboard.html');
   const [comments, setComments] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
@@ -36,7 +36,7 @@ export function ReportBugModal({ isOpen, onClose }: ReportBugModalProps) {
     if (isOpen) {
       try {
         let currentName = appWrapData.account.first_name || 'Suraj';
-        let currentEmail = appWrapData.account.email || 'suraj.vishwakarma@gvilab.com';
+        let currentEmail = appWrapData.account.email || 'support@workcomposer.com';
         const storedUser = localStorage.getItem('seranking_user');
         if (storedUser) {
           const parsed = JSON.parse(storedUser);

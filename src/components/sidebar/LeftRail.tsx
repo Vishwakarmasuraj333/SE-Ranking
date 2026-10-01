@@ -24,21 +24,25 @@ export function LeftRail() {
   const { activeRail, setActiveRail } = useApp();
 
   const isProjectsActive =
-    activeRail === 'projects' ||
     pathname === '/' ||
     pathname === '/projects' ||
     pathname === '/project-overview' ||
-    pathname === '/rankings' ||
-    pathname === '/analytics' ||
-    pathname === '/competitors' ||
-    pathname === '/ai-results-tracker' ||
-    pathname === '/insights' ||
+    pathname.startsWith('/rankings') ||
+    pathname.startsWith('/analytics') ||
+    pathname.startsWith('/competitors') ||
+    pathname.startsWith('/ai-results-tracker') ||
     pathname.startsWith('/insights') ||
     pathname.startsWith('/admin.insights') ||
     pathname === '/marketing-plan' ||
     pathname === '/page-changes' ||
     pathname === '/backlinks-monitor' ||
-    pathname.startsWith('/backlinks');
+    pathname === '/settings' ||
+    (activeRail === 'projects' &&
+      !pathname.startsWith('/research') &&
+      !pathname.startsWith('/backlinks') &&
+      !pathname.startsWith('/local-marketing') &&
+      !pathname.startsWith('/agency-pack') &&
+      !pathname.startsWith('/api-docs'));
 
   const railItems: Array<{
     id: RailSection;

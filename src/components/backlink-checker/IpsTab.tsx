@@ -8,121 +8,11 @@ import {
   ZohoIpItem,
   IpRecord,
 } from "./mockBacklinkData";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
-export function CountryOrGlobeLogo({ type, flag }: { type?: string; flag?: string }) {
-  if (type === "globe" || flag === "🌐" || type === "cf") {
-    return (
-      <svg
-        className="w-4 h-4 text-slate-800 dark:text-slate-200 shrink-0 inline-block align-middle"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-label="Globe"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="2" y1="12" x2="22" y2="12" />
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-      </svg>
-    );
-  }
-
-  if (type === "md" || flag === "🇲🇩") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="Moldova Flag"
-      >
-        <rect width="6" height="12" fill="#003da5" />
-        <rect x="6" width="6" height="12" fill="#ffd100" />
-        <rect x="12" width="6" height="12" fill="#cc092f" />
-        <circle cx="9" cy="6" r="1.8" fill="#8c5825" />
-        <rect x="8.3" y="5.2" width="1.4" height="1.6" fill="#c4122d" />
-      </svg>
-    );
-  }
-
-  if (type === "sg" || flag === "🇸🇬") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="Singapore Flag"
-      >
-        <rect width="18" height="6" fill="#ed2939" />
-        <rect y="6" width="18" height="6" fill="#ffffff" />
-        <circle cx="4" cy="3" r="1.8" fill="#ffffff" />
-        <circle cx="4.6" cy="3" r="1.5" fill="#ed2939" />
-        <circle cx="5.2" cy="3" r="0.4" fill="#ffffff" />
-      </svg>
-    );
-  }
-
-  if (type === "at" || flag === "🇦🇹") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="Austria Flag"
-      >
-        <rect width="18" height="4" fill="#ed2939" />
-        <rect y="4" width="18" height="4" fill="#ffffff" />
-        <rect y="8" width="18" height="4" fill="#ed2939" />
-      </svg>
-    );
-  }
-
-  if (type === "us" || flag === "🇺🇸") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="United States Flag"
-      >
-        <rect width="18" height="12" fill="#b22234" />
-        <rect y="1.8" width="18" height="1.8" fill="#ffffff" />
-        <rect y="5.4" width="18" height="1.8" fill="#ffffff" />
-        <rect y="9" width="18" height="1.8" fill="#ffffff" />
-        <rect width="8" height="6.6" fill="#3c3b6e" />
-        <circle cx="2.5" cy="2" r="0.6" fill="#ffffff" />
-        <circle cx="5.5" cy="2" r="0.6" fill="#ffffff" />
-        <circle cx="4" cy="4" r="0.6" fill="#ffffff" />
-      </svg>
-    );
-  }
-
-  if (type === "ro" || flag === "🇷🇴") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="Romania Flag"
-      >
-        <rect width="6" height="12" fill="#002b7f" />
-        <rect x="6" width="6" height="12" fill="#fcd116" />
-        <rect x="12" width="6" height="12" fill="#ce1126" />
-      </svg>
-    );
-  }
-
-  if (type === "de" || flag === "🇩🇪") {
-    return (
-      <svg
-        className="w-[18px] h-[13px] rounded-[2px] shadow-xs border border-slate-300/40 shrink-0 inline-block align-middle"
-        viewBox="0 0 18 12"
-        aria-label="Germany Flag"
-      >
-        <rect width="18" height="4" fill="#000000" />
-        <rect y="4" width="18" height="4" fill="#dd0000" />
-        <rect y="8" width="18" height="4" fill="#ffce00" />
-      </svg>
-    );
-  }
-
-  return <span className="text-base select-none leading-none">{flag || "🌐"}</span>;
+export function CountryOrGlobeLogo({ type, flag, countryCode, country }: { type?: string; flag?: string; countryCode?: string; country?: string }) {
+  const code = countryCode || type || flag || country;
+  return <CountryFlag code={code} name={country} />;
 }
 
 interface IpsTabProps {
@@ -291,7 +181,7 @@ export function IpsTab({
 
   // Source Items
   const sourceIps: ZohoIpItem[] = useMemo(() => {
-    if (activeDomain.includes("WorkCo") || activeDomain === "workco.com") {
+    if (activeDomain.toLowerCase() === "workco.com" || activeDomain.toLowerCase() === "zoho.com") {
       return MOCK_ZOHO_IPS;
     }
     return MOCK_WORKCOMPOSER_IPS;
@@ -1273,10 +1163,13 @@ export function IpsTab({
                     return (
                       <React.Fragment key={item.id}>
                         <tr className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
-                          {/* IP with Flag / Globe Logo */}
+                          {/* IP with Flag / Country Code */}
                           <td className="py-3 px-4 font-mono font-normal text-slate-800 dark:text-slate-200">
-                            <div className="flex items-center gap-2.5">
-                              <CountryOrGlobeLogo type={item.logoType} flag={item.flag} />
+                            <div className="flex items-center gap-2">
+                              <CountryFlag code={item.countryCode || item.country || item.logoType} />
+                              {item.countryCode && (
+                                <span className="font-semibold text-slate-700 dark:text-slate-300 text-xs uppercase">{item.countryCode}</span>
+                              )}
                               <span className="font-mono text-slate-800 dark:text-slate-200 font-medium">
                                 {item.ipAddress}
                               </span>

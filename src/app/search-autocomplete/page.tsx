@@ -20,6 +20,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 
 interface CountryItem {
   code: string;
@@ -408,7 +409,7 @@ export default function SearchAutocompletePage() {
                     className="w-full px-3.5 py-2.5 border border-[#CBD5E1] rounded-lg text-[13px] text-gray-800 bg-white hover:border-[#94A3B8] focus:border-[#0B69FF] flex items-center justify-between cursor-pointer transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-base leading-none">{selectedCountry.flag}</span>
+                      <CountryFlag code={selectedCountry.code} size="sm" />
                       <span className="font-normal">{selectedCountry.name}</span>
                     </div>
                     <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -449,7 +450,7 @@ export default function SearchAutocompletePage() {
                               selectedCountry.code === c.code ? 'bg-blue-50/80 font-semibold text-[#0B69FF]' : 'text-gray-700'
                             }`}
                           >
-                            <span className="text-base leading-none">{c.flag}</span>
+                            <CountryFlag code={c.code} size="sm" />
                             <span className="truncate">{c.name}</span>
                           </button>
                         ))
@@ -627,7 +628,7 @@ export default function SearchAutocompletePage() {
                 </h3>
                 <p className="text-[12px] text-gray-500 mt-0.5">
                   Engine: <span className="font-semibold text-gray-700">{engine}</span> • Location:{' '}
-                  <span className="font-semibold text-gray-700">{selectedCountry.flag} {selectedCountry.name}</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-gray-700"><CountryFlag code={selectedCountry.code} size="xs" /> {selectedCountry.name}</span>
                 </p>
               </div>
 

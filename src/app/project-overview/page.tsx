@@ -41,7 +41,15 @@ import {
 import { useApp } from '@/components/providers/AppProviders';
 import { appWrapData } from '@/lib/appWrapData';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
-import { ReportBugModal } from '@/components/modals/ReportBugModal';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { GoogleLogo } from '@/components/ui/GoogleLogo';
+import {
+  AiModeIcon,
+  ChatGptIcon,
+  GeminiIcon,
+  GoogleAiOverviewIcon,
+  PerplexityIcon,
+} from '@/components/ui/AiEngineIcons';
 
 const SUGGESTED_HIGH_POTENTIAL = [
   { keyword: 'employee monitoring software', volume: '14.8K', kd: 28, intent: 'Commercial', cpc: '$4.50' },
@@ -76,6 +84,66 @@ const DEFAULT_SECTIONS = [
   'website_audit',
   'content_keywords',
 ];
+
+const OVERVIEW_COUNTRIES = [
+  { code: 'IN', name: 'India', flag: '🇮🇳', lang: 'EN', engine: 'Google India' },
+  { code: 'US', name: 'United States', flag: '🇺🇸', lang: 'EN', engine: 'Google USA' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', lang: 'EN', engine: 'Google UK' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺', lang: 'EN', engine: 'Google Australia' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦', lang: 'EN', engine: 'Google Canada' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪', lang: 'DE', engine: 'Google Germany' },
+];
+
+const AI_SEARCH_METRICS_BY_COUNTRY: Record<string, {
+  aiOverview: { mentions: string; links: number };
+  aiMode: { mentions: string; links: number };
+  chatgpt: { mentions: string; links: number };
+  gemini: { mentions: string; links: number };
+  perplexity: { mentions: string; links: number };
+}> = {
+  India: {
+    aiOverview: { mentions: '13.5K', links: 24 },
+    aiMode: { mentions: '4.2K', links: 12 },
+    chatgpt: { mentions: '9.4K', links: 18 },
+    gemini: { mentions: '7.8K', links: 22 },
+    perplexity: { mentions: '6.2K', links: 28 },
+  },
+  'United States': {
+    aiOverview: { mentions: '21.8K', links: 42 },
+    aiMode: { mentions: '8.4K', links: 19 },
+    chatgpt: { mentions: '14.2K', links: 34 },
+    gemini: { mentions: '11.6K', links: 39 },
+    perplexity: { mentions: '9.8K', links: 48 },
+  },
+  'United Kingdom': {
+    aiOverview: { mentions: '9.6K', links: 18 },
+    aiMode: { mentions: '3.1K', links: 9 },
+    chatgpt: { mentions: '6.5K', links: 14 },
+    gemini: { mentions: '5.2K', links: 17 },
+    perplexity: { mentions: '4.9K', links: 21 },
+  },
+  Australia: {
+    aiOverview: { mentions: '7.4K', links: 15 },
+    aiMode: { mentions: '2.5K', links: 7 },
+    chatgpt: { mentions: '4.8K', links: 11 },
+    gemini: { mentions: '4.1K', links: 13 },
+    perplexity: { mentions: '3.6K', links: 16 },
+  },
+  Canada: {
+    aiOverview: { mentions: '8.1K', links: 16 },
+    aiMode: { mentions: '2.9K', links: 8 },
+    chatgpt: { mentions: '5.3K', links: 12 },
+    gemini: { mentions: '4.7K', links: 15 },
+    perplexity: { mentions: '4.2K', links: 19 },
+  },
+  Germany: {
+    aiOverview: { mentions: '6.8K', links: 14 },
+    aiMode: { mentions: '2.2K', links: 6 },
+    chatgpt: { mentions: '4.5K', links: 10 },
+    gemini: { mentions: '3.9K', links: 12 },
+    perplexity: { mentions: '3.4K', links: 14 },
+  },
+};
 
 const WIDGET_NAMES: Record<string, string> = {
   comp_ai_search: 'Competitive Research - AI Search',
@@ -141,18 +209,21 @@ export default function ProjectOverviewPage() {
   const [defaultPeriod, setDefaultPeriod] = useState('Last 30 days');
 
   // Interactive Section Dropdown States
-  const [aiSearchBrand, setAiSearchBrand] = useState('WorkCo');
+  const [aiSearchCountry, setAiSearchCountry] = useState('India');
+  const [isAiSearchCountryOpen, setIsAiSearchCountryOpen] = useState(false);
+  const [aiSearchBrand, setAiSearchBrand] = useState('WorkComposer');
   const [isAiSearchBrandOpen, setIsAiSearchBrandOpen] = useState(false);
   const [aiSearchPeriod, setAiSearchPeriod] = useState('Last 30 days');
   const [isAiSearchPeriodOpen, setIsAiSearchPeriodOpen] = useState(false);
 
-  const [aiTrackerBrand, setAiTrackerBrand] = useState('WorkCo');
+  const [aiTrackerBrand, setAiTrackerBrand] = useState('WorkComposer');
   const [isAiTrackerBrandOpen, setIsAiTrackerBrandOpen] = useState(false);
   const [aiTrackerEngines, setAiTrackerEngines] = useState('1 AI engines · 0 prompts');
   const [isAiTrackerEnginesOpen, setIsAiTrackerEnginesOpen] = useState(false);
   const [aiTrackerPeriod, setAiTrackerPeriod] = useState('27 Sept - 29 Sept, 2026');
   const [isAiTrackerPeriodOpen, setIsAiTrackerPeriodOpen] = useState(false);
 
+  const [rankingsCountry, setRankingsCountry] = useState('India');
   const [rankingsEngine, setRankingsEngine] = useState('Google India');
   const [isRankingsEngineOpen, setIsRankingsEngineOpen] = useState(false);
   const [rankingsPeriod, setRankingsPeriod] = useState('Past 30 days');
@@ -321,110 +392,155 @@ export default function ProjectOverviewPage() {
     let content: React.ReactNode = null;
 
     switch (sectionId) {
-      case 'comp_ai_search':
+      case 'comp_ai_search': {
+        const currentAiData = AI_SEARCH_METRICS_BY_COUNTRY[aiSearchCountry] || AI_SEARCH_METRICS_BY_COUNTRY['India'];
+        const currentCountryObj = OVERVIEW_COUNTRIES.find((c) => c.name === aiSearchCountry) || OVERVIEW_COUNTRIES[0];
+
         content = (
           <div className="space-y-3">
             {headerControls(
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className="font-bold text-gray-900 text-sm">Competitive Research - AI Search ⓘ</span>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-600 font-medium">Brand: WorkCo</span>
+
+                {/* Country Flag Dropdown */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsAiSearchCountryOpen(!isAiSearchCountryOpen)}
+                    className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-200 cursor-pointer shadow-2xs"
+                  >
+                    <CountryFlag countryCode={currentCountryObj.code} countryName={currentCountryObj.name} size="sm" />
+                    <span>{currentCountryObj.name}</span>
+                    <ChevronDown className="w-3 h-3 text-gray-400" />
+                  </button>
+                  {isAiSearchCountryOpen && (
+                    <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
+                      {OVERVIEW_COUNTRIES.map((c) => (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => {
+                            setAiSearchCountry(c.name);
+                            setIsAiSearchCountryOpen(false);
+                            showNotice(`AI Search region switched to ${c.name}`);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between ${
+                            aiSearchCountry === c.name ? 'font-bold text-[#0B69FF] bg-blue-50/50' : 'text-gray-700'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <CountryFlag countryCode={c.code} countryName={c.name} size="sm" />
+                            <span>{c.name}</span>
+                          </span>
+                          {aiSearchCountry === c.name && <Check className="w-3 h-3 text-[#0B69FF]" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <span className="text-gray-300">|</span>
+                <span className="text-gray-600 font-medium">Brand: WorkComposer</span>
                 <span className="text-gray-600 font-medium">Last 30 days</span>
               </div>
             )}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
               {/* AI Overview */}
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-[#0B69FF]">✦</span>
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2 hover:border-blue-300 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-xs text-gray-800">
+                  <GoogleAiOverviewIcon size={16} />
                   <span>AI Overview</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-[#0B69FF]">13.5K</span>
+                  <span className="font-bold text-[#0B69FF]">{currentAiData.aiOverview.mentions}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">6</span>
+                  <span className="font-bold text-gray-900">{currentAiData.aiOverview.links}</span>
                 </div>
               </div>
 
               {/* AI Mode */}
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-amber-500">✦</span>
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2 hover:border-blue-300 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-xs text-gray-800">
+                  <AiModeIcon size={16} />
                   <span>AI Mode</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.aiMode.mentions}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.aiMode.links}</span>
                 </div>
               </div>
 
               {/* ChatGPT */}
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-emerald-600 font-bold">◎</span>
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2 hover:border-emerald-300 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-xs text-gray-800">
+                  <ChatGptIcon size={16} />
                   <span>ChatGPT</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.chatgpt.mentions}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.chatgpt.links}</span>
                 </div>
               </div>
 
               {/* Gemini */}
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-blue-500">✦</span>
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2 hover:border-blue-300 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-xs text-gray-800">
+                  <GeminiIcon size={16} />
                   <span>Gemini</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.gemini.mentions}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.gemini.links}</span>
                 </div>
               </div>
 
               {/* Perplexity */}
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2">
-                <div className="flex items-center gap-1.5 font-bold text-xs text-gray-800">
-                  <span className="text-purple-500">✱</span>
+              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl space-y-2 hover:border-teal-300 transition-colors">
+                <div className="flex items-center gap-2 font-bold text-xs text-gray-800">
+                  <PerplexityIcon size={16} />
                   <span>Perplexity</span>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-1">
                   <span className="text-gray-500">Mentions ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.perplexity.mentions}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-gray-500">Link Presence ⓘ</span>
-                  <span className="font-bold text-gray-900">0</span>
+                  <span className="font-bold text-gray-900">{currentAiData.perplexity.links}</span>
                 </div>
               </div>
             </div>
           </div>
         );
         break;
+      }
 
-      case 'rankings':
+      case 'rankings': {
+        const selectedCountryObj = OVERVIEW_COUNTRIES.find((c) => c.engine === rankingsEngine || c.name === rankingsCountry) || OVERVIEW_COUNTRIES[0];
+
         content = (
           <div className="space-y-4">
             {headerControls(
               <div className="flex items-center gap-3 flex-wrap">
                 <span className="font-bold text-sm text-gray-900">Rankings</span>
 
-                {/* Google India EN Dropdown matching Screenshot 3 */}
+                {/* Google Country / Engine Dropdown matching Screenshot 3 */}
                 <div className="relative">
                   <button
                     type="button"
@@ -435,25 +551,35 @@ export default function ProjectOverviewPage() {
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 cursor-pointer text-xs shadow-2xs"
                   >
                     <span className="font-bold text-xs text-blue-600">G</span>
-                    <span className="text-sm">🇮🇳</span>
-                    <span>{rankingsEngine}</span>
-                    <span className="text-[10px] font-bold text-gray-500">EN</span>
+                    <CountryFlag countryCode={selectedCountryObj.code} countryName={selectedCountryObj.name} size="sm" />
+                    <span>{selectedCountryObj.engine}</span>
+                    <span className="text-[10px] font-bold text-gray-500">{selectedCountryObj.lang}</span>
                     <ChevronDown className="w-3 h-3 text-gray-400" />
                   </button>
                   {isRankingsEngineOpen && (
-                    <div className="absolute left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setIsRankingsEngineOpen(false)}
-                        className="w-full text-left px-3 py-1.5 bg-gray-100 font-semibold text-gray-900 flex items-center justify-between"
-                      >
-                        <span className="flex items-center gap-1.5">
-                          <span className="font-bold text-blue-600">G</span>
-                          <span className="text-sm">🇮🇳</span>
-                          <span>Google India</span>
-                        </span>
-                        <span className="text-[10px] font-bold text-gray-500">EN</span>
-                      </button>
+                    <div className="absolute left-0 mt-1 w-52 bg-white border border-gray-200 rounded-lg shadow-lg py-1 z-30 text-xs">
+                      {OVERVIEW_COUNTRIES.map((c) => (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => {
+                            setRankingsCountry(c.name);
+                            setRankingsEngine(c.engine);
+                            setIsRankingsEngineOpen(false);
+                            showNotice(`Rankings region switched to ${c.engine} (${c.name})`);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 hover:bg-blue-50 hover:text-[#0B69FF] flex items-center justify-between transition-colors ${
+                            rankingsEngine === c.engine ? 'bg-blue-50/60 font-semibold text-[#0B69FF]' : 'text-gray-700'
+                          }`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className="font-bold text-blue-600 text-xs">G</span>
+                            <CountryFlag countryCode={c.code} countryName={c.name} size="sm" />
+                            <span>{c.engine}</span>
+                          </span>
+                          <span className="text-[10px] font-bold text-gray-400">{c.lang}</span>
+                        </button>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -495,69 +621,214 @@ export default function ProjectOverviewPage() {
                 </div>
               </div>
             )}
-            <div className="py-8 text-center space-y-3">
-              <h3 className="text-base font-bold text-gray-900">Add keywords</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
-                Type manually, select from the suggested list, import copy-paste in a column from any text editor.
-              </p>
-              <div className="flex items-center justify-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-4 py-2 bg-[#20B26C] hover:bg-[#1BA061] text-white text-xs font-bold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer uppercase tracking-wider"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>ADD KEYWORDS</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsAddKeywordsOpen(true)}
-                  className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-bold rounded-lg transition-colors cursor-pointer uppercase tracking-wider"
-                >
-                  FIND HIGH-POTENTIAL KEYWORDS
-                </button>
+            <div className="space-y-4 pt-1">
+              {/* 4 Metric Cards matching Screenshots */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">AVERAGE POSITION ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-gray-900">3.4</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +0.6</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Google India (EN)</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">SEARCH VISIBILITY ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-[#0B69FF]">74.8%</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +3.2%</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Google India (EN)</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">% IN TOP 10 ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-emerald-600">75%</span>
+                    <span className="text-xs font-semibold text-gray-500">(4 / 8 / 16)</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Top 5 / 10 / 30</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">TRAFFIC FORECAST ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-purple-600">1,240</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +84</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Monthly visits</div>
+                </div>
+              </div>
+
+              {/* Ranking Positions Trend Line */}
+              <div className="p-4 bg-white border border-gray-200 rounded-xl space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+                  <span className="font-bold text-gray-800">Average Position Progression (Last 7 Days)</span>
+                  <span className="text-xs font-bold text-emerald-600">Rank #4.8 → #3.4 (Rank improved)</span>
+                </div>
+                <div className="h-36 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={[
+                      { date: 'Sep 24', pos: 4.8 },
+                      { date: 'Sep 25', pos: 4.2 },
+                      { date: 'Sep 26', pos: 4.0 },
+                      { date: 'Sep 27', pos: 3.8 },
+                      { date: 'Sep 28', pos: 3.6 },
+                      { date: 'Sep 29', pos: 3.5 },
+                      { date: 'Sep 30', pos: 3.4 },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F5" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <YAxis domain={[2, 6]} ticks={[2, 3, 4, 5, 6]} reversed tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <Tooltip formatter={(value: any) => [`#${value}`, 'Avg Position']} />
+                      <Line type="monotone" dataKey="pos" stroke="#0B69FF" strokeWidth={2} dot={{ r: 3, fill: '#0B69FF' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Top Tracked Keywords Table Preview */}
+              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-2xs bg-white">
+                <div className="px-4 py-2.5 bg-gray-50/70 border-b border-gray-200 flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">Top Ranked Keywords</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddKeywordsOpen(true)}
+                      className="px-2.5 py-1 bg-[#20B26C] hover:bg-[#1BA061] text-white text-[11px] font-bold rounded flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                      <span>ADD KEYWORDS</span>
+                    </button>
+                    <Link
+                      href="/rankings?tab=detailed"
+                      className="text-xs text-[#0B69FF] hover:underline font-bold"
+                    >
+                      View all rankings →
+                    </Link>
+                  </div>
+                </div>
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#FAFBFD] text-[10.5px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                    <tr>
+                      <th className="py-2 px-4">Keyword</th>
+                      <th className="py-2 px-4 text-center">Rank</th>
+                      <th className="py-2 px-4 text-center">Prev</th>
+                      <th className="py-2 px-4 text-center">Change</th>
+                      <th className="py-2 px-4 text-right">Search Volume</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-gray-700">
+                    {[
+                      { kw: 'employee monitoring software', rank: 2, prev: 3, chg: 1, vol: '14,800' },
+                      { kw: 'work time tracker', rank: 3, prev: 5, chg: 2, vol: '8,100' },
+                      { kw: 'remote employee tracking software', rank: 5, prev: 5, chg: 0, vol: '5,400' },
+                      { kw: 'automatic screenshot monitoring tool', rank: 4, prev: 7, chg: 3, vol: '2,400' },
+                    ].map((k, idx) => (
+                      <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
+                        <td className="py-2.5 px-4 font-semibold text-gray-900">{k.kw}</td>
+                        <td className="py-2.5 px-4 text-center font-bold text-emerald-600">#{k.rank}</td>
+                        <td className="py-2.5 px-4 text-center text-gray-500">#{k.prev}</td>
+                        <td className="py-2.5 px-4 text-center font-bold">
+                          {k.chg > 0 ? (
+                            <span className="text-emerald-600">▲ +{k.chg}</span>
+                          ) : (
+                            <span className="text-gray-400">-</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-4 text-right font-mono font-medium text-gray-800">{k.vol}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         );
         break;
+      }
 
       case 'analytics_traffic':
         content = (
           <div className="space-y-4">
             {headerControls(
-              <span className="font-bold text-sm text-gray-900">Analytics and traffic</span>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-sm text-gray-900">Analytics and traffic</span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">GSC & GA4 Active</span>
+              </div>
             )}
-            <div className="py-8 text-center space-y-3">
-              <h3 className="text-base font-bold text-gray-900">Analytics and statistics services</h3>
-              <p className="text-xs text-gray-500 max-w-lg mx-auto leading-relaxed">
-                Connect Google Analytics and statistics services to get detailed information about your website without switching between browser tabs. It will only take a few minutes.
-              </p>
-              <div className="flex flex-col items-center gap-2.5 pt-3 max-w-sm mx-auto">
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Google Analytics...')}
-                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
-                >
-                  <span className="text-amber-500 font-bold">📊</span>
-                  <span>Connect Google Analytics</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Google Search Console...')}
-                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
-                >
-                  <span className="font-bold text-blue-600">G</span>
-                  <span>Connect Google Search Console</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showNotice('Connecting to Matomo Analytics...')}
-                  className="w-full py-2 px-4 border border-gray-300 hover:bg-gray-50 rounded-lg text-xs font-semibold text-gray-700 flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-colors"
-                >
-                  <span className="text-blue-500 font-bold">Ⓜ</span>
-                  <span>Connect Matomo Analytics</span>
-                </button>
+            <div className="space-y-4 pt-1">
+              {/* 4 Analytics Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">TOTAL CLICKS ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-blue-600">14.8K</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +12.4%</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Past 28 days</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">IMPRESSIONS ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-purple-600">215.4K</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +8.7%</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Past 28 days</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">AVERAGE CTR ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-emerald-600">6.89%</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +0.4%</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Click-through rate</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">AVG SERP POSITION ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-amber-600">6.2</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +1.4 pos</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Across all queries</div>
+                </div>
+              </div>
+
+              {/* Traffic Performance Mini Diagram */}
+              <div className="p-4 bg-white border border-gray-200 rounded-xl space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+                  <span className="font-bold text-gray-800">Daily Organic Traffic Performance</span>
+                  <div className="flex items-center gap-3 font-semibold">
+                    <span className="text-blue-600">• Clicks</span>
+                    <Link href="/analytics?tab=traffic" className="text-[#0B69FF] hover:underline font-bold">
+                      View full traffic analytics →
+                    </Link>
+                  </div>
+                </div>
+                <div className="h-32 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={[
+                      { day: 'Sep 23', clicks: 420 },
+                      { day: 'Sep 24', clicks: 460 },
+                      { day: 'Sep 25', clicks: 495 },
+                      { day: 'Sep 26', clicks: 520 },
+                      { day: 'Sep 27', clicks: 540 },
+                      { day: 'Sep 28', clicks: 580 },
+                      { day: 'Sep 29', clicks: 615 },
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F5" />
+                      <XAxis dataKey="day" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <Tooltip formatter={(v: any) => [`${v} clicks`, 'Clicks']} />
+                      <Line type="monotone" dataKey="clicks" stroke="#2563EB" strokeWidth={2} dot={{ r: 3, fill: '#2563EB' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
@@ -570,22 +841,65 @@ export default function ProjectOverviewPage() {
             {headerControls(
               <span className="font-bold text-sm text-gray-900">Backlink Checker</span>
             )}
-            <div className="py-10 text-center space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 text-[#0B69FF] flex items-center justify-center mx-auto">
-                <Link2 className="w-5 h-5" />
+            <div className="space-y-4 pt-1">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">DOMAIN TRUST (DT) ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-gray-900">26</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +3</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Out of 100</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">PAGE TRUST (PT) ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-gray-900">14</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +1</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Homepage score</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">TOTAL BACKLINKS ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-[#0B69FF]">2,840</span>
+                    <span className="text-xs font-semibold text-emerald-600">84% Dofollow</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Active backlinks</div>
+                </div>
+
+                <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-1">
+                  <div className="text-[11px] text-gray-500 font-bold uppercase">REFERRING DOMAINS ⓘ</div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-2xl font-black text-purple-600">148</span>
+                    <span className="text-xs font-bold text-emerald-600">▲ +12</span>
+                  </div>
+                  <div className="text-[10px] text-gray-400">Unique root domains</div>
+                </div>
               </div>
-              <h3 className="text-base font-bold text-gray-900">Backlink Checker</h3>
-              <p className="text-xs text-gray-500 max-w-md mx-auto leading-relaxed">
-                Get the full list of backlinks for your domain along with additional data for each backlink.
-              </p>
-              <div className="pt-1">
-                <button
-                  type="button"
-                  onClick={() => showNotice('Running backlink analysis for https://www.workcomposer.com/...')}
-                  className="px-6 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-lg uppercase tracking-wider shadow-xs transition-colors cursor-pointer"
-                >
-                  RUN ANALYSIS
-                </button>
+
+              {/* Backlinks Growth Chart */}
+              <div className="p-4 bg-white border border-gray-200 rounded-xl space-y-3 shadow-2xs">
+                <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
+                  <span className="font-bold text-gray-800">Historical Backlinks Dynamics</span>
+                  <Link href="/backlinks" className="text-[#0B69FF] hover:underline font-bold">
+                    View detailed backlink profile →
+                  </Link>
+                </div>
+                <div className="h-32 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={mockBacklinkTrend}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F5" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                      <Tooltip formatter={(val: any, name: any) => [val, name === 'backlinks' ? 'Total Backlinks' : 'Referring Domains']} />
+                      <Line type="monotone" dataKey="backlinks" stroke="#0B69FF" strokeWidth={2} dot={{ r: 3, fill: '#0B69FF' }} />
+                      <Line type="monotone" dataKey="referring" stroke="#10B981" strokeWidth={2} dot={{ r: 3, fill: '#10B981' }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
@@ -693,7 +1007,7 @@ export default function ProjectOverviewPage() {
               <div className="flex items-center gap-2 text-xs flex-wrap">
                 <span className="font-bold text-gray-900 text-sm">AI Results Tracker ⓘ</span>
                 <span className="text-gray-300">|</span>
-                <span className="text-gray-600 font-medium">Brand: WorkCo</span>
+                <span className="text-gray-600 font-medium">Brand: WorkComposer</span>
                 <span className="text-gray-600 font-medium">1 AI engines · 0 prompts</span>
                 <span className="text-gray-600 font-medium">27 Sept - 29 Sept, 2026</span>
               </div>
@@ -706,7 +1020,7 @@ export default function ProjectOverviewPage() {
                   prompts to start the analysis.
                 </p>
                 <Link
-                  href="/research/ai-search"
+                  href="/ai-results-tracker"
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0B69FF] hover:underline"
                 >
                   <Plus className="w-3 h-3" />
@@ -721,7 +1035,7 @@ export default function ProjectOverviewPage() {
                   prompts to start the analysis.
                 </p>
                 <Link
-                  href="/research/ai-search"
+                  href="/ai-results-tracker"
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0B69FF] hover:underline"
                 >
                   <Plus className="w-3 h-3" />
@@ -736,7 +1050,7 @@ export default function ProjectOverviewPage() {
                   prompts to start the analysis.
                 </p>
                 <Link
-                  href="/research/ai-search"
+                  href="/ai-results-tracker"
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0B69FF] hover:underline"
                 >
                   <Plus className="w-3 h-3" />
@@ -1078,8 +1392,8 @@ export default function ProjectOverviewPage() {
                     onClick={() => setIsContentEngineOpen(!isContentEngineOpen)}
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-white hover:bg-gray-50 text-gray-700 font-medium border border-gray-300 cursor-pointer text-xs shadow-2xs"
                   >
-                    <span className="font-bold text-xs text-blue-600">G</span>
-                    <span className="text-sm">🇮🇳</span>
+                    <GoogleLogo className="w-4 h-4" />
+                    <CountryFlag code="IN" name="India" size="sm" />
                     <span>Google India</span>
                     <span className="text-[10px] font-bold text-gray-500">EN</span>
                     <ChevronDown className="w-3 h-3 text-gray-400" />
@@ -1092,8 +1406,8 @@ export default function ProjectOverviewPage() {
                         className="w-full text-left px-3 py-1.5 bg-gray-100 font-semibold text-gray-900 flex items-center justify-between"
                       >
                         <span className="flex items-center gap-1.5">
-                          <span className="font-bold text-blue-600">G</span>
-                          <span className="text-sm">🇮🇳</span>
+                          <GoogleLogo className="w-4 h-4" />
+                          <CountryFlag code="IN" name="India" size="sm" />
                           <span>Google India</span>
                         </span>
                         <span className="text-[10px] font-bold text-gray-500">EN</span>
@@ -1273,36 +1587,7 @@ export default function ProjectOverviewPage() {
           {sectionsOrder.map((sectionId, index) => renderWidget(sectionId, index))}
         </div>
 
-        {/* Bottom Footer matching Screenshot */}
-        <footer className="mt-8 pt-4 pb-4 border-t border-gray-200/90 flex items-center justify-between text-xs text-gray-500 w-full select-none">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-[#0B69FF] rounded-xs flex items-center justify-center text-white font-black text-[10px]">
-              ⚡
-            </div>
-            <span className="font-bold text-gray-900 tracking-tight text-sm">SE Ranking</span>
-          </div>
-          <div className="flex items-center gap-6 text-xs text-gray-600 font-medium">
-            <button
-              type="button"
-              onClick={() => setIsBugModalOpen(true)}
-              className="hover:text-[#0B69FF] transition-colors cursor-pointer"
-            >
-              Report a bug
-            </button>
-            <Link href="/affiliate" className="hover:text-[#0B69FF] transition-colors">
-              Affiliates
-            </Link>
-            <Link href="/api-docs" className="hover:text-[#0B69FF] transition-colors">
-              API
-            </Link>
-            <Link href="/whats-new" className="hover:text-[#0B69FF] transition-colors">
-              What's new
-            </Link>
-            <Link href="/help" className="hover:text-[#0B69FF] transition-colors">
-              Help
-            </Link>
-          </div>
-        </footer>
+
       </div>
 
       {/* Guest Link Modal matching user screenshot */}
@@ -1550,11 +1835,6 @@ export default function ProjectOverviewPage() {
           </div>
         </div>
       )}
-      {/* Report a Bug Modal matching user screenshot */}
-      <ReportBugModal
-        isOpen={isBugModalOpen}
-        onClose={() => setIsBugModalOpen(false)}
-      />
 
       {/* High-Potential Keywords Modal */}
       {isHighPotentialModalOpen && (
@@ -1643,6 +1923,7 @@ export default function ProjectOverviewPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }

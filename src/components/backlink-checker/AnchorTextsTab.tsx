@@ -19,12 +19,12 @@ export function AnchorTextsTab({
   showSubTabs = true,
   onNavigateTab,
 }: AnchorTextsTabProps) {
-  // Domain selection (workcomposer.com as in screenshot, or workco.com)
-  const isZoho = (projectDomain || "").toLowerCase().includes("WorkCo");
+  // Domain selection (workcomposer.com as primary)
+  const isZoho = (projectDomain || "").toLowerCase() === "workco.com" || (projectDomain || "").toLowerCase() === "zoho.com";
   const [activeDomain, setActiveDomain] = useState<string>(projectDomain || "workcomposer.com");
 
   // Banners - in screenshot, trial banner is only shown for WorkCo
-  const [showTrialBanner, setShowTrialBanner] = useState(isZoho);
+  const [showTrialBanner, setShowTrialBanner] = useState(false);
   const [showNoticeBanner, setShowNoticeBanner] = useState(true);
   const [showGuideBanner, setShowGuideBanner] = useState(true);
   const [showPromoBadge, setShowPromoBadge] = useState(false);

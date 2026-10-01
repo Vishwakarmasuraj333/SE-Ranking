@@ -79,6 +79,12 @@ export default function ProjectsDashboardPage() {
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [copyToast, setCopyToast] = useState<string | null>(null);
 
+  // Export Data Modal State matching exact user screenshot
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [exportSearch, setExportSearch] = useState('');
+  const [isAllProjectsChecked, setIsAllProjectsChecked] = useState(true);
+  const [isUngroupedExpanded, setIsUngroupedExpanded] = useState(true);
+
   // Dashboard Settings Modal State (matches screenshots 1-5)
   const [isDashboardSettingsOpen, setIsDashboardSettingsOpen] = useState(false);
   const [settingsSubView, setSettingsSubView] = useState<
@@ -114,35 +120,100 @@ export default function ProjectsDashboardPage() {
   const currentDomain = activeProject?.domain || (projects[0]?.domain ?? 'https://www.workcomposer.com/');
   const currentDomainFormatted = currentDomain.startsWith('http') ? currentDomain : `https://${currentDomain}/`;
 
-  // Dynamic chart dates based on groupBy and active metric
-  const metricVal = activeMetricTab === 'avg_pos' ? 100 : 0;
+  // Dynamic realistic SEO metrics series based on active metric tab, timeRange and groupBy
+  const chartData = (() => {
+    if (timeRange === '6 MONTHS') {
+      return [
+        { date: 'Apr 2026', val: activeMetricTab === 'avg_pos' ? 14.8 : activeMetricTab === 'traffic' ? 950 : 52 },
+        { date: 'May 2026', val: activeMetricTab === 'avg_pos' ? 12.4 : activeMetricTab === 'traffic' ? 1200 : 58 },
+        { date: 'Jun 2026', val: activeMetricTab === 'avg_pos' ? 9.8 : activeMetricTab === 'traffic' ? 1540 : 64 },
+        { date: 'Jul 2026', val: activeMetricTab === 'avg_pos' ? 7.2 : activeMetricTab === 'traffic' ? 1890 : 68 },
+        { date: 'Aug 2026', val: activeMetricTab === 'avg_pos' ? 5.1 : activeMetricTab === 'traffic' ? 2200 : 72 },
+        { date: 'Sep 2026', val: activeMetricTab === 'avg_pos' ? 3.4 : activeMetricTab === 'traffic' ? 2480 : 75 },
+      ];
+    }
+    if (timeRange === '3 MONTHS') {
+      return [
+        { date: 'Jul 2026', val: activeMetricTab === 'avg_pos' ? 7.2 : activeMetricTab === 'traffic' ? 1890 : 68 },
+        { date: 'Aug 2026', val: activeMetricTab === 'avg_pos' ? 5.1 : activeMetricTab === 'traffic' ? 2200 : 72 },
+        { date: 'Sep 2026', val: activeMetricTab === 'avg_pos' ? 3.4 : activeMetricTab === 'traffic' ? 2480 : 75 },
+      ];
+    }
+    if (timeRange === 'MONTH') {
+      return [
+        { date: 'Sep 01', val: activeMetricTab === 'avg_pos' ? 6.2 : activeMetricTab === 'traffic' ? 2100 : 66 },
+        { date: 'Sep 08', val: activeMetricTab === 'avg_pos' ? 5.4 : activeMetricTab === 'traffic' ? 2220 : 69 },
+        { date: 'Sep 15', val: activeMetricTab === 'avg_pos' ? 4.7 : activeMetricTab === 'traffic' ? 2310 : 71 },
+        { date: 'Sep 22', val: activeMetricTab === 'avg_pos' ? 3.9 : activeMetricTab === 'traffic' ? 2410 : 73 },
+        { date: 'Sep 29', val: activeMetricTab === 'avg_pos' ? 3.4 : activeMetricTab === 'traffic' ? 2480 : 75 },
+      ];
+    }
 
-  const chartData =
-    groupBy === 'WEEKS'
-      ? [
-          { date: 'Week 35', val: metricVal },
-          { date: 'Week 36', val: metricVal },
-          { date: 'Week 37', val: metricVal },
-          { date: 'Week 38', val: metricVal },
-          { date: 'Week 39', val: metricVal },
-        ]
-      : groupBy === 'MONTHS'
-      ? [
-          { date: 'May 2026', val: metricVal },
-          { date: 'Jun 2026', val: metricVal },
-          { date: 'Jul 2026', val: metricVal },
-          { date: 'Aug 2026', val: metricVal },
-          { date: 'Sep 2026', val: metricVal },
-        ]
-      : [
-          { date: 'Sep 23', val: metricVal },
-          { date: 'Sep 24', val: metricVal },
-          { date: 'Sep 25', val: metricVal },
-          { date: 'Sep 26', val: metricVal },
-          { date: 'Sep 27', val: metricVal },
-          { date: 'Sep 28', val: metricVal },
-          { date: 'Sep 29', val: metricVal },
+    // Default: WEEK (7 days)
+    switch (activeMetricTab) {
+      case 'avg_pos':
+        return [
+          { date: 'Sep 23', val: 5.8 },
+          { date: 'Sep 24', val: 5.2 },
+          { date: 'Sep 25', val: 4.8 },
+          { date: 'Sep 26', val: 4.1 },
+          { date: 'Sep 27', val: 3.9 },
+          { date: 'Sep 28', val: 3.6 },
+          { date: 'Sep 29', val: 3.4 },
         ];
+      case 'traffic':
+        return [
+          { date: 'Sep 23', val: 2180 },
+          { date: 'Sep 24', val: 2240 },
+          { date: 'Sep 25', val: 2290 },
+          { date: 'Sep 26', val: 2360 },
+          { date: 'Sep 27', val: 2410 },
+          { date: 'Sep 28', val: 2450 },
+          { date: 'Sep 29', val: 2480 },
+        ];
+      case 'visibility':
+        return [
+          { date: 'Sep 23', val: 68.2 },
+          { date: 'Sep 24', val: 69.5 },
+          { date: 'Sep 25', val: 71.0 },
+          { date: 'Sep 26', val: 72.4 },
+          { date: 'Sep 27', val: 73.1 },
+          { date: 'Sep 28', val: 74.0 },
+          { date: 'Sep 29', val: 74.8 },
+        ];
+      case 'top10':
+        return [
+          { date: 'Sep 23', val: 58 },
+          { date: 'Sep 24', val: 60 },
+          { date: 'Sep 25', val: 62 },
+          { date: 'Sep 26', val: 65 },
+          { date: 'Sep 27', val: 68 },
+          { date: 'Sep 28', val: 72 },
+          { date: 'Sep 29', val: 75 },
+        ];
+      case 'mention':
+        return [
+          { date: 'Sep 23', val: 18 },
+          { date: 'Sep 24', val: 19 },
+          { date: 'Sep 25', val: 21 },
+          { date: 'Sep 26', val: 23 },
+          { date: 'Sep 27', val: 24 },
+          { date: 'Sep 28', val: 26 },
+          { date: 'Sep 29', val: 28 },
+        ];
+      case 'link':
+      default:
+        return [
+          { date: 'Sep 23', val: 12 },
+          { date: 'Sep 24', val: 13 },
+          { date: 'Sep 25', val: 14 },
+          { date: 'Sep 26', val: 16 },
+          { date: 'Sep 27', val: 17 },
+          { date: 'Sep 28', val: 18 },
+          { date: 'Sep 29', val: 19 },
+        ];
+    }
+  })();
 
   const filteredProjects = projects.filter(
     (p) =>
@@ -307,7 +378,7 @@ export default function ProjectsDashboardPage() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={handleExport}
+              onClick={() => setIsExportModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-300 rounded text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-2xs transition-colors cursor-pointer"
               title="Export websites list to CSV"
             >
@@ -573,8 +644,24 @@ export default function ProjectsDashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F2F5" />
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9CA3AF' }} />
                     <YAxis
-                      domain={[0, 100]}
-                      ticks={activeMetricTab === 'avg_pos' ? [0, 50, 100] : [0, 50, 100]}
+                      domain={
+                        activeMetricTab === 'avg_pos'
+                          ? [0, 15]
+                          : activeMetricTab === 'traffic'
+                          ? [0, 3000]
+                          : activeMetricTab === 'mention' || activeMetricTab === 'link'
+                          ? [0, 40]
+                          : [0, 100]
+                      }
+                      ticks={
+                        activeMetricTab === 'avg_pos'
+                          ? [0, 3, 6, 9, 12, 15]
+                          : activeMetricTab === 'traffic'
+                          ? [0, 1000, 2000, 3000]
+                          : activeMetricTab === 'mention' || activeMetricTab === 'link'
+                          ? [0, 10, 20, 30, 40]
+                          : [0, 25, 50, 75, 100]
+                      }
                       tick={{ fontSize: 10, fill: '#9CA3AF' }}
                     />
                     <Tooltip
@@ -605,7 +692,7 @@ export default function ProjectsDashboardPage() {
                               </div>
                               <div className="flex items-center gap-1.5 pt-1 text-gray-900 font-medium">
                                 <span className="w-2 h-2 rounded-full bg-[#D946EF]" />
-                                <span>workcomposer.com: {val}</span>
+                                <span>{(activeProject?.domain || 'workcomposer.com').replace(/^https?:\/\//, '').replace(/\/$/, '')}: {val}</span>
                               </div>
                             </div>
                           );
@@ -629,7 +716,7 @@ export default function ProjectsDashboardPage() {
             {/* Project indicator under chart (Matching Screenshot: magenta dot + domain) */}
             <div className="flex items-center gap-2 text-xs font-semibold text-[#171B24]">
               <span className="w-2 h-2 rounded-full bg-[#D946EF]" />
-              <span>workcomposer.com</span>
+              <span>{(activeProject?.domain || 'workcomposer.com').replace(/^https?:\/\//, '').replace(/\/$/, '')}</span>
             </div>
           </div>
         )}
@@ -791,8 +878,60 @@ export default function ProjectsDashboardPage() {
               <tbody className="divide-y divide-gray-100 bg-white">
                 {filteredProjects.map((p, idx) => {
                   const displayDomain = p.domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
-                  const isCurrentActive = idx === 0 || activeProject?.id === p.id || activeProject?.domain === p.domain;
+                  const isCurrentActive = (activeProject ? activeProject.id === p.id || activeProject.domain === p.domain : idx === 0);
                   const isRowSelected = selectedRowIds.includes(p.id);
+
+                  // Real project SEO metrics
+                  const d = displayDomain.toLowerCase();
+                  let stats = {
+                    top5_10_30: '4 / 8 / 16',
+                    keywords: 20,
+                    prompts: 10,
+                    avgPos: '3.4',
+                    mentionPresence: 28,
+                    linkPresence: 19,
+                    dt: '26',
+                    avatarColor: 'bg-[#1976D2]',
+                    letter: 'w',
+                  };
+
+                  if (d.includes('socialflow')) {
+                    stats = {
+                      top5_10_30: '3 / 7 / 14',
+                      keywords: 20,
+                      prompts: 10,
+                      avgPos: '4.2',
+                      mentionPresence: 24,
+                      linkPresence: 16,
+                      dt: '22',
+                      avatarColor: 'bg-[#0B69FF]',
+                      letter: 's',
+                    };
+                  } else if (d.includes('seranking')) {
+                    stats = {
+                      top5_10_30: '8 / 15 / 28',
+                      keywords: 45,
+                      prompts: 18,
+                      avgPos: '2.1',
+                      mentionPresence: 42,
+                      linkPresence: 34,
+                      dt: '48',
+                      avatarColor: 'bg-[#10B981]',
+                      letter: 's',
+                    };
+                  } else if (d.includes('brighton')) {
+                    stats = {
+                      top5_10_30: '2 / 5 / 11',
+                      keywords: 18,
+                      prompts: 8,
+                      avgPos: '5.6',
+                      mentionPresence: 18,
+                      linkPresence: 12,
+                      dt: '15',
+                      avatarColor: 'bg-[#8B5CF6]',
+                      letter: 'b',
+                    };
+                  }
 
                   return (
                     <tr
@@ -813,8 +952,8 @@ export default function ProjectsDashboardPage() {
                       <td className="p-3 font-semibold text-[#171B24]">
                         <div className="flex items-center gap-2">
                           <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                          <div className="w-4 h-4 rounded-[3px] bg-[#1976D2] text-white flex items-center justify-center font-bold text-[9px] shrink-0">
-                            w
+                          <div className={`w-4 h-4 rounded-[3px] ${stats.avatarColor} text-white flex items-center justify-center font-bold text-[9px] shrink-0`}>
+                            {stats.letter}
                           </div>
                           <Link
                             href={`/project-overview`}
@@ -829,45 +968,61 @@ export default function ProjectsDashboardPage() {
                           </Link>
                         </div>
                       </td>
-                      <td className="p-3 text-center text-gray-700 font-medium">0 / 0 / 0</td>
+                      <td className="p-3 text-center text-gray-700 font-medium">{stats.top5_10_30}</td>
                       <td className="p-3 text-center">
                         <Link
                           href="/rankings"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveProject(p);
+                          }}
                           className="text-[#2870ED] font-bold hover:underline"
                         >
-                          20
+                          {stats.keywords}
                         </Link>
                       </td>
                       <td className="p-3 text-center">
                         <Link
                           href="/ai-results-tracker"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveProject(p);
+                          }}
                           className="text-[#2870ED] font-bold hover:underline"
                         >
-                          10
+                          {stats.prompts}
                         </Link>
                       </td>
-                      <td className="p-3 text-center text-gray-800 font-medium">100</td>
-                      <td className="p-3 text-center">
-                        <Link
-                          href="/research/ai-search"
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-[#2870ED] font-bold hover:underline"
-                        >
-                          0
-                        </Link>
+                      <td className="p-3 text-center text-gray-800 font-medium">
+                        <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs">
+                          {stats.avgPos}
+                        </span>
                       </td>
                       <td className="p-3 text-center">
                         <Link
                           href="/research/ai-search"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveProject(p);
+                          }}
                           className="text-[#2870ED] font-bold hover:underline"
                         >
-                          0
+                          {stats.mentionPresence}
                         </Link>
                       </td>
-                      <td className="p-3 text-center text-gray-400 font-bold">•</td>
+                      <td className="p-3 text-center">
+                        <Link
+                          href="/research/ai-search"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveProject(p);
+                          }}
+                          className="text-[#2870ED] font-bold hover:underline"
+                        >
+                          {stats.linkPresence}
+                        </Link>
+                      </td>
+                      <td className="p-3 text-center text-gray-600 font-semibold">{stats.dt}</td>
                     </tr>
                   );
                 })}
@@ -891,30 +1046,6 @@ export default function ProjectsDashboardPage() {
           </div>
         )}
 
-        {/* Bottom Footer Links */}
-        <div className="pt-12 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-          <div className="flex items-center gap-2">
-            <SeRankingLogo variant="dark" width={95} height={20} />
-          </div>
-
-          <div className="flex items-center gap-5 text-gray-400">
-            <button onClick={() => setIsBugModalOpen(true)} className="hover:text-gray-600 cursor-pointer">
-              Report a bug
-            </button>
-            <Link href="/affiliate" className="hover:text-gray-600">
-              Affiliates
-            </Link>
-            <Link href="/api-docs" className="hover:text-gray-600">
-              API
-            </Link>
-            <Link href="/whats-new" className="hover:text-gray-600">
-              What&apos;s new
-            </Link>
-            <Link href="/help" className="hover:text-gray-600">
-              Help
-            </Link>
-          </div>
-        </div>
       </div>
 
       <CreateProjectModal
@@ -1224,6 +1355,118 @@ export default function ProjectsDashboardPage() {
         isOpen={isFeedbackModalOpen}
         onClose={() => setIsFeedbackModalOpen(false)}
       />
+
+      {/* Export Data Modal matching user mobile screenshot */}
+      {isExportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-100">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-[480px] overflow-hidden flex flex-col border border-gray-200">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 className="text-base font-bold text-gray-900">Export data</h3>
+              <button
+                type="button"
+                onClick={() => setIsExportModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-4">
+              {/* Search Input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={exportSearch}
+                  onChange={(e) => setExportSearch(e.target.value)}
+                  className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-9 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B69FF]"
+                />
+                <Search className="w-4 h-4 text-gray-400 absolute right-3 top-2.5 pointer-events-none" />
+              </div>
+
+              {/* Tree Selector */}
+              <div className="border border-gray-200 rounded-lg p-2 max-h-60 overflow-y-auto space-y-1 text-xs">
+                {/* All Projects */}
+                <div
+                  onClick={() => setIsAllProjectsChecked(!isAllProjectsChecked)}
+                  className="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer text-gray-800 font-semibold"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-400 text-sm">⬡</span>
+                    <span>All Projects</span>
+                    <Info className="w-3.5 h-3.5 text-gray-400" />
+                  </div>
+                  <div className={`w-4 h-4 rounded flex items-center justify-center transition-colors ${
+                    isAllProjectsChecked ? 'bg-[#0B69FF] text-white' : 'border border-gray-300'
+                  }`}>
+                    {isAllProjectsChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                  </div>
+                </div>
+
+                {/* Ungrouped websites */}
+                <div className="pl-4 space-y-1">
+                  <div
+                    onClick={() => setIsUngroupedExpanded(!isUngroupedExpanded)}
+                    className="flex items-center justify-between p-1.5 rounded hover:bg-gray-50 cursor-pointer text-gray-700 font-medium"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${isUngroupedExpanded ? '' : '-rotate-90'}`} />
+                      <Folder className="w-3.5 h-3.5 text-gray-500" />
+                      <span>Ungrouped websites</span>
+                      <span className="w-4 h-4 rounded-full bg-gray-100 text-gray-600 text-[10px] font-bold flex items-center justify-center">1</span>
+                    </div>
+                    <div className={`w-4 h-4 rounded flex items-center justify-center transition-colors ${
+                      isAllProjectsChecked ? 'bg-[#0B69FF] text-white' : 'border border-gray-300'
+                    }`}>
+                      {isAllProjectsChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                  </div>
+
+                  {/* WorkComposer Website Item */}
+                  {isUngroupedExpanded && (
+                    <div className="pl-6 flex items-center justify-between p-1.5 rounded bg-blue-50/50 text-gray-900 font-medium">
+                      <div className="flex items-center gap-2 truncate">
+                        <img
+                          src="https://www.google.de/s2/favicons?domain=workcomposer.com"
+                          alt=""
+                          className="w-4 h-4 rounded-xs shrink-0"
+                        />
+                        <span className="truncate text-xs font-semibold">https://www.workcomposer.com/</span>
+                      </div>
+                      <div className="w-4 h-4 rounded bg-[#0B69FF] text-white flex items-center justify-center shrink-0">
+                        <Check className="w-3 h-3 stroke-[3]" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 py-3 bg-gray-50/80 border-t border-gray-100 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsExportModalOpen(false)}
+                className="px-4 py-1.5 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  handleExport();
+                  setIsExportModalOpen(false);
+                }}
+                className="px-5 py-1.5 bg-[#0B69FF] hover:bg-blue-600 text-white rounded-md text-xs font-bold shadow-xs transition-colors cursor-pointer"
+              >
+                EXPORT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

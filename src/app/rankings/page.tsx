@@ -39,6 +39,10 @@ import {
 import { useApp } from '@/components/providers/AppProviders';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { GoogleLogo } from '@/components/ui/GoogleLogo';
+import { AppFooter } from '@/components/layout/AppFooter';
+import { CreateNoteModal } from '@/components/modals/CreateNoteModal';
 
 interface KeywordItem {
   id: string;
@@ -63,6 +67,140 @@ const HIGH_POTENTIAL_KEYWORDS = [
   { keyword: 'remote team productivity tool', volume: 5200, kd: 24, intent: 'Commercial', cpc: '$3.90' },
   { keyword: 'time tracking software with screenshots', volume: 1900, kd: 18, intent: 'Commercial', cpc: '$3.40' },
 ];
+
+const INITIAL_KEYWORDS: KeywordItem[] = [
+  {
+    id: 'kw-1',
+    keyword: 'employee monitoring software',
+    rank: 2,
+    prevRank: 3,
+    change: 1,
+    volume: 14800,
+    cpc: '$4.50',
+    difficulty: 28,
+    serpFeatures: ['Featured Snippet', 'SiteLinks'],
+    url: 'https://www.workcomposer.com/employee-monitoring',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-2',
+    keyword: 'work time tracker',
+    rank: 3,
+    prevRank: 5,
+    change: 2,
+    volume: 8100,
+    cpc: '$3.20',
+    difficulty: 22,
+    serpFeatures: ['Reviews', 'SiteLinks'],
+    url: 'https://www.workcomposer.com/time-tracker',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-3',
+    keyword: 'remote employee tracking software',
+    rank: 5,
+    prevRank: 5,
+    change: 0,
+    volume: 5400,
+    cpc: '$4.10',
+    difficulty: 25,
+    serpFeatures: ['SiteLinks'],
+    url: 'https://www.workcomposer.com/remote-tracking',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-4',
+    keyword: 'automatic screenshot monitoring tool',
+    rank: 4,
+    prevRank: 7,
+    change: 3,
+    volume: 2400,
+    cpc: '$5.10',
+    difficulty: 16,
+    serpFeatures: ['Video', 'FAQ'],
+    url: 'https://www.workcomposer.com/screenshots',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-5',
+    keyword: 'desktop activity tracker',
+    rank: 7,
+    prevRank: 6,
+    change: -1,
+    volume: 3600,
+    cpc: '$2.80',
+    difficulty: 19,
+    serpFeatures: ['SiteLinks'],
+    url: 'https://www.workcomposer.com/activity-tracker',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-6',
+    keyword: 'remote team productivity tool',
+    rank: 6,
+    prevRank: 8,
+    change: 2,
+    volume: 5200,
+    cpc: '$3.90',
+    difficulty: 24,
+    serpFeatures: ['SiteLinks', 'People Also Ask'],
+    url: 'https://www.workcomposer.com/productivity',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-7',
+    keyword: 'time tracking software with screenshots',
+    rank: 3,
+    prevRank: 4,
+    change: 1,
+    volume: 1900,
+    cpc: '$3.40',
+    difficulty: 18,
+    serpFeatures: ['Featured Snippet'],
+    url: 'https://www.workcomposer.com/time-tracking-screenshots',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-8',
+    keyword: 'staff attendance tracker',
+    rank: 9,
+    prevRank: 13,
+    change: 4,
+    volume: 4800,
+    cpc: '$2.90',
+    difficulty: 31,
+    serpFeatures: ['SiteLinks'],
+    url: 'https://www.workcomposer.com/attendance',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-9',
+    keyword: 'computer usage tracker for employees',
+    rank: 8,
+    prevRank: 6,
+    change: -2,
+    volume: 2100,
+    cpc: '$4.30',
+    difficulty: 27,
+    serpFeatures: ['FAQ'],
+    url: 'https://www.workcomposer.com/usage-tracker',
+    dateChecked: 'Today, 06:00',
+  },
+  {
+    id: 'kw-10',
+    keyword: 'keystroke logging tool for office',
+    rank: 11,
+    prevRank: 12,
+    change: 1,
+    volume: 1200,
+    cpc: '$3.80',
+    difficulty: 33,
+    serpFeatures: ['SiteLinks'],
+    url: 'https://www.workcomposer.com/keystrokes',
+    dateChecked: 'Today, 06:00',
+  },
+];
+
 
 const SUMMARY_NOTES = [
   {
@@ -181,6 +319,8 @@ function RankingsPageContent() {
   const [isCreateNoteOpen, setIsCreateNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteDate, setNoteDate] = useState('29 Sep 2026');
+  const [noteCategory, setNoteCategory] = useState('Google update');
+  const [notes, setNotes] = useState(SUMMARY_NOTES);
   const [isConnectGAOpen, setIsConnectGAOpen] = useState(false);
   const [expandedNoteIds, setExpandedNoteIds] = useState<string[]>([]);
 
@@ -198,7 +338,7 @@ function RankingsPageContent() {
   ]);
   const [keywordInput, setKeywordInput] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
-  const [keywords, setKeywords] = useState<KeywordItem[]>([]);
+  const [keywords, setKeywords] = useState<KeywordItem[]>(INITIAL_KEYWORDS);
 
   // Modals
   const [isGuestLinkOpen, setIsGuestLinkOpen] = useState(false);
@@ -399,8 +539,8 @@ function RankingsPageContent() {
                   isEngineDropdownOpen ? 'border-gray-400 ring-1 ring-gray-300' : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <span className="font-bold text-blue-600">G</span>
-                <span className="text-sm">🇮🇳</span>
+                <GoogleLogo className="w-4 h-4" />
+                <CountryFlag code="IN" name="India" size="sm" />
                 <span>{selectedEngine}</span>
                 <span className="text-[10px] text-gray-500 font-bold">EN</span>
                 {isEngineDropdownOpen ? (
@@ -420,8 +560,8 @@ function RankingsPageContent() {
                     className="px-3 py-2 flex items-center justify-between hover:bg-gray-100 cursor-pointer bg-gray-50 font-medium text-gray-900"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-blue-600">G</span>
-                      <span className="text-sm">🇮🇳</span>
+                      <GoogleLogo className="w-4 h-4" />
+                      <CountryFlag code="IN" name="India" size="sm" />
                       <span>India</span>
                     </div>
                     <span className="text-[10px] text-gray-500 font-bold">EN</span>
@@ -990,8 +1130,8 @@ function RankingsPageContent() {
             {/* Google India Summary Box matching Screenshot 1, 2, 3 */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-600 text-sm">G</span>
-                <span className="text-base leading-none">🇮🇳</span>
+                <GoogleLogo className="w-4 h-4" />
+                <CountryFlag code="IN" name="India" size="sm" />
                 <h4 className="text-sm font-bold text-gray-900">Google India</h4>
               </div>
 
@@ -1055,10 +1195,10 @@ function RankingsPageContent() {
               <div className="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
                 <div className="flex items-center gap-2">
                   <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-700 shadow-2xs">
-                    <span className="font-bold text-blue-600">G</span>
-                    <span className="text-sm">🇮🇳</span>
+                    <GoogleLogo className="w-4 h-4" />
+                    <CountryFlag code="IN" name="India" size="sm" />
                     <span>India</span>
-                    <span className="text-[10px] text-gray-400 font-normal">EN</span>
+                    <span className="text-[10px] text-gray-500 font-bold">EN</span>
                     <ChevronDown className="w-3 h-3 text-gray-400" />
                   </div>
 
@@ -1283,37 +1423,6 @@ function RankingsPageContent() {
               </div>
             </div>
 
-            {/* Bottom Footer matching Screenshot 4 */}
-            <div className="pt-6 pb-2 flex flex-wrap items-center justify-between text-xs text-gray-500 border-t border-gray-200/60 mt-8">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#00A86B] flex items-center justify-center text-white text-[9px] font-black">
-                  SE
-                </div>
-                <span className="font-bold text-gray-800 text-xs">SE Ranking</span>
-              </div>
-
-              <div className="flex items-center gap-5 font-normal text-xs text-gray-500">
-                <button
-                  type="button"
-                  onClick={() => setIsBugModalOpen(true)}
-                  className="hover:text-gray-900 cursor-pointer"
-                >
-                  Report a bug
-                </button>
-                <Link href="/affiliate" className="hover:text-gray-900">
-                  Affiliates
-                </Link>
-                <Link href="/api-docs" className="hover:text-gray-900">
-                  API
-                </Link>
-                <Link href="/whats-new" className="hover:text-gray-900">
-                  What's new
-                </Link>
-                <Link href="/help" className="hover:text-gray-900">
-                  Help
-                </Link>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1446,8 +1555,8 @@ function RankingsPageContent() {
             {/* Google India Header matching Screenshot 1 & 2 */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-600 text-sm">G</span>
-                <span className="text-base leading-none">🇮🇳</span>
+                <GoogleLogo className="w-4 h-4" />
+                <CountryFlag code="IN" name="India" size="sm" />
                 <h4 className="text-sm font-bold text-gray-900">Google India</h4>
               </div>
 
@@ -1456,10 +1565,10 @@ function RankingsPageContent() {
                 <div className="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 bg-white">
                   <div className="flex items-center gap-2">
                     <div className="bg-white border border-gray-300 rounded-md px-2.5 py-1.5 flex items-center gap-1.5 text-xs font-semibold text-gray-700 shadow-2xs">
-                      <span className="font-bold text-blue-600">G</span>
-                      <span className="text-sm">🇮🇳</span>
+                      <GoogleLogo className="w-4 h-4" />
+                      <CountryFlag code="IN" name="India" size="sm" />
                       <span>India</span>
-                      <span className="text-[10px] text-gray-400 font-normal">EN</span>
+                      <span className="text-[10px] text-gray-500 font-bold">EN</span>
                       <ChevronDown className="w-3 h-3 text-gray-400" />
                     </div>
 
@@ -1678,37 +1787,6 @@ function RankingsPageContent() {
               </div>
             </div>
 
-            {/* Bottom Footer matching Screenshot 2 */}
-            <div className="pt-6 pb-2 flex flex-wrap items-center justify-between text-xs text-gray-500 border-t border-gray-200/60 mt-8">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded bg-[#00A86B] flex items-center justify-center text-white text-[9px] font-black">
-                  SE
-                </div>
-                <span className="font-bold text-gray-800 text-xs">SE Ranking</span>
-              </div>
-
-              <div className="flex items-center gap-5 font-normal text-xs text-gray-500">
-                <button
-                  type="button"
-                  onClick={() => setIsBugModalOpen(true)}
-                  className="hover:text-gray-900 cursor-pointer"
-                >
-                  Report a bug
-                </button>
-                <Link href="/affiliate" className="hover:text-gray-900">
-                  Affiliates
-                </Link>
-                <Link href="/api-docs" className="hover:text-gray-900">
-                  API
-                </Link>
-                <Link href="/whats-new" className="hover:text-gray-900">
-                  What's new
-                </Link>
-                <Link href="/help" className="hover:text-gray-900">
-                  Help
-                </Link>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1973,7 +2051,7 @@ function RankingsPageContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 text-gray-700">
-                    {SUMMARY_NOTES.map((note) => {
+                    {notes.map((note) => {
                       const isExpanded = expandedNoteIds.includes(note.id);
                       return (
                         <tr key={note.id} className="hover:bg-gray-50/70 transition-colors">
@@ -2001,7 +2079,7 @@ function RankingsPageContent() {
                           </td>
                           <td className="py-3 px-3 text-xs align-top">
                             <div className="flex items-center gap-1.5 font-medium text-gray-800">
-                              <span className="font-bold text-blue-600 text-xs">G</span>
+                              <GoogleLogo className="w-3.5 h-3.5 shrink-0" />
                               <span>{note.category}</span>
                             </div>
                           </td>
@@ -2026,118 +2104,18 @@ function RankingsPageContent() {
           </div>
         )}
 
-        {/* Bottom Footer matching Screenshot 4 */}
-        <footer className="mt-8 pt-4 pb-4 border-t border-gray-200/90 flex items-center justify-between text-xs text-gray-500 w-full select-none">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-[#0B69FF] rounded-xs flex items-center justify-center text-white font-black text-[10px]">
-              ⚡
-            </div>
-            <span className="font-bold text-gray-900 tracking-tight text-sm">SE Ranking</span>
-          </div>
-          <div className="flex items-center gap-6 text-xs text-gray-600 font-medium">
-            <button
-              type="button"
-              onClick={() => setIsBugModalOpen(true)}
-              className="hover:text-[#0B69FF] transition-colors cursor-pointer"
-            >
-              Report a bug
-            </button>
-            <Link href="/affiliate" className="hover:text-[#0B69FF] transition-colors">
-              Affiliates
-            </Link>
-            <Link href="/api-docs" className="hover:text-[#0B69FF] transition-colors">
-              API
-            </Link>
-            <Link href="/whats-new" className="hover:text-[#0B69FF] transition-colors">
-              What's new
-            </Link>
-            <Link href="/help" className="hover:text-[#0B69FF] transition-colors">
-              Help
-            </Link>
-          </div>
-        </footer>
       </div>
 
-      {/* Floating "+ CREATE A NOTE" Button matching Screenshot 5 (only on Summary view) */}
-      {activeTab === 'summary' && (
-        <div className="fixed bottom-6 right-6 z-40">
-          <button
-            type="button"
-            onClick={() => setIsCreateNoteOpen(true)}
-            className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00925d] text-white text-xs font-bold rounded-lg shadow-xl flex items-center gap-2 cursor-pointer transition-transform hover:scale-105 uppercase tracking-wider"
-          >
-            <Plus className="w-4 h-4 stroke-[3]" />
-            <span>CREATE A NOTE</span>
-          </button>
-        </div>
-      )}
-
-      {/* CREATE A NOTE MODAL */}
-      {isCreateNoteOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-2xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-              <div className="flex items-center gap-2">
-                <StickyNote className="w-4 h-4 text-[#00A86B]" />
-                <h3 className="text-base font-bold text-gray-900">Create a Note</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCreateNoteOpen(false)}
-                className="text-gray-400 hover:text-gray-600 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-gray-700 font-semibold mb-1">Date</label>
-                <input
-                  type="text"
-                  value={noteDate}
-                  onChange={(e) => setNoteDate(e.target.value)}
-                  className="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-xs font-medium"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700 font-semibold mb-1">Note text *</label>
-                <textarea
-                  rows={4}
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="e.g. Launched new product landing page, started backlink campaign..."
-                  className="w-full p-3 border border-gray-300 rounded-lg text-xs text-gray-800 focus:outline-hidden focus:border-[#00A86B]"
-                />
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-end gap-2 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => setIsCreateNoteOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (noteText.trim()) {
-                    showToast('Note created successfully!');
-                    setNoteText('');
-                    setIsCreateNoteOpen(false);
-                  }
-                }}
-                className="px-5 py-2 bg-[#00A86B] hover:bg-[#00925d] text-white rounded-lg text-xs font-bold transition-colors shadow-xs cursor-pointer uppercase tracking-wider"
-              >
-                Save Note
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* CREATE A NOTE MODAL matching exact SE Ranking user screenshot */}
+      <CreateNoteModal
+        isOpen={isCreateNoteOpen}
+        onClose={() => setIsCreateNoteOpen(false)}
+        availableKeywords={keywords.map((k) => k.keyword)}
+        onSaveNote={(newNote) => {
+          setNotes((prev) => [newNote, ...prev]);
+          showToast('Note created successfully!');
+        }}
+      />
 
       {/* CONNECT GOOGLE ANALYTICS MODAL */}
       {isConnectGAOpen && (

@@ -65,6 +65,7 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('seranking_auth_status', 'logged_in');
         sessionStorage.setItem('seranking_auth_status', 'logged_in');
+        localStorage.setItem('auth_token', data.token || 'auth-token-admin');
         localStorage.setItem('seranking_user', JSON.stringify(data.user || { email: email.trim(), name: 'Admin User' }));
         localStorage.setItem('user_email', email.trim());
         localStorage.setItem('user_name', data.user?.name || 'Admin User');
@@ -78,9 +79,14 @@ export default function LoginPage() {
         window.dispatchEvent(new CustomEvent('seranking_auth_change'));
       }
 
-      await refreshProjects();
+      try {
+        await refreshProjects();
+      } catch (projErr) {
+        console.warn('refreshProjects background notice:', projErr);
+      }
+
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
-      router.push(redirectUrl);
+      window.location.href = redirectUrl;
     } catch (err: any) {
       setError(err?.message || 'Invalid pair username/password!');
       setIsLoading(false);
@@ -99,9 +105,11 @@ export default function LoginPage() {
           password: 'AdminPassword123#',
         }),
       });
+      const data = await res.json().catch(() => ({}));
       if (typeof window !== 'undefined') {
         localStorage.setItem('seranking_auth_status', 'logged_in');
         sessionStorage.setItem('seranking_auth_status', 'logged_in');
+        localStorage.setItem('auth_token', data.token || 'auth-token-admin');
         localStorage.setItem('seranking_user', JSON.stringify({ email: 'admin@seranking.com', name: 'Admin User' }));
         localStorage.setItem('user_email', 'admin@seranking.com');
         localStorage.setItem('user_name', 'Admin User');
@@ -115,11 +123,10 @@ export default function LoginPage() {
         window.dispatchEvent(new CustomEvent('seranking_auth_change'));
       }
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
-      await refreshProjects();
-      router.push(redirectUrl);
+      window.location.href = redirectUrl;
     } catch {
       const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
-      router.push(redirectUrl);
+      window.location.href = redirectUrl;
     }
   };
 

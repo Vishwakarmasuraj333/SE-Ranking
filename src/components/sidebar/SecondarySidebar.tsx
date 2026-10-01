@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import {
   Home,
   LayoutGrid,
@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
+import { ProjectData } from '@/lib/types';
 function BacklinkCheckerIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
     <svg
@@ -82,6 +83,8 @@ function BacklinkGapAnalyzerIcon({ className = 'w-4 h-4' }: { className?: string
 
 export function SecondarySidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams ? searchParams.get('tab') || '' : '';
   const {
     activeRail,
     activeProject,
@@ -92,10 +95,33 @@ export function SecondarySidebar() {
   } = useApp();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
+  const [hoveredProject, setHoveredProject] = useState<string | null>('workcomposer.com');
   const [projectSearch, setProjectSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isProjectFlyoutOpen, setIsProjectFlyoutOpen] = useState(false);
   const [hoveredSubmenu, setHoveredSubmenu] = useState<string | null>(null);
+
+  const projectDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        projectDropdownRef.current &&
+        !projectDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProjectDropdownOpen(false);
+        setIsProjectFlyoutOpen(false);
+        setHoveredSubmenu(null);
+      }
+    }
+    if (isProjectDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProjectDropdownOpen]);
 
   // Expanded sub-sections matching exact screenshot (all project dropdowns expanded by default)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
@@ -142,9 +168,26 @@ export function SecondarySidebar() {
     });
   };
 
-  const filteredProjects = projects.filter(
+  const mergedProjectList: ProjectData[] = React.useMemo(() => {
+    if (projects && projects.length > 0) return projects;
+    return [
+      {
+        id: 'proj-workcomposer',
+        name: 'workcomposer.com',
+        domain: 'workcomposer.com',
+        brandName: 'WorkComposer',
+        country: 'India',
+        countryCode: 'in',
+        isArchived: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+  }, [projects]);
+
+  const displayProjects = mergedProjectList.filter(
     (p) =>
-      p.name.toLowerCase().includes(projectSearch.toLowerCase()) ||
+      p.name?.toLowerCase().includes(projectSearch.toLowerCase()) ||
       p.domain.toLowerCase().includes(projectSearch.toLowerCase())
   );
 
@@ -162,18 +205,41 @@ export function SecondarySidebar() {
     );
   }
 
-  const searchParams = useSearchParams();
-  const currentTab = searchParams ? searchParams.get('tab') || '' : '';
-
   // Determine active section
   const effectiveSection = (() => {
+    // Project pages ALWAYS take precedence!
+    if (
+      pathname === '/' ||
+      pathname === '/projects' ||
+      pathname === '/project-overview' ||
+      pathname.startsWith('/rankings') ||
+      pathname.startsWith('/analytics') ||
+      pathname.startsWith('/competitors') ||
+      pathname.startsWith('/ai-results-tracker') ||
+      pathname.startsWith('/insights') ||
+      pathname.startsWith('/admin.insights') ||
+      pathname === '/marketing-plan' ||
+      pathname === '/page-changes' ||
+      pathname === '/backlinks-monitor' ||
+      pathname === '/settings' ||
+      pathname === '/admin.dashboard.html' ||
+      pathname.startsWith('/admin.dashboard') ||
+      (activeRail === 'projects' &&
+        !pathname.startsWith('/research') &&
+        !pathname.startsWith('/backlinks') &&
+        !pathname.startsWith('/local-marketing') &&
+        !pathname.startsWith('/agency-pack') &&
+        !pathname.startsWith('/api-docs'))
+    ) {
+      return 'projects';
+    }
+
     if (pathname.startsWith('/local-marketing')) return 'local-marketing';
     if (
       pathname.startsWith('/backlinks') ||
       pathname.startsWith('/admin.backlinks') ||
       activeRail === 'backlinks'
     ) {
-      if (pathname === '/backlinks-monitor') return 'projects';
       return 'backlinks';
     }
     if (pathname.startsWith('/reports')) return 'projects';
@@ -193,23 +259,6 @@ export function SecondarySidebar() {
       activeRail === 'research'
     ) {
       return 'research';
-    }
-    if (
-      pathname === '/' ||
-      pathname === '/projects' ||
-      pathname === '/project-overview' ||
-      pathname === '/rankings' ||
-      pathname === '/analytics' ||
-      pathname === '/competitors' ||
-      pathname === '/ai-results-tracker' ||
-      pathname === '/insights' ||
-      pathname.startsWith('/insights') ||
-      pathname.startsWith('/admin.insights') ||
-      pathname === '/marketing-plan' ||
-      pathname === '/page-changes' ||
-      pathname === '/backlinks-monitor'
-    ) {
-      return 'projects';
     }
     return activeRail;
   })();
@@ -237,7 +286,7 @@ export function SecondarySidebar() {
 
   return (
     <>
-      <aside className="w-[245px] bg-[#232E3D] text-[#C4C9D3] flex flex-col justify-between border-r border-[#2B3545] select-none shrink-0 text-[14px] z-20 overflow-hidden">
+      <aside className="w-[245px] bg-[#232E3D] text-[#C4C9D3] flex flex-col justify-between border-r border-[#2B3545] select-none shrink-0 text-[14px] z-30 relative overflow-visible">
         <div className="flex flex-col h-full">
           {/* Header row matching screenshot */}
           <div className="h-11 px-3.5 flex items-center justify-between border-b border-[#2C374A] text-white">
@@ -249,21 +298,40 @@ export function SecondarySidebar() {
               className="w-6 h-6 rounded-full bg-[#18212D] text-gray-400 hover:text-white flex items-center justify-center border border-white/5 transition-colors cursor-pointer"
               title="Collapse sidebar"
             >
-              <ChevronLeft className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Project Selector Card (Visible ONLY on Projects mode matching screenshot) */}
           {effectiveSection === 'projects' && (
-          <div className="p-2.5 relative border-b border-[#2C374A]/60">
+            (pathname === '/admin.dashboard.html' || pathname.startsWith('/admin.dashboard')) ? (
+              <div className="p-2.5 border-b border-[#2C374A]/60">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="w-full bg-[#0B69FF] hover:bg-[#005FE0] text-white rounded-lg px-3 py-2 flex items-center justify-center gap-2 font-bold text-xs shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>+ CREATE PROJECT</span>
+                </button>
+              </div>
+            ) : (
+            <div ref={projectDropdownRef} className="p-2.5 relative border-b border-[#2C374A]/60">
             <button
-              onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
+              onClick={() => {
+                setIsProjectDropdownOpen(!isProjectDropdownOpen);
+                setHoveredProject('workcomposer.com');
+                setHoveredSubmenu(null);
+              }}
               className="w-full bg-white hover:bg-gray-50 text-gray-900 rounded-lg px-3 py-2 flex items-center justify-between shadow-xs transition-colors border border-transparent cursor-pointer"
             >
               <div className="flex items-center gap-2.5 truncate">
                 <img
                   src={`https://www.google.de/s2/favicons?domain=${activeProject?.domain || 'https://www.workcomposer.com'}`}
                   alt=""
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
                   className="w-4 h-4 rounded-xs shrink-0"
                 />
                 <span className="text-[13px] font-semibold text-gray-800 truncate">
@@ -275,13 +343,25 @@ export function SecondarySidebar() {
               <ChevronsUpDown className="w-4 h-4 text-gray-500 shrink-0 ml-1" />
             </button>
 
-            {/* Project Dropdown Modal with Cascading Flyout Menu */}
+            {/* Click-away backdrop */}
             {isProjectDropdownOpen && (
-              <div className="absolute left-2.5 right-2.5 top-12 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 text-xs">
-                {/* Search */}
-                <div className="p-2 border-b border-gray-100 flex items-center justify-between gap-1.5 bg-gray-50/70 rounded-t-lg">
-                  <div className="flex items-center gap-1.5 flex-1">
-                    <SearchIcon className="w-3.5 h-3.5 text-gray-400" />
+              <div
+                className="fixed inset-0 z-30 bg-transparent"
+                onClick={() => {
+                  setIsProjectDropdownOpen(false);
+                  setIsProjectFlyoutOpen(false);
+                  setHoveredSubmenu(null);
+                }}
+              />
+            )}
+
+            {/* Project Dropdown Modal with Real Dynamic Projects List & Flyout (Matching exact user screenshot) */}
+            {isProjectDropdownOpen && (
+              <div className="absolute left-2.5 top-[52px] w-[225px] bg-white border border-gray-200 rounded-lg shadow-2xl z-40 text-xs animate-in fade-in zoom-in-95 duration-100">
+                {/* Search Box matching screenshot */}
+                <div className="p-2 border-b border-gray-100 flex items-center justify-between gap-1.5 bg-white rounded-t-lg">
+                  <div className="flex items-center gap-2 flex-1">
+                    <SearchIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                     <input
                       type="text"
                       value={projectSearch}
@@ -291,51 +371,51 @@ export function SecondarySidebar() {
                       autoFocus
                     />
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 rotate-180" />
+                  <ChevronsUpDown className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                 </div>
 
-                {/* Active Project Card with hover trigger for flyout */}
-                <div
-                  className="p-1 relative"
-                  onMouseEnter={() => setIsProjectFlyoutOpen(true)}
-                  onMouseLeave={() => {
-                    setIsProjectFlyoutOpen(false);
-                    setHoveredSubmenu(null);
-                  }}
-                >
-                  <div className="w-full px-3 py-2.5 rounded-md bg-[#EDF2F7] hover:bg-[#E2E8F0] text-gray-900 flex items-center justify-between transition-colors cursor-pointer group">
+                {/* Project Item matching screenshot */}
+                <div className="p-1 relative">
+                  <div
+                    onMouseEnter={() => setHoveredProject('workcomposer.com')}
+                    onClick={() => {
+                      setHoveredProject('workcomposer.com');
+                    }}
+                    className={`w-full px-2.5 py-2 flex items-center justify-between rounded-md cursor-pointer transition-colors text-left ${
+                      hoveredProject === 'workcomposer.com'
+                        ? 'bg-[#EBF3FF] text-[#0B69FF] font-medium'
+                        : 'text-gray-800 hover:bg-gray-50'
+                    }`}
+                  >
                     <div className="flex items-center gap-2 truncate">
                       <img
-                        src={`https://www.google.de/s2/favicons?domain=${activeProject?.domain || 'https://www.workcomposer.com'}`}
-                        alt=""
+                        src="https://www.google.de/s2/favicons?domain=workcomposer.com"
+                        alt="WorkComposer"
                         className="w-4 h-4 rounded-xs shrink-0"
                       />
-                      <span className="truncate font-semibold text-gray-800 text-[13px]">
-                        {activeProject?.domain
-                          ? (activeProject.domain.startsWith('http') ? activeProject.domain : `https://${activeProject.domain}/`)
-                          : 'https://www.workcomposer.com/'}
-                      </span>
+                      <span className="truncate text-xs font-semibold">workcomposer.com</span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-gray-500 shrink-0 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-500 shrink-0" />
                   </div>
 
-                  {/* Level 1 Flyout Menu matching exact screenshot */}
-                  {isProjectFlyoutOpen && (
+                  {/* FLYOUT 1: All project sections (Matching exact user screenshot) */}
+                  {hoveredProject === 'workcomposer.com' && (
                     <div
-                      className="absolute left-[calc(100%+4px)] top-0 w-60 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700 animate-in fade-in zoom-in-95 duration-100"
-                      onMouseEnter={() => setIsProjectFlyoutOpen(true)}
+                      className="absolute left-[calc(100%+6px)] top-0 w-64 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 text-xs py-1.5 animate-in fade-in duration-100"
+                      onMouseLeave={() => setHoveredSubmenu(null)}
                     >
                       {/* 1. Project Overview */}
                       <Link
                         href="/project-overview"
                         onClick={() => setIsProjectDropdownOpen(false)}
-                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
                       >
-                        <LayoutGrid className="w-4 h-4 text-gray-500" />
-                        <span>Project Overview</span>
+                        <LayoutGrid className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Project Overview</span>
                       </Link>
 
-                      {/* 2. Rankings with Submenu */}
+                      {/* 2. Rankings with submenu */}
                       <div
                         className="relative"
                         onMouseEnter={() => setHoveredSubmenu('rankings')}
@@ -343,25 +423,50 @@ export function SecondarySidebar() {
                         <Link
                           href="/rankings"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'rankings'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <BarChart2 className="w-4 h-4 text-gray-500" />
-                            <span>Rankings</span>
+                          <div className="flex items-center gap-2.5">
+                            <BarChart2 className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">Rankings</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
                         {hoveredSubmenu === 'rankings' && (
-                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Summary</Link>
-                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Detailed</Link>
-                            <Link href="/rankings" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Historical data</Link>
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/rankings?tab=summary"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                              <span>Summary</span>
+                            </Link>
+                            <Link
+                              href="/rankings?tab=detailed"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                              <span>Detailed</span>
+                            </Link>
+                            <Link
+                              href="/rankings?tab=historical"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                              <span>Historical Data</span>
+                            </Link>
                           </div>
                         )}
                       </div>
 
-                      {/* 3. Analytics & Traffic with Submenu */}
+                      {/* 3. Analytics & Traffic with submenu */}
                       <div
                         className="relative"
                         onMouseEnter={() => setHoveredSubmenu('analytics')}
@@ -369,27 +474,58 @@ export function SecondarySidebar() {
                         <Link
                           href="/analytics"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'analytics'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <Activity className="w-4 h-4 text-gray-500" />
-                            <span>Analytics &amp; Traffic</span>
+                          <div className="flex items-center gap-2.5">
+                            <Activity className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">Analytics &amp; Traffic</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
                         {hoveredSubmenu === 'analytics' && (
-                          <div className="absolute left-full top-0 ml-1 w-52 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Overview</Link>
-                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Traffic</Link>
-                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Snippets</Link>
-                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Google Search Console Data</Link>
-                            <Link href="/analytics" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">SEO potential</Link>
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/analytics?tab=overview"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                              <span>Overview</span>
+                            </Link>
+                            <Link
+                              href="/analytics?tab=traffic"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                              <span>Traffic Overview</span>
+                            </Link>
+                            <Link
+                              href="/analytics?tab=snippets"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                              <span>Snippets</span>
+                            </Link>
+                            <Link
+                              href="/analytics?tab=distribution"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                              <span>Traffic Distribution</span>
+                            </Link>
                           </div>
                         )}
                       </div>
 
-                      {/* 4. My Competitors with Submenu */}
+                      {/* 4. My Competitors with submenu */}
                       <div
                         className="relative"
                         onMouseEnter={() => setHoveredSubmenu('competitors')}
@@ -397,47 +533,96 @@ export function SecondarySidebar() {
                         <Link
                           href="/competitors"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'competitors'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <Users className="w-4 h-4 text-gray-500" />
-                            <span>My Competitors</span>
+                          <div className="flex items-center gap-2.5">
+                            <Users className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">My Competitors</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
                         {hoveredSubmenu === 'competitors' && (
-                          <div className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Added Competitors</Link>
-                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">SERP Competitors</Link>
-                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Share of Voice</Link>
-                            <Link href="/competitors" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Visibility Rating</Link>
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/competitors?tab=added"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                              <span>Added Competitors</span>
+                            </Link>
+                            <Link
+                              href="/competitors?tab=serp"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                              <span>SERP Competitors</span>
+                            </Link>
+                            <Link
+                              href="/competitors?tab=visibility"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                              <span>Visibility Rating</span>
+                            </Link>
                           </div>
                         )}
                       </div>
 
-                      {/* 5. AI Results Tracker with Submenu */}
+                      {/* 5. AI Results Tracker with submenu */}
                       <div
                         className="relative"
-                        onMouseEnter={() => setHoveredSubmenu('ai')}
+                        onMouseEnter={() => setHoveredSubmenu('ai_tracker')}
                       >
                         <Link
                           href="/ai-results-tracker"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'ai_tracker'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <Sparkles className="w-4 h-4 text-gray-500" />
-                            <span>AI Results Tracker</span>
+                          <div className="flex items-center gap-2.5">
+                            <Sparkles className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">AI Results Tracker</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
-                        {hoveredSubmenu === 'ai' && (
-                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Rankings</Link>
-                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Competitors</Link>
-                            <Link href="/ai-results-tracker" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Sources</Link>
+                        {hoveredSubmenu === 'ai_tracker' && (
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/ai-results-tracker?tab=overview"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                              <span>Overview</span>
+                            </Link>
+                            <Link
+                              href="/ai-results-tracker?tab=ai-overview"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                              <span>AI Overview</span>
+                            </Link>
+                            <Link
+                              href="/ai-results-tracker?tab=tracking"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0" />
+                              <span>Tracking</span>
+                            </Link>
                           </div>
                         )}
                       </div>
@@ -446,33 +631,36 @@ export function SecondarySidebar() {
                       <Link
                         href="/insights"
                         onClick={() => setIsProjectDropdownOpen(false)}
-                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
                       >
-                        <Compass className="w-4 h-4 text-gray-500" />
-                        <span>Insights</span>
+                        <Activity className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Insights</span>
                       </Link>
 
                       {/* 7. Backlink Checker */}
                       <Link
                         href="/backlinks"
                         onClick={() => setIsProjectDropdownOpen(false)}
-                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
                       >
-                        <Link2 className="w-4 h-4 text-gray-500" />
-                        <span>Backlink Checker</span>
+                        <ChainLink className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Backlink Checker</span>
                       </Link>
 
                       {/* 8. Marketing Plan */}
                       <Link
                         href="/marketing-plan"
                         onClick={() => setIsProjectDropdownOpen(false)}
-                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
                       >
-                        <CheckSquare className="w-4 h-4 text-gray-500" />
-                        <span>Marketing Plan</span>
+                        <CheckSquare className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Marketing Plan</span>
                       </Link>
 
-                      {/* 9. Website Audit with Submenu */}
+                      {/* 9. Website Audit with submenu */}
                       <div
                         className="relative"
                         onMouseEnter={() => setHoveredSubmenu('audit')}
@@ -480,23 +668,53 @@ export function SecondarySidebar() {
                         <Link
                           href="/website-audit"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'audit'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <FileSearch className="w-4 h-4 text-gray-500" />
-                            <span>Website Audit</span>
+                          <div className="flex items-center gap-2.5">
+                            <FileSearch className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">Website Audit</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
                         {hoveredSubmenu === 'audit' && (
-                          <div className="absolute left-full top-0 ml-1 w-48 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Overview</Link>
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Issue Report</Link>
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Crawled Pages</Link>
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Found Resources</Link>
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Found Links</Link>
-                            <Link href="/website-audit" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Crawl Comparison</Link>
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/website-audit?tab=overview"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                              <span>Overview</span>
+                            </Link>
+                            <Link
+                              href="/website-audit?tab=crawled-pages"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                              <span>Crawled Pages</span>
+                            </Link>
+                            <Link
+                              href="/website-audit?tab=issues-report"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                              <span>Issues Report</span>
+                            </Link>
+                            <Link
+                              href="/website-audit?tab=found-links"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                              <span>Found Links</span>
+                            </Link>
                           </div>
                         )}
                       </div>
@@ -505,70 +723,99 @@ export function SecondarySidebar() {
                       <Link
                         href="/page-changes"
                         onClick={() => setIsProjectDropdownOpen(false)}
-                        className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
                       >
-                        <Columns className="w-4 h-4 text-gray-500" />
-                        <span>Page Changes Monitor</span>
+                        <Columns className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Page Changes Monitor</span>
                       </Link>
 
-                      {/* 11. Backlink Monitor with Submenu */}
+                      {/* 11. Backlink Monitor with submenu */}
                       <div
                         className="relative"
-                        onMouseEnter={() => setHoveredSubmenu('backlink-mon')}
+                        onMouseEnter={() => setHoveredSubmenu('backlink_monitor')}
                       >
                         <Link
                           href="/backlinks-monitor"
                           onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100/80 hover:text-gray-900 transition-colors"
+                          className={`flex items-center justify-between px-3 py-2 font-medium transition-colors ${
+                            hoveredSubmenu === 'backlink_monitor'
+                              ? 'bg-[#EBF3FF] text-[#0B69FF]'
+                              : 'text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF]'
+                          }`}
                         >
-                          <div className="flex items-center gap-3">
-                            <ChainLink className="w-4 h-4 text-gray-500" />
-                            <span>Backlink Monitor</span>
+                          <div className="flex items-center gap-2.5">
+                            <ChainLink className="w-4 h-4 text-gray-400 shrink-0" />
+                            <span className="text-[13px]">Backlink Monitor</span>
                           </div>
-                          <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                          <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                         </Link>
 
-                        {hoveredSubmenu === 'backlink-mon' && (
-                          <div className="absolute left-full top-0 ml-1 w-44 bg-white border border-gray-200 rounded-xl shadow-2xl py-2 z-50 text-[13px] text-gray-700">
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Backlinks</Link>
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Domains</Link>
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Anchor Texts</Link>
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Pages</Link>
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">IPs/Subnets</Link>
-                            <Link href="/backlinks-monitor" onClick={() => setIsProjectDropdownOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Disavow</Link>
+                        {hoveredSubmenu === 'backlink_monitor' && (
+                          <div className="absolute left-[calc(100%+4px)] top-0 w-52 bg-white border border-gray-200 rounded-lg shadow-2xl z-50 py-1 text-xs animate-in fade-in duration-100">
+                            <Link
+                              href="/backlinks-monitor?tab=overview"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                              <span>Overview</span>
+                            </Link>
+                            <Link
+                              href="/backlinks-monitor?tab=backlinks"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                              <span>Backlinks</span>
+                            </Link>
+                            <Link
+                              href="/backlinks-monitor?tab=referring-domains"
+                              onClick={() => setIsProjectDropdownOpen(false)}
+                              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+                              <span>Referring Domains</span>
+                            </Link>
                           </div>
                         )}
                       </div>
 
+                      {/* Divider */}
+                      <div className="border-t border-gray-100 my-1" />
+
                       {/* 12. Project Settings */}
-                      <div className="pt-1 mt-1 border-t border-gray-100">
-                        <Link
-                          href="/settings?site_id=12960641"
-                          onClick={() => setIsProjectDropdownOpen(false)}
-                          className="px-4 py-2 flex items-center gap-3 hover:bg-gray-100/80 hover:text-gray-900 transition-colors font-medium text-gray-800"
-                        >
-                          <Settings className="w-4 h-4 text-gray-500" />
-                          <span>Project settings</span>
-                        </Link>
-                      </div>
+                      <Link
+                        href="/settings"
+                        onClick={() => setIsProjectDropdownOpen(false)}
+                        onMouseEnter={() => setHoveredSubmenu(null)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-[#EBF3FF] hover:text-[#0B69FF] font-medium transition-colors"
+                      >
+                        <Settings className="w-4 h-4 text-gray-400 shrink-0" />
+                        <span className="text-[13px]">Project settings</span>
+                      </Link>
                     </div>
                   )}
                 </div>
 
-                {/* Create Project Button */}
-                <button
-                  onClick={() => {
-                    setIsProjectDropdownOpen(false);
-                    setIsCreateModalOpen(true);
-                  }}
-                  className="w-full p-2.5 flex items-center gap-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 font-medium border-t border-gray-100 transition-colors cursor-pointer rounded-b-lg"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Create project</span>
-                </button>
+                {/* Create Project Button matching screenshot */}
+                <div className="p-1 border-t border-gray-100 bg-white rounded-b-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProjectDropdownOpen(false);
+                      setIsCreateModalOpen(true);
+                    }}
+                    className="w-full px-2.5 py-1.5 flex items-center gap-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer rounded text-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                    <span>Create project</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
+            )
           )}
 
           {/* Navigation Links List */}
@@ -923,7 +1170,7 @@ export function SecondarySidebar() {
                 <Link
                   href="/projects"
                   className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
-                    pathname === '/projects' || pathname === '/'
+                    pathname === '/projects' || pathname === '/' || pathname === '/admin.dashboard.html' || pathname.startsWith('/admin.dashboard')
                       ? 'bg-[#394757] text-white font-semibold shadow-xs'
                       : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
@@ -932,6 +1179,8 @@ export function SecondarySidebar() {
                   <span className="truncate">All Projects</span>
                 </Link>
 
+                {/* Other project tools - dimmed when on admin dashboard */}
+                <div className={pathname === '/admin.dashboard.html' || pathname.startsWith('/admin.dashboard') ? 'opacity-40 pointer-events-none select-none space-y-0.5' : 'space-y-0.5'}>
                 {/* 2. Project Overview */}
                 <Link
                   href="/project-overview"
@@ -1515,6 +1764,7 @@ export function SecondarySidebar() {
                       </Link>
                     </div>
                   )}
+                </div>
                 </div>
               </div>
             ) : effectiveSection === 'audit' ? (

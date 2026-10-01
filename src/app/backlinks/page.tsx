@@ -34,7 +34,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { useApp } from '@/components/providers/AppProviders';
-import { ReportBugModal } from '@/components/modals/ReportBugModal';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 
 // ==========================================
 // DATA TYPES
@@ -151,16 +151,16 @@ const NEW_LOST_BACKLINKS_DATA = [
 
 // OVERVIEW TAB: Top backlink anchors (10 rows)
 const OVERVIEW_TOP_ANCHORS = [
-  { anchor: 'workco.com', backlinks: 33, percent: 51.6 },
-  { anchor: 'WorkCo Digital', backlinks: 8, percent: 12.5 },
-  { anchor: 'WorkCo', backlinks: 7, percent: 10.9 },
-  { anchor: 'http://workco.com', backlinks: 7, percent: 10.9 },
-  { anchor: 'Probar gratis', backlinks: 3, percent: 4.7 },
+  { anchor: 'workcomposer.com', backlinks: 33, percent: 51.6 },
+  { anchor: 'WorkComposer', backlinks: 8, percent: 12.5 },
+  { anchor: 'WorkComposer Remote Tracker', backlinks: 7, percent: 10.9 },
+  { anchor: 'https://workcomposer.com', backlinks: 7, percent: 10.9 },
+  { anchor: 'Free Trial', backlinks: 3, percent: 4.7 },
   { anchor: 'No text', backlinks: 2, percent: 3.1 },
-  { anchor: 'Probar WorkCo Digital gratis', backlinks: 1, percent: 1.6 },
-  { anchor: 'https://www.WorkCo.c...', backlinks: 1, percent: 1.6 },
-  { anchor: 'Tool #5: WorkCo Digital', backlinks: 1, percent: 1.6 },
-  { anchor: 'WorkCo Социальные', backlinks: 1, percent: 1.6 },
+  { anchor: 'Try WorkComposer Free', backlinks: 1, percent: 1.6 },
+  { anchor: 'https://www.workcomposer.com/...', backlinks: 1, percent: 1.6 },
+  { anchor: 'Employee Monitoring Tool: WorkComposer', backlinks: 1, percent: 1.6 },
+  { anchor: 'WorkComposer App', backlinks: 1, percent: 1.6 },
 ];
 
 // OVERVIEW TAB: Domains by Domain Trust (10 tiers)
@@ -202,8 +202,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 43,
     pt: 38,
     keywords: 2,
-    anchor: 'workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '09 Mar 2024',
     lastSeen: '21 Mar 2025',
@@ -218,8 +218,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 13,
     keywords: 9,
-    anchor: 'http://workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'https://workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '01 Oct 2024',
     lastSeen: '17 Aug 2026',
@@ -234,8 +234,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 11,
     keywords: 0,
-    anchor: 'http://workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'https://workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '29 Jun 2025',
     lastSeen: '11 Jun 2026',
@@ -250,8 +250,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 10,
     keywords: 2,
-    anchor: 'http://workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'https://workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '06 Aug 2025',
     lastSeen: '11 Jun 2026',
@@ -266,8 +266,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 10,
     keywords: 0,
-    anchor: 'http://workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'https://workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '29 Jun 2025',
     lastSeen: '06 Aug 2026',
@@ -282,8 +282,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 10,
     keywords: 0,
-    anchor: 'http://workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'https://workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '29 Jun 2025',
     lastSeen: '12 Jun 2026',
@@ -297,38 +297,38 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 43,
     pt: 9,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'http://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     firstSeen: '09 May 2026',
     lastSeen: '09 May 2026',
   },
   {
     id: 'b8',
-    title: 'Best Social Media Management Tools in 2022',
-    sourceUrl: 'https://www.glenhuff.com/the-best-social-media-management-tools/',
+    title: 'Best Employee Monitoring & Time Tracking Software in 2025',
+    sourceUrl: 'https://www.glenhuff.com/the-best-employee-monitoring-tools/',
     domainTraffic: '0',
     pageTraffic: '0',
     dt: 15,
     pt: 1,
     keywords: 3,
-    anchor: 'Tool #5: WorkCo Digital',
-    targetUrl: 'https://www.workco.com/',
+    anchor: 'WorkComposer Remote Tracker',
+    targetUrl: 'https://www.workcomposer.com/',
     type: 'TEXT',
     firstSeen: '07 Dec 2025',
     lastSeen: '08 Jun 2026',
   },
   {
     id: 'b9',
-    title: 'www.workco.com - Trust Reviewing',
-    sourceUrl: 'https://trustreviewing.com/review/www.workco.com-2/',
+    title: 'www.workcomposer.com - Trust Reviewing',
+    sourceUrl: 'https://trustreviewing.com/review/www.workcomposer.com-2/',
     domainTraffic: '0',
     pageTraffic: '0',
     dt: 21,
     pt: 0,
     keywords: 0,
     anchor: 'IMAGE',
-    targetUrl: 'http://www.workco.com/',
+    targetUrl: 'https://www.workcomposer.com/',
     type: 'IMAGE',
     firstSeen: '12 Dec 2025',
     lastSeen: '11 Sep 2026',
@@ -342,8 +342,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 51,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '31 Dec 2025',
@@ -351,15 +351,15 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
   },
   {
     id: 'b11',
-    title: 'www.workco.com - Trust Reviewing',
-    sourceUrl: 'https://trustreviewing.com/review/www.workco.com/',
+    title: 'www.workcomposer.com - Trust Reviewing',
+    sourceUrl: 'https://trustreviewing.com/review/www.workcomposer.com/',
     domainTraffic: '0',
     pageTraffic: '0',
     dt: 21,
     pt: 0,
     keywords: 0,
     anchor: 'IMAGE',
-    targetUrl: 'http://www.workco.com/',
+    targetUrl: 'https://www.workcomposer.com/',
     type: 'IMAGE',
     firstSeen: '12 Dec 2025',
     lastSeen: '11 Sep 2026',
@@ -373,8 +373,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 55,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '24 Dec 2025',
@@ -389,8 +389,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 59,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '24 Nov 2025',
@@ -405,8 +405,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 59,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '23 Nov 2025',
@@ -421,8 +421,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 67,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '23 Nov 2025',
@@ -437,8 +437,8 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
     dt: 65,
     pt: 0,
     keywords: 0,
-    anchor: 'workco.com',
-    targetUrl: 'https://workco.com/',
+    anchor: 'workcomposer.com',
+    targetUrl: 'https://workcomposer.com/',
     type: 'TEXT',
     nofollow: true,
     firstSeen: '20 Nov 2025',
@@ -446,15 +446,15 @@ const INITIAL_BACKLINKS_ROWS: BacklinkRowItem[] = [
   },
   {
     id: 'b17',
-    title: '15 Social Media Management Tools You Cannot Ignore in 2023 - IWrite India',
-    sourceUrl: 'https://iwriteindia.com/blog/15-social-media-management-tools-you-cannot-ignore-in-2023/',
+    title: '15 Remote Productivity & Monitoring Tools You Cannot Ignore in 2025 - IWrite Tech',
+    sourceUrl: 'https://iwritetech.com/blog/15-remote-productivity-tools-you-cannot-ignore-in-2025/',
     domainTraffic: '72',
     pageTraffic: '0',
     dt: 50,
     pt: 0,
     keywords: 0,
-    anchor: 'WorkCo Digital',
-    targetUrl: 'http://www.workco.com/',
+    anchor: 'WorkComposer',
+    targetUrl: 'https://www.workcomposer.com/',
     type: 'TEXT',
     firstSeen: '11 Oct 2025',
     lastSeen: '11 Oct 2025',
@@ -648,7 +648,7 @@ const INITIAL_REF_DOMAINS: ReferringDomainItem[] = [
 // ANCHORS TAB
 const INITIAL_ANCHORS: AnchorTextItem[] = [
   {
-    anchor: 'workco.com',
+    anchor: 'workcomposer.com',
     refDomains: 26,
     backlinks: 33,
     dofollowCount: 10,
@@ -657,7 +657,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '12 Sep 2026',
   },
   {
-    anchor: 'Social',
+    anchor: 'Employee Monitoring',
     refDomains: 7,
     backlinks: 8,
     dofollowCount: 4,
@@ -666,7 +666,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '23 Sep 2026',
   },
   {
-    anchor: 'WorkCo Digital',
+    anchor: 'WorkComposer',
     refDomains: 3,
     backlinks: 7,
     dofollowCount: 6,
@@ -675,7 +675,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '17 Aug 2026',
   },
   {
-    anchor: 'http://workco.com',
+    anchor: 'https://workcomposer.com',
     refDomains: 1,
     backlinks: 3,
     dofollowCount: 0,
@@ -684,7 +684,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '09 Sep 2026',
   },
   {
-    anchor: 'Probar gratis',
+    anchor: 'Free Trial',
     refDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -693,7 +693,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '09 Sep 2026',
   },
   {
-    anchor: 'Probar WorkCo Digital gratis',
+    anchor: 'Try WorkComposer Free',
     refDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -702,7 +702,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '07 Sep 2026',
   },
   {
-    anchor: 'https://www.workco.com',
+    anchor: 'https://www.workcomposer.com',
     refDomains: 1,
     backlinks: 2,
     dofollowCount: 2,
@@ -720,7 +720,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '08 Jun 2026',
   },
   {
-    anchor: 'Tool #5: WorkCo Digital',
+    anchor: 'Top Productivity Tool: WorkComposer',
     refDomains: 1,
     backlinks: 7,
     dofollowCount: 0,
@@ -729,7 +729,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '13 Sep 2026',
   },
   {
-    anchor: 'WorkCo',
+    anchor: 'WorkComposer App',
     refDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -738,7 +738,7 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
     lastSeen: '20 Nov 2025',
   },
   {
-    anchor: 'WorkCoSocisal',
+    anchor: 'WorkComposer Features',
     refDomains: 1,
     backlinks: 1,
     dofollowCount: 0,
@@ -750,10 +750,10 @@ const INITIAL_ANCHORS: AnchorTextItem[] = [
 
 // PAGES TAB
 const INITIAL_PAGES: PageItem[] = [
-  { url: 'https://workco.com/', backlinks: 36, refDomains: 30 },
-  { url: 'http://workco.com/', backlinks: 24, refDomains: 6 },
-  { url: 'https://www.workco.com/', backlinks: 2, refDomains: 2 },
-  { url: 'http://www.workco.com/', backlinks: 3, refDomains: 2 },
+  { url: 'https://workcomposer.com/', backlinks: 36, refDomains: 30 },
+  { url: 'https://workcomposer.com/features', backlinks: 24, refDomains: 6 },
+  { url: 'https://workcomposer.com/pricing', backlinks: 2, refDomains: 2 },
+  { url: 'https://workcomposer.com/download', backlinks: 3, refDomains: 2 },
 ];
 
 // IPS TAB
@@ -789,11 +789,21 @@ function BacklinkCheckerContent() {
   const initialTab = (searchParams.get('tab') as SubTabType) || 'overview';
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>(initialTab);
 
-  const [analyzedDomain, setAnalyzedDomain] = useState('workco.com');
+  const cleanProjectDomain = useMemo(() => {
+    if (!activeProject?.domain) return 'workcomposer.com';
+    return activeProject.domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  }, [activeProject?.domain]);
+
+  const [analyzedDomain, setAnalyzedDomain] = useState(cleanProjectDomain);
+
+  React.useEffect(() => {
+    if (cleanProjectDomain) {
+      setAnalyzedDomain(cleanProjectDomain);
+    }
+  }, [cleanProjectDomain]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showNoticeBanner, setShowNoticeBanner] = useState(true);
   const [showInfoBanner, setShowInfoBanner] = useState(true);
-  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
 
   // Overview Tab Chart Controls
   const [overallPeriod, setOverallPeriod] = useState<'7D' | '1M' | '3M' | '6M' | '12M'>('3M');
@@ -1438,7 +1448,7 @@ function BacklinkCheckerContent() {
                         {OVERVIEW_COUNTRIES.map((r, i) => (
                           <tr key={i} className="hover:bg-gray-50">
                             <td className="py-1.5 text-gray-800 font-medium flex items-center gap-1.5">
-                              <span>{r.flag}</span>
+                              <CountryFlag name={r.country} />
                               <span className="truncate max-w-[120px]">{r.country}</span>
                             </td>
                             <td className="py-1.5 text-center text-gray-900 font-semibold">
@@ -2178,7 +2188,8 @@ function BacklinkCheckerContent() {
                     {filteredIps.map((row, idx) => (
                       <tr key={idx} className="hover:bg-blue-50/20 transition-colors">
                         <td className="p-3 font-semibold text-gray-900 flex items-center gap-2">
-                          <span className="text-base leading-none">{row.flag}</span>
+                          <CountryFlag code={row.country} />
+                          <span className="font-semibold text-gray-700 text-xs uppercase">{row.country}</span>
                           <span className="font-mono text-xs">{row.ip}</span>
                         </td>
                         <td className="p-3 text-center">
@@ -2231,49 +2242,7 @@ function BacklinkCheckerContent() {
         </div>
       </div>
 
-      {/* Footer matching SE Ranking screenshots */}
-      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-8">
-        <div className="flex items-center gap-2 font-semibold text-gray-700">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
-            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-          </svg>
-          <span>SE Ranking</span>
-        </div>
-        <div className="flex items-center gap-5">
-          <button
-            onClick={() => setIsBugModalOpen(true)}
-            className="hover:underline text-gray-600 cursor-pointer"
-          >
-            Report a bug
-          </button>
-          <Link
-            href="/affiliate"
-            className="hover:underline text-gray-600"
-          >
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:underline text-gray-600">
-            API
-          </Link>
-          <Link
-            href="/whats-new"
-            className="hover:underline text-gray-600"
-          >
-            What&apos;s new
-          </Link>
-          <Link
-            href="/help"
-            className="hover:underline text-gray-600"
-          >
-            Help
-          </Link>
-        </div>
-      </footer>
 
-      <ReportBugModal
-        isOpen={isBugModalOpen}
-        onClose={() => setIsBugModalOpen(false)}
-      />
     </div>
   );
 }

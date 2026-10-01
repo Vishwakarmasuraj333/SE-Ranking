@@ -20,9 +20,17 @@ import {
   CheckCircle2,
   Tag,
   Check,
+  Star,
+  MapPin,
+  Link2,
+  Shield,
+  Trophy,
 } from 'lucide-react';
 import { SUPPORTED_COUNTRIES } from '@/lib/constants';
 import { KeywordResearchDashboard } from '@/components/research/KeywordResearchDashboard';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { GoogleLogo } from '@/components/ui/GoogleLogo';
+import { AppFooter } from '@/components/layout/AppFooter';
 
 export default function KeywordResearchPage() {
   const [viewState, setViewState] = useState<'start' | 'dashboard'>('start');
@@ -35,12 +43,12 @@ export default function KeywordResearchPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Carousel 1 Slide State (0 = 1-2 of 4, 1 = 3-4 of 4)
-  const [carousel1Page, setCarousel1Page] = useState(0);
+  const [carousel1Page, setCarousel1Page] = useState<0 | 1>(0);
 
   // Carousel 2 Slide State (0 = 1-2 of 4, 1 = 3-4 of 4)
-  const [carousel2Page, setCarousel2Page] = useState(0);
+  const [carousel2Page, setCarousel2Page] = useState<0 | 1>(0);
 
-  // Image Tabs State (0, 1, 2)
+  // Section 3 Image Tabs State (0: Similar, 1: Related, 2: Competitive)
   const [activeImageTab, setActiveImageTab] = useState(0);
 
   // Handlers for Keywords
@@ -99,8 +107,36 @@ export default function KeywordResearchPage() {
     );
   }
 
+  // Section 3 Table Data by Tab
+  const section3Data = [
+    // Tab 0: Similar keywords
+    [
+      { kw: 'seo ranking factors', vol: '6,540', kd: 28, trend: [20, 25, 30, 45, 60, 55, 70, 85], features: ['site_links', 'snippet'] },
+      { kw: 'website audit seo tools', vol: '3,210', kd: 34, trend: [40, 35, 50, 60, 55, 65, 75, 80], features: ['people_also_ask', 'site_links'] },
+      { kw: 'rank tracking software', vol: '2,900', kd: 22, trend: [30, 40, 45, 50, 65, 70, 85, 90], features: ['snippet', 'images'] },
+      { kw: 'competitor backlink analysis', vol: '1,950', kd: 19, trend: [15, 20, 35, 40, 55, 60, 75, 80], features: ['site_links'] },
+      { kw: 'keyword search volume checker', vol: '1,600', kd: 15, trend: [25, 30, 40, 50, 60, 70, 80, 95], features: ['snippet'] },
+    ],
+    // Tab 1: Related keywords
+    [
+      { kw: 'google ranking algorithm update', vol: '9,800', kd: 45, trend: [50, 45, 70, 85, 90, 80, 75, 85], features: ['snippet', 'site_links'] },
+      { kw: 'how to improve domain authority', vol: '5,400', kd: 31, trend: [30, 35, 45, 55, 60, 70, 75, 80], features: ['people_also_ask'] },
+      { kw: 'serp features tracking', vol: '2,100', kd: 18, trend: [20, 25, 40, 50, 60, 65, 80, 85], features: ['images', 'site_links'] },
+      { kw: 'on page seo checklist 2026', vol: '4,200', kd: 26, trend: [35, 40, 50, 60, 70, 80, 85, 90], features: ['snippet'] },
+      { kw: 'best backlink monitoring tools', vol: '1,800', kd: 21, trend: [25, 30, 35, 45, 55, 65, 75, 85], features: ['site_links'] },
+    ],
+    // Tab 2: Low search volume / Long tail
+    [
+      { kw: 'automatic screenshot employee monitor tool', vol: '880', kd: 14, trend: [15, 20, 30, 45, 60, 75, 85, 90], features: ['snippet'] },
+      { kw: 'real time position rank checker api', vol: '720', kd: 18, trend: [20, 30, 35, 50, 60, 70, 80, 85], features: ['site_links'] },
+      { kw: 'saas competitor keyword gap analyzer', vol: '590', kd: 16, trend: [10, 25, 35, 45, 55, 70, 80, 90], features: ['snippet'] },
+      { kw: 'local rank tracker google map pack', vol: '940', kd: 22, trend: [30, 40, 50, 65, 70, 80, 85, 95], features: ['map_pack'] },
+      { kw: 'white label seo reporting software', vol: '680', kd: 19, trend: [25, 35, 40, 55, 65, 75, 85, 90], features: ['site_links'] },
+    ],
+  ];
+
   return (
-    <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 select-none pb-20">
+    <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 select-none pb-12">
       {/* Hidden file input for TXT/CSV */}
       <input
         type="file"
@@ -110,24 +146,37 @@ export default function KeywordResearchPage() {
         className="hidden"
       />
 
-      <div className="max-w-[1100px] mx-auto px-4 py-8 space-y-12">
+
+
+      {/* Subheader questions & feedback row matching screenshot */}
+      <div className="max-w-[1100px] mx-auto px-4 pt-3 flex items-center justify-end gap-6 text-xs text-[#0B69FF]">
+        <button type="button" className="flex items-center gap-1 hover:underline cursor-pointer font-medium text-[#0B69FF]">
+          <span>Have any questions?</span>
+          <ChevronDown className="w-3.5 h-3.5" />
+        </button>
+        <button type="button" className="hover:underline cursor-pointer font-medium text-[#0B69FF]">
+          Feedback
+        </button>
+      </div>
+
+      <div className="max-w-[1100px] mx-auto px-4 py-6 space-y-12">
         {/* ========================================================================= */}
-        {/* 1. TOP INTERACTIVE SEARCH BLOCK matching user HTML */}
+        {/* 1. TOP INTERACTIVE SEARCH BLOCK matching user screenshot */}
         {/* ========================================================================= */}
-        <div className="start-page__interactive-search-block text-center pt-2">
-          <div className="start-page__block-head mb-5">
-            <h3 className="start-page__top-title text-2xl font-bold text-gray-900 tracking-tight">
+        <div className="text-center pt-2">
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
               Keyword Research
-            </h3>
-            <div className="start-page__top-subtitle text-xs text-gray-500 mt-1">
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               Find the most profitable keywords to rank for
-            </div>
+            </p>
           </div>
 
-          <div className="keyword-search max-w-3xl mx-auto">
-            <div className="search-input-multiple bg-white rounded-xl border border-gray-300 shadow-sm focus-within:border-[#0B69FF] focus-within:ring-2 focus-within:ring-[#0B69FF]/20 transition-all p-1.5 flex flex-wrap sm:flex-nowrap items-center gap-2">
+          <div className="max-w-3xl mx-auto">
+            <div className="bg-white rounded-xl border border-gray-300 shadow-sm focus-within:border-[#0B69FF] focus-within:ring-2 focus-within:ring-[#0B69FF]/20 transition-all p-1.5 flex flex-wrap sm:flex-nowrap items-center gap-2">
               {/* Keywords Input with Tag Chips */}
-              <div className="search-input-multiple__keywords flex-1 flex flex-wrap items-center gap-1.5 px-2 py-1 min-h-[38px] text-left">
+              <div className="flex-1 flex flex-wrap items-center gap-1.5 px-2 py-1 min-h-[38px] text-left">
                 {keywordsList.map((kw, idx) => (
                   <span
                     key={idx}
@@ -153,7 +202,7 @@ export default function KeywordResearchPage() {
                       ? 'Enter keywords or drop a TXT/CSV file'
                       : 'Add more keywords...'
                   }
-                  className="flex-1 min-w-[200px] text-xs text-gray-900 placeholder:text-gray-400 focus:outline-hidden bg-transparent"
+                  className="flex-1 min-w-[220px] text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none bg-transparent"
                 />
               </div>
 
@@ -167,34 +216,15 @@ export default function KeywordResearchPage() {
                 <Upload className="w-4 h-4" />
               </button>
 
-              {/* Region & Search Engine Select Button matching SE Ranking */}
+              {/* Region & Search Engine Select Button with Real Google Logo and Flag */}
               <div className="relative border-l border-gray-200 pl-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsCountryOpen(!isCountryOpen)}
                   className="h-10 px-3 flex items-center gap-2 hover:bg-gray-100 rounded-lg text-xs font-semibold text-gray-700 transition-colors cursor-pointer"
                 >
-                  {/* Google Icon */}
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                    />
-                  </svg>
-                  {/* Flag */}
-                  <span className="text-base">{selectedCountry.flag}</span>
+                  <GoogleLogo className="w-4 h-4 shrink-0" />
+                  <CountryFlag code={selectedCountry.code} size="sm" />
                   <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                 </button>
 
@@ -208,14 +238,14 @@ export default function KeywordResearchPage() {
                           setSelectedCountry(c);
                           setIsCountryOpen(false);
                         }}
-                        className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-blue-50/70 ${
+                        className={`w-full text-left px-3 py-2 flex items-center justify-between hover:bg-blue-50/70 cursor-pointer ${
                           selectedCountry.code === c.code
                             ? 'bg-blue-50 font-bold text-[#0B69FF]'
                             : 'text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-base">{c.flag}</span>
+                          <CountryFlag code={c.code} size="sm" />
                           <span>{c.name}</span>
                         </div>
                         {selectedCountry.code === c.code && (
@@ -227,21 +257,20 @@ export default function KeywordResearchPage() {
                 )}
               </div>
 
-              {/* Action Button: Analyze matching user HTML */}
-              <div className="search-input-multiple__action shrink-0">
+              {/* Action Button: Analyze */}
+              <div className="shrink-0">
                 <button
                   type="button"
                   onClick={handleAnalyze}
                   disabled={!keywordInput.trim() && keywordsList.length === 0}
-                  className={`h-10 px-5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                  className={`h-10 px-5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer uppercase tracking-wider ${
                     keywordInput.trim() || keywordsList.length > 0
-                      ? 'bg-[#0B69FF] hover:bg-[#005FE0] text-white shadow-sm'
+                      ? 'bg-[#0B69FF] hover:bg-[#005FE0] text-white shadow-xs'
                       : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   }`}
                 >
-                  <Search className="w-4 h-4" />
-                  <span>Analyze</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-white/80" />
+                  <Search className="w-4 h-4 stroke-[2.5]" />
+                  <span>ANALYZE</span>
                 </button>
               </div>
             </div>
@@ -251,557 +280,540 @@ export default function KeywordResearchPage() {
         {/* ========================================================================= */}
         {/* 2. CAROUSEL 1: Investigate keyword parameters down to the core */}
         {/* ========================================================================= */}
-        <div className="landing-section-carousel pt-4">
-          <div className="landing-sections-box text-left">
-            <div className="landing-sections-box__head flex items-center justify-between mb-4">
-              <h3 className="landing-sections-box__title text-lg font-bold text-gray-900">
-                Investigate keyword parameters down to the core
-              </h3>
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+              Investigate keyword parameters down to the core
+            </h2>
 
-              {/* Carousel Navigation: 1-2 of 4 matching user HTML */}
-              <div className="flex items-center gap-2.5 text-xs text-gray-500">
-                <span className="font-medium text-gray-600">
-                  {carousel1Page === 0 ? '1-2 of 4' : '3-4 of 4'}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setCarousel1Page(0)}
-                    disabled={carousel1Page === 0}
-                    className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCarousel1Page(1)}
-                    disabled={carousel1Page === 1}
-                    className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+            {/* Carousel Navigation: 1-2 of 4 matching user screenshot */}
+            <div className="flex items-center gap-2.5 text-xs text-gray-500">
+              <span className="font-semibold text-gray-700">
+                {carousel1Page === 0 ? '1-2 of 4' : '3-4 of 4'}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCarousel1Page(0)}
+                  disabled={carousel1Page === 0}
+                  className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="Previous items"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCarousel1Page(1)}
+                  disabled={carousel1Page === 1}
+                  className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="Next items"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
+          </div>
 
-            {/* Carousel Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Card 1: Difficulty score */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  {/* Clean Difficulty Gauge Diagram */}
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col items-center justify-center relative overflow-hidden">
-                    <div className="relative w-20 h-20 flex items-center justify-center">
-                      <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                        <path
-                          className="text-gray-100"
-                          strokeWidth="3.8"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className="text-[#0B69FF]"
-                          strokeDasharray="42, 100"
-                          strokeWidth="3.8"
-                          strokeLinecap="round"
-                          stroke="currentColor"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <div className="absolute text-center">
-                        <span className="text-base font-black text-gray-900">42</span>
-                        <span className="text-[10px] text-gray-400 block -mt-1">/100</span>
+          {/* Carousel 1 Cards: Exactly 2 visible per slide matching user screenshot */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-200">
+            {carousel1Page === 0 ? (
+              <>
+                {/* Card 1: Difficulty score (Exact visual diagram from screenshot) */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    {/* Visual Diagram: Circular Difficulty Gauge */}
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col items-center justify-center relative overflow-hidden">
+                      <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                        DIFFICULTY
                       </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 mt-1">
-                      Possible
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Difficulty score
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    See how difficult it will be to rank a web page at the top of Google for a specific keyword.
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2: Search volume */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  {/* Clean Search Volume Bar Graph Diagram */}
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-gray-400 font-medium">Monthly Searches</span>
-                      <span className="font-bold text-emerald-600">+18%</span>
-                    </div>
-                    <div className="text-xl font-black text-gray-900">14,800</div>
-                    <div className="flex items-end gap-1.5 h-12 pt-2">
-                      {[40, 55, 65, 80, 75, 95].map((h, i) => (
-                        <div key={i} className="flex-1 bg-gray-100 rounded-t h-full flex items-end">
-                          <div
-                            className="w-full bg-[#10B981] rounded-t transition-all"
-                            style={{ height: `${h}%` }}
+                      <div className="relative w-24 h-24 flex items-center justify-center">
+                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                          <path
+                            className="text-gray-200"
+                            strokeWidth="3.5"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                           />
+                          <path
+                            className="text-[#10B981]"
+                            strokeDasharray="18, 100"
+                            strokeWidth="3.5"
+                            strokeLinecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <div className="absolute text-center flex flex-col items-center">
+                          <span className="text-2xl font-black text-gray-900 tracking-tight">18</span>
+                          <span className="text-[10px] font-bold text-[#10B981] uppercase -mt-0.5">EASY</span>
                         </div>
-                      ))}
+                      </div>
+                      <p className="text-[10px] text-gray-400 text-center max-w-xs mt-2 leading-tight">
+                        From 0 to 100, how difficult it will be to get a website ranking in the top 10 for the analyzed keyword with SEO efforts.
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Search volume
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Find out how many monthly organic searches the selected keyword gets on Google.
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Difficulty score</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      See how difficult it will be to rank a web page at the top of Google for a specific keyword.
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 3: CPC and paid competition */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  {/* Clean CPC & PPC Meter Diagram */}
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-gray-400 font-medium">Est. Google Ads CPC</span>
-                      <span className="px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 font-semibold text-[10px]">
-                        PPC
-                      </span>
-                    </div>
-                    <div className="text-xl font-black text-purple-600">$2.40</div>
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px] text-gray-500">
-                        <span>Paid Competition</span>
-                        <span className="font-bold text-gray-900">0.65 (Medium)</span>
+                {/* Card 2: Search volume (Exact visual diagram from screenshot) */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    {/* Visual Diagram: Monthly Search Volume Bars */}
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col justify-between">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                          SEARCH VOLUME
+                        </span>
+                        <span className="text-xs font-bold text-[#0B69FF]">Monthly trend</span>
                       </div>
-                      <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                        <div className="bg-purple-500 h-full rounded-full" style={{ width: '65%' }} />
+                      <div className="text-2xl font-black text-gray-900 tracking-tight">880</div>
+                      <div className="flex items-end gap-2 h-20 pt-2 border-b border-gray-200 pb-1">
+                        {[
+                          { m: 'Oct', h: 45 },
+                          { m: 'Nov', h: 60 },
+                          { m: 'Dec', h: 50 },
+                          { m: 'Jan', h: 80 },
+                          { m: 'Feb', h: 90 },
+                          { m: 'Mar', h: 75 },
+                          { m: 'Apr', h: 85 },
+                          { m: 'May', h: 95 },
+                          { m: 'Jun', h: 85 },
+                          { m: 'Jul', h: 90 },
+                        ].map((col, i) => (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+                            <div
+                              className="w-full bg-[#1B66FF] hover:bg-[#0B69FF] rounded-t-sm transition-all"
+                              style={{ height: `${col.h}%` }}
+                              title={`${col.m}: ${col.h * 10} searches`}
+                            />
+                            <span className="text-[8px] text-gray-400 truncate">{col.m}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Search volume</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Find out how many monthly organic searches the selected keyword gets on Google.
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    CPC and paid competition
+              </>
+            ) : (
+              <>
+                {/* Card 3: CPC and paid competition */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                          CPC &amp; COMPETITION
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold text-[10px]">
+                          Google Ads
+                        </span>
+                      </div>
+                      <div className="text-2xl font-black text-purple-700 tracking-tight">$3.20</div>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-xs text-gray-600 font-medium">
+                          <span>Paid Competition Index</span>
+                          <span className="font-bold text-gray-900">0.45 (Medium)</span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
+                          <div className="bg-purple-600 h-full rounded-full" style={{ width: '45%' }} />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Discover the average price of a click for a pay-per-click (PPC) Google Ads marketing campaign.
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">CPC and Competition</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Analyze paid advertising costs and competitor density to optimize your PPC budget.
+                    </p>
                   </div>
                 </div>
-              </div>
 
-              {/* Card 4: Global Volume */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  {/* Clean Global Volume Diagram */}
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-between">
-                    <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-gray-400 font-medium">Global Demand</span>
-                      <span className="px-1.5 py-0.2 rounded bg-blue-50 text-[#0B69FF] font-semibold text-[10px]">
-                        190+ Regions
-                      </span>
-                    </div>
-                    <div className="text-xl font-black text-blue-600">64,200</div>
-                    <div className="space-y-1 text-[11px] text-gray-600">
-                      <div className="flex items-center justify-between">
-                        <span>🇺🇸 United States</span>
-                        <span className="font-bold">28,400</span>
+                {/* Card 4: Search Intent */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col justify-between">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">
+                          SEARCH INTENT
+                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold text-[10px]">
+                          AI Categorized
+                        </span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span>🇮🇳 India</span>
-                        <span className="font-bold">14,800</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>🇬🇧 United Kingdom</span>
-                        <span className="font-bold">8,200</span>
+                      <div className="text-xl font-black text-gray-900">Commercial / Informational</div>
+                      <div className="space-y-1.5 text-xs text-gray-600">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500" />Informational</span>
+                          <span className="font-bold">48%</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" />Commercial</span>
+                          <span className="font-bold">36%</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Global Volume
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Find out the total number of monthly searches a keyword gets on average across all regions (190+) available on the platform.
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Search Intent</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Understand user intent behind queries to create content that matches search expectations.
+                    </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* ========================================================================= */}
         {/* 3. CAROUSEL 2: Get the most out of keywords with our platform */}
         {/* ========================================================================= */}
-        <div className="landing-section-carousel pt-2">
-          <div className="landing-sections-box text-left">
-            <div className="landing-sections-box__head flex items-center justify-between mb-4">
-              <h3 className="landing-sections-box__title text-lg font-bold text-gray-900">
-                Get the most out of keywords with our platform
-              </h3>
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 tracking-tight">
+              Get the most out of keywords with our platform
+            </h2>
 
-              {/* Navigation count 1-2 of 4 matching user HTML */}
-              <div className="flex items-center gap-2.5 text-xs text-gray-500">
-                <span className="font-medium text-gray-600">
-                  {carousel2Page === 0 ? '1-2 of 4' : '3-4 of 4'}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => setCarousel2Page(0)}
-                    disabled={carousel2Page === 0}
-                    className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCarousel2Page(1)}
-                    disabled={carousel2Page === 1}
-                    className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+            {/* Carousel 2 Navigation: 1-2 of 4 matching user screenshot */}
+            <div className="flex items-center gap-2.5 text-xs text-gray-500">
+              <span className="font-semibold text-gray-700">
+                {carousel2Page === 0 ? '1-2 of 4' : '3-4 of 4'}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setCarousel2Page(0)}
+                  disabled={carousel2Page === 0}
+                  className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="Previous items"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCarousel2Page(1)}
+                  disabled={carousel2Page === 1}
+                  className="p-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                  title="Next items"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Carousel 2 Cards: Exactly 2 visible per slide matching user screenshot */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-200">
+            {carousel2Page === 0 ? (
+              <>
+                {/* Card 1: Bulk keyword analysis (Exact visual diagram from screenshot) */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    {/* Visual Diagram: Table with colored difficulty circles */}
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-3.5 overflow-hidden flex flex-col justify-between text-xs">
+                      <div className="flex items-center justify-between text-[11px] pb-1.5 border-b border-gray-200 font-bold text-gray-500 uppercase tracking-wider">
+                        <span>Keyword</span>
+                        <span>Diff</span>
+                        <span>Volume</span>
+                        <span>CPC</span>
+                      </div>
+                      <div className="space-y-2 py-1 text-gray-700">
+                        <div className="flex items-center justify-between">
+                          <span className="truncate max-w-[130px] font-medium text-gray-900">employee tracker</span>
+                          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /><span className="text-[11px] font-bold">18</span></span>
+                          <span className="font-semibold">14.8K</span>
+                          <span className="font-mono text-gray-500">$4.50</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="truncate max-w-[130px] font-medium text-gray-900">work time tracker</span>
+                          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /><span className="text-[11px] font-bold">34</span></span>
+                          <span className="font-semibold">8.1K</span>
+                          <span className="font-mono text-gray-500">$3.20</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="truncate max-w-[130px] font-medium text-gray-900">screenshot monitor</span>
+                          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500" /><span className="text-[11px] font-bold">52</span></span>
+                          <span className="font-semibold">2.4K</span>
+                          <span className="font-mono text-gray-500">$5.10</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Bulk keyword analysis</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Need to analyze hundreds or even thousands of keywords fast? With bulk keyword analysis, you don&apos;t have to worry about it taking ages to get done.
+                    </p>
+                  </div>
                 </div>
+
+                {/* Card 2: Keyword Manager (Exact visual diagram from screenshot) */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    {/* Visual Diagram: Add keywords dialog modal */}
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-3.5 flex flex-col justify-between text-xs">
+                      <div className="flex items-center justify-between border-b border-gray-200 pb-1.5 font-bold text-gray-800 text-[11px]">
+                        <span>Add keywords</span>
+                        <span className="text-gray-400">✕</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        <div className="bg-white border border-gray-200 rounded p-1.5 text-[11px] text-gray-500">
+                          Search or select list...
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold flex items-center gap-1">
+                            <span>SaaS core</span> ✕
+                          </span>
+                          <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 text-[10px] font-semibold flex items-center gap-1">
+                            <span>Competitor gap</span> ✕
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex justify-end pt-1">
+                        <span className="px-3 py-1 bg-[#0B69FF] text-white rounded font-bold text-[10px]">Save List</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Keyword Manager</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Keyword Manager allows you to add, update, and save keyword lists for different regions all in one place. You can also monitor how keyword metrics and search results change over time.
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Card 3: Keyword Grouper */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col justify-center items-center text-center">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-50 text-[#10B981] flex items-center justify-center mb-2 shadow-2xs">
+                        <Database className="w-6 h-6 stroke-[2.2]" />
+                      </div>
+                      <div className="text-sm font-bold text-gray-900">Keyword Grouper &amp; Clustering</div>
+                      <div className="text-xs text-gray-500 mt-1">Automatic SERP similarity clustering</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Keyword Grouper</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Automatically cluster keywords based on SERP similarity to build structured website architecture and avoid cannibalization.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Card 4: Historical Data */}
+                <div className="bg-white rounded-2xl border border-gray-200/90 p-6 hover:shadow-md transition-all flex flex-col justify-between">
+                  <div className="mb-5">
+                    <div className="h-44 bg-gray-50/70 rounded-xl border border-gray-100 p-4 flex flex-col justify-center items-center text-center">
+                      <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-2 shadow-2xs">
+                        <Calendar className="w-6 h-6 stroke-[2.2]" />
+                      </div>
+                      <div className="text-sm font-bold text-gray-900">Historical Volume Trends</div>
+                      <div className="text-xs text-gray-500 mt-1">Track seasonal spikes and multi-year query demand</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 mb-1">Historical Volume Trends</h3>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      Track seasonal spikes and multi-year query popularity to time your marketing campaigns effectively.
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 4. SECTION 3: Go keyword hunting and stock up on your keyword arsenal */}
+        {/* ========================================================================= */}
+        <div className="pt-2">
+          <h2 className="text-lg font-bold text-gray-900 tracking-tight mb-4">
+            Go keyword hunting and stock up on your keyword arsenal
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: 3 Interactive Feature Items matching user screenshot */}
+            <div className="lg:col-span-5 space-y-4">
+              <div
+                onClick={() => setActiveImageTab(0)}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  activeImageTab === 0
+                    ? 'bg-blue-50/50 border-[#0B69FF] border-l-4 shadow-2xs text-gray-900 font-semibold'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <p className="text-xs leading-relaxed">
+                  Keywords that are similar to the target keyword that often contain the analyzed search term.
+                </p>
+              </div>
+
+              <div
+                onClick={() => setActiveImageTab(1)}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  activeImageTab === 1
+                    ? 'bg-blue-50/50 border-[#0B69FF] border-l-4 shadow-2xs text-gray-900 font-semibold'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <p className="text-xs leading-relaxed">
+                  Related keywords tied to the same high-ranking pages as the target keyword.
+                </p>
+              </div>
+
+              <div
+                onClick={() => setActiveImageTab(2)}
+                className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                  activeImageTab === 2
+                    ? 'bg-blue-50/50 border-[#0B69FF] border-l-4 shadow-2xs text-gray-900 font-semibold'
+                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <p className="text-xs leading-relaxed">
+                  When picking keywords to target in search campaigns, you can immediately see who you&apos;ll be competing with in organic and paid search.
+                </p>
               </div>
             </div>
 
-            {/* Carousel 2 Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Card 1: Bulk keyword analysis */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-center items-center text-center">
-                    <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#0B69FF] flex items-center justify-center mb-2">
-                      <Layers className="w-5 h-5" />
-                    </div>
-                    <div className="text-xs font-bold text-gray-900">Up to 10,000 Keywords</div>
-                    <div className="text-[11px] text-gray-400 mt-0.5">Instant CSV / TXT Parsing</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Bulk keyword analysis
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Need to analyze hundreds or even thousands of keywords fast? With bulk keyword analysis, you don’t have to worry about it taking ages to get done.
-                  </div>
-                </div>
+            {/* Right Column: Real Interactive Data Table Diagram matching user screenshot */}
+            <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-200 shadow-2xs overflow-hidden">
+              {/* Header Tabs matching user screenshot */}
+              <div className="flex items-center gap-4 px-5 pt-3 border-b border-gray-100 text-xs font-bold uppercase tracking-wider">
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab(0)}
+                  className={`pb-2.5 border-b-2 transition-colors cursor-pointer ${
+                    activeImageTab === 0
+                      ? 'border-[#0B69FF] text-[#0B69FF]'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  SIMILAR
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab(1)}
+                  className={`pb-2.5 border-b-2 transition-colors cursor-pointer ${
+                    activeImageTab === 1
+                      ? 'border-[#0B69FF] text-[#0B69FF]'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  RELATED
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveImageTab(2)}
+                  className={`pb-2.5 border-b-2 transition-colors cursor-pointer ${
+                    activeImageTab === 2
+                      ? 'border-[#0B69FF] text-[#0B69FF]'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  LOW SEARCH VOLUME
+                </button>
               </div>
 
-              {/* Card 2: Keyword Manager */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-between text-xs">
-                    <div className="flex items-center justify-between text-[11px] text-gray-500">
-                      <span>Saved Lists</span>
-                      <span className="text-[#0B69FF] font-bold">12 Lists</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2 p-1 rounded bg-gray-50">
-                        <Tag className="w-3 h-3 text-[#0B69FF]" />
-                        <span className="font-semibold text-gray-800 truncate">SaaS Landing Keywords</span>
-                      </div>
-                      <div className="flex items-center gap-2 p-1 rounded bg-gray-50">
-                        <Tag className="w-3 h-3 text-purple-600" />
-                        <span className="font-semibold text-gray-800 truncate">Competitor Gap Keywords</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Keyword Manager
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Keyword Manager allows you to add, update, and save keyword lists for different regions all in one place. You can also monitor how keyword metrics and search results change over time.
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 3: Expand Database */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-center items-center text-center">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-50 text-[#10B981] flex items-center justify-center mb-2">
-                      <Database className="w-5 h-5" />
-                    </div>
-                    <div className="text-xs font-bold text-gray-900">Custom SERP Indexing</div>
-                    <div className="text-[11px] text-emerald-600 font-medium mt-0.5">Submit Any Niche Query</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Expand Database
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    If you can’t find all the data you need in the Keyword Research tool, you can add your own list of keywords to our database. You’ll get a detailed analysis of the keyword you’re interested in this way.
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 4: Historical Data */}
-              <div className="slide-card bg-gray-50/60 rounded-xl border border-gray-200 p-5 hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between">
-                <div className="slide-card__image-wrapper mb-4">
-                  <div className="h-32 bg-white rounded-lg border border-gray-100 p-3 flex flex-col justify-center items-center text-center">
-                    <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-2">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <div className="text-xs font-bold text-gray-900">Since Feb 2020</div>
-                    <div className="text-[11px] text-gray-500 mt-0.5">Historical Search Volumes</div>
-                  </div>
-                </div>
-                <div>
-                  <div className="slide-card__title text-sm font-bold text-gray-900 mb-1">
-                    Historical Data
-                  </div>
-                  <div className="slide-card__description text-xs text-gray-500 leading-relaxed">
-                    Historical data is a feature in Keyword Research that allows you to access detailed research reports from previous months. You can view, filter and export data from any module of the Keyword Research tool for any previous month going back to February 2020.
-                  </div>
-                </div>
+              {/* Table */}
+              <div className="overflow-x-auto p-4">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="text-gray-400 text-[10px] font-bold uppercase tracking-wider border-b border-gray-100 pb-2">
+                      <th className="pb-2">KEYWORD</th>
+                      <th className="pb-2 text-right">SEARCH VOLUME</th>
+                      <th className="pb-2 text-center w-28">TREND</th>
+                      <th className="pb-2 text-center w-28">SERP FEATURES</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-gray-700">
+                    {section3Data[activeImageTab].map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50/70 transition-colors">
+                        <td className="py-2.5 font-semibold text-gray-900 truncate max-w-[200px]">
+                          {row.kw}
+                        </td>
+                        <td className="py-2.5 text-right font-medium text-gray-700">
+                          {row.vol}
+                        </td>
+                        <td className="py-2.5 text-center">
+                          {/* Sparkline Trend SVG */}
+                          <div className="flex items-center justify-center">
+                            <svg className="w-20 h-5" viewBox="0 0 100 25">
+                              <polyline
+                                fill="none"
+                                stroke="#1B66FF"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                points={row.trend.map((pt, i) => `${(i * 100) / 7},${25 - (pt * 20) / 100}`).join(' ')}
+                              />
+                            </svg>
+                          </div>
+                        </td>
+                        <td className="py-2.5 text-center">
+                          <div className="flex items-center justify-center gap-1.5 text-gray-500">
+                            <Star className="w-3.5 h-3.5 text-amber-500" />
+                            <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                            <Link2 className="w-3.5 h-3.5 text-purple-500" />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
 
         {/* ========================================================================= */}
-        {/* 4. SECTION 3: Image Tabs: Go keyword hunting and stock up on your arsenal */}
+        {/* 5. BOTTOM CALL TO ACTION: Get all the data you need on any keyword */}
         {/* ========================================================================= */}
-        <div className="landing-section-image-tabs pt-2">
-          <div className="landing-sections-box text-left">
-            <div className="landing-sections-box__head mb-4">
-              <h3 className="landing-sections-box__title text-lg font-bold text-gray-900">
-                Go keyword hunting and stock up on your keyword arsenal
-              </h3>
-            </div>
+        <div className="bg-gray-50 rounded-2xl border border-gray-200/90 p-8 text-center space-y-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+            Get all the data you need on any keyword
+          </h2>
 
-            <div className="landing-sections-box__main bg-gray-50/70 rounded-2xl border border-gray-200 p-6">
-              <div className="slider-images grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                {/* 3 Clickable Tabs */}
-                <div className="slider-images__tabs lg:col-span-5 space-y-3">
-                  <div
-                    onClick={() => setActiveImageTab(0)}
-                    className={`slider-images__item p-4 rounded-xl border transition-all cursor-pointer ${
-                      activeImageTab === 0
-                        ? 'bg-white border-[#0B69FF] shadow-xs'
-                        : 'bg-white/60 border-transparent hover:bg-white text-gray-600'
-                    }`}
-                  >
-                    <div className="text-xs font-bold text-gray-900 mb-1 flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${activeImageTab === 0 ? 'bg-[#0B69FF]' : 'bg-gray-300'}`} />
-                      <span>Similar Keywords</span>
-                    </div>
-                    <div className="slider-images__tab-desc text-xs text-gray-500 leading-relaxed">
-                      Keywords that are similar to the target keyword that often contain the analyzed search term.
-                    </div>
-                  </div>
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-xl border border-gray-300 shadow-sm focus-within:border-[#0B69FF] focus-within:ring-2 focus-within:ring-[#0B69FF]/20 transition-all p-1.5 flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <input
+                type="text"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter keywords or drop a TXT/CSV file"
+                className="flex-1 px-3 py-1 text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none bg-transparent"
+              />
 
-                  <div
-                    onClick={() => setActiveImageTab(1)}
-                    className={`slider-images__item p-4 rounded-xl border transition-all cursor-pointer ${
-                      activeImageTab === 1
-                        ? 'bg-white border-[#0B69FF] shadow-xs'
-                        : 'bg-white/60 border-transparent hover:bg-white text-gray-600'
-                    }`}
-                  >
-                    <div className="text-xs font-bold text-gray-900 mb-1 flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${activeImageTab === 1 ? 'bg-[#0B69FF]' : 'bg-gray-300'}`} />
-                      <span>Related Keywords</span>
-                    </div>
-                    <div className="slider-images__tab-desc text-xs text-gray-500 leading-relaxed">
-                      Related keywords tied to the same high-ranking pages as the target keyword.
-                    </div>
-                  </div>
-
-                  <div
-                    onClick={() => setActiveImageTab(2)}
-                    className={`slider-images__item p-4 rounded-xl border transition-all cursor-pointer ${
-                      activeImageTab === 2
-                        ? 'bg-white border-[#0B69FF] shadow-xs'
-                        : 'bg-white/60 border-transparent hover:bg-white text-gray-600'
-                    }`}
-                  >
-                    <div className="text-xs font-bold text-gray-900 mb-1 flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full ${activeImageTab === 2 ? 'bg-[#0B69FF]' : 'bg-gray-300'}`} />
-                      <span>Competitive SERP Analysis</span>
-                    </div>
-                    <div className="slider-images__tab-desc text-xs text-gray-500 leading-relaxed">
-                      When picking keywords to target in search campaigns, you can immediately see who you’ll be competing with in organic and paid search.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Interactive Dynamic Preview Image / Diagram */}
-                <div className="slider-images__image lg:col-span-7 bg-white rounded-xl border border-gray-200 p-4 shadow-2xs overflow-hidden">
-                  {activeImageTab === 0 && (
-                    <div className="space-y-3 animate-in fade-in duration-200">
-                      <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
-                        <span className="font-bold text-gray-900">Similar Keywords Preview</span>
-                        <span className="text-[11px] text-gray-400">Google US</span>
-                      </div>
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="text-gray-400 text-[11px] uppercase border-b border-gray-100">
-                            <th className="pb-1.5">Keyword</th>
-                            <th className="pb-1.5 text-right">Volume</th>
-                            <th className="pb-1.5 text-center">KD %</th>
-                            <th className="pb-1.5 text-right">CPC</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">best seo software tools</td>
-                            <td className="py-2 text-right font-medium">12,100</td>
-                            <td className="py-2 text-center text-blue-600 font-bold">48%</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">$4.80</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">seo software for agencies</td>
-                            <td className="py-2 text-right font-medium">6,400</td>
-                            <td className="py-2 text-center text-emerald-600 font-bold">34%</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">$6.20</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">enterprise seo platform</td>
-                            <td className="py-2 text-right font-medium">3,900</td>
-                            <td className="py-2 text-center text-amber-600 font-bold">59%</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">$8.40</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {activeImageTab === 1 && (
-                    <div className="space-y-3 animate-in fade-in duration-200">
-                      <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
-                        <span className="font-bold text-gray-900">Related Keywords Preview</span>
-                        <span className="text-[11px] text-gray-400">Co-occurring SERP terms</span>
-                      </div>
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="text-gray-400 text-[11px] uppercase border-b border-gray-100">
-                            <th className="pb-1.5">Related Term</th>
-                            <th className="pb-1.5 text-right">Search Intent</th>
-                            <th className="pb-1.5 text-right">Relevance</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">keyword rank tracker software</td>
-                            <td className="py-2 text-right font-medium text-emerald-600">Transactional</td>
-                            <td className="py-2 text-right text-[#0B69FF] font-bold">94%</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">website backlink audit tool</td>
-                            <td className="py-2 text-right font-medium text-blue-600">Commercial</td>
-                            <td className="py-2 text-right text-[#0B69FF] font-bold">89%</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">competitor serp monitoring</td>
-                            <td className="py-2 text-right font-medium text-purple-600">Informational</td>
-                            <td className="py-2 text-right text-[#0B69FF] font-bold">82%</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {activeImageTab === 2 && (
-                    <div className="space-y-3 animate-in fade-in duration-200">
-                      <div className="flex items-center justify-between text-xs border-b border-gray-100 pb-2">
-                        <span className="font-bold text-gray-900">Competitive Landscape Preview</span>
-                        <span className="text-[11px] text-gray-400">Organic & Paid Competitors</span>
-                      </div>
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="text-gray-400 text-[11px] uppercase border-b border-gray-100">
-                            <th className="pb-1.5">Competitor Domain</th>
-                            <th className="pb-1.5 text-center">Avg Position</th>
-                            <th className="pb-1.5 text-right">Organic Traffic</th>
-                            <th className="pb-1.5 text-right">Paid Ads</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">ahrefs.com</td>
-                            <td className="py-2 text-center font-bold text-blue-600">1.8</td>
-                            <td className="py-2 text-right font-medium">84,000</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">140 Ads</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">semrush.com</td>
-                            <td className="py-2 text-center font-bold text-blue-600">2.2</td>
-                            <td className="py-2 text-right font-medium">112,000</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">380 Ads</td>
-                          </tr>
-                          <tr>
-                            <td className="py-2 font-semibold text-gray-800">moz.com</td>
-                            <td className="py-2 text-center font-bold text-blue-600">3.4</td>
-                            <td className="py-2 text-right font-medium">42,000</td>
-                            <td className="py-2 text-right text-gray-700 font-mono">45 Ads</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ========================================================================= */}
-        {/* 5. BOTTOM REPEAT SEARCH BLOCK matching user HTML */}
-        {/* ========================================================================= */}
-        <div className="start-page__interactive-search-block text-center pt-6 pb-4">
-          <div className="start-page__block-head mb-5">
-            <h4 className="start-page__bottom-title text-xl font-bold text-gray-900 tracking-tight">
-              Get all the data you need on any keyword
-            </h4>
-          </div>
-
-          <div className="keyword-search max-w-3xl mx-auto">
-            <div className="search-input-multiple bg-white rounded-xl border border-gray-300 shadow-sm focus-within:border-[#0B69FF] focus-within:ring-2 focus-within:ring-[#0B69FF]/20 transition-all p-1.5 flex flex-wrap sm:flex-nowrap items-center gap-2">
-              <div className="search-input-multiple__keywords flex-1 flex flex-wrap items-center gap-1.5 px-2 py-1 min-h-[38px] text-left">
-                <input
-                  type="text"
-                  value={keywordInput}
-                  onChange={(e) => setKeywordInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Enter keywords or drop a TXT/CSV file"
-                  className="w-full text-xs text-gray-900 placeholder:text-gray-400 focus:outline-hidden bg-transparent"
-                />
+              <div className="flex items-center gap-2 px-2 border-l border-gray-200 shrink-0">
+                <GoogleLogo className="w-4 h-4 shrink-0" />
+                <CountryFlag code={selectedCountry.code} size="sm" />
               </div>
 
-              <div className="relative border-l border-gray-200 pl-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsCountryOpen(!isCountryOpen)}
-                  className="h-10 px-3 flex items-center gap-2 hover:bg-gray-100 rounded-lg text-xs font-semibold text-gray-700 transition-colors cursor-pointer"
-                >
-                  <span className="text-base">{selectedCountry.flag}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                </button>
-              </div>
-
-              <div className="search-input-multiple__action shrink-0">
-                <button
-                  type="button"
-                  onClick={handleAnalyze}
-                  className="h-10 px-5 rounded-lg text-xs font-bold bg-[#0B69FF] hover:bg-[#005FE0] text-white shadow-sm flex items-center gap-2 cursor-pointer transition-all"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Analyze</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-white/80" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleAnalyze}
+                disabled={!keywordInput.trim()}
+                className="h-9 px-5 bg-[#0B69FF] hover:bg-[#005FE0] disabled:opacity-50 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer uppercase tracking-wider"
+              >
+                <Search className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>ANALYZE</span>
+              </button>
             </div>
           </div>
         </div>

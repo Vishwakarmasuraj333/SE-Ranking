@@ -6,6 +6,7 @@ import { Sparkles, Globe, Tag, ChevronDown, Check, Loader2, AlertCircle } from '
 import { ScopeType, SearchType } from '@/lib/types';
 import { SCOPE_OPTIONS, SUPPORTED_COUNTRIES } from '@/lib/constants';
 import { useApp } from '../providers/AppProviders';
+import { CountryFlag } from '@/components/ui/CountryFlag';
 
 interface AiSearchStartFormProps {
   initialSearchType?: SearchType;
@@ -230,7 +231,7 @@ export function AiSearchStartForm({
                 className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-800 hover:border-gray-400 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <span className="text-base">{selectedCountry.flag}</span>
+                  <CountryFlag code={selectedCountry.code} size="sm" />
                   <span className="font-medium">{selectedCountry.name}</span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
@@ -264,7 +265,7 @@ export function AiSearchStartForm({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-base">{c.flag}</span>
+                          <CountryFlag code={c.code} size="sm" />
                           <span>{c.name}</span>
                         </div>
                         {selectedCountry.code === c.code && <Check className="w-3.5 h-3.5 text-[#0B69FF]" />}

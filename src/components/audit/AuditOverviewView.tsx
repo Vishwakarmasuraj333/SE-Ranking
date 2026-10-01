@@ -53,7 +53,7 @@ export function AuditOverviewView({
   onInspectIssue,
 }: AuditOverviewViewProps) {
   // Banner dismiss states
-  const [showTrialBanner, setShowTrialBanner] = useState(true);
+  const [showTrialBanner, setShowTrialBanner] = useState(false);
   const [showIpBanner, setShowIpBanner] = useState(true);
   const [showBottomFeedback, setShowBottomFeedback] = useState(true);
 

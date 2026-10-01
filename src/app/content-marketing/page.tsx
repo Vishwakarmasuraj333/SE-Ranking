@@ -1090,29 +1090,6 @@ export default function ContentMarketingSuite() {
         </div>
       )}
 
-      {/* Bottom Footer Bar matching exact SE Ranking format */}
-      <footer className="bg-white border-t border-gray-200 mt-auto py-3 px-6 flex flex-wrap items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-2">
-          <SeRankingLogo variant="brand" width={90} height={20} />
-        </div>
-        <div className="flex items-center gap-4 text-[11px]">
-          <button onClick={() => alert('Bug report dialog opened.')} className="hover:text-gray-800 cursor-pointer">
-            Report a bug
-          </button>
-          <Link href="/landing" className="hover:text-gray-800">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:text-gray-800">
-            API
-          </Link>
-          <button onClick={() => alert('Release notes for SE Ranking 2026.')} className="hover:text-gray-800 cursor-pointer">
-            What's new
-          </button>
-          <a href="https://help.seranking.com" target="_blank" rel="noreferrer" className="hover:text-gray-800">
-            Help
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }

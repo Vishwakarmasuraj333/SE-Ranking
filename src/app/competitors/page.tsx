@@ -1418,39 +1418,7 @@ function CompetitorsPageContent() {
         )}
       </div>
 
-      {/* ========================================================================= */}
-      {/* BOTTOM FOOTER (Matching all Screenshots) */}
-      {/* ========================================================================= */}
-      <footer className="px-6 py-4 border-t border-gray-200/60 flex flex-wrap items-center justify-between text-xs text-gray-500 select-none">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-[#00A86B] flex items-center justify-center text-white text-[9px] font-black">
-            SE
-          </div>
-          <span className="font-bold text-gray-800 text-xs">SE Ranking</span>
-        </div>
 
-        <div className="flex items-center gap-5 font-normal text-xs text-gray-500">
-          <button
-            type="button"
-            onClick={() => setIsBugModalOpen(true)}
-            className="hover:text-gray-900 cursor-pointer"
-          >
-            Report a bug
-          </button>
-          <Link href="/affiliate" className="hover:text-gray-900">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:text-gray-900">
-            API
-          </Link>
-          <Link href="/whats-new" className="hover:text-gray-900">
-            What's new
-          </Link>
-          <Link href="/help" className="hover:text-gray-900">
-            Help
-          </Link>
-        </div>
-      </footer>
 
       {/* ========================================================================= */}
       {/* ALL MODALS */}

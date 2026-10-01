@@ -16,7 +16,6 @@ import {
   Check,
 } from 'lucide-react';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
-import { AppFooter } from '@/components/layout/AppFooter';
 
 interface NoteItem {
   id: string;
@@ -570,8 +569,7 @@ export default function NotesPage() {
         </div>
       </div>
 
-      {/* Footer matching exact screenshot */}
-      <AppFooter />
+
 
       {/* Create Note Modal */}
       {isCreateModalOpen && (

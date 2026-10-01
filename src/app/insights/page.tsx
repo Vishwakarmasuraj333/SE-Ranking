@@ -24,7 +24,6 @@ import {
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
-import { ReportBugModal } from '@/components/modals/ReportBugModal';
 
 interface InsightItem {
   id: string;
@@ -697,11 +696,8 @@ function InsightsContent() {
         </div>
       )}
 
-      {/* Report Bug & Feedback Modals */}
-      <ReportBugModal
-        isOpen={isBugModalOpen}
-        onClose={() => setIsBugModalOpen(false)}
-      />
+
+
       <FeedbackModal
         isOpen={isFeedbackOpen}
         onClose={() => setIsFeedbackOpen(false)}

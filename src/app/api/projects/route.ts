@@ -18,14 +18,14 @@ interface MemoryProject {
 // Global fallback in memory to guarantee zero 500 crashes if database is temporarily unavailable or in read-only serverless
 const fallbackProjects: MemoryProject[] = [
   {
-    id: 'proj-default-1',
-    name: 'https://www.workcomposer.com',
+    id: 'proj-workcomposer',
+    name: 'workcomposer.com',
     domain: 'https://www.workcomposer.com',
     brandName: 'WorkComposer',
     country: 'India',
     countryCode: 'in',
     isArchived: false,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(Date.now() - 60 * 86400000).toISOString(),
     updatedAt: new Date().toISOString(),
     analysesCount: 4,
   },
@@ -34,8 +34,14 @@ const fallbackProjects: MemoryProject[] = [
 export async function GET() {
   try {
     let projects = await prisma.project.findMany({
-      where: { isArchived: false },
-      orderBy: { updatedAt: 'desc' },
+      where: {
+        isArchived: false,
+        OR: [
+          { domain: { contains: 'workcomposer' } },
+          { name: { contains: 'workcomposer' } },
+        ],
+      },
+      orderBy: { createdAt: 'asc' },
       include: {
         _count: {
           select: { analyses: true },
@@ -43,26 +49,30 @@ export async function GET() {
       },
     });
 
-    // Seed default workcomposer project if none exist
+    // Ensure WorkComposer exists in DB
     if (projects.length === 0) {
       try {
-        const defaultProj = await prisma.project.create({
+        const fp = fallbackProjects[0];
+        await prisma.project.create({
           data: {
-            name: 'https://www.workcomposer.com',
-            domain: 'https://www.workcomposer.com',
-            brandName: 'WorkComposer',
-            country: 'India',
-            countryCode: 'in',
+            name: fp.name,
+            domain: fp.domain,
+            brandName: fp.brandName,
+            country: fp.country,
+            countryCode: fp.countryCode,
           },
+        });
+        projects = await prisma.project.findMany({
+          where: { isArchived: false, domain: { contains: 'workcomposer' } },
+          orderBy: { createdAt: 'asc' },
           include: {
             _count: {
               select: { analyses: true },
             },
           },
         });
-        projects = [defaultProj];
       } catch (seedErr) {
-        console.warn('Could not seed default project into DB, using fallback list', seedErr);
+        console.warn('Could not seed WorkComposer into DB, using fallback list', seedErr);
       }
     }
 

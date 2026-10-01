@@ -7,6 +7,7 @@ import { TrialBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
+import { AppFooter } from '@/components/layout/AppFooter';
 import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -50,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith('/logout') ||
     pathname.startsWith('/admin.site.wizard');
 
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(true);
 
   // Authentication check for protected dashboard and admin routes
   useEffect(() => {
@@ -113,11 +114,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const isStandaloneAdmin =
-    pathname === '/reports' ||
-    pathname.startsWith('/reports') ||
-    pathname.startsWith('/admin.') ||
-    pathname === '/projects' ||
-    pathname.startsWith('/backlinks/gap-analyzer');
+    pathname === '/reports/print' ||
+    pathname.startsWith('/admin.reports.print') ||
+    pathname === '/admin.site.wizard';
 
   const hideSecondarySidebar =
     pathname === '/reports' ||
@@ -133,15 +132,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {!isStandaloneAdmin && <TopHeader />}
 
       {/* Main App Workspace */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden lg:overflow-visible relative">
         {/* Desktop Left Icon Rail */}
-        <div className="hidden lg:flex">
+        <div className="hidden lg:flex shrink-0 z-40">
           <LeftRail />
         </div>
 
         {/* Desktop Secondary Navigation Sidebar */}
         {!hideSecondarySidebar && (
-          <div className="hidden lg:flex">
+          <div className="hidden lg:flex shrink-0 relative z-30">
             <SecondarySidebar />
           </div>
         )}
@@ -154,6 +153,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <main className="flex-1 flex flex-col min-w-0">
             {children}
           </main>
+          {/* Universal Sticky App Footer */}
+          <AppFooter />
         </div>
       </div>
     </div>

@@ -1307,43 +1307,7 @@ function AgencyPackContent({ initialTab = 'login-page' }: { initialTab?: AgencyV
         )}
       </div>
 
-      {/* Bottom Footer matching Screenshot 2 */}
-      <footer className="mt-16 border-t border-[#E2E8F0] bg-white px-8 py-3.5 flex items-center justify-between text-xs text-[#64748B]">
-        <div className="flex items-center gap-2">
-          <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
-            <path
-              d="M19.2618 8.02075L14.6489 12.6337C13.7654 13.5172 12.5667 14.0138 11.3171 14.0138H0L12.6275 1.38638C12.8748 1.139 13.2103 1 13.5604 1H18.6116C19.1841 1 19.6482 1.46412 19.6482 2.03662V7.08779C19.6482 7.43789 19.5092 7.77338 19.2618 8.02075Z"
-              fill="#1E293B"
-            />
-            <path
-              d="M11.1871 29.8199V24.2221C11.1871 23.6496 10.723 23.1855 10.1505 23.1855H4.55273L11.7097 16.0286C12.5931 15.1451 13.7919 14.6484 15.0415 14.6484H26.3585L11.1871 29.8199Z"
-              fill="#1E293B"
-            />
-          </svg>
-          <span className="font-semibold text-[#1E293B]">SE Ranking</span>
-        </div>
 
-        <div className="flex items-center gap-6">
-          <button
-            onClick={() => setIsBugReportOpen(true)}
-            className="hover:text-[#0B69FF] transition-colors cursor-pointer"
-          >
-            Report a bug
-          </button>
-          <Link href="/affiliate" className="hover:text-[#0B69FF] transition-colors">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:text-[#0B69FF] transition-colors">
-            API
-          </Link>
-          <Link href="/whats-new" className="hover:text-[#0B69FF] transition-colors">
-            What&apos;s new
-          </Link>
-          <Link href="/help" className="hover:text-[#0B69FF] transition-colors">
-            Help
-          </Link>
-        </div>
-      </footer>
 
       {/* Report Bug Modal */}
       <ReportBugModal isOpen={isBugReportOpen} onClose={() => setIsBugReportOpen(false)} />

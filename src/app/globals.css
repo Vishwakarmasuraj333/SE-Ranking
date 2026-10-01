@@ -1,4 +1,16 @@
 @import "tailwindcss";
+@import "flag-icons/css/flag-icons.min.css";
+
+.flag-icon {
+  width: 18px;
+  height: 13px;
+  display: inline-block;
+  flex-shrink: 0;
+  object-fit: cover;
+  vertical-align: middle;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
 
 :root {
   --background: #ffffff;

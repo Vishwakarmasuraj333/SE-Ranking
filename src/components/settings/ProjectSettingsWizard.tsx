@@ -57,32 +57,8 @@ export const HISTORY_IMPORT_FORMATS = [
   "CSV from RankRanger (by column)",
 ] as const;
 
-export function CountryFlag({
-  code,
-  name,
-  className = "w-4 h-3",
-}: {
-  code: string;
-  name?: string;
-  className?: string;
-}) {
-  const lowerCode = code.toLowerCase();
-  return (
-    <img
-      src={`https://flagcdn.com/24x18/${lowerCode}.png`}
-      srcSet={`https://flagcdn.com/48x36/${lowerCode}.png 2x`}
-      alt={name || code}
-      width={16}
-      height={12}
-      className={`inline-block object-cover rounded-xs shrink-0 shadow-xs ${className}`}
-      loading="lazy"
-      onError={(e) => {
-        // Fallback gracefully if image fails to load
-        (e.target as HTMLElement).style.display = "none";
-      }}
-    />
-  );
-}
+import { CountryFlag } from "@/components/ui/CountryFlag";
+export { CountryFlag };
 
 export interface CompetitorCountry {
   code: string;

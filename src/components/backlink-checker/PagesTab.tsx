@@ -217,7 +217,7 @@ export function PagesTab({
 
   // Source items
   const sourcePages: ZohoPageItem[] = useMemo(() => {
-    if (activeDomain.includes("WorkCo") || activeDomain === "workco.com") {
+    if (activeDomain.toLowerCase() === "workco.com" || activeDomain.toLowerCase() === "zoho.com") {
       return MOCK_ZOHO_PAGES;
     }
     return MOCK_WORKCOMPOSER_PAGES;
