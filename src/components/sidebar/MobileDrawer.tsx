@@ -22,7 +22,9 @@ export function MobileDrawer() {
       {/* Drawer */}
       <div className="relative flex z-50 h-full shadow-2xl">
         <LeftRail />
-        <SecondarySidebar />
+        <React.Suspense fallback={null}>
+          <SecondarySidebar />
+        </React.Suspense>
 
         <button
           onClick={() => setIsMobileDrawerOpen(false)}

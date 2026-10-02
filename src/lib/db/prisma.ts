@@ -14,15 +14,9 @@ function resolveDatabaseUrl(): string {
     const tmpDbPath = path.join(os.tmpdir(), 'dev.db');
     try {
       if (!fs.existsSync(tmpDbPath)) {
-        const candidates = [
-          path.join(process.cwd(), 'prisma', 'dev.db'),
-          path.join(process.cwd(), 'dev.db'),
-        ];
-        for (const src of candidates) {
-          if (fs.existsSync(src)) {
-            fs.copyFileSync(src, tmpDbPath);
-            break;
-          }
+        const srcDb = path.join(process.cwd(), 'prisma', 'dev.db');
+        if (fs.existsSync(srcDb)) {
+          fs.copyFileSync(srcDb, tmpDbPath);
         }
       }
     } catch (err) {

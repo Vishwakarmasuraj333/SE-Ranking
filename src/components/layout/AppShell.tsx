@@ -142,7 +142,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Desktop Secondary Navigation Sidebar (Shown when project is active or on API dashboard) */}
         {((!hideSecondarySidebar && hasCreatedProject) || pathname.startsWith('/api-docs') || pathname.startsWith('/admin.api')) && (
           <div className="hidden lg:flex shrink-0 relative z-30">
-            <SecondarySidebar />
+            <React.Suspense fallback={null}>
+              <SecondarySidebar />
+            </React.Suspense>
           </div>
         )}
 

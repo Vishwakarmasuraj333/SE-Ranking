@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   Home,
   LayoutGrid,
@@ -84,8 +84,7 @@ function BacklinkGapAnalyzerIcon({ className = 'w-4 h-4' }: { className?: string
 
 export function SecondarySidebar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const currentTab = searchParams ? searchParams.get('tab') || '' : '';
+  const [currentTab, setCurrentTab] = useState('');
   const {
     activeRail,
     activeProject,
@@ -104,14 +103,20 @@ export function SecondarySidebar() {
   const [currentHash, setCurrentHash] = useState('');
 
   useEffect(() => {
-    const handleHash = () => {
+    const handleLocation = () => {
       if (typeof window !== 'undefined') {
-        setCurrentHash(window.location.hash);
+        setCurrentHash(window.location.hash || '');
+        const params = new URLSearchParams(window.location.search);
+        setCurrentTab(params.get('tab') || '');
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleLocation();
+    window.addEventListener('hashchange', handleLocation);
+    window.addEventListener('popstate', handleLocation);
+    return () => {
+      window.removeEventListener('hashchange', handleLocation);
+      window.removeEventListener('popstate', handleLocation);
+    };
   }, [pathname]);
 
   const projectDropdownRef = useRef<HTMLDivElement>(null);
