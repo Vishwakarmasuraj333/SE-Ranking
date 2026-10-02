@@ -45,6 +45,7 @@ import {
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
 import { ProjectData } from '@/lib/types';
+import { ProjectFavicon } from '@/components/ui/ProjectFavicon';
 function BacklinkCheckerIcon({ className = 'w-4 h-4' }: { className?: string }) {
   return (
     <svg
@@ -95,7 +96,7 @@ export function SecondarySidebar() {
   } = useApp();
 
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
-  const [hoveredProject, setHoveredProject] = useState<string | null>('workcomposer.com');
+  const [hoveredProject, setHoveredProject] = useState<string | null>(null);
   const [projectSearch, setProjectSearch] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isProjectFlyoutOpen, setIsProjectFlyoutOpen] = useState(false);
@@ -141,32 +142,33 @@ export function SecondarySidebar() {
     };
   }, [isProjectDropdownOpen]);
 
-  // Expanded sub-sections matching exact screenshot (all project dropdowns expanded by default)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('se_ranking_sidebar_sections');
-        if (saved) return JSON.parse(saved);
-      } catch {
-        // ignore
-      }
-    }
-    return {
-      rankings: true,
-      analytics: true,
-      competitors: true,
-      ai_tracker: true,
-      audit: true,
-      backlink_monitor: true,
-      white_label: true,
-      lead_generator: false,
-      competitive_research: true,
-      keyword_research: true,
-      keyword_grouper: true,
-      search_volume: true,
-      index_status: true,
-    };
+  // Static initial sections so SSR and initial client DOM match perfectly (fixes hydration mismatch)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    rankings: true,
+    analytics: true,
+    competitors: true,
+    ai_tracker: true,
+    audit: true,
+    backlink_monitor: true,
+    white_label: true,
+    lead_generator: false,
+    competitive_research: true,
+    keyword_research: true,
+    keyword_grouper: true,
+    search_volume: true,
+    index_status: true,
   });
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('se_ranking_sidebar_sections');
+      if (saved) {
+        setExpandedSections(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
   const toggleSection = (key: string, e?: React.MouseEvent) => {
     if (e) {
@@ -175,12 +177,10 @@ export function SecondarySidebar() {
     }
     setExpandedSections((prev) => {
       const next = { ...prev, [key]: !prev[key] };
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('se_ranking_sidebar_sections', JSON.stringify(next));
-        } catch {
-          // ignore
-        }
+      try {
+        localStorage.setItem('se_ranking_sidebar_sections', JSON.stringify(next));
+      } catch {
+        // ignore
       }
       return next;
     });
@@ -188,20 +188,9 @@ export function SecondarySidebar() {
 
   const mergedProjectList: ProjectData[] = React.useMemo(() => {
     if (projects && projects.length > 0) return projects;
-    return [
-      {
-        id: 'proj-workcomposer',
-        name: 'workcomposer.com',
-        domain: 'workcomposer.com',
-        brandName: 'WorkComposer',
-        country: 'India',
-        countryCode: 'in',
-        isArchived: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-  }, [projects]);
+    if (activeProject) return [activeProject];
+    return [];
+  }, [projects, activeProject]);
 
   const displayProjects = mergedProjectList.filter(
     (p) =>
@@ -364,18 +353,14 @@ export function SecondarySidebar() {
               className="w-full bg-white hover:bg-gray-50 text-gray-900 rounded-lg px-3 py-2 flex items-center justify-between shadow-xs transition-colors border border-transparent cursor-pointer"
             >
               <div className="flex items-center gap-2.5 truncate">
-                <img
-                  src={`https://www.google.de/s2/favicons?domain=${activeProject?.domain || 'https://www.workcomposer.com'}`}
-                  alt=""
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                  className="w-4 h-4 rounded-xs shrink-0"
+                <ProjectFavicon
+                  domain={activeProject?.domain}
+                  className="w-4 h-4 rounded-xs shrink-0 object-contain shadow-2xs"
                 />
                 <span className="text-[13px] font-semibold text-gray-800 truncate">
                   {activeProject?.domain
                     ? (activeProject.domain.startsWith('http') ? activeProject.domain : `https://${activeProject.domain}/`)
-                    : 'https://www.workcomposer.com/'}
+                    : 'Select project'}
                 </span>
               </div>
               <ChevronsUpDown className="w-4 h-4 text-gray-500 shrink-0 ml-1" />

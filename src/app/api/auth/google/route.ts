@@ -67,16 +67,31 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '';
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/auth/google/callback`;
+  
+  // Resolve base URL dynamically from request or env (supports localhost and https://seranking.vercel.app)
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || '';
+  const proto = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+  const dynamicOrigin = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000');
+  
+  const redirectUri =
+    process.env.GOOGLE_REDIRECT_URI ||
+    process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
+    `${dynamicOrigin}/api/auth/google/callback`;
 
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
     redirectUri
-  )}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
+  )}&response_type=code&scope=openid%20email%20profile%20https://www.googleapis.com/auth/business.manage&access_type=offline&prompt=consent`;
 
-  return NextResponse.json({
-    success: true,
-    authUrl,
-  });
+  const { searchParams } = new URL(req.url);
+  if (searchParams.get('format') === 'json') {
+    return NextResponse.json({
+      success: true,
+      authUrl,
+      redirectUri,
+    });
+  }
+
+  return NextResponse.redirect(authUrl);
 }

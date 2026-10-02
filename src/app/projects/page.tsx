@@ -38,6 +38,7 @@ import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
+import { ProjectFavicon } from '@/components/ui/ProjectFavicon';
 
 export default function ProjectsDashboardPage() {
   const { projects, activeProject, setActiveProject, hasCreatedProject, setHasCreatedProject } = useApp();
@@ -1105,9 +1106,10 @@ export default function ProjectsDashboardPage() {
                       <td className="p-3 font-semibold text-[#171B24]">
                         <div className="flex items-center gap-2">
                           <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                          <div className={`w-4 h-4 rounded-[3px] ${stats.avatarColor} text-white flex items-center justify-center font-bold text-[9px] shrink-0`}>
-                            {stats.letter}
-                          </div>
+                          <ProjectFavicon
+                            domain={p.domain || displayDomain}
+                            className="w-4 h-4 rounded-xs shrink-0 object-contain shadow-2xs"
+                          />
                           <Link
                             href={`/project-overview`}
                             onClick={(e) => {
@@ -1577,20 +1579,26 @@ export default function ProjectsDashboardPage() {
                     </div>
                   </div>
 
-                  {/* WorkComposer Website Item */}
+                  {/* Websites list with real dynamic logos */}
                   {isUngroupedExpanded && (
-                    <div className="pl-6 flex items-center justify-between p-1.5 rounded bg-blue-50/50 text-gray-900 font-medium">
-                      <div className="flex items-center gap-2 truncate">
-                        <img
-                          src="https://www.google.de/s2/favicons?domain=workcomposer.com"
-                          alt=""
-                          className="w-4 h-4 rounded-xs shrink-0"
-                        />
-                        <span className="truncate text-xs font-semibold">https://www.workcomposer.com/</span>
-                      </div>
-                      <div className="w-4 h-4 rounded bg-[#0B69FF] text-white flex items-center justify-center shrink-0">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
+                    <div className="space-y-1">
+                      {projects.map((proj) => (
+                        <div
+                          key={proj.id}
+                          className="pl-6 flex items-center justify-between p-1.5 rounded bg-blue-50/50 text-gray-900 font-medium"
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <ProjectFavicon
+                              domain={proj.domain}
+                              className="w-4 h-4 rounded-xs shrink-0"
+                            />
+                            <span className="truncate text-xs font-semibold">{proj.domain}</span>
+                          </div>
+                          <div className="w-4 h-4 rounded bg-[#0B69FF] text-white flex items-center justify-center shrink-0">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>

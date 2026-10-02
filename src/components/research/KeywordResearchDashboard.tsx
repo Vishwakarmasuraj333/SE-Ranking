@@ -41,6 +41,7 @@ interface KeywordResearchDashboardProps {
   keyword: string;
   country?: string;
   countryCode?: string;
+  initialTab?: 'overview' | 'similar' | 'related' | 'questions' | 'serp';
   onNewSearch: () => void;
 }
 
@@ -48,9 +49,10 @@ export function KeywordResearchDashboard({
   keyword,
   country = 'India',
   countryCode = 'in',
+  initialTab = 'overview',
   onNewSearch,
 }: KeywordResearchDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'similar' | 'related' | 'questions' | 'serp'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'similar' | 'related' | 'questions' | 'serp'>(initialTab);
   const [searchFilter, setSearchFilter] = useState('');
 
   const cleanKeyword = keyword.trim().toLowerCase();

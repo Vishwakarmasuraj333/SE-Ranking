@@ -30,6 +30,7 @@ export interface ProjectData {
   createdAt: string;
   updatedAt: string;
   analysesCount?: number;
+  logoUrl?: string;
 }
 
 export interface EngineMetric {

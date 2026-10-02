@@ -30,49 +30,53 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const projects = await prisma.project.findMany({
+    const projects: any[] = await (prisma.project as any).findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
         searchEngines: true,
         _count: {
           select: {
-            keywords: { where: { deletedAt: null } },
-            projectCompetitors: { where: { deletedAt: null } },
-            auditIssues: { where: { deletedAt: null } },
-            tasks: { where: { deletedAt: null } },
-            locations: { where: { deletedAt: null } },
-            reports: { where: { deletedAt: null } },
+            keywords: true,
+            projectCompetitors: true,
+            auditIssues: true,
+            tasks: true,
+            locations: true,
+            reports: true,
           },
         },
       },
     });
 
-    const formatted = projects.map((p) => ({
-      id: p.id,
-      name: p.name,
-      websiteUrl: p.websiteUrl || `https://${p.domain}`,
-      domain: p.domain,
-      brandName: p.brandName || p.name,
-      color: p.projectColor || '#1054E2',
-      country: p.country,
-      countryCode: p.countryCode,
-      languageCode: p.languageCode,
-      defaultSearchEngine: p.defaultSearchEngine,
-      defaultDevice: p.defaultDevice,
-      status: p.status,
-      isArchived: p.isArchived,
-      deletedAt: p.deletedAt,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      keywordsCount: p._count.keywords,
-      competitorsCount: p._count.projectCompetitors,
-      auditIssuesCount: p._count.auditIssues,
-      tasksCount: p._count.tasks,
-      locationsCount: p._count.locations,
-      reportsCount: p._count.reports,
-      searchEngines: p.searchEngines,
-    }));
+    const formatted = projects.map((p: any) => {
+      const cleanDomain = (p.domain || '').replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0].toLowerCase();
+      return {
+        id: p.id,
+        name: p.name,
+        websiteUrl: p.websiteUrl || `https://${p.domain}`,
+        domain: p.domain,
+        brandName: p.brandName || p.name,
+        logoUrl: `https://www.google.com/s2/favicons?domain=${cleanDomain}&sz=64`,
+        color: p.projectColor || '#1054E2',
+        country: p.country,
+        countryCode: p.countryCode,
+        languageCode: p.languageCode,
+        defaultSearchEngine: p.defaultSearchEngine,
+        defaultDevice: p.defaultDevice,
+        status: p.status,
+        isArchived: p.isArchived,
+        deletedAt: p.deletedAt,
+        createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+        updatedAt: p.updatedAt ? new Date(p.updatedAt).toISOString() : new Date().toISOString(),
+        keywordsCount: p._count?.keywords || 0,
+        competitorsCount: p._count?.projectCompetitors || 0,
+        auditIssuesCount: p._count?.auditIssues || 0,
+        tasksCount: p._count?.tasks || 0,
+        locationsCount: p._count?.locations || 0,
+        reportsCount: p._count?.reports || 0,
+        searchEngines: p.searchEngines || [],
+      };
+    });
 
     return NextResponse.json({ success: true, projects: formatted });
   } catch (err: unknown) {
@@ -156,7 +160,7 @@ export async function POST(req: NextRequest) {
     const resolvedCountry = countryInfo?.name || country;
 
     // Check if duplicate project already exists for this domain
-    const existing = await prisma.project.findFirst({
+    const existing = await (prisma.project as any).findFirst({
       where: {
         domain: cleanDomain,
         deletedAt: null,
@@ -174,7 +178,7 @@ export async function POST(req: NextRequest) {
     const userId = auth?.user?.id || (await prisma.user.findFirst({ select: { id: true } }))?.id || null;
 
     // Create project in database
-    const createdProject = await prisma.project.create({
+    const createdProject = await (prisma.project as any).create({
       data: {
         name: projectName,
         websiteUrl: normalizedWebUrl,

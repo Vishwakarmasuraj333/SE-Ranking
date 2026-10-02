@@ -12,6 +12,7 @@ import {
   Loader2,
   AlertCircle,
 } from 'lucide-react';
+import { GoogleLogo } from '@/components/ui/GoogleLogo';
 import { getAllCountries } from '@/lib/countryUtils';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 
@@ -314,35 +315,27 @@ export function AddLocationGoogleModal({
               </div>
             </form>
           ) : (
-            <div className="text-center py-6 space-y-4">
-              <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center">
-                <ShieldCheck className="w-7 h-7 text-[#1054E2]" />
+            <div className="text-center py-8 space-y-5">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-blue-50/80 border border-blue-100 flex items-center justify-center shadow-xs">
+                <GoogleLogo size={32} />
               </div>
-              <div className="max-w-md mx-auto space-y-1">
-                <h3 className="text-sm font-bold text-gray-900">
+              <div className="max-w-md mx-auto space-y-2">
+                <h3 className="text-base font-bold text-gray-900">
                   Connect Google Business Profile
                 </h3>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-gray-500 leading-relaxed px-4">
                   Authenticate your official Google account to automatically import verified
                   locations, sync customer reviews, and publish posts directly from SE Ranking.
                 </p>
               </div>
 
-              <div className="p-4 bg-gray-50 rounded-xl text-left border border-gray-200 text-xs text-gray-600 space-y-2">
-                <div className="font-semibold text-gray-800">Prerequisites for Live Sync:</div>
-                <ul className="list-disc list-inside space-y-1 text-gray-600">
-                  <li>Configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env</li>
-                  <li>Grant Business Profile Management permissions</li>
-                </ul>
-              </div>
-
-              <div className="pt-2 flex justify-center gap-3">
+              <div className="pt-3 flex justify-center gap-3">
                 <button
                   type="button"
                   onClick={handleGoogleConnect}
-                  className="px-6 py-2.5 bg-[#4285F4] hover:bg-[#3367D6] text-white text-xs font-bold rounded-lg shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold rounded-lg shadow-xs hover:shadow-md transition-all flex items-center gap-2.5 cursor-pointer active:scale-98"
                 >
-                  <ExternalLink className="w-3.5 h-3.5" />
+                  <GoogleLogo size={16} />
                   <span>Authorize with Google</span>
                 </button>
               </div>
