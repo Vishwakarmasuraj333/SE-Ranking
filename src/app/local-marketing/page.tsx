@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -45,8 +45,25 @@ import {
   MapPin,
   MoreVertical,
 } from 'lucide-react';
+import { AllLocationsView } from '@/components/local-marketing/AllLocationsView';
+import { LocalRankingsView } from '@/components/local-marketing/LocalRankingsView';
+import { GbpInsightsView } from '@/components/local-marketing/GbpInsightsView';
+import { GbpPostsView } from '@/components/local-marketing/GbpPostsView';
+import { InsightsView } from '@/components/local-marketing/InsightsView';
+import { OverviewExtras } from '@/components/local-marketing/OverviewExtras';
+import { AddLocationGoogleModal, ConnectedLocation } from '@/components/local-marketing/AddLocationGoogleModal';
 
-export type LocalMarketingTab = 'all-locations' | 'overview' | 'audit' | 'reviews' | 'analytics' | 'listings';
+export type LocalMarketingTab =
+  | 'all-locations'
+  | 'overview'
+  | 'rankings'
+  | 'audit'
+  | 'gbp-insights'
+  | 'gbp-posts'
+  | 'listings'
+  | 'reviews'
+  | 'analytics'
+  | 'insights';
 
 interface ReviewItem {
   id: string;
@@ -80,17 +97,44 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
   const searchParams = useSearchParams();
   const tabParam = searchParams ? (searchParams.get('tab') as LocalMarketingTab) : null;
   const [activeTab, setActiveTab] = useState<LocalMarketingTab>(tabParam || initialTab);
+
+  useEffect(() => {
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
   const [locationSearch, setLocationSearch] = useState('');
   const [isBannerDismissed, setIsBannerDismissed] = useState(false);
   const [isConnectBannerDismissed, setIsConnectBannerDismissed] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   // Switchers & Dropdowns
+  const [locationsList, setLocationsList] = useState([
+    { id: 'loc-1', flag: '🇺🇸', name: 'Folk Osteria & Bar, Highland Dr., UT', category: 'Italian Restaurant', isDemo: false },
+    { id: 'loc-2', flag: '🇺🇸', name: 'Blue Bottle Coffee, Market St, CA', category: 'Coffee Shop & Cafe', isDemo: false },
+    { id: 'loc-3', flag: '🇪🇸', name: 'Salón Nova, Carrer de San Mateu, Barcelona', category: 'Hair Salon & Spa', isDemo: false },
+    { id: 'loc-4', flag: '🇬🇧', name: 'Sakura Contemporary Sushi, London', category: 'Japanese Restaurant', isDemo: false },
+  ]);
+  const [activeLocation, setActiveLocation] = useState(locationsList[0]);
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [isDateDropdownOpen, setIsDateDropdownOpen] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState('All dates');
   const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleGlobalLocationAdded = (newLoc: any) => {
+    const item = {
+      id: newLoc.id,
+      flag: newLoc.flag || newLoc.countryCode || 'in',
+      name: newLoc.name || 'New Location',
+      category: newLoc.category || 'Business Location',
+      isDemo: false,
+    };
+    setLocationsList([item, ...locationsList]);
+    setActiveLocation(item);
+    setIsAddLocationModalOpen(false);
+  };
 
   // Business Listings State
   const [listingsSearch, setListingsSearch] = useState('');
@@ -332,7 +376,7 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
               i
             </span>
             <span className="leading-snug">
-              This tool manages local business data. It provides local grid rank tracking, listings &amp; reviews management, GBP posting, and more. You can try out its features using demo locations (these are not real locations). To use the tool,{' '}
+              This tool manages local business data. It provides local grid rank tracking, listings &amp; reviews management, GBP posting, and real-time multi-location monitoring. To connect a new location,{' '}
               <button
                 onClick={() => setIsAddLocationModalOpen(true)}
                 className="text-[#0B69FF] underline font-semibold cursor-pointer"
@@ -359,10 +403,26 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
           <span>›</span>
           {activeTab === 'all-locations' ? (
             <span className="text-gray-900 font-medium">All Locations</span>
-          ) : activeTab === 'listings' ? (
-            <span className="text-gray-900 font-semibold">Business Listings</span>
+          ) : activeTab === 'rankings' ? (
+            <span className="text-gray-900 font-semibold">Local Rankings</span>
           ) : activeTab === 'audit' ? (
             <span className="text-gray-900 font-semibold">Local Marketing Audit</span>
+          ) : activeTab === 'gbp-insights' ? (
+            <>
+              <button onClick={() => setActiveTab('gbp-insights')} className="hover:text-gray-900 cursor-pointer">
+                Google Business Profile
+              </button>
+              <span>›</span>
+              <span className="text-gray-900 font-semibold">GBP Insights</span>
+            </>
+          ) : activeTab === 'gbp-posts' ? (
+            <>
+              <span className="text-gray-500 font-medium">Folk Osteria, Highland Dr., Hol...</span>
+              <span>›</span>
+              <span className="text-gray-900 font-semibold">GBP Posts</span>
+            </>
+          ) : activeTab === 'listings' ? (
+            <span className="text-gray-900 font-semibold">Business Listings</span>
           ) : activeTab === 'analytics' ? (
             <>
               <button onClick={() => setActiveTab('reviews')} className="hover:text-gray-900 cursor-pointer">
@@ -378,6 +438,14 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
               </button>
               <span>›</span>
               <span className="text-gray-900 font-semibold">Review List</span>
+            </>
+          ) : activeTab === 'insights' ? (
+            <>
+              <button onClick={() => setActiveTab('reviews')} className="hover:text-gray-900 cursor-pointer">
+                Reviews
+              </button>
+              <span>›</span>
+              <span className="text-gray-900 font-semibold">Insights</span>
             </>
           ) : (
             <span className="text-gray-900 font-semibold">Overview</span>
@@ -397,11 +465,18 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#F1F5F9] border border-[#CBD5E1] px-2.5 py-1 rounded text-xs font-semibold text-[#1E293B]">
-            <MapPin className="w-3.5 h-3.5 text-[#64748B]" />
-            <span>Locations 0 / 3</span>
-            <ChevronDown className="w-3 h-3 text-[#64748B]" />
-          </div>
+          {activeTab === 'gbp-posts' ? (
+            <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+              <span>Location updates limit 0 / 1</span>
+              <span className="text-gray-400 cursor-pointer">ⓘ</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 bg-[#F1F5F9] border border-[#CBD5E1] px-2.5 py-1 rounded text-xs font-semibold text-[#1E293B]">
+              <MapPin className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>Locations 0 / 3</span>
+              <ChevronDown className="w-3 h-3 text-[#64748B]" />
+            </div>
+          )}
 
           {activeTab === 'all-locations' && (
             <>
@@ -425,7 +500,7 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
       </div>
 
       {/* Sub-Header Row: Dynamic Heading, Tabs & Action Controls */}
-      {activeTab !== 'all-locations' && (
+      {activeTab !== 'all-locations' && activeTab !== 'gbp-posts' && (
       <div className="bg-white border-b border-gray-200 px-6 py-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
@@ -433,67 +508,49 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
               <h1 className="text-xl font-bold text-gray-900">
                 {activeTab === 'overview'
                   ? 'Overview'
-                  : activeTab === 'listings'
-                  ? 'Business Listings'
+                  : activeTab === 'rankings'
+                  ? 'Local Rankings'
                   : activeTab === 'audit'
                   ? 'Local Marketing Audit'
+                  : activeTab === 'gbp-insights'
+                  ? 'GBP Insights'
+                  : activeTab === 'listings'
+                  ? 'Business Listings'
+                  : activeTab === 'reviews'
+                  ? 'Review List'
                   : activeTab === 'analytics'
-                  ? 'Analytics'
-                  : 'Review List'}
+                  ? 'Reviews Analytics'
+                  : activeTab === 'insights'
+                  ? 'Insights'
+                  : 'Overview'}
               </h1>
 
               {/* Suite View Switcher Tabs */}
               <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-0.5 bg-gray-50 text-xs flex-wrap">
-                <button
-                  onClick={() => setActiveTab('overview')}
-                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    activeTab === 'overview'
-                      ? 'bg-white text-[#0B69FF] shadow-xs'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Overview
-                </button>
-                <button
-                  onClick={() => setActiveTab('listings')}
-                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    activeTab === 'listings'
-                      ? 'bg-white text-[#0B69FF] shadow-xs'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Business Listings (57)
-                </button>
-                <button
-                  onClick={() => setActiveTab('audit')}
-                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    activeTab === 'audit'
-                      ? 'bg-white text-[#0B69FF] shadow-xs'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Audit Checklist
-                </button>
-                <button
-                  onClick={() => setActiveTab('reviews')}
-                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    activeTab === 'reviews'
-                      ? 'bg-white text-[#0B69FF] shadow-xs'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Review List (60)
-                </button>
-                <button
-                  onClick={() => setActiveTab('analytics')}
-                  className={`px-3 py-1 rounded-md font-semibold transition-all cursor-pointer ${
-                    activeTab === 'analytics'
-                      ? 'bg-white text-[#0B69FF] shadow-xs'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Reviews Analytics
-                </button>
+                {[
+                  { id: 'overview', label: 'Overview' },
+                  { id: 'all-locations', label: 'Locations' },
+                  { id: 'rankings', label: 'Rankings' },
+                  { id: 'audit', label: 'Audit' },
+                  { id: 'gbp-insights', label: 'GBP Insights' },
+                  { id: 'gbp-posts', label: 'Posts' },
+                  { id: 'listings', label: 'Listings (57)' },
+                  { id: 'reviews', label: 'Reviews (60)' },
+                  { id: 'analytics', label: 'Analytics' },
+                  { id: 'insights', label: 'Insights' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as LocalMarketingTab)}
+                    className={`px-2.5 py-1 rounded-md font-semibold transition-all cursor-pointer ${
+                      activeTab === tab.id
+                        ? 'bg-white text-[#0B69FF] shadow-xs'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -512,25 +569,53 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
                   onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
                   className="bg-white border border-gray-300 rounded px-3 py-1.5 text-xs text-gray-800 font-medium flex items-center gap-2 hover:bg-gray-50 shadow-2xs cursor-pointer"
                 >
-                  <span>🇺🇸</span>
-                  <span className="max-w-[200px] truncate">Folk Osteria, Highland Dr., Hol...</span>
-                  <span className="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">
-                    Demo
-                  </span>
+                  <span>{activeLocation.flag}</span>
+                  <span className="max-w-[200px] truncate">{activeLocation.name}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-gray-500 ml-1" />
                 </button>
 
                 {isLocationDropdownOpen && (
-                  <div className="absolute left-0 mt-1 w-72 bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 text-xs">
-                    <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                  <div className="absolute left-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-xl z-30 py-1 text-xs divide-y divide-gray-100">
+                    <div className="px-3 py-1.5 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                       Locations
                     </div>
-                    <div className="p-2.5 bg-blue-50/70 font-semibold text-[#0B69FF] flex justify-between items-center">
-                      <div>
-                        <p>Folk Osteria, Highland Dr., Hol...</p>
-                        <p className="text-[10px] text-gray-400 font-normal">Italian Restaurant</p>
-                      </div>
-                      <Check className="w-4 h-4 text-[#0B69FF]" />
+                    <div className="py-1">
+                      {locationsList.map((loc) => {
+                        const isSelected = activeLocation.id === loc.id;
+                        return (
+                          <div
+                            key={loc.id}
+                            onClick={() => {
+                              setActiveLocation(loc);
+                              setIsLocationDropdownOpen(false);
+                            }}
+                            className={`p-2.5 flex justify-between items-center cursor-pointer transition-colors ${
+                              isSelected ? 'bg-blue-50/70 font-semibold text-[#0B69FF]' : 'hover:bg-gray-50 text-gray-700'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">{loc.flag}</span>
+                              <div>
+                                <p className="truncate">{loc.name}</p>
+                                <p className="text-[10px] text-gray-400 font-normal">{loc.category}</p>
+                              </div>
+                            </div>
+                            {isSelected && <Check className="w-4 h-4 text-[#0B69FF]" />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="pt-1 px-3 py-2">
+                      <button
+                        onClick={() => {
+                          setIsLocationDropdownOpen(false);
+                          setIsAddLocationModalOpen(true);
+                        }}
+                        className="flex items-center gap-2 text-xs font-bold text-[#0B69FF] hover:underline cursor-pointer"
+                      >
+                        <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Add location</span>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -967,6 +1052,9 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
               ))}
             </div>
           </div>
+
+          {/* Overview Lower Half Extras & Scatter Plot from Page 2 */}
+          <OverviewExtras onNavigateTab={(t) => setActiveTab(t)} />
         </div>
       )}
 
@@ -2237,6 +2325,35 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
         </div>
       )}
 
+      {activeTab === 'all-locations' && (
+        <AllLocationsView onAddLocation={() => setIsAddLocationModalOpen(true)} />
+      )}
+
+      {/* TAB: LOCAL RANKINGS (Interactive Local Grid Rank Tracker) */}
+      {activeTab === 'rankings' && (
+        <LocalRankingsView onAddLocation={() => setIsAddLocationModalOpen(true)} />
+      )}
+
+      {/* TAB: GBP INSIGHTS */}
+      {activeTab === 'gbp-insights' && (
+        <GbpInsightsView onAddLocation={() => setIsAddLocationModalOpen(true)} />
+      )}
+
+      {/* TAB: GBP POSTS */}
+      {activeTab === 'gbp-posts' && (
+        <GbpPostsView />
+      )}
+
+      {/* TAB: INSIGHTS */}
+      {activeTab === 'insights' && (
+        <InsightsView
+          reviews={reviewsList}
+          onSelectReview={(rev: any) => setActiveReviewModal(rev)}
+        />
+      )}
+
+
+
       {/* Review Detail Modal (`👁 View`) */}
       {activeReviewModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -2328,67 +2445,12 @@ function LocalMarketingContent({ initialTab = 'all-locations' }: { initialTab?: 
         </div>
       )}
 
-      {/* Add Location Modal */}
-      {isAddLocationModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-              <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
-                <Building className="w-4 h-4 text-[#0B69FF]" />
-                Add New Business Location
-              </h3>
-              <button onClick={() => setIsAddLocationModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                alert('Location connected successfully!');
-                setIsAddLocationModalOpen(false);
-              }}
-              className="space-y-3 text-xs"
-            >
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Business Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Folk Osteria &amp; Bar"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF] bg-white"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-gray-700 mb-1">Full Street Address</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. 123 Highland Dr, City, State ZIP"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-[#0B69FF] bg-white"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddLocationModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded text-xs font-semibold hover:bg-gray-50 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-[#0B69FF] hover:bg-[#0052D4] text-white rounded text-xs font-bold shadow-xs cursor-pointer"
-                >
-                  Add Location
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Google OAuth & Business Profile Location Connection Modal */}
+      <AddLocationGoogleModal
+        isOpen={isAddLocationModalOpen}
+        onClose={() => setIsAddLocationModalOpen(false)}
+        onLocationAdded={handleGlobalLocationAdded}
+      />
     </div>
   );
 }

@@ -18,10 +18,12 @@ import {
   Settings,
 } from 'lucide-react';
 import { useApp, RailSection } from '../providers/AppProviders';
+import { useAuth } from '@/context/AuthContext';
 
 export function LeftRail() {
   const pathname = usePathname();
   const { activeRail, setActiveRail, hasCreatedProject, setIsAddWebsiteModalOpen } = useApp();
+  const { user } = useAuth();
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -48,6 +50,8 @@ export function LeftRail() {
         !pathname.startsWith('/backlinks') &&
         !pathname.startsWith('/local-marketing') &&
         !pathname.startsWith('/agency-pack') &&
+        !pathname.startsWith('/admin.user.whitelabel') &&
+        !pathname.startsWith('/admin.lead_generator') &&
         !pathname.startsWith('/api-docs')));
 
   const railItems: Array<{
@@ -174,14 +178,36 @@ export function LeftRail() {
                 pathname.startsWith('/reports') ||
                 pathname.startsWith('/admin.reports') ||
                 activeRail === 'reports';
+            } else if (item.id === 'smm' || item.label === 'SMM') {
+              isActive = pathname.startsWith('/smm');
+            } else if (item.id === 'agency' || item.label === 'Agency Pack') {
+              isActive =
+                pathname.startsWith('/agency-pack') ||
+                pathname.startsWith('/admin.user.whitelabel') ||
+                pathname.startsWith('/admin.lead_generator') ||
+                activeRail === 'agency';
+            } else if (item.id === 'api' || item.label === 'API') {
+              isActive = pathname.startsWith('/api-docs') || pathname.startsWith('/admin.api');
             } else {
               isActive = activeRail === item.id || pathname.startsWith(item.href);
+            }
+          } else {
+            if (item.id === 'smm' || item.label === 'SMM') {
+              isActive = pathname.startsWith('/smm');
+            } else if (item.id === 'agency' || item.label === 'Agency Pack') {
+              isActive =
+                pathname.startsWith('/agency-pack') ||
+                pathname.startsWith('/admin.user.whitelabel') ||
+                pathname.startsWith('/admin.lead_generator') ||
+                activeRail === 'agency';
+            } else if (item.id === 'api' || item.label === 'API') {
+              isActive = pathname.startsWith('/api-docs') || pathname.startsWith('/admin.api');
             }
           }
 
           const Icon = item.icon;
 
-          const isMuted = isMounted && !hasCreatedProject;
+          const isMuted = isMounted && !hasCreatedProject && item.id !== 'smm' && item.id !== 'api' && item.id !== 'agency';
 
           return (
             <Link
@@ -205,7 +231,8 @@ export function LeftRail() {
               }`}
             >
               {/* Arrow Notch pointing to secondary sidebar when active */}
-              {isActive &&
+              {isMounted &&
+                isActive &&
                 !isMuted &&
                 !pathname.startsWith('/reports') &&
                 !pathname.startsWith('/admin.reports') && (
@@ -271,7 +298,17 @@ export function LeftRail() {
         >
           <div className="relative">
             <div className="w-6 h-6 rounded-full bg-[#1b3459] text-blue-200 flex items-center justify-center text-[10px] font-bold border border-blue-400/40">
-              SV
+              {user?.fullName
+                ? user.fullName
+                    .split(' ')
+                    .filter(Boolean)
+                    .map((n: string) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()
+                : user?.email
+                ? user.email.slice(0, 2).toUpperCase()
+                : 'AU'}
             </div>
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#2563eb] border border-[#0c192c]" />
           </div>

@@ -61,21 +61,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const checkAuth = () => {
-      let isAuth =
-        (typeof window !== 'undefined' &&
-          (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
-            localStorage.getItem('seranking_auth_status') === 'logged_in')) ||
-        (typeof document !== 'undefined' &&
+    const checkAuth = async () => {
+      const hasCookie =
+        typeof document !== 'undefined' &&
+        (document.cookie.includes('seranking_session=') ||
           document.cookie.includes('seranking_auth_status=logged_in'));
+      const hasLocalToken =
+        typeof window !== 'undefined' &&
+        (sessionStorage.getItem('seranking_auth_status') === 'logged_in' ||
+          localStorage.getItem('auth_token'));
 
-      if (!isAuth && typeof window !== 'undefined') {
-        localStorage.setItem('seranking_auth_status', 'logged_in');
-        sessionStorage.setItem('seranking_auth_status', 'logged_in');
-        isAuth = true;
-      }
-
-      if (isAuth) {
+      if (hasCookie || hasLocalToken) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
@@ -143,8 +139,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <LeftRail />
         </div>
 
-        {/* Desktop Secondary Navigation Sidebar (Only shown when project is active) */}
-        {!hideSecondarySidebar && hasCreatedProject && (
+        {/* Desktop Secondary Navigation Sidebar (Shown when project is active or on API dashboard) */}
+        {((!hideSecondarySidebar && hasCreatedProject) || pathname.startsWith('/api-docs') || pathname.startsWith('/admin.api')) && (
           <div className="hidden lg:flex shrink-0 relative z-30">
             <SecondarySidebar />
           </div>

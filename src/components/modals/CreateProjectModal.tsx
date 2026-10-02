@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   X,
@@ -31,35 +31,231 @@ interface CreateProjectModalProps {
   onCreated?: (newProject?: any) => void;
 }
 
-const POPULAR_COUNTRIES = [
-  { name: 'United States', code: 'us' },
-  { name: 'India', code: 'in' },
-  { name: 'United Kingdom', code: 'gb' },
-  { name: 'Canada', code: 'ca' },
-  { name: 'Australia', code: 'au' },
-  { name: 'Germany', code: 'de' },
-  { name: 'France', code: 'fr' },
-  { name: 'Brazil', code: 'br' },
-  { name: 'Japan', code: 'jp' },
-  { name: 'Spain', code: 'es' },
-  { name: 'Italy', code: 'it' },
-  { name: 'Netherlands', code: 'nl' },
-  { name: 'United Arab Emirates', code: 'ae' },
-  { name: 'Singapore', code: 'sg' },
-];
+import { getAllCountries, getCountryInfo } from '@/lib/countryUtils';
+import { getAllLanguages } from '@/lib/languageUtils';
 
-const LANGUAGES = [
-  'English',
-  'Hindi',
-  'Spanish',
-  'German',
-  'French',
-  'Portuguese',
-  'Japanese',
-  'Italian',
-  'Dutch',
-  'Polish',
-];
+const POPULAR_COUNTRIES = getAllCountries().map((c) => ({
+  name: c.name,
+  code: c.flagCode,
+}));
+
+const LANGUAGES = getAllLanguages().map((l) => l.name);
+
+function hsvToHex(h: number, s: number, v: number): string {
+  s = s / 100;
+  v = v / 100;
+  const f = (n: number, k = (n + h / 60) % 6) =>
+    v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+  const r = Math.round(f(5) * 255);
+  const g = Math.round(f(3) * 255);
+  const b = Math.round(f(1) * 255);
+  return (
+    '#' +
+    [r, g, b]
+      .map((x) => x.toString(16).padStart(2, '0'))
+      .join('')
+      .toUpperCase()
+  );
+}
+
+function hexToHsv(hex: string): { h: number; s: number; v: number } {
+  let clean = hex.replace('#', '');
+  if (clean.length === 3) {
+    clean = clean
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  }
+  if (clean.length !== 6) return { h: 344, s: 100, v: 100 };
+  const r = parseInt(clean.substring(0, 2), 16) / 255;
+  const g = parseInt(clean.substring(2, 4), 16) / 255;
+  const b = parseInt(clean.substring(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+    else if (max === g) h = ((b - r) / d + 2) * 60;
+    else h = ((r - g) / d + 4) * 60;
+  }
+  const s = max === 0 ? 0 : (d / max) * 100;
+  const v = max * 100;
+  return { h: Math.round(h), s: Math.round(s), v: Math.round(v) };
+}
+
+interface AuthenticColorPickerProps {
+  color: string;
+  onChange: (color: string) => void;
+  onClose: () => void;
+}
+
+function AuthenticColorPicker({ color, onChange, onClose }: AuthenticColorPickerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const hueRef = useRef<HTMLDivElement>(null);
+
+  const initialHsv = useMemo(() => hexToHsv(color), [color]);
+  const [h, setH] = useState(initialHsv.h);
+  const [s, setS] = useState(initialHsv.s);
+  const [v, setV] = useState(initialHsv.v);
+  const [hexInput, setHexInput] = useState(color.replace('#', '').toUpperCase());
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onClose]);
+
+  // Sync hex input when color prop changes
+  useEffect(() => {
+    setHexInput(color.replace('#', '').toUpperCase());
+    const hsv = hexToHsv(color);
+    setH(hsv.h);
+    setS(hsv.s);
+    setV(hsv.v);
+  }, [color]);
+
+  // 2D Canvas Drag Interaction
+  const handleCanvasDrag = (e: MouseEvent | React.MouseEvent) => {
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+    const newS = Math.round((x / rect.width) * 100);
+    const newV = Math.round((1 - y / rect.height) * 100);
+    setS(newS);
+    setV(newV);
+    const newHex = hsvToHex(h, newS, newV);
+    setHexInput(newHex.replace('#', ''));
+    onChange(newHex);
+  };
+
+  const onCanvasMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    handleCanvasDrag(e);
+    const onMouseMove = (moveEvent: MouseEvent) => handleCanvasDrag(moveEvent);
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  // Hue Slider Drag Interaction
+  const handleHueDrag = (e: MouseEvent | React.MouseEvent) => {
+    if (!hueRef.current) return;
+    const rect = hueRef.current.getBoundingClientRect();
+    const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+    const newH = Math.round((y / rect.height) * 360) % 360;
+    setH(newH);
+    const newHex = hsvToHex(newH, s, v);
+    setHexInput(newHex.replace('#', ''));
+    onChange(newHex);
+  };
+
+  const onHueMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    handleHueDrag(e);
+    const onMouseMove = (moveEvent: MouseEvent) => handleHueDrag(moveEvent);
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleHexInputChange = (val: string) => {
+    const clean = val.replace(/[^0-9A-Fa-f]/g, '').slice(0, 6).toUpperCase();
+    setHexInput(clean);
+    if (clean.length === 6) {
+      const fullHex = '#' + clean;
+      const hsv = hexToHsv(fullHex);
+      setH(hsv.h);
+      setS(hsv.s);
+      setV(hsv.v);
+      onChange(fullHex);
+    }
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-2xl p-2.5 z-50 select-none animate-in fade-in zoom-in-95 duration-100"
+      style={{ width: '224px' }}
+    >
+      {/* 2D Canvas + Vertical Rainbow Hue Slider */}
+      <div className="flex gap-2 mb-2.5">
+        {/* 2D Canvas */}
+        <div
+          ref={canvasRef}
+          onMouseDown={onCanvasMouseDown}
+          className="relative w-[172px] h-[132px] rounded-xs cursor-crosshair overflow-hidden shadow-inner"
+          style={{
+            backgroundColor: `hsl(${h}, 100%, 50%)`,
+            backgroundImage: `
+              linear-gradient(to top, #000 0%, transparent 100%),
+              linear-gradient(to right, #fff 0%, transparent 100%)
+            `,
+          }}
+        >
+          {/* Pointer Dot */}
+          <div
+            className="absolute w-3.5 h-3.5 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+            style={{
+              left: `${s}%`,
+              top: `${100 - v}%`,
+              backgroundColor: color,
+            }}
+          />
+        </div>
+
+        {/* Rainbow Hue Bar */}
+        <div
+          ref={hueRef}
+          onMouseDown={onHueMouseDown}
+          className="relative w-3.5 h-[132px] rounded-xs cursor-pointer shadow-inner"
+          style={{
+            background:
+              'linear-gradient(to bottom, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)',
+          }}
+        >
+          {/* Slider Thumb Handle */}
+          <div
+            className="absolute left-0 right-0 h-1.5 bg-white border border-gray-500 rounded-xs shadow pointer-events-none -translate-y-1/2"
+            style={{ top: `${(h / 360) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Bottom Bar: Swatch Preview Box + Hex Code Input */}
+      <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+        <div
+          className="w-12 h-6.5 rounded-xs border border-gray-300 shadow-inner shrink-0"
+          style={{ backgroundColor: color }}
+        />
+        <div className="flex items-center flex-1 border border-gray-300 rounded px-2 py-1 bg-white focus-within:border-[#2870ED] focus-within:ring-1 focus-within:ring-[#2870ED]">
+          <span className="text-gray-400 font-mono text-xs font-semibold mr-1 select-none">#</span>
+          <input
+            type="text"
+            value={hexInput}
+            onChange={(e) => handleHexInputChange(e.target.value)}
+            maxLength={6}
+            placeholder="FF0044"
+            className="w-full text-xs font-mono font-bold text-gray-800 uppercase focus:outline-hidden tracking-wider"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProjectModalProps) {
   const router = useRouter();
@@ -70,8 +266,8 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
     setMounted(true);
   }, []);
 
-  // Blue 6-step project wizard (Default as requested)
-  const [advancedSettings, setAdvancedSettings] = useState(true);
+  // Blue 6-step project wizard (Enabled when Advanced settings toggle is ON)
+  const [advancedSettings, setAdvancedSettings] = useState(false);
 
   // Active Wizard Step: 1 to 6 (for advanced mode)
   const [currentStep, setCurrentStep] = useState(1);
@@ -86,8 +282,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
   const [groupSearch, setGroupSearch] = useState('');
   const [groupsList, setGroupsList] = useState<string[]>(['No group selected']);
   const [isCreatingGroup, setIsCreatingGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [projectColor, setProjectColor] = useState('#5EFF00');
+  const [projectColor, setProjectColor] = useState('#FF0044');
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [colorHue, setColorHue] = useState(90);
   const [access, setAccess] = useState('Only me');
@@ -235,97 +430,88 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
       .replace(/\/.*$/, '')
       .trim();
 
-    let createdProject: any = null;
-
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const cInfo = getCountryInfo(country);
+      let payload: any = {};
+
+      if (advancedSettings) {
+        payload = {
+          general: {
+            websiteUrl: websiteUrl.trim(),
+            projectName: projectName.trim() || cleanDomain,
+            projectColor,
+            weeklyReport,
+            websiteAudit,
+            backlinkReport,
+          },
+          searchEngines: selectedEngines.map((eng) => ({
+            engine: eng,
+            country: cInfo?.name || country || 'India',
+            countryCode: cInfo?.flagCode || 'in',
+            language: language || 'English',
+            languageCode: 'en',
+            device: 'desktop',
+          })),
+          keywords: keywordsText
+            .split('\n')
+            .map((k) => k.trim())
+            .filter(Boolean)
+            .map((kw) => ({ keyword: kw, group: 'General' })),
+          competitors: competitorsText
+            .split('\n')
+            .map((c) => c.trim())
+            .filter(Boolean)
+            .map((domain) => ({ domain, name: domain })),
+        };
+      } else {
+        payload = {
           name: projectName.trim() || cleanDomain,
+          websiteUrl: websiteUrl.trim(),
           domain: cleanDomain,
           brandName: projectName.trim() || cleanDomain,
           color: projectColor,
-          country: country || 'India',
-          countryCode: POPULAR_COUNTRIES.find((c) => c.name === country)?.code || 'in',
+          country: cInfo?.name || country || 'India',
+          countryCode: cInfo?.flagCode || 'in',
+          searchEngine: selectedEngines[0] || 'google',
+          language,
+          device: 'desktop',
           weeklyReport,
           websiteAudit,
           backlinkReport,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        createdProject = data.project;
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        console.warn('Server project creation returned non-ok, creating client-side fallback:', errData);
-      }
-    } catch (networkErr) {
-      console.warn('API call failed, proceeding with local project creation:', networkErr);
-    }
-
-    // Always succeed so the user is never blocked
-    if (!createdProject) {
-      const cInfo = POPULAR_COUNTRIES.find((c) => c.name === country);
-      createdProject = {
-        id: `proj-${Date.now()}`,
-        name: projectName.trim() || cleanDomain,
-        domain: cleanDomain,
-        brandName: projectName.trim() || cleanDomain,
-        country: country || 'India',
-        countryCode: cInfo?.code || 'in',
-        color: projectColor,
-        isArchived: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        analysesCount: 0,
-      };
-    }
-
-    try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_user_projects') : null;
-      const list = stored ? JSON.parse(stored) : [];
-      list.unshift(createdProject);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('se_ranking_user_projects', JSON.stringify(list));
-        if (keywordsText.trim()) {
-          const kwList = keywordsText
+          keywords: keywordsText
             .split('\n')
             .map((k) => k.trim())
-            .filter(Boolean);
-          localStorage.setItem(`se_ranking_project_keywords_${createdProject.id}`, JSON.stringify(kwList));
-        }
+            .filter(Boolean),
+        };
       }
-    } catch (storageErr) {
-      console.warn('Failed to cache project in localStorage', storageErr);
-    }
 
-    if (createdProject?.id && keywordsText.trim()) {
-      try {
-        const kwList = keywordsText
-          .split('\n')
-          .map((k) => k.trim())
-          .filter(Boolean);
-        await fetch(`/api/projects/${createdProject.id}/keywords`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keywords: kwList }),
-        }).catch(() => null);
-      } catch (err) {
-        console.warn('Keywords API sync warning:', err);
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'Failed to create project.');
+        setIsSubmitting(false);
+        return;
       }
-    }
 
-    if (onCreated) {
-      onCreated(createdProject);
+      await refreshProjects();
+      if (onCreated && data.project) {
+        onCreated(data.project);
+      }
+      if (data.project) {
+        setActiveProject(data.project);
+      }
+      onClose();
+      router.push('/projects');
+    } catch (err: any) {
+      setError(err?.message || 'Network error occurred while creating project.');
+    } finally {
+      setIsSubmitting(false);
     }
-
-    await refreshProjects();
-    setActiveProject(createdProject);
-    onClose();
-    router.push('/project-overview');
-    setIsSubmitting(false);
   };
 
   const stepsList = [
@@ -338,13 +524,18 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
   ];
 
   const colorPalette = [
-    '#1771F1',
-    '#10B981',
-    '#F59E0B',
-    '#EF4444',
-    '#8B5CF6',
-    '#EC4899',
-    '#06B6D4',
+    '#2870ED', // SE Ranking Blue
+    '#10B981', // Emerald Green
+    '#F59E0B', // Amber Gold
+    '#EF4444', // Coral Red
+    '#8B5CF6', // Royal Purple
+    '#EC4899', // Pink
+    '#06B6D4', // Cyan
+    '#6366F1', // Indigo
+    '#14B8A6', // Teal
+    '#F97316', // Orange
+    '#64748B', // Slate
+    '#1E293B', // Dark Navy
   ];
 
   if (!isOpen) return null;
@@ -396,7 +587,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                             ? 'bg-[#FFBC00] text-gray-900 shadow-md ring-4 ring-white/20'
                             : isPast
                             ? 'bg-white text-[#2870ED]'
-                            : 'border border-white/60 text-white/90'
+                            : 'border border-white text-white'
                         }`}
                       >
                         {isPast ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : step.num}
@@ -410,10 +601,10 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                         }}
                         className={`text-sm cursor-pointer transition-colors ${
                           isActive
-                            ? 'font-bold text-white'
+                            ? 'font-semibold text-[#FFBC00]'
                             : isPast
                             ? 'text-white font-medium'
-                            : 'text-white/70 hover:text-white'
+                            : 'text-white/80 hover:text-white'
                         }`}
                       >
                         {step.title}
@@ -653,32 +844,21 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                       <button
                         type="button"
                         onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
-                        className="w-full h-[38px] rounded-lg border border-gray-300 flex items-center justify-center p-1.5 cursor-pointer shadow-2xs hover:border-gray-400"
+                        className="w-10 h-10 rounded-md border border-gray-300 flex items-center justify-center p-1 cursor-pointer shadow-2xs hover:border-gray-400 transition-colors bg-white"
+                        title="Choose project color"
                       >
                         <div
-                          className="w-full h-full rounded-md shadow-inner"
+                          className="w-full h-full rounded-xs shadow-inner transition-colors"
                           style={{ backgroundColor: projectColor }}
                         />
                       </button>
 
                       {isColorPickerOpen && (
-                        <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-30 p-3 text-xs w-48">
-                          <span className="text-[11px] font-semibold text-gray-500 mb-2 block">Choose Palette</span>
-                          <div className="grid grid-cols-4 gap-2 mb-3">
-                            {colorPalette.map((col) => (
-                              <button
-                                key={col}
-                                type="button"
-                                onClick={() => {
-                                  setProjectColor(col);
-                                  setIsColorPickerOpen(false);
-                                }}
-                                className="w-8 h-8 rounded-lg shadow-xs border border-black/10 cursor-pointer hover:scale-110 transition-transform"
-                                style={{ backgroundColor: col }}
-                              />
-                            ))}
-                          </div>
-                        </div>
+                        <AuthenticColorPicker
+                          color={projectColor}
+                          onChange={(newCol) => setProjectColor(newCol)}
+                          onClose={() => setIsColorPickerOpen(false)}
+                        />
                       )}
                     </div>
                   </div>

@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Search,
   ChevronDown,
@@ -30,9 +32,11 @@ import { SUPPORTED_COUNTRIES } from '@/lib/constants';
 import { KeywordResearchDashboard } from '@/components/research/KeywordResearchDashboard';
 import { CountryFlag } from '@/components/ui/CountryFlag';
 import { GoogleLogo } from '@/components/ui/GoogleLogo';
-import { AppFooter } from '@/components/layout/AppFooter';
 
-export default function KeywordResearchPage() {
+function KeywordResearchContent() {
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab');
+  const router = useRouter();
   const [viewState, setViewState] = useState<'start' | 'dashboard'>('start');
   const [keywordInput, setKeywordInput] = useState('');
   const [keywordsList, setKeywordsList] = useState<string[]>([]);
@@ -94,6 +98,129 @@ export default function KeywordResearchPage() {
     if (!activeKw) return;
     setViewState('dashboard');
   };
+
+  if (tab === 'database-expansion') {
+    return (
+      <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 select-none flex flex-col justify-between">
+        <div className="p-4 sm:p-6 w-full space-y-3.5 max-w-[1400px] mx-auto">
+          {/* Dismissible Notice Banner matching Screenshot 6 */}
+          <div className="p-3.5 sm:p-4 bg-[#F0F6FD] border border-[#D5E6F7] rounded-lg relative text-[12px] text-gray-700 leading-relaxed">
+            <div className="font-semibold text-gray-900 mb-1 flex items-center gap-1.5">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#0B69FF] text-white text-[9px] flex items-center justify-center font-bold">i</span>
+              <span>How does it work?</span>
+            </div>
+            <p className="pr-6 mb-1.5">
+              We aim to keep our databases squeaky clean and are constantly expanding them. But, of course, we still have a long way to go before we cover every single search request out there. That&apos;s where you come in! Help us help you by submitting additional search queries for analysis.
+            </p>
+            <p className="pr-6">
+              Suppose you have a specific niche that the relevant database doesn&apos;t have any keyword data on. Don&apos;t panic! Just upload a list of all the relevant search queries, and in a month&apos;s time, you&apos;ll get all the information you need, including a complete overview of organic and paid traffic, search queries and competitors.{' '}
+              <a
+                href="https://help.seranking.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#0B69FF] font-medium hover:underline inline-flex items-center gap-0.5"
+              >
+                <span>Learn more</span>
+              </a>
+            </p>
+          </div>
+
+          {/* Header matching Screenshot 6 */}
+          <div className="flex items-center justify-between text-xs pt-1">
+            <div className="text-[13px] text-[#8C98A9] font-normal flex items-center gap-1.5">
+              <Link href="/research/keyword-research" className="hover:text-[#0B69FF]">
+                Keyword Research
+              </Link>
+              <span>›</span>
+              <span className="text-gray-800 font-semibold">Database Expansion</span>
+            </div>
+
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <button
+                type="button"
+                onClick={() => alert('Support & Help: 24/7 technical assistance for keyword expansion.')}
+                className="flex items-center gap-1 hover:text-[#0B69FF] transition-colors cursor-pointer"
+              >
+                <span>Have any questions?</span>
+                <ChevronDown className="w-3 h-3 text-gray-400" />
+              </button>
+              <button
+                type="button"
+                onClick={() => alert('Feedback: Tell us what keyword databases you need expanded!')}
+                className="hover:text-[#0B69FF] transition-colors cursor-pointer"
+              >
+                Feedback
+              </button>
+            </div>
+          </div>
+
+          {/* Controls matching Screenshot 6 */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white max-w-sm flex-1 min-w-[260px] focus-within:border-[#0B69FF]">
+              <input
+                type="text"
+                placeholder="Enter a keyword"
+                className="px-3.5 py-2 text-xs flex-1 focus:outline-hidden text-gray-900"
+              />
+              <div className="relative border-l border-gray-200 px-2 flex items-center">
+                <CountryFlag code={selectedCountry.code} size="sm" />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="px-4 py-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-2xs"
+            >
+              Analyze
+            </button>
+
+            <div className="px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white text-gray-700 flex items-center gap-1.5">
+              <span>September 2026</span>
+              <ChevronDown className="w-3 h-3 text-gray-400" />
+            </div>
+
+            <div className="px-3 py-2 border border-gray-300 rounded-lg text-xs bg-white text-gray-700 flex items-center gap-1.5">
+              <span>$ USD</span>
+              <ChevronDown className="w-3 h-3 text-gray-400" />
+            </div>
+
+            <Link
+              href="/research/keyword-research"
+              className="text-xs text-gray-600 hover:text-[#0B69FF] font-medium ml-2 cursor-pointer"
+            >
+              Bulk keyword Analysis
+            </Link>
+          </div>
+
+          {/* Diagonal Striped Background Area matching Screenshot 6 */}
+          <div
+            className="relative rounded-lg border border-gray-200 overflow-hidden min-h-[500px] flex items-center justify-center p-6 text-center"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(45deg, #F9FBFC 0, #F9FBFC 9px, #FFFFFF 9px, #FFFFFF 18px)',
+            }}
+          >
+            <div className="relative z-10 max-w-lg bg-white/95 backdrop-blur-xs p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+              <h3 className="text-base font-bold text-gray-900 tracking-tight">
+                Want to submit your search queries for analysis?
+              </h3>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                This feature is only available under the Pro and Business pricing plans. Upgrade your subscription plan to get a comprehensive SERP analysis of your search queries.
+              </p>
+              <div className="pt-2 flex items-center justify-center gap-3">
+                <Link
+                  href="/pricing"
+                  className="px-6 py-2.5 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded uppercase tracking-wider transition-colors shadow-xs"
+                >
+                  UPGRADE SUBSCRIPTION
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (viewState === 'dashboard') {
     const activeKw = keywordsList.length > 0 ? keywordsList[0] : keywordInput.trim() || 'seo software';
@@ -374,7 +501,7 @@ export default function KeywordResearchPage() {
                         </span>
                         <span className="text-xs font-bold text-[#0B69FF]">Monthly trend</span>
                       </div>
-                      <div className="text-2xl font-black text-gray-900 tracking-tight">880</div>
+                      <div className="text-2xl font-black text-gray-900 tracking-tight">390</div>
                       <div className="flex items-end gap-2 h-20 pt-2 border-b border-gray-200 pb-1">
                         {[
                           { m: 'Oct', h: 45 },
@@ -819,5 +946,13 @@ export default function KeywordResearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function KeywordResearchPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs text-gray-500">Loading Keyword Research...</div>}>
+      <KeywordResearchContent />
+    </Suspense>
   );
 }

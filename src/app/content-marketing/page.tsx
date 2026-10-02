@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   X,
   Search,
@@ -14,6 +15,8 @@ import {
   Download,
 } from 'lucide-react';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+import { SUPPORTED_COUNTRIES } from '@/lib/constants';
 
 // Real Semantic Clusters generator for Content Idea Finder
 const generateIdeaClusters = (seed: string, country: string, region: string) => {
@@ -71,13 +74,27 @@ const generateIdeaClusters = (seed: string, country: string, region: string) => 
   ];
 };
 
-export default function ContentMarketingSuite() {
-  const [activeTab, setActiveTab] = useState<'editor' | 'idea-finder'>('editor');
+function ContentMarketingSuiteInner() {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams ? searchParams.get('tab') : null;
+  const [activeTab, setActiveTab] = useState<'editor' | 'idea-finder'>(
+    tabParam === 'idea-finder' ? 'idea-finder' : 'editor'
+  );
+
+  useEffect(() => {
+    if (tabParam === 'idea-finder') {
+      setActiveTab('idea-finder');
+    } else if (tabParam === 'editor') {
+      setActiveTab('editor');
+    }
+  }, [tabParam]);
+
   const [isTopBannerDismissed, setIsTopBannerDismissed] = useState(false);
 
   // Content Idea Finder State
   const [keywordInput, setKeywordInput] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('India');
+  const [selectedCountryCode, setSelectedCountryCode] = useState('IN');
   const [selectedRegion, setSelectedRegion] = useState('');
   const [isRegionPopoverOpen, setIsRegionPopoverOpen] = useState(false);
   const [regionSearch, setRegionSearch] = useState('');
@@ -90,6 +107,58 @@ export default function ContentMarketingSuite() {
   // Modals for Real Functionality
   const [isBriefModalOpen, setIsBriefModalOpen] = useState(false);
   const [isOptimizeModalOpen, setIsOptimizeModalOpen] = useState(false);
+  
+  // Real SE Ranking Article Creator / Optimizer Modal (Screenshot 2)
+  const [isCreateArticleModalOpen, setIsCreateArticleModalOpen] = useState(false);
+  const [createModalTab, setCreateModalTab] = useState<'write' | 'optimize'>('optimize');
+  const [modalPrimaryKeyword, setModalPrimaryKeyword] = useState('');
+  const [modalArticleUrl, setModalArticleUrl] = useState('');
+  const [modalCountry, setModalCountry] = useState('India');
+  const [modalCountryCode, setModalCountryCode] = useState('IN');
+  const [isCountryDropdownOpen, setIsCountryDropdownOpen] = useState(false);
+  const [modalLocation, setModalLocation] = useState('');
+  const [modalLanguage, setModalLanguage] = useState('EN');
+  const [isAdditionalSettingsOpen, setIsAdditionalSettingsOpen] = useState(false);
+  const [additionalWordCount, setAdditionalWordCount] = useState(1800);
+  const [additionalCompetitors, setAdditionalCompetitors] = useState('10');
+  const [additionalExcludeDomains, setAdditionalExcludeDomains] = useState('');
+  const [articlesCount, setArticlesCount] = useState(0);
+
+  const modalCountries = [
+    { name: 'India', code: 'IN' },
+    { name: 'United States', code: 'US' },
+    { name: 'United Kingdom', code: 'GB' },
+    { name: 'Canada', code: 'CA' },
+    { name: 'Australia', code: 'AU' },
+    { name: 'Germany', code: 'DE' },
+    { name: 'France', code: 'FR' },
+    { name: 'Spain', code: 'ES' },
+    { name: 'Netherlands', code: 'NL' },
+    { name: 'Brazil', code: 'BR' },
+    { name: 'Japan', code: 'JP' },
+    { name: 'Singapore', code: 'SG' },
+    { name: 'United Arab Emirates', code: 'AE' },
+  ];
+
+  const handleCreateArticle = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modalPrimaryKeyword.trim()) return;
+
+    setBriefKeyword(modalPrimaryKeyword.trim());
+    const generatedTitle =
+      createModalTab === 'optimize'
+        ? modalArticleUrl
+          ? `Audit & Optimize: ${modalPrimaryKeyword.toUpperCase()} (${modalArticleUrl})`
+          : `Optimized: ${modalPrimaryKeyword.toUpperCase()} Content Audit`
+        : modalArticleUrl
+          ? modalArticleUrl
+          : `SEO Brief: Complete Guide to ${modalPrimaryKeyword}`;
+    setEditorTitle(generatedTitle);
+    setArticlesCount((prev) => Math.min(2, prev + 1));
+    setIsCreateArticleModalOpen(false);
+    setIsBriefModalOpen(true);
+  };
+
   const [briefKeyword, setBriefKeyword] = useState('b2b content marketing strategy');
   const [editorTitle, setEditorTitle] = useState('The Ultimate B2B Content Marketing Strategy Guide for 2026');
   const [editorContent, setEditorContent] = useState(
@@ -161,42 +230,29 @@ export default function ContentMarketingSuite() {
 
   return (
     <div className="flex-1 flex flex-col bg-[#F4F6F9] text-gray-900 min-h-screen">
-      {/* Top Blue Suite Navigation Bar */}
-      <div className="bg-[#0B69FF] px-4 py-1.5 flex items-center justify-between border-t border-blue-400/20 text-white text-xs select-none">
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setActiveTab('editor')}
-            className={`px-3.5 py-1 rounded font-semibold transition-all flex items-center gap-1.5 ${
-              activeTab === 'editor'
-                ? 'bg-white text-[#0B69FF] shadow-xs'
-                : 'text-white/80 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Edit3 className="w-3.5 h-3.5" />
-            <span>Content Editor</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('idea-finder')}
-            className={`px-3.5 py-1 rounded font-semibold transition-all flex items-center gap-1.5 ${
-              activeTab === 'idea-finder'
-                ? 'bg-white text-[#0B69FF] shadow-xs'
-                : 'text-white/80 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Content Idea Finder</span>
-          </button>
+      {/* Top Green Free Trial Banner matching exact Screenshot */}
+      <div className="bg-[#128C4B] text-white px-4 py-2 flex items-center justify-between text-xs select-none shadow-xs">
+        <div className="flex items-center gap-2">
+          <span className="font-normal text-[12.5px]">
+            You have <strong className="font-semibold">5 days of free trial left</strong>. Choose your preferred subscription plan to unlock all features.
+          </span>
         </div>
+        <Link
+          href="/pricing"
+          className="bg-white text-[#128C4B] hover:bg-gray-100 font-bold px-3.5 py-1.5 rounded text-[11px] uppercase tracking-wider transition-colors shadow-2xs whitespace-nowrap"
+        >
+          SEE PRICING PLANS
+        </Link>
       </div>
 
-      {/* Top Notification Alert Banner for Content Idea Finder matching exact DOM */}
+      {/* Top Notification Alert Banner for Content Idea Finder matching exact Screenshot */}
       {activeTab === 'idea-finder' && !isTopBannerDismissed && (
-        <div className="bg-[#EBF3FC] border-b border-[#CCE0F8] px-4 py-2.5 text-xs text-[#1E40AF] flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="w-5 h-5 flex items-center justify-center rounded-full bg-[#0B69FF] text-white text-xs font-bold font-serif shrink-0">
+        <div className="bg-[#EBF3FC] border-b border-[#CCE0F8] px-4 py-2 text-xs text-[#1E40AF] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="w-4 h-4 flex items-center justify-center rounded-full bg-[#0B69FF] text-white text-[11px] font-bold shrink-0">
               i
             </span>
-            <div className="leading-snug">
+            <div className="leading-snug text-gray-700 text-xs">
               Content Idea Finder helps analyze keywords in your niche and create a content strategy based on collected data. Get new topic ideas, choose relevant keywords and create top-quality content with them.
             </div>
           </div>
@@ -205,21 +261,22 @@ export default function ContentMarketingSuite() {
             className="text-gray-400 hover:text-gray-700 ml-4 p-0.5 cursor-pointer"
             aria-label="Close notification"
           >
-            <X className="w-4 h-4" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* Top Control Panel with Breadcrumbs, Feedback, and Speed Limit Meter matching exact DOM */}
-      <div className="bg-white border-b border-gray-200 px-6 py-2 flex items-center justify-between text-xs text-gray-500">
+      {/* Top Control Panel with Breadcrumbs, Feedback, and Speed Limit Meter matching exact Screenshot */}
+      <div className="bg-white border-b border-gray-200 px-6 py-2.5 flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center gap-1.5">
-          <span
+          <Link
+            href="/content-marketing?tab=editor"
             onClick={() => setActiveTab('editor')}
             className="hover:text-gray-900 cursor-pointer text-gray-600 font-medium"
           >
             Content Marketing
-          </span>
-          <span>&gt;</span>
+          </Link>
+          <span className="text-gray-400">›</span>
           <span className="text-gray-900 font-semibold">
             {activeTab === 'editor' ? 'Content Editor' : 'Content Idea Finder'}
           </span>
@@ -228,17 +285,17 @@ export default function ContentMarketingSuite() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => alert('Feedback modal: Thank you for your feedback!')}
-            className="text-gray-500 hover:text-[#0B69FF] transition-colors cursor-pointer"
+            className="text-gray-500 hover:text-[#0B69FF] transition-colors cursor-pointer text-xs"
           >
             Feedback
           </button>
-          <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded border border-gray-200">
+          <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded border border-gray-200 text-xs">
             <svg className="w-3.5 h-3.5 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
             </svg>
-            <span className="text-gray-600 font-medium">
-              {activeTab === 'editor' ? 'Articles' : 'Account limit'}
-            </span>
+            <span className="text-gray-600 font-medium">Account limit</span>
             <span className="font-bold text-gray-900">0</span>
             <span className="text-gray-400">/</span>
             <span className="text-gray-600">2</span>
@@ -267,14 +324,20 @@ export default function ContentMarketingSuite() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                onClick={() => setIsBriefModalOpen(true)}
+                onClick={() => {
+                  setCreateModalTab('write');
+                  setIsCreateArticleModalOpen(true);
+                }}
                 className="w-full sm:w-auto bg-[#0B69FF] hover:bg-[#0957DB] text-white font-semibold text-xs px-6 py-2.5 rounded shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>Write new brief &amp; article</span>
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => setIsOptimizeModalOpen(true)}
+                onClick={() => {
+                  setCreateModalTab('optimize');
+                  setIsCreateArticleModalOpen(true);
+                }}
                 className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-semibold text-xs px-6 py-2.5 rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>Optimize existing content</span>
@@ -458,101 +521,180 @@ export default function ContentMarketingSuite() {
             </div>
           </div>
 
-          {/* Card 5: Training Materials with Real 3 Cards & Live Carousel */}
+          {/* Card 5: Training Materials with Real 4 HD Cards & Interactive Slider */}
           <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-xs space-y-4">
             <h3 className="text-center font-bold text-gray-900 text-base">Training materials</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {carouselIndex === 0 ? (
                 <>
-                  {/* Slide 1: Content SEO course */}
-                  <div className="border border-gray-200 rounded-lg p-4 flex flex-col justify-between hover:border-blue-300 transition-colors">
-                    <div className="space-y-2">
-                      <div className="h-28 bg-gradient-to-r from-amber-100 to-amber-200 rounded flex items-center justify-center text-amber-900 font-bold text-sm">
-                        Content SEO with Joe Williams
+                  {/* Card 1: Content SEO with Joe Williams (HD image) */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden p-4 flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition-all group bg-white">
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-100 shadow-2xs">
+                        <img
+                          src="/images/content-marketing/content_seo_course.jpg"
+                          alt="Content SEO with Joe Williams"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold tracking-wider uppercase">
+                          Academy Course
+                        </span>
                       </div>
-                      <h4 className="font-bold text-gray-900 text-sm">Content SEO course</h4>
-                      <p className="text-gray-600 text-xs leading-relaxed">
-                        Learn how to create content that will drive visitors to your site and make them stick around with this free SEO content marketing course.
-                      </p>
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-[#0B69FF] uppercase tracking-wider block">
+                          Content SEO with Joe Williams
+                        </span>
+                        <h4 className="font-bold text-gray-900 text-sm">Content SEO course</h4>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Learn how to create content that will drive visitors to your site and make them stick around with this free SEO content marketing course.
+                        </p>
+                      </div>
                     </div>
                     <a
                       href="https://seranking.com/academy/content-seo.html"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block"
+                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block flex items-center gap-1"
                     >
-                      Start the course
+                      <span>Start the course</span>
+                      <span>→</span>
                     </a>
                   </div>
 
-                  {/* Slide 2: AI Content tool */}
-                  <div className="border border-gray-200 rounded-lg p-4 flex flex-col justify-between hover:border-blue-300 transition-colors">
-                    <div className="space-y-2">
-                      <div className="h-28 bg-gradient-to-r from-blue-100 to-indigo-200 rounded flex items-center justify-center text-blue-900 font-bold text-sm">
-                        SE Ranking AI Content Writer
+                  {/* Card 2: SE Ranking AI Content Writer (HD image) */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden p-4 flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition-all group bg-white">
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-100 shadow-2xs">
+                        <img
+                          src="/images/content-marketing/ai_content_writer.jpg"
+                          alt="SE Ranking AI Content Writer"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold tracking-wider uppercase">
+                          AI Tool
+                        </span>
                       </div>
-                      <h4 className="font-bold text-gray-900 text-sm">
-                        Create SEO-friendly copy faster with SE Ranking’s new AI content tool
-                      </h4>
-                      <p className="text-gray-600 text-xs leading-relaxed">
-                        Our Content Marketing tools were designed to help SEOs and copywriters create quality texts that both Google and users love.
-                      </p>
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-[#8B5CF6] uppercase tracking-wider block">
+                          SE Ranking AI Content Writer
+                        </span>
+                        <h4 className="font-bold text-gray-900 text-sm">
+                          Create SEO-friendly copy faster with SE Ranking’s new AI content tool
+                        </h4>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Our Content Marketing tools were designed to help SEOs and copywriters create quality texts that both Google and users love.
+                        </p>
+                      </div>
                     </div>
                     <a
                       href="https://seranking.com/blog/content-tool/"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block"
+                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block flex items-center gap-1"
                     >
-                      Read the full blog post
+                      <span>Read the full blog post</span>
+                      <span>→</span>
                     </a>
                   </div>
                 </>
               ) : (
                 <>
-                  {/* Slide 3: Create quality content from start to finish */}
-                  <div className="border border-gray-200 rounded-lg p-4 flex flex-col justify-between md:col-span-2 max-w-md mx-auto w-full hover:border-blue-300 transition-colors">
-                    <div className="space-y-2">
-                      <div className="h-28 bg-gradient-to-r from-purple-100 to-pink-200 rounded flex items-center justify-center text-purple-900 font-bold text-sm">
-                        Step-by-step Video Masterclass
+                  {/* Card 3: Content Optimization & SERP Audit (HD image) */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden p-4 flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition-all group bg-white">
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-100 shadow-2xs">
+                        <img
+                          src="/images/content-marketing/seo_content_audit.jpg"
+                          alt="Content Optimization & SERP Audit"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold tracking-wider uppercase">
+                          Masterclass
+                        </span>
                       </div>
-                      <h4 className="font-bold text-gray-900 text-sm">
-                        Create quality content from start to finish
-                      </h4>
-                      <p className="text-gray-600 text-xs leading-relaxed">
-                        Check out our detailed video on using Content Idea Finder and Content Editor to create a content brief and SEO-optimized articles.
-                      </p>
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">
+                          Content Optimization &amp; SERP Audit
+                        </span>
+                        <h4 className="font-bold text-gray-900 text-sm">
+                          Create quality content from start to finish
+                        </h4>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Check out our detailed video on using Content Idea Finder and Content Editor to create a content brief and SEO-optimized articles.
+                        </p>
+                      </div>
                     </div>
                     <a
                       href="https://www.youtube.com/watch?v=5bOMqdhxdEM"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block"
+                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block flex items-center gap-1"
                     >
-                      Watch video
+                      <span>Watch video</span>
+                      <span>→</span>
+                    </a>
+                  </div>
+
+                  {/* Card 4: Keyword Clustering & Content Strategy (HD image) */}
+                  <div className="border border-gray-200 rounded-xl overflow-hidden p-4 flex flex-col justify-between hover:border-blue-400 hover:shadow-md transition-all group bg-white">
+                    <div className="space-y-3">
+                      <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 border border-gray-100 shadow-2xs">
+                        <img
+                          src="/images/content-marketing/content_strategy_mapping.jpg"
+                          alt="Content Marketing Strategy & Keyword Clustering"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold tracking-wider uppercase">
+                          Strategy Guide
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
+                          Keyword Clustering &amp; Content Strategy
+                        </span>
+                        <h4 className="font-bold text-gray-900 text-sm">
+                          Data-Driven Content Marketing Workflows
+                        </h4>
+                        <p className="text-gray-600 text-xs leading-relaxed">
+                          Master topic clustering, editorial workflows, and automated distribution to scale your organic search footprint.
+                        </p>
+                      </div>
+                    </div>
+                    <a
+                      href="https://seranking.com/blog/content-tool/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-[#0B69FF] font-semibold text-xs hover:underline pt-3 block flex items-center gap-1"
+                    >
+                      <span>Explore strategy guide</span>
+                      <span>→</span>
                     </a>
                   </div>
                 </>
               )}
             </div>
 
-            {/* Carousel Navigation matching count 1-2 from 3 */}
-            <div className="flex items-center justify-center gap-3 pt-2">
+            {/* Carousel Navigation matching count 1-2 from 4 with < and > */}
+            <div className="flex items-center justify-center gap-4 pt-3">
               <button
+                type="button"
                 onClick={() => setCarouselIndex(0)}
                 disabled={carouselIndex === 0}
-                className="p-1 rounded text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer"
+                className="w-7 h-7 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold text-gray-700 cursor-pointer shadow-2xs transition-colors"
+                title="Previous slide"
               >
                 ‹
               </button>
-              <span className="text-xs text-gray-500 font-medium">
-                {carouselIndex === 0 ? '1-2 from 3' : '3 from 3'}
+              <span className="text-xs text-gray-500 font-semibold select-none">
+                {carouselIndex === 0 ? '1-2 from 4' : '3-4 from 4'}
               </span>
               <button
+                type="button"
                 onClick={() => setCarouselIndex(1)}
                 disabled={carouselIndex === 1}
-                className="p-1 rounded text-gray-400 hover:text-gray-700 disabled:opacity-30 cursor-pointer"
+                className="w-7 h-7 rounded-full border border-gray-300 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-sm font-bold text-gray-700 cursor-pointer shadow-2xs transition-colors"
+                title="Next slide"
               >
                 ›
               </button>
@@ -566,14 +708,20 @@ export default function ContentMarketingSuite() {
             </h3>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <button
-                onClick={() => setIsBriefModalOpen(true)}
+                onClick={() => {
+                  setCreateModalTab('write');
+                  setIsCreateArticleModalOpen(true);
+                }}
                 className="w-full sm:w-auto bg-[#0B69FF] hover:bg-[#0957DB] text-white font-semibold text-xs px-6 py-2.5 rounded shadow-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>Write new brief &amp; article</span>
                 <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => setIsOptimizeModalOpen(true)}
+                onClick={() => {
+                  setCreateModalTab('optimize');
+                  setIsCreateArticleModalOpen(true);
+                }}
                 className="w-full sm:w-auto bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-semibold text-xs px-6 py-2.5 rounded shadow-2xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <span>Optimize existing content</span>
@@ -588,143 +736,145 @@ export default function ContentMarketingSuite() {
       {/* 2. CONTENT IDEA FINDER VIEW (Screenshots 3 & 4 - matching exact DOM classes) */}
       {/* ========================================================================= */}
       {activeTab === 'idea-finder' && (
-        <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-10 space-y-8">
-          {/* Main Full Placeholder Card */}
-          <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-xs max-w-2xl mx-auto w-full">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Content Idea Finder</h1>
-              <p className="text-gray-500 text-xs mt-1">Analyze a topic of interest to get new content ideas</p>
-            </div>
+        <div className="flex-1 flex flex-col max-w-3xl mx-auto w-full px-4 pt-12 pb-16 space-y-8">
+          {/* Header Title & Subtitle matching exact Screenshot */}
+          <div className="text-center mb-2">
+            <h1 className="text-2xl sm:text-[26px] font-bold text-gray-900 tracking-tight mb-1.5">
+              Content Idea Finder
+            </h1>
+            <p className="text-gray-500 text-xs">
+              Analyze a topic of interest to get new content ideas
+            </p>
+          </div>
 
-            <form onSubmit={handleFindIdeasSubmit} className="space-y-4">
-              {/* Keyword Label & Input Row */}
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                  Keyword <span className="text-red-500">*</span>
-                  <span className="text-gray-400 ml-1 cursor-pointer" title="Enter primary seed keyword">
-                    ⓘ
-                  </span>
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      value={keywordInput}
-                      onChange={(e) => setKeywordInput(e.target.value)}
-                      placeholder="Enter keyword"
-                      className="w-full border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF]"
+          {/* Form Layout matching exact Screenshot */}
+          <form onSubmit={handleFindIdeasSubmit} className="space-y-1.5 max-w-2xl mx-auto w-full">
+            <div>
+              <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                <span>Keyword</span>
+                <span
+                  className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none"
+                  title="Enter primary seed keyword or topic"
+                >
+                  i
+                </span>
+              </label>
+
+              <div className="flex items-center gap-2">
+                {/* Keyword Input */}
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={keywordInput}
+                    onChange={(e) => setKeywordInput(e.target.value)}
+                    placeholder="Enter keyword"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF]"
+                  />
+                </div>
+
+                {/* Country Trigger Button matching exact Screenshot */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsRegionPopoverOpen(!isRegionPopoverOpen)}
+                    className="border border-gray-300 rounded px-3 py-2 text-xs text-gray-800 bg-white hover:bg-gray-50 flex items-center justify-between gap-3 cursor-pointer min-w-[135px] focus:outline-none focus:border-[#0B69FF]"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <CountryFlag code={selectedCountryCode} size="sm" />
+                      <span className="font-normal text-gray-800 truncate">
+                        {selectedRegion ? selectedRegion.split(',')[0] : selectedCountry}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-150 ${
+                        isRegionPopoverOpen ? 'rotate-180' : ''
+                      }`}
                     />
-                  </div>
+                  </button>
 
-                  {/* Country & Region Selector Button */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsRegionPopoverOpen(!isRegionPopoverOpen)}
-                      className="w-full sm:w-auto border border-gray-300 rounded px-3 py-2 text-xs text-gray-800 bg-white hover:bg-gray-50 flex items-center justify-between gap-2 shadow-2xs cursor-pointer"
-                    >
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base">🇮🇳</span>
-                        <span className="font-medium">
-                          {selectedRegion ? selectedRegion.split(',')[0] : selectedCountry}
-                        </span>
-                      </div>
-                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-                    </button>
+                  {/* Region Popover Card with Upward Triangle Pointer Arrow */}
+                  {isRegionPopoverOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-xl z-50 p-4 space-y-3.5 text-xs animate-in fade-in zoom-in-95">
+                      {/* Upward pointer arrow */}
+                      <div className="absolute -top-1.5 right-6 w-3 h-3 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
 
-                    {/* Region Selector Popover matching exact DOM structure */}
-                    {isRegionPopoverOpen && (
-                      <div className="absolute right-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-2xl z-40 p-3 space-y-3 text-xs animate-in fade-in zoom-in-95">
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-semibold text-gray-700">Country:</span>
-                            <span className="text-gray-400">ⓘ</span>
-                          </div>
-                          <div className="p-2 border border-gray-200 rounded bg-gray-50 font-medium text-gray-800 flex items-center gap-2">
-                            <span>🇮🇳</span>
-                            <span>India</span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-semibold text-gray-700">Region / City:</span>
-                            <span className="text-gray-400">ⓘ</span>
-                          </div>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              value={regionSearch}
-                              onChange={(e) => setRegionSearch(e.target.value)}
-                              placeholder="Search region or city..."
-                              className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs text-gray-800 focus:outline-none focus:border-[#0B69FF]"
-                            />
-                            {regionSearch && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setRegionSearch('');
-                                  setSelectedRegion('');
-                                }}
-                                className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-
-                          <div className="max-h-44 overflow-y-auto mt-1 border border-gray-100 rounded divide-y divide-gray-50">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedRegion('');
-                                setIsRegionPopoverOpen(false);
-                              }}
-                              className="w-full text-left p-1.5 hover:bg-gray-50 text-[11px] text-gray-600"
-                            >
-                              All Regions in India (National)
-                            </button>
-                            {filteredRegions.map((r) => (
-                              <button
-                                key={r}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedRegion(r);
-                                  setIsRegionPopoverOpen(false);
-                                }}
-                                className={`w-full text-left p-1.5 hover:bg-gray-50 text-[11px] truncate ${
-                                  selectedRegion === r ? 'bg-blue-50 text-[#0B69FF] font-semibold' : 'text-gray-700'
-                                }`}
-                              >
-                                {r}
-                              </button>
+                      {/* Country Row */}
+                      <div>
+                        <label className="flex items-center gap-1 text-[11px] text-gray-600 mb-1 font-normal">
+                          <span>Country:</span>
+                          <span className="italic text-[9px] text-gray-400 border border-gray-300 rounded-full w-3 h-3 inline-flex items-center justify-center">
+                            i
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={selectedCountry}
+                            onChange={(e) => {
+                              const cName = e.target.value;
+                              setSelectedCountry(cName);
+                              const match = modalCountries.find((c) => c.name === cName);
+                              if (match) setSelectedCountryCode(match.code);
+                            }}
+                            className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs text-gray-900 bg-white focus:outline-none focus:border-[#0B69FF] appearance-none cursor-pointer pl-8"
+                          >
+                            {modalCountries.map((c) => (
+                              <option key={c.code} value={c.name}>
+                                {c.name}
+                              </option>
                             ))}
+                          </select>
+                          <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                            <CountryFlag code={selectedCountryCode} size="xs" />
                           </div>
+                          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </div>
 
-              {/* Form Content Footer matching exact DOM */}
-              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                <div className="text-xs text-gray-500">
-                  Keyword limits:&nbsp;&nbsp;
-                  <span className="font-semibold text-gray-900">0/2</span>
+                      {/* Region Row */}
+                      <div>
+                        <label className="flex items-center gap-1 text-[11px] text-gray-600 mb-1 font-normal">
+                          <span>Region:</span>
+                          <span className="italic text-[9px] text-gray-400 border border-gray-300 rounded-full w-3 h-3 inline-flex items-center justify-center">
+                            i
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <select
+                            value={selectedRegion}
+                            onChange={(e) => setSelectedRegion(e.target.value)}
+                            className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs text-gray-900 bg-white focus:outline-none focus:border-[#0B69FF] appearance-none cursor-pointer text-gray-700"
+                          >
+                            <option value="">Select region (All country)</option>
+                            {indiaRegions.map((r) => (
+                              <option key={r} value={r}>
+                                {r}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={!keywordInput.trim() || isSearchingIdeas}
-                  className="bg-[#0B69FF] hover:bg-[#0957DB] disabled:bg-[#D5D9E2] disabled:text-gray-400 disabled:cursor-not-allowed text-white text-xs font-semibold px-6 py-2 rounded transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
+                  className="bg-[#0B69FF] hover:bg-[#0957DB] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded transition-colors shadow-xs cursor-pointer shrink-0 uppercase tracking-wide"
                 >
-                  <span>{isSearchingIdeas ? 'Analyzing...' : 'Find ideas'}</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
+                  {isSearchingIdeas ? 'ANALYZING...' : 'FIND IDEAS'}
                 </button>
               </div>
-            </form>
-          </div>
+            </div>
+
+            {/* Keyword limits indicator matching Screenshot */}
+            <div className="text-[11px] text-gray-500 pt-1">
+              Keyword limits:&nbsp;&nbsp;
+              <span className="font-semibold text-gray-900">0/2</span>
+            </div>
+          </form>
 
           {/* Real Generated Topic Clusters & Keywords Table */}
           {searchResults && (
@@ -1032,64 +1182,321 @@ export default function ContentMarketingSuite() {
       )}
 
       {/* ======================================================== */}
-      {/* OPTIMIZE EXISTING CONTENT MODAL                           */}
+      {/* SE RANKING ARTICLE CREATOR & OPTIMIZER MODAL (Screenshot 2) */}
       {/* ======================================================== */}
-      {isOptimizeModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3">
-          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 max-w-lg w-full p-6 space-y-5 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-base text-gray-900">Optimize Existing Content</h3>
-              <button
-                onClick={() => setIsOptimizeModalOpen(false)}
-                className="text-gray-400 hover:text-gray-700 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              Enter your live page URL or paste raw text to run a SERP competitor audit and get instant content enhancement recommendations.
-            </p>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Target Page URL</label>
-                <input
-                  type="url"
-                  placeholder="https://example.com/blog/my-seo-guide"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-1 focus:ring-[#0B69FF]"
-                />
+      {(isCreateArticleModalOpen || isOptimizeModalOpen) && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-lg shadow-2xl border border-gray-200 max-w-[620px] w-full overflow-hidden animate-in fade-in zoom-in-95">
+            {/* Header Tabs matching Screenshot 2 */}
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 pt-5">
+              <div className="flex items-center gap-6">
+                <button
+                  type="button"
+                  onClick={() => setCreateModalTab('write')}
+                  className={`pb-3 text-xs sm:text-[13px] tracking-tight transition-colors cursor-pointer relative ${
+                    createModalTab === 'write'
+                      ? 'text-gray-900 border-b-2 border-[#0B69FF] font-semibold'
+                      : 'text-gray-500 hover:text-gray-800 font-normal'
+                  }`}
+                >
+                  Write new brief and article
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCreateModalTab('optimize')}
+                  className={`pb-3 text-xs sm:text-[13px] tracking-tight transition-colors cursor-pointer relative ${
+                    createModalTab === 'optimize'
+                      ? 'text-gray-900 border-b-2 border-[#0B69FF] font-semibold'
+                      : 'text-gray-500 hover:text-gray-800 font-normal'
+                  }`}
+                >
+                  Optimize existing content
+                </button>
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">Primary Target Keyword</label>
-                <input
-                  type="text"
-                  placeholder="e.g. b2b marketing software"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-xs focus:ring-1 focus:ring-[#0B69FF]"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-2 pt-2">
               <button
-                onClick={() => setIsOptimizeModalOpen(false)}
-                className="px-4 py-2 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50 cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
+                type="button"
                 onClick={() => {
+                  setIsCreateArticleModalOpen(false);
                   setIsOptimizeModalOpen(false);
-                  setIsBriefModalOpen(true);
                 }}
-                className="px-5 py-2 bg-[#0B69FF] hover:bg-[#0957DB] text-white text-xs font-bold rounded shadow-xs cursor-pointer"
+                className="pb-3 text-gray-400 hover:text-gray-700 transition-colors cursor-pointer"
               >
-                START AUDIT &amp; OPTIMIZE
+                <X className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Subtitle description */}
+            <div className="px-6 pt-4 pb-1">
+              <p className="text-xs text-gray-600 leading-relaxed">
+                {createModalTab === 'optimize'
+                  ? 'Improve existing content by optimizing it with targeted keywords to improve search engine rankings'
+                  : 'Create new content briefs and articles optimized with targeted keywords to rank high on search engines'}
+              </p>
+            </div>
+
+            {/* Main Form matching Screenshot 2 */}
+            <form onSubmit={handleCreateArticle} className="px-6 py-4 space-y-4">
+              {/* Row 1: Primary keyword | Article URL (or Article title) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                    <span>Primary keyword</span>
+                    <span
+                      className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none cursor-help"
+                      title="Enter the primary keyword you want this content to rank for"
+                    >
+                      i
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={modalPrimaryKeyword}
+                    onChange={(e) => setModalPrimaryKeyword(e.target.value)}
+                    placeholder="Enter a primary keyword"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF]"
+                  />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                    <span>{createModalTab === 'optimize' ? 'Article URL' : 'Article title'}</span>
+                    <span
+                      className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none cursor-help"
+                      title={
+                        createModalTab === 'optimize'
+                          ? 'URL of the existing published page to audit and improve'
+                          : 'Title of the new article you plan to write'
+                      }
+                    >
+                      i
+                    </span>
+                  </label>
+                  <input
+                    type={createModalTab === 'optimize' ? 'url' : 'text'}
+                    value={modalArticleUrl}
+                    onChange={(e) => setModalArticleUrl(e.target.value)}
+                    placeholder={createModalTab === 'optimize' ? 'Enter page URL' : 'Enter article title'}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF]"
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Country | Location | Language */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                {/* Country with real flag dropdown */}
+                <div className="relative">
+                  <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                    <span>Country</span>
+                    <span
+                      className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none cursor-help"
+                      title="Select the target Google search region"
+                    >
+                      i
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsCountryDropdownOpen(!isCountryDropdownOpen)}
+                    className="w-full flex items-center justify-between border border-gray-300 rounded px-2.5 py-2 text-xs text-gray-900 bg-white hover:bg-gray-50 focus:outline-none focus:border-[#0B69FF] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <CountryFlag code={modalCountryCode} size="sm" />
+                      <span className="truncate">{modalCountry}</span>
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 shrink-0 ml-1" />
+                  </button>
+
+                  {isCountryDropdownOpen && (
+                    <div className="absolute z-20 top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg max-h-48 overflow-y-auto py-1">
+                      {modalCountries.map((c) => (
+                        <button
+                          key={c.code}
+                          type="button"
+                          onClick={() => {
+                            setModalCountry(c.name);
+                            setModalCountryCode(c.code);
+                            setIsCountryDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-blue-50 cursor-pointer ${
+                            modalCountryCode === c.code ? 'bg-blue-50 font-semibold text-blue-700' : 'text-gray-700'
+                          }`}
+                        >
+                          <CountryFlag code={c.code} size="sm" />
+                          <span>{c.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                    <span>Location</span>
+                    <span
+                      className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none cursor-help"
+                      title="Optional: Target specific city or postal code"
+                    >
+                      i
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={modalLocation}
+                      onChange={(e) => setModalLocation(e.target.value)}
+                      placeholder="City/Postal code"
+                      className="w-full border border-gray-300 rounded px-3 py-2 pr-7 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF]"
+                    />
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Language */}
+                <div>
+                  <label className="flex items-center gap-1 text-xs text-gray-700 mb-1.5 font-normal">
+                    <span>Language</span>
+                    <span
+                      className="italic text-[10px] text-gray-400 border border-gray-300 rounded-full w-3.5 h-3.5 inline-flex items-center justify-center select-none cursor-help"
+                      title="Content language"
+                    >
+                      i
+                    </span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={modalLanguage}
+                      onChange={(e) => setModalLanguage(e.target.value)}
+                      className="w-full border border-gray-300 rounded px-3 py-2 pr-7 text-xs text-gray-900 bg-white focus:outline-none focus:border-[#0B69FF] focus:ring-1 focus:ring-[#0B69FF] appearance-none cursor-pointer"
+                    >
+                      <option value="EN">EN</option>
+                      <option value="ES">ES</option>
+                      <option value="DE">DE</option>
+                      <option value="FR">FR</option>
+                      <option value="HI">HI</option>
+                      <option value="IT">IT</option>
+                      <option value="PT">PT</option>
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Additional settings toggle matching Screenshot 2 */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsAdditionalSettingsOpen(!isAdditionalSettingsOpen)}
+                  className="flex items-center gap-1 text-xs font-bold text-gray-900 hover:text-[#0B69FF] transition-colors py-1 cursor-pointer"
+                >
+                  <span>Additional settings</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-gray-600 transition-transform duration-200 ${
+                      isAdditionalSettingsOpen ? 'rotate-180 text-[#0B69FF]' : ''
+                    }`}
+                  />
+                </button>
+
+                {isAdditionalSettingsOpen && (
+                  <div className="mt-2.5 p-3.5 bg-gray-50 rounded border border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs animate-in fade-in slide-in-from-top-1">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Target Word Count
+                      </label>
+                      <input
+                        type="number"
+                        value={additionalWordCount}
+                        onChange={(e) => setAdditionalWordCount(Number(e.target.value))}
+                        className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs bg-white focus:ring-1 focus:ring-[#0B69FF]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        SERP Competitors to Analyze
+                      </label>
+                      <select
+                        value={additionalCompetitors}
+                        onChange={(e) => setAdditionalCompetitors(e.target.value)}
+                        className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs bg-white focus:ring-1 focus:ring-[#0B69FF]"
+                      >
+                        <option value="10">Top 10 competitors</option>
+                        <option value="20">Top 20 competitors</option>
+                        <option value="30">Top 30 competitors</option>
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Exclude Domains from Analysis (optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={additionalExcludeDomains}
+                        onChange={(e) => setAdditionalExcludeDomains(e.target.value)}
+                        placeholder="e.g. wikipedia.org, youtube.com, amazon.com"
+                        className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-xs bg-white placeholder-gray-400 focus:ring-1 focus:ring-[#0B69FF]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer matching Screenshot 2: Articles 0 / 2 badge & CANCEL / CREATE buttons */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 mt-3">
+                {/* Left: Articles count badge with rounded border and icon */}
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-amber-300 bg-amber-50/70 text-amber-900 text-xs font-medium">
+                  <svg className="w-3.5 h-3.5 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                  <span>Articles</span>
+                  <span className="font-bold">{articlesCount}</span>
+                  <span className="text-amber-600">/</span>
+                  <span className="text-amber-800">2</span>
+                </div>
+
+                {/* Right: CANCEL and CREATE buttons */}
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCreateArticleModalOpen(false);
+                      setIsOptimizeModalOpen(false);
+                    }}
+                    className="px-4 py-2 border border-gray-300 rounded text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors uppercase tracking-wider cursor-pointer"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-[#0B69FF] hover:bg-[#0957DB] text-white text-xs font-bold rounded shadow-xs transition-colors uppercase tracking-wider cursor-pointer"
+                  >
+                    CREATE
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
     </div>
+  );
+}
+
+export default function ContentMarketingSuite() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0B69FF]"></div>
+        </div>
+      }
+    >
+      <ContentMarketingSuiteInner />
+    </Suspense>
   );
 }

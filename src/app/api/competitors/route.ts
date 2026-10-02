@@ -15,6 +15,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { domain, brandName, analysisId } = result.data;
+    if (!analysisId) {
+      return NextResponse.json({ error: 'Analysis ID is required.' }, { status: 400 });
+    }
 
     // Dynamic presence generation based on competitor domain
     const aiPresence = Math.floor(40 + Math.random() * 45);

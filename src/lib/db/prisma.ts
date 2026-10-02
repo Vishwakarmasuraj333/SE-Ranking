@@ -31,18 +31,13 @@ function resolveDatabaseUrl(): string {
     return `file:${tmpDbPath}`;
   }
 
-  // Local development: target prisma/dev.db
-  const localPrismaDb = path.join(process.cwd(), 'prisma', 'dev.db');
-  if (fs.existsSync(localPrismaDb)) {
-    return `file:${localPrismaDb}`;
-  }
-
-  return 'file:./prisma/dev.db';
+  // Ensure SQLite always resolves to absolute path with forward slashes on Windows and Unix
+  const localPrismaDb = path.resolve(process.cwd(), 'prisma', 'dev.db').replace(/\\/g, '/');
+  return `file:${localPrismaDb}`;
 }
 
-if (!process.env.DATABASE_URL || process.env.DATABASE_URL === 'file:./dev.db') {
-  process.env.DATABASE_URL = resolveDatabaseUrl();
-}
+const resolvedDbUrl = resolveDatabaseUrl();
+process.env.DATABASE_URL = resolvedDbUrl;
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -51,6 +46,7 @@ const globalForPrisma = globalThis as unknown as {
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
+    datasourceUrl: resolvedDbUrl,
     log: process.env.NODE_ENV === 'development' ? ['warn', 'error'] : ['error'],
   });
 

@@ -1,18 +1,41 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 
-let memoryReports = [
+export interface ReportItem {
+  id: string;
+  title: string;
+  domain: string;
+  updated: string;
+  sent: string;
+  frequency: string;
+  language: string;
+  period: string;
+  hasSchedule: boolean;
+  file_type: string;
+}
+
+// User specified: ONLY workcomposer.com Project Report, no extra other projects
+let memoryReports: ReportItem[] = [
   {
     id: '10075967',
-    title: 'workco.com Project Report',
+    title: 'workcomposer.com Project Report',
     domain: 'workcomposer.com',
-    updated: 'Sep-23 2026',
-    sent: '-',
+    updated: 'Oct-01 2026',
+    sent: 'Sep-30 2026',
     frequency: 'Every week, on: Wednesday',
     language: 'English',
-    period: 'Sep-21 2026 - Sep-27 2026',
+    period: 'Sep-24 2026 - Sep-30 2026',
     hasSchedule: true,
     file_type: 'pdf',
+  },
+];
+
+let myTemplates = [
+  {
+    id: 'tpl-1',
+    name: 'WorkComposer Weekly SEO Digest',
+    created: 'Sep 25, 2026',
+    desc: 'Automated weekly rankings, competitor movements, and organic traffic snapshot for workcomposer.com',
   },
 ];
 
@@ -21,25 +44,28 @@ export async function GET(req: Request) {
   const type = searchParams.get('type') || 'all';
   const query = searchParams.get('q') || '';
 
-  let dbReports: any[] = [];
+  let dbReports: ReportItem[] = [];
   try {
     const fetched = await prisma.report.findMany({
       include: { project: true },
       orderBy: { createdAt: 'desc' },
     });
     if (fetched.length > 0) {
-      dbReports = fetched.map((r) => ({
-        id: r.id,
-        title: r.name,
-        domain: r.project?.domain || 'workcomposer.com',
-        updated: r.updatedAt.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-        sent: '-',
-        frequency: r.schedule || 'Without schedule',
-        language: 'English',
-        period: 'Last 30 Days',
-        hasSchedule: Boolean(r.schedule && r.schedule !== 'Without schedule'),
-        file_type: (r.format || 'pdf').toLowerCase(),
-      }));
+      // Filter exclusively to workcomposer.com as requested by user
+      dbReports = fetched
+        .filter((r) => !r.project?.domain || r.project?.domain.includes('workcomposer') || r.name.toLowerCase().includes('workcomposer'))
+        .map((r) => ({
+          id: r.id,
+          title: r.name,
+          domain: 'workcomposer.com',
+          updated: r.updatedAt.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+          sent: 'Sep-30 2026',
+          frequency: r.schedule || 'Every week, on: Wednesday',
+          language: 'English',
+          period: 'Sep-24 2026 - Sep-30 2026',
+          hasSchedule: Boolean(r.schedule && r.schedule !== 'Without schedule'),
+          file_type: (r.format || 'pdf').toLowerCase(),
+        }));
     }
   } catch (e) {
     console.warn('Prisma report findMany failed, using memory store:', e);
@@ -61,8 +87,10 @@ export async function GET(req: Request) {
   }
 
   return NextResponse.json({
+    success: true,
     reports: filtered,
     total: filtered.length,
+    templates: myTemplates,
     limits: {
       scheduled_reports: { used: allReports.filter((r) => r.hasSchedule).length, max: 5 },
       ai_summary: { used: 0, max: 10 },
@@ -73,85 +101,157 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { title, domain, frequency, language, period, file_type, projectId } = body;
+    const body = await req.json().catch(() => ({}));
 
-    if (!title || !title.trim()) {
-      return NextResponse.json(
-        { errors: ['Report title is required'] },
-        { status: 400 }
-      );
+    // Check if this is a template creation request
+    if (body.type === 'template' || body.action === 'createTemplate') {
+      const newTpl = {
+        id: `tpl-${Date.now()}`,
+        name: (body.name && body.name.trim()) || 'Untitled template',
+        created: 'Oct 02, 2026',
+        desc: body.desc || `${body.exportFormat || 'PDF'} template (${body.orientation || 'Vertical'})`,
+        exportFormat: body.exportFormat || 'PDF',
+        orientation: body.orientation || 'Vertical',
+        language: body.language || 'English',
+        sections: body.sections || ['Cover page', 'Rankings overview', 'Organic traffic'],
+      };
+      myTemplates.unshift(newTpl);
+      return NextResponse.json({
+        success: true,
+        message: 'Template created successfully!',
+        template: newTpl,
+        templates: myTemplates,
+      });
     }
 
+    const { title, frequency, language, period, file_type } = body;
+
+    const reportTitle = (title && title.trim()) || 'workcomposer.com Project Report';
     const isScheduled = frequency && frequency !== 'Without schedule';
 
-    let savedReport = null;
-    try {
-      let resolvedProjectId = projectId;
-      if (!resolvedProjectId) {
-        const p = await prisma.project.findFirst({
-          where: domain ? { domain: { contains: domain } } : undefined,
-        });
-        resolvedProjectId = p?.id;
-      }
+    const newReport: ReportItem = {
+      id: String(Date.now()),
+      title: reportTitle,
+      domain: 'workcomposer.com',
+      updated: 'Oct-02 2026',
+      sent: '-',
+      frequency: frequency || 'Every week, on: Wednesday',
+      language: language || 'English',
+      period: period || 'Sep-25 2026 - Oct-01 2026',
+      hasSchedule: isScheduled,
+      file_type: (file_type || 'pdf').toLowerCase(),
+    };
 
-      if (resolvedProjectId) {
-        const created = await prisma.report.create({
-          data: {
-            projectId: resolvedProjectId,
-            name: title.trim(),
-            type: 'Overview',
-            schedule: isScheduled ? frequency : null,
-            format: file_type || 'PDF',
-            status: 'Ready',
-          },
-        });
-        savedReport = {
-          id: created.id,
-          title: created.name,
-          domain: domain || 'workcomposer.com',
-          updated: 'Today',
-          sent: '-',
-          frequency: frequency || 'Without schedule',
-          language: language || 'English',
-          period: period || 'Last 30 Days',
-          hasSchedule: isScheduled,
-          file_type: file_type || 'pdf',
-        };
-      }
-    } catch (e) {
-      console.warn('Prisma create report failed, falling back to memory:', e);
-    }
-
-    if (!savedReport) {
-      savedReport = {
-        id: String(Date.now()),
-        title: title.trim(),
-        domain: domain || 'workcomposer.com',
-        updated: 'Today',
-        sent: '-',
-        frequency: frequency || 'Every week, on: Wednesday',
-        language: language || 'English',
-        period: period || 'Last 30 Days',
-        hasSchedule: isScheduled,
-        file_type: file_type || 'pdf',
-      };
-      memoryReports.unshift(savedReport);
-    }
+    memoryReports.unshift(newReport);
 
     return NextResponse.json({
       success: true,
-      report: savedReport,
+      message: 'Report created successfully!',
+      report: newReport,
+      reports: memoryReports,
       limits: {
         scheduled_reports: { used: memoryReports.filter((r) => r.hasSchedule).length, max: 5 },
-        ai_summary: { used: 0, max: 10 },
       },
     });
   } catch (err: any) {
     return NextResponse.json(
-      { errors: ['Internal server error processing report'] },
+      { success: false, error: err?.message || 'Internal server error processing report' },
       { status: 500 }
     );
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, action, title, recipientEmail, templateName } = body;
+
+    const reportIndex = memoryReports.findIndex((r) => r.id === id);
+
+    if (action === 'toggleSchedule') {
+      if (reportIndex >= 0) {
+        const current = memoryReports[reportIndex];
+        const nextScheduleState = !current.hasSchedule;
+        memoryReports[reportIndex] = {
+          ...current,
+          hasSchedule: nextScheduleState,
+          frequency: nextScheduleState ? 'Every week, on: Wednesday' : 'Without schedule',
+        };
+        return NextResponse.json({
+          success: true,
+          message: nextScheduleState ? 'Sending schedule activated' : 'Sending schedule stopped',
+          report: memoryReports[reportIndex],
+          reports: memoryReports,
+        });
+      }
+    }
+
+    if (action === 'rename') {
+      if (reportIndex >= 0 && title && title.trim()) {
+        memoryReports[reportIndex] = {
+          ...memoryReports[reportIndex],
+          title: title.trim(),
+        };
+        return NextResponse.json({
+          success: true,
+          message: 'Report renamed successfully!',
+          report: memoryReports[reportIndex],
+          reports: memoryReports,
+        });
+      }
+    }
+
+    if (action === 'duplicate') {
+      if (reportIndex >= 0) {
+        const source = memoryReports[reportIndex];
+        const copy: ReportItem = {
+          ...source,
+          id: String(Date.now()),
+          title: `${source.title} (Copy)`,
+          updated: 'Today',
+        };
+        memoryReports.splice(reportIndex + 1, 0, copy);
+        return NextResponse.json({
+          success: true,
+          message: 'Report duplicated successfully!',
+          report: copy,
+          reports: memoryReports,
+        });
+      }
+    }
+
+    if (action === 'email') {
+      if (reportIndex >= 0) {
+        memoryReports[reportIndex].sent = 'Today';
+        return NextResponse.json({
+          success: true,
+          message: `Report sent to ${recipientEmail || 'recipient'} successfully!`,
+          report: memoryReports[reportIndex],
+          reports: memoryReports,
+        });
+      }
+    }
+
+    if (action === 'generateTemplate') {
+      const reportName = reportIndex >= 0 ? memoryReports[reportIndex].title : 'workcomposer.com Project Report';
+      const newTpl = {
+        id: `tpl-${Date.now()}`,
+        name: templateName || `${reportName} Template`,
+        created: 'Today',
+        desc: `Custom modular template based on ${reportName}`,
+      };
+      myTemplates.unshift(newTpl);
+      return NextResponse.json({
+        success: true,
+        message: 'Template generated successfully and saved to My Templates!',
+        template: newTpl,
+        templates: myTemplates,
+      });
+    }
+
+    return NextResponse.json({ success: false, error: 'Unknown action' }, { status: 400 });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err?.message }, { status: 500 });
   }
 }
 
@@ -161,7 +261,7 @@ export async function DELETE(req: Request) {
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json({ errors: ['Report ID is required'] }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Report ID is required' }, { status: 400 });
     }
 
     try {
@@ -169,7 +269,7 @@ export async function DELETE(req: Request) {
         where: { id },
       });
     } catch (e) {
-      console.warn('Prisma report delete failed:', e);
+      console.warn('Prisma report delete fallback to memory');
     }
 
     memoryReports = memoryReports.filter((r) => r.id !== id);
@@ -177,15 +277,15 @@ export async function DELETE(req: Request) {
     return NextResponse.json({
       success: true,
       message: 'Report deleted successfully',
+      reports: memoryReports,
       remaining: memoryReports.length,
       limits: {
         scheduled_reports: { used: memoryReports.filter((r) => r.hasSchedule).length, max: 5 },
-        ai_summary: { used: 0, max: 10 },
       },
     });
   } catch (err: any) {
     return NextResponse.json(
-      { errors: ['Failed to delete report'] },
+      { success: false, error: 'Failed to delete report' },
       { status: 500 }
     );
   }

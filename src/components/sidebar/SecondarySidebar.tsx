@@ -40,6 +40,7 @@ import {
   Target,
   Building2,
   PenLine,
+  UserCheck,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { CreateProjectModal } from '../modals/CreateProjectModal';
@@ -100,6 +101,18 @@ export function SecondarySidebar() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isProjectFlyoutOpen, setIsProjectFlyoutOpen] = useState(false);
   const [hoveredSubmenu, setHoveredSubmenu] = useState<string | null>(null);
+  const [currentHash, setCurrentHash] = useState('');
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (typeof window !== 'undefined') {
+        setCurrentHash(window.location.hash);
+      }
+    };
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, [pathname]);
 
   const projectDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -229,9 +242,27 @@ export function SecondarySidebar() {
         !pathname.startsWith('/backlinks') &&
         !pathname.startsWith('/local-marketing') &&
         !pathname.startsWith('/agency-pack') &&
+        !pathname.startsWith('/admin.user.whitelabel') &&
+        !pathname.startsWith('/admin.lead_generator') &&
         !pathname.startsWith('/api-docs'))
     ) {
       return 'projects';
+    }
+
+    if (
+      pathname.startsWith('/api-docs') ||
+      pathname.startsWith('/admin.api') ||
+      pathname.startsWith('/api') ||
+      activeRail === 'api'
+    ) {
+      return 'api';
+    }
+
+    if (
+      pathname.startsWith('/content-marketing') ||
+      activeRail === 'content'
+    ) {
+      return 'content';
     }
 
     if (pathname.startsWith('/local-marketing')) return 'local-marketing';
@@ -265,6 +296,8 @@ export function SecondarySidebar() {
 
   const getSectionTitle = () => {
     switch (effectiveSection) {
+      case 'content':
+        return 'Content Marketing';
       case 'agency':
         return 'Agency Pack';
       case 'local-marketing':
@@ -848,44 +881,90 @@ export function SecondarySidebar() {
                 </Link>
               </div>
             ) : effectiveSection === 'api' ? (
-              /* API Mode Menu matching Screenshot 1 */
-              <>
+              /* API Mode Menu matching Screenshot */
+              (() => {
+                const isWalletActive = pathname.includes('/wallet') || currentTab === 'wallet' || currentHash.includes('wallet');
+                const isMcpActive = pathname.includes('/mcp') || currentTab === 'mcp' || currentHash.includes('mcp');
+                const isDashboardActive = !isWalletActive && !isMcpActive;
+
+                const isHtmlMode = pathname.includes('admin.api.html');
+                const dashboardHref = isHtmlMode ? '/admin.api.html#/' : '/api-docs';
+                const walletHref = isHtmlMode ? '/admin.api.html#/wallet' : '/api-docs/wallet';
+                const mcpHref = isHtmlMode ? '/admin.api.html#/mcp' : '/api-docs/mcp';
+
+                return (
+                  <>
+                    <Link
+                      href={dashboardHref}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                        isDashboardActive
+                          ? 'bg-[#313c4e] text-white font-semibold shadow-2xs'
+                          : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <LayoutDashboard className={`w-4 h-4 ${isDashboardActive ? 'text-white' : 'text-gray-400'}`} />
+                      <span>Dashboard</span>
+                    </Link>
+
+                    <Link
+                      href={walletHref}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                        isWalletActive
+                          ? 'bg-[#313c4e] text-white font-semibold shadow-2xs'
+                          : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <Wallet className={`w-4 h-4 ${isWalletActive ? 'text-white' : 'text-gray-400'}`} />
+                      <span>Wallet</span>
+                    </Link>
+
+                    <Link
+                      href={mcpHref}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                        isMcpActive
+                          ? 'bg-[#313c4e] text-white font-semibold shadow-2xs'
+                          : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <svg className={`w-4 h-4 shrink-0 ${isMcpActive ? 'text-white' : 'text-gray-400'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <line x1="12" y1="3" x2="12" y2="9" />
+                        <line x1="12" y1="15" x2="12" y2="21" />
+                        <line x1="3" y1="12" x2="9" y2="12" />
+                        <line x1="15" y1="12" x2="21" y2="12" />
+                      </svg>
+                      <span>MCP</span>
+                    </Link>
+                  </>
+                );
+              })()
+            ) : effectiveSection === 'content' ? (
+              /* Content Marketing Mode Menu (Exact 1:1 match to screenshot) */
+              <div className="space-y-0.5">
                 <Link
-                  href="/api-docs"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    (pathname === '/api-docs' || pathname === '/api' || pathname.includes('admin.api.html')) && !currentTab
-                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  href="/content-marketing?tab=editor"
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
+                    pathname === '/content-marketing' && currentTab !== 'idea-finder'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <LayoutDashboard className="w-4 h-4 text-gray-400" />
-                  <span>Dashboard</span>
+                  <Files className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Content Editor</span>
                 </Link>
 
                 <Link
-                  href="/api-docs?tab=wallet"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    currentTab === 'wallet'
-                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
+                  href="/content-marketing?tab=idea-finder"
+                  className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all duration-150 cursor-pointer ${
+                    currentTab === 'idea-finder'
+                      ? 'bg-[#394757] text-white font-semibold shadow-xs'
+                      : 'text-[#C4C9D3] hover:text-white hover:bg-[#2C384A]'
                   }`}
                 >
-                  <Wallet className="w-4 h-4 text-gray-400" />
-                  <span>Wallet</span>
+                  <Sparkles className="w-4 h-4 text-[#8C98A9] group-hover:text-white transition-colors shrink-0" />
+                  <span className="truncate">Content Idea Finder</span>
                 </Link>
-
-                <Link
-                  href="/api-docs/mcp"
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname.startsWith('/api-docs/mcp') || currentTab === 'mcp'
-                      ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
-                      : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Cpu className="w-4 h-4 text-gray-400" />
-                  <span>MCP</span>
-                </Link>
-              </>
+              </div>
             ) : effectiveSection === 'local-marketing' ? (
               /* Local Marketing Mode Menu (Exact match to Screenshots 1, 2, 5, 6) */
               <>
@@ -928,9 +1007,9 @@ export function SecondarySidebar() {
                 </Link>
 
                 <Link
-                  href="/local-marketing/audit"
+                  href="/local-marketing?tab=audit"
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname.startsWith('/local-marketing/audit') || currentTab === 'audit'
+                    currentTab === 'audit' || pathname.startsWith('/local-marketing/audit')
                       ? 'bg-[#394757] text-white font-medium'
                       : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
@@ -952,10 +1031,24 @@ export function SecondarySidebar() {
                   </button>
                   {expandedSections.gbp && (
                     <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
-                      <Link href="/local-marketing?tab=gbp-insights" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10">
+                      <Link
+                        href="/local-marketing?tab=gbp-insights"
+                        className={`block px-2 py-1 rounded text-xs transition-colors ${
+                          currentTab === 'gbp-insights'
+                            ? 'bg-[#394757] text-white font-medium'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                        }`}
+                      >
                         • GBP Insights
                       </Link>
-                      <Link href="/local-marketing?tab=gbp-posts" className="block px-2 py-1 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10">
+                      <Link
+                        href="/local-marketing?tab=gbp-posts"
+                        className={`block px-2 py-1 rounded text-xs transition-colors ${
+                          currentTab === 'gbp-posts'
+                            ? 'bg-[#394757] text-white font-medium'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                        }`}
+                      >
                         • GBP Posts
                       </Link>
                     </div>
@@ -963,9 +1056,9 @@ export function SecondarySidebar() {
                 </div>
 
                 <Link
-                  href="/local-marketing/business-listings"
+                  href="/local-marketing?tab=listings"
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[14px] transition-colors ${
-                    pathname.startsWith('/local-marketing/business-listings') || currentTab === 'listings'
+                    currentTab === 'listings' || pathname.startsWith('/local-marketing/business-listings')
                       ? 'bg-[#394757] text-white font-medium'
                       : 'text-[#C4C9D3] hover:text-white hover:bg-white/10'
                   }`}
@@ -988,28 +1081,32 @@ export function SecondarySidebar() {
                   {expandedSections.reviews !== false && (
                     <div className="ml-5 pl-2 border-l border-[#333D52] space-y-0.5 mt-0.5">
                       <Link
-                        href="/local-marketing/reviews/review-list"
+                        href="/local-marketing?tab=reviews"
                         className={`block px-2 py-1.5 rounded text-xs transition-colors ${
-                          pathname.includes('/review-list') || pathname === '/local-marketing/reviews'
-                            ? 'bg-white/10 text-white font-medium'
+                          currentTab === 'reviews' || pathname.includes('/review-list')
+                            ? 'bg-[#394757] text-white font-medium'
                             : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         • Review List
                       </Link>
                       <Link
-                        href="/local-marketing/reviews/analytics"
+                        href="/local-marketing?tab=analytics"
                         className={`block px-2 py-1.5 rounded text-xs transition-colors ${
-                          pathname.includes('/analytics')
-                            ? 'bg-white/10 text-white font-medium'
+                          currentTab === 'analytics' || pathname.includes('/analytics')
+                            ? 'bg-[#394757] text-white font-medium'
                             : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
                         }`}
                       >
                         • Analytics
                       </Link>
                       <Link
-                        href="/local-marketing/reviews/analytics#insights"
-                        className="block px-2 py-1.5 rounded text-xs text-gray-400 hover:text-gray-200 hover:bg-white/10"
+                        href="/local-marketing?tab=insights"
+                        className={`block px-2 py-1.5 rounded text-xs transition-colors ${
+                          currentTab === 'insights'
+                            ? 'bg-[#394757] text-white font-medium'
+                            : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                        }`}
                       >
                         • Insights
                       </Link>
@@ -1019,125 +1116,182 @@ export function SecondarySidebar() {
               </>
             ) : effectiveSection === 'agency' ? (
               /* Agency Pack Menu (Exact match to SE Ranking White Label screenshot) */
-              <>
-                {/* 1. White Label Accordion */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={(e) => toggleSection('white_label', e)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
-                          expandedSections.white_label ? 'rotate-0' : '-rotate-90'
-                        }`}
-                      />
-                      <span>White Label</span>
-                    </div>
-                  </button>
+              (() => {
+                const isWhiteLabelHtml = pathname.includes('whitelabel');
+                const isPersonalDomainActive = currentTab === 'personal-domain-names' || currentHash.includes('personal-domain-names');
+                const isLoginPageActive = currentTab === 'login-page' || currentHash.includes('login-page');
+                const isEmailSettingsActive = currentTab === 'email-settings' || currentHash.includes('email-settings');
+                const isReportBuilderActive = currentTab === 'report-builder' || currentHash.includes('reports') || currentHash.includes('report-builder');
+                const isInterfaceActive = !isPersonalDomainActive && !isLoginPageActive && !isEmailSettingsActive && !isReportBuilderActive;
 
-                  {expandedSections.white_label && (
-                    <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
-                      <Link
-                        href="/agency-pack?tab=interface-customization"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'interface-customization'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
+                const interfaceHref = isWhiteLabelHtml ? '/admin.user.whitelabel.html#/' : '/agency-pack?tab=interface-customization';
+                const domainHref = isWhiteLabelHtml ? '/admin.user.whitelabel.html#/personal-domain-names' : '/agency-pack?tab=personal-domain-names';
+                const loginHref = isWhiteLabelHtml ? '/admin.user.whitelabel.html#/login-page' : '/agency-pack?tab=login-page';
+                const emailHref = isWhiteLabelHtml ? '/admin.user.whitelabel.html#/email-settings' : '/agency-pack?tab=email-settings';
+                const reportHref = isWhiteLabelHtml ? '/admin.user.whitelabel.html#/reports' : '/agency-pack?tab=report-builder';
+
+                return (
+                  <>
+                    {/* 1. White Label Accordion */}
+                    <div>
+                      <button
+                        type="button"
+                        onClick={(e) => toggleSection('white_label', e)}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
                       >
-                        Interface customization
-                      </Link>
-                      <Link
-                        href="/agency-pack?tab=personal-domain-names"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'personal-domain-names'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        Personal domain names
-                      </Link>
-                      <Link
-                        href="/agency-pack?tab=login-page"
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'login-page' ||
-                          pathname.includes('whitelabel') ||
-                          (pathname.startsWith('/agency-pack') && (!currentTab || currentTab === 'login-page'))
-                            ? 'bg-[#1E293B] text-white font-semibold shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
-                        <span>Login page</span>
-                      </Link>
-                      <Link
-                        href="/agency-pack?tab=email-settings"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'email-settings'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        Email settings
-                      </Link>
-                      <Link
-                        href="/agency-pack?tab=report-builder"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'report-builder'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        Report Builder
-                      </Link>
+                        <div className="flex items-center gap-2.5">
+                          <svg className="w-4 h-4 text-gray-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect width="18" height="18" x="3" y="3" rx="2" />
+                            <path d="M3 9h18" />
+                            <path d="M9 21V9" />
+                          </svg>
+                          <span>White Label</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                            expandedSections.white_label ? 'rotate-0' : '-rotate-90'
+                          }`}
+                        />
+                      </button>
+
+                      {expandedSections.white_label && (
+                        <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
+                          <Link
+                            href={interfaceHref}
+                            className={`block px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isInterfaceActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            Interface customization
+                          </Link>
+                          <Link
+                            href={domainHref}
+                            className={`block px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isPersonalDomainActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            Personal domain names
+                          </Link>
+                          <Link
+                            href={loginHref}
+                            className={`block px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isLoginPageActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            Login page
+                          </Link>
+                          <Link
+                            href={emailHref}
+                            className={`block px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isEmailSettingsActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            Email settings
+                          </Link>
+                          <Link
+                            href={reportHref}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isReportBuilderActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {isReportBuilderActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
+                            )}
+                            <span>Report Builder</span>
+                          </Link>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
 
                 {/* 2. Lead Generator Accordion */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={(e) => toggleSection('lead_generator', e)}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
-                          expandedSections.lead_generator ? 'rotate-90' : 'rotate-0'
-                        }`}
-                      />
-                      <span>Lead Generator</span>
-                    </div>
-                  </button>
+                {(() => {
+                  const isLeadHtml = pathname.includes('lead_generator');
+                  const isLeadsActive = currentTab === 'lead-leads' || currentHash.includes('leads');
+                  const isWidgetsActive =
+                    currentTab === 'lead-widgets' ||
+                    currentTab === 'widgets' ||
+                    currentHash.includes('widgets') ||
+                    currentHash.includes('widget');
+                  const isSettingsActive = currentTab === 'lead-settings' || currentHash.includes('settings');
 
-                  {expandedSections.lead_generator && (
-                    <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
-                      <Link
-                        href="/agency-pack?tab=lead-generator"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'lead-generator'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
+                  const leadsHref = isLeadHtml ? '/admin.lead_generator.html#/leads' : '/agency-pack?tab=lead-leads';
+                  const widgetsHref = isLeadHtml ? '/admin.lead_generator.html#/widgets' : '/agency-pack?tab=lead-widgets';
+                  const settingsHref = isLeadHtml ? '/admin.lead_generator.html#/settings' : '/agency-pack?tab=lead-settings';
+
+                  return (
+                    <div>
+                      <button
+                        type="button"
+                        onClick={(e) => toggleSection('lead_generator', e)}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-[#C4C9D3] hover:text-white hover:bg-white/10 text-[14px] font-semibold cursor-pointer select-none transition-colors"
                       >
-                        Start
-                      </Link>
-                      <Link
-                        href="/agency-pack?tab=lead-widgets"
-                        className={`block px-3 py-1.5 rounded-md transition-colors ${
-                          currentTab === 'lead-widgets'
-                            ? 'bg-[#1E293B] text-white font-medium shadow-2xs'
-                            : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
-                        }`}
-                      >
-                        Widgets
-                      </Link>
+                        <div className="flex items-center gap-2.5">
+                          <UserCheck className="w-4 h-4 text-gray-400 shrink-0" />
+                          <span>Lead Generator</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
+                            expandedSections.lead_generator ? 'rotate-0' : '-rotate-90'
+                          }`}
+                        />
+                      </button>
+
+                      {expandedSections.lead_generator && (
+                        <div className="ml-5 pl-2.5 border-l border-[#333D52] space-y-1 mt-1 text-[13px]">
+                          <Link
+                            href={leadsHref}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isLeadsActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {isLeadsActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
+                            )}
+                            <span>Leads</span>
+                          </Link>
+                          <Link
+                            href={widgetsHref}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isWidgetsActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {isWidgetsActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
+                            )}
+                            <span>Widget</span>
+                          </Link>
+                          <Link
+                            href={settingsHref}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-md leading-tight transition-colors ${
+                              isSettingsActive
+                                ? 'bg-[#313c4e] text-white font-medium shadow-2xs'
+                                : 'text-[#A0ABC0] hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {isSettingsActive && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />
+                            )}
+                            <span>Settings</span>
+                          </Link>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
 
                 {/* 3. Users External Link */}
                 <Link
@@ -1163,7 +1317,9 @@ export function SecondarySidebar() {
                   <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
                 </Link>
               </>
-            ) : effectiveSection === 'projects' ? (
+            );
+          })()
+        ) : effectiveSection === 'projects' ? (
               /* Projects Mode Menu (Exact 1:1 match to uploaded SE Ranking screenshot) */
               <div className="space-y-0.5">
                 {/* 1. All Projects */}

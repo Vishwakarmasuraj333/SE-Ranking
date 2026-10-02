@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Info,
@@ -27,7 +28,17 @@ interface ClusterGroup {
   totalVolume: number;
 }
 
-export default function KeywordGrouperPage() {
+interface GroupingHistoryRecord {
+  id: string;
+  title: string;
+  date: string;
+  queryCount: number;
+  accuracy: number;
+  engine: string;
+  clusters: ClusterGroup[];
+}
+
+function KeywordGrouperContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tab = searchParams?.get('tab') || 'settings';
@@ -45,15 +56,73 @@ export default function KeywordGrouperPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Grouped clusters state
+  // Grouped clusters & history state
   const [clusters, setClusters] = useState<ClusterGroup[]>([]);
-  const [viewState, setViewState] = useState<'form' | 'results'>(tab === 'results' ? 'results' : 'form');
+  const [selectedReport, setSelectedReport] = useState<GroupingHistoryRecord | null>(null);
+  const [history, setHistory] = useState<GroupingHistoryRecord[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('se_ranking_grouping_history');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return [
+      {
+        id: 'group_init_1',
+        title: 'WorkComposer Remote Monitoring & Time Tracking',
+        date: 'Oct 02, 2026',
+        queryCount: 12,
+        accuracy: 3,
+        engine: 'Google',
+        clusters: [
+          {
+            id: 'c1',
+            name: 'Time Tracking & Timesheets',
+            totalVolume: 8400,
+            keywords: [
+              { text: 'best time tracking software for agencies', volume: 2900, similarity: 88 },
+              { text: 'employee time tracking app for mac', volume: 2400, similarity: 84 },
+              { text: 'automatic employee timesheet generator', volume: 1800, similarity: 82 },
+              { text: 'how to track billable client hours', volume: 1300, similarity: 79 },
+            ],
+          },
+          {
+            id: 'c2',
+            name: 'Productivity & Activity Monitoring',
+            totalVolume: 7200,
+            keywords: [
+              { text: 'remote worker activity monitor', volume: 2100, similarity: 86 },
+              { text: 'remote team productivity tracker', volume: 2800, similarity: 89 },
+              { text: 'work hours tracker with screenshots', volume: 1500, similarity: 83 },
+              { text: 'employee screenshot monitoring app', volume: 800, similarity: 80 },
+            ],
+          },
+          {
+            id: 'c3',
+            name: 'Attendance & Shift Management',
+            totalVolume: 5100,
+            keywords: [
+              { text: 'gps employee attendance app', volume: 1900, similarity: 85 },
+              { text: 'attendance punch in punch out software', volume: 2100, similarity: 87 },
+              { text: 'automated attendance tracking software', volume: 1100, similarity: 81 },
+            ],
+          },
+        ],
+      },
+    ];
+  });
 
   useEffect(() => {
-    if (tab === 'results' && clusters.length > 0) {
-      setViewState('results');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('se_ranking_grouping_history', JSON.stringify(history));
+      } catch {
+        // ignore
+      }
     }
-  }, [tab, clusters.length]);
+  }, [history]);
 
   const queryLines = queriesText
     .split(/[\r\n]+/)
@@ -137,17 +206,31 @@ export default function KeywordGrouperPage() {
         })
       );
 
+      const newRecord: GroupingHistoryRecord = {
+        id: `group_${Date.now()}`,
+        title: reportTitle.trim() || 'Custom Clustered Search Queries',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+        queryCount: queryLines.length,
+        accuracy,
+        engine: searchEngine,
+        clusters: clusterList,
+      };
+
       setClusters(clusterList);
+      setHistory((prev) => [newRecord, ...prev]);
+      setSelectedReport(newRecord);
       setIsProcessing(false);
-      setViewState('results');
+      router.push('/keyword-grouper?tab=results');
     }, 1200);
   };
 
-  const handleExportCsv = () => {
+  const handleExportCsv = (record?: GroupingHistoryRecord) => {
+    const targetClusters = record ? record.clusters : (selectedReport ? selectedReport.clusters : clusters);
+    const title = record ? record.title : (selectedReport ? selectedReport.title : reportTitle);
     const headers = ['Cluster Group', 'Keyword', 'Search Volume', 'SERP Similarity %'];
     const rows: string[][] = [];
 
-    clusters.forEach((c) => {
+    targetClusters.forEach((c) => {
       c.keywords.forEach((k) => {
         rows.push([`"${c.name}"`, `"${k.text}"`, String(k.volume), `${k.similarity}%`]);
       });
@@ -161,12 +244,21 @@ export default function KeywordGrouperPage() {
     link.setAttribute('href', encodedUri);
     link.setAttribute(
       'download',
-      `${(reportTitle || 'keyword_clusters').replace(/\s+/g, '_')}_results.csv`
+      `${(title || 'keyword_clusters').replace(/\s+/g, '_')}_results.csv`
     );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
+  const handleDeleteHistory = (id: string) => {
+    setHistory((prev) => prev.filter((item) => item.id !== id));
+    if (selectedReport?.id === id) {
+      setSelectedReport(null);
+    }
+  };
+
+  const activeClusters = selectedReport ? selectedReport.clusters : clusters;
 
   return (
     <div className="flex-1 overflow-y-auto bg-white min-h-[calc(100vh-80px)] text-gray-900 select-none pb-20 relative">
@@ -179,96 +271,195 @@ export default function KeywordGrouperPage() {
         className="hidden"
       />
 
+      {/* ========================================================================= */}
+      {/* 1. RESULTS TAB VIEW: Keyword grouping history matching Screenshot 8 */}
+      {/* ========================================================================= */}
+      {tab === 'results' ? (
+        selectedReport ? (
+          /* Cluster detail drill-down */
+          <div className="max-w-5xl mx-auto p-6 sm:p-8 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReport(null)}
+                    className="text-gray-500 hover:text-gray-900 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span>Back to History</span>
+                  </button>
+                  <span className="text-gray-300">|</span>
+                  <span className="text-xs text-gray-500 font-medium">Clustering Results</span>
+                </div>
+                <h1 className="text-xl font-bold text-gray-900 tracking-tight mt-1">
+                  {selectedReport.title}
+                </h1>
+                <div className="text-xs text-gray-500 mt-0.5">
+                  {selectedReport.clusters.length} Groups • {selectedReport.queryCount} Queries • Accuracy Level {selectedReport.accuracy} • {selectedReport.engine}
+                </div>
+              </div>
 
-      {viewState === 'results' && clusters.length > 0 ? (
-        /* Results View */
-        <div className="max-w-5xl mx-auto p-6 sm:p-8 space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 pb-4">
-            <div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setViewState('form')}
-                  className="text-gray-500 hover:text-gray-900 text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  onClick={() => handleExportCsv(selectedReport)}
+                  className="px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Settings</span>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
                 </button>
-                <span className="text-gray-300">|</span>
-                <span className="text-xs text-gray-500 font-medium">Clustering Results</span>
-              </div>
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight mt-1">
-                {reportTitle || 'Clustered Keywords Report'}
-              </h1>
-              <div className="text-xs text-gray-500 mt-0.5">
-                {clusters.length} Groups • {queryCount} Queries • Accuracy Level {accuracy} ({method} Method)
+                <Link
+                  href="/keyword-grouper"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                >
+                  New Grouping
+                </Link>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleExportCsv}
-                className="px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </button>
-            </div>
-          </div>
+            {/* Clusters Grid */}
+            <div className="space-y-4">
+              {selectedReport.clusters.map((cluster, idx) => (
+                <div
+                  key={cluster.id}
+                  className="bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden"
+                >
+                  <div className="p-4 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-md bg-blue-100 text-[#0B69FF] font-bold text-xs flex items-center justify-center">
+                        {idx + 1}
+                      </span>
+                      <h3 className="text-sm font-bold text-gray-900">{cluster.name}</h3>
+                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-[#0B69FF] font-semibold border border-blue-200">
+                        {cluster.keywords.length} queries
+                      </span>
+                    </div>
 
-          {/* Clusters Grid */}
-          <div className="space-y-4">
-            {clusters.map((cluster, idx) => (
-              <div
-                key={cluster.id}
-                className="bg-white rounded-xl border border-gray-200 shadow-2xs overflow-hidden"
-              >
-                <div className="p-4 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-md bg-blue-100 text-[#0B69FF] font-bold text-xs flex items-center justify-center">
-                      {idx + 1}
-                    </span>
-                    <h3 className="text-sm font-bold text-gray-900">{cluster.name}</h3>
-                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-blue-50 text-[#0B69FF] font-semibold border border-blue-200">
-                      {cluster.keywords.length} queries
-                    </span>
-                  </div>
-
-                  {searchVolumeCheck === 'check' && (
                     <div className="text-xs font-semibold text-gray-700">
                       Total Volume:{' '}
                       <span className="text-blue-600 font-bold">
                         {cluster.totalVolume.toLocaleString()}
                       </span>
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                <div className="divide-y divide-gray-100 text-xs">
-                  {cluster.keywords.map((kw, kIdx) => (
-                    <div
-                      key={kIdx}
-                      className="px-4 py-2.5 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
-                    >
-                      <div className="font-medium text-gray-900">{kw.text}</div>
-                      <div className="flex items-center gap-4 text-gray-500">
-                        {searchVolumeCheck === 'check' && (
+                  <div className="divide-y divide-gray-100 text-xs">
+                    {cluster.keywords.map((kw, kIdx) => (
+                      <div
+                        key={kIdx}
+                        className="px-4 py-2.5 flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+                      >
+                        <div className="font-medium text-gray-900">{kw.text}</div>
+                        <div className="flex items-center gap-4 text-gray-500">
                           <div className="text-gray-900 font-semibold">
                             {kw.volume.toLocaleString()} vol
                           </div>
-                        )}
-                        <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold border border-emerald-200">
-                          {kw.similarity}% match
-                        </span>
+                          <div className="text-emerald-600 font-semibold">
+                            {kw.similarity}% similarity
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Keyword grouping history table matching Screenshot 8 */
+          <div className="w-full">
+            {/* Top header matching Screenshot 8 */}
+            <div className="p-6 pb-2 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-[16px] font-semibold text-gray-900">
+                    Keyword grouping history
+                  </h1>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    The last 100 grouping results are stored.
+                  </p>
+                </div>
+                <Link
+                  href="/keyword-grouper"
+                  className="px-4 py-2 bg-[#0B69FF] hover:bg-[#005FE0] text-white text-xs font-bold rounded-md transition-colors uppercase tracking-wider shadow-xs"
+                >
+                  + New Grouping
+                </Link>
+              </div>
+            </div>
+
+            {/* History Table matching Screenshot 8 columns */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-[#2E7BE6] text-white text-[12px] font-medium">
+                    <th className="py-2.5 px-4 font-normal">Title</th>
+                    <th className="py-2.5 px-4 font-normal">Date</th>
+                    <th className="py-2.5 px-4 font-normal">No. of search queries</th>
+                    <th className="py-2.5 px-4 font-normal">Accuracy</th>
+                    <th className="py-2.5 px-4 font-normal">Search engine</th>
+                    <th className="py-2.5 px-4 font-normal text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {history.length > 0 ? (
+                    history.map((item) => (
+                      <tr key={item.id} className="hover:bg-blue-50/40 transition-colors">
+                        <td className="py-3 px-4 font-medium text-gray-900">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedReport(item)}
+                            className="text-[#0B69FF] hover:underline text-left cursor-pointer font-semibold"
+                          >
+                            {item.title}
+                          </button>
+                        </td>
+                        <td className="py-3 px-4 text-gray-600">{item.date}</td>
+                        <td className="py-3 px-4 text-gray-700 font-mono">{item.queryCount}</td>
+                        <td className="py-3 px-4 text-gray-700">{item.accuracy}</td>
+                        <td className="py-3 px-4 text-gray-700">{item.engine}</td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-3 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedReport(item)}
+                              className="text-[#0B69FF] hover:underline cursor-pointer font-medium"
+                            >
+                              View
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleExportCsv(item)}
+                              className="text-gray-500 hover:text-gray-800 cursor-pointer"
+                              title="Export CSV"
+                            >
+                              Export
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteHistory(item.id)}
+                              className="text-rose-500 hover:text-rose-700 cursor-pointer"
+                              title="Delete record"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="py-12 text-center text-gray-400">
+                        No keyword grouping results stored yet.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
       ) : (
         /* Settings / Form View matching Screenshot 1, 2, 3 exactly */
         <div className="max-w-4xl mx-auto p-6 sm:p-8 space-y-6">
@@ -530,5 +721,13 @@ export default function KeywordGrouperPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function KeywordGrouperPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-xs text-gray-500">Loading Keyword Grouper...</div>}>
+      <KeywordGrouperContent />
+    </Suspense>
   );
 }

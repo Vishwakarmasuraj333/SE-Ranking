@@ -1045,34 +1045,7 @@ export function BacklinkCheckerOverview({
         </div>
       </div>
 
-      {/* FOOTER LINKS */}
-      <footer className="pt-6 pb-2 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-4">
-        <div className="flex items-center gap-2">
-          <svg className="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-          </svg>
-          <span className="font-semibold text-slate-700 dark:text-slate-300">
-            SE Ranking • Backlink Engine
-          </span>
-        </div>
-        <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-blue-600 transition">
-            Report a bug
-          </a>
-          <a href="#" className="hover:text-blue-600 transition">
-            Affiliates
-          </a>
-          <a href="#" className="hover:text-blue-600 transition">
-            API
-          </a>
-          <a href="#" className="hover:text-blue-600 transition">
-            What&apos;s new
-          </a>
-          <a href="#" className="hover:text-blue-600 transition">
-            Help
-          </a>
-        </div>
-      </footer>
+
     </div>
   );
 }

@@ -26,6 +26,7 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
+import { useAuth } from '@/context/AuthContext';
 import { appWrapData } from '@/lib/appWrapData';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 import { ReportBugModal } from '@/components/modals/ReportBugModal';
@@ -68,85 +69,28 @@ export function TopHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { isMobileDrawerOpen, setIsMobileDrawerOpen } = useApp();
+  const { user, logout } = useAuth();
 
-  // Dynamic User Profile state
-  const [userProfile, setUserProfile] = useState({
-    name: appWrapData.account.full_name || 'Suraj Vishwakarma',
-    email: appWrapData.account.email || 'support@workcomposer.com',
-    id: appWrapData.account.id || 5269343,
-    initials: 'SV',
-  });
+  // Dynamic User Profile derived from real authentication context
+  const displayName = user?.fullName || user?.firstName ? `${user?.firstName || ''} ${user?.lastName || ''}`.trim() : (user?.email || 'User');
+  const displayEmail = user?.email || '';
+  const displayInitials = user?.firstName || user?.lastName 
+    ? `${user?.firstName?.[0] || ''}${user?.lastName?.[0] || ''}`.toUpperCase()
+    : displayName.slice(0, 2).toUpperCase() || 'UR';
 
-  // Read user profile dynamically from session / localStorage / cookies
-  useEffect(() => {
-    try {
-      let name = '';
-      let email = '';
-      let id = 5269343;
+  const userProfile = {
+    name: displayName,
+    email: displayEmail,
+    id: user?.id || 'default',
+    initials: displayInitials,
+  };
 
-      const storedUser = localStorage.getItem('seranking_user');
-      if (storedUser) {
-        try {
-          const parsed = JSON.parse(storedUser);
-          if (parsed.name) name = parsed.name;
-          if (parsed.email) email = parsed.email;
-          if (parsed.id) id = parsed.id;
-        } catch {
-          // ignore
-        }
-      }
-
-      if (!name) {
-        const storedName = localStorage.getItem('user_name');
-        if (storedName) name = storedName;
-      }
-      if (!email) {
-        const storedEmail = localStorage.getItem('user_email');
-        if (storedEmail) email = storedEmail;
-      }
-
-      if (typeof document !== 'undefined') {
-        const matchEmail = document.cookie.match(/user_email=([^;]+)/);
-        if (matchEmail && !email) email = decodeURIComponent(matchEmail[1]);
-        const matchName = document.cookie.match(/user_name=([^;]+)/);
-        if (matchName && !name) name = decodeURIComponent(matchName[1]);
-      }
-
-      if (!name) name = appWrapData.account.full_name || 'Suraj Vishwakarma';
-      if (!email) email = appWrapData.account.email || 'support@workcomposer.com';
-
-      const parts = name.trim().split(/\s+/);
-      const initials = parts.length > 1
-        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-        : name.slice(0, 2).toUpperCase() || 'SV';
-
-      setUserProfile({
-        name,
-        email,
-        id,
-        initials,
-      });
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsProfileOpen(false);
-    if (typeof document !== 'undefined') {
-      document.cookie = 'seranking_auth_status=; path=/; max-age=0;';
-      document.cookie = 'user_email=; path=/; max-age=0;';
-      document.cookie = 'user_name=; path=/; max-age=0;';
-      document.cookie = 'user_domain=; path=/; max-age=0;';
-      document.cookie = 'seranking_user=; path=/; max-age=0;';
-    }
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('seranking_auth_status');
-      sessionStorage.removeItem('seranking_auth_status');
-      localStorage.removeItem('seranking_user');
-      localStorage.removeItem('user_email');
-      localStorage.removeItem('user_name');
-      window.dispatchEvent(new CustomEvent('seranking_auth_change'));
+    try {
+      await logout();
+    } catch {
+      // fallback
     }
     router.push('/login');
   };

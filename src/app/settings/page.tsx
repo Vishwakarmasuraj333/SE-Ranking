@@ -1,12 +1,12 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { SEWizardView } from '@/components/settings/SEWizardView';
+import { GlobalSettingsView } from '@/components/settings/GlobalSettingsView';
 
-export default function ProjectSettingsWizardPage() {
+export default function SettingsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#F4F6F9]" />}>
-      <SEWizardView />
+    <Suspense fallback={<div className="min-h-screen bg-[#F4F6F9] p-8 text-xs text-gray-500">Loading settings...</div>}>
+      <GlobalSettingsView />
     </Suspense>
   );
 }

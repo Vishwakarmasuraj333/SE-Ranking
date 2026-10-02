@@ -51,8 +51,16 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
 
-    const targetEmail = email.trim() || 'admin@seranking.com';
-    const targetPassword = password || 'AdminPassword123#';
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    if (!password) {
+      setError('Please enter your password.');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -60,7 +68,7 @@ export default function LoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail, password: targetPassword }),
+        body: JSON.stringify({ email: cleanEmail, password }),
       });
 
       const data = await res.json();
@@ -74,15 +82,15 @@ export default function LoginPage() {
         localStorage.setItem('auth_token', data.token || 'auth-token-admin');
         localStorage.setItem(
           'seranking_user',
-          JSON.stringify(data.user || { email: targetEmail, name: 'Admin User' })
+          JSON.stringify(data.user || { email: cleanEmail, name: 'Admin User' })
         );
-        localStorage.setItem('user_email', targetEmail);
+        localStorage.setItem('user_email', cleanEmail);
         localStorage.setItem('user_name', data.user?.name || 'Admin User');
       }
 
       if (typeof document !== 'undefined') {
         document.cookie = `seranking_auth_status=logged_in; path=/; max-age=86400;`;
-        document.cookie = `user_email=${encodeURIComponent(targetEmail)}; path=/; max-age=86400;`;
+        document.cookie = `user_email=${encodeURIComponent(cleanEmail)}; path=/; max-age=86400;`;
         document.cookie = `user_name=${encodeURIComponent(data.user?.name || 'Admin User')}; path=/; max-age=86400;`;
       }
 
@@ -104,9 +112,22 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = async (_provider: string) => {
+  const handleSocialLogin = async (provider: string) => {
     setIsLoading(true);
     setError(null);
+
+    if (provider === 'Google') {
+      try {
+        const res = await fetch('/api/auth/google');
+        const data = await res.json();
+        if (data.authUrl) {
+          window.location.href = data.authUrl;
+          return;
+        }
+      } catch (e) {
+        console.warn('Google OAuth prompt redirect fallback:', e);
+      }
+    }
 
     try {
       const res = await fetch('/api/auth/login', {

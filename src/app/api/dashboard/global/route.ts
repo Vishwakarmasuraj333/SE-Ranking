@@ -1,55 +1,67 @@
 import { NextResponse } from 'next/server';
 import { GlobalDashboardDto, GlobalDashboardProjectSummaryDto } from '@/lib/types';
 import { prisma } from '@/lib/db/prisma';
+import { getSessionFromCookie } from '@/lib/server/auth';
 
 export async function GET() {
   try {
+    const session = await getSessionFromCookie();
+    const userId = session?.user?.id;
+
+    const whereClause: any = {
+      isArchived: false,
+      deletedAt: null,
+    };
+
+    if (userId) {
+      whereClause.userId = userId;
+    }
+
     const dbProjects = await prisma.project.findMany({
-      where: { isArchived: false },
+      where: whereClause,
       include: {
         _count: {
           select: {
-            keywords: true,
-            tasks: true,
+            keywords: { where: { deletedAt: null } },
+            tasks: { where: { deletedAt: null } },
+            auditIssues: { where: { deletedAt: null } },
           },
         },
+        integrations: true,
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    const projects: GlobalDashboardProjectSummaryDto[] = dbProjects.map((p, idx) => ({
-      projectId: p.id,
-      name: p.name || p.domain,
-      primaryDomain: p.domain,
-      healthScore: 88 - (idx * 6) > 40 ? 88 - (idx * 6) : 75,
-      trackedKeywords: p._count.keywords || (idx === 0 ? 450 : 25),
-      openTasks: p._count.tasks || (idx === 0 ? 5 : 2),
-      overdueTasks: 0,
-      gscSyncStatus: 'Active',
-    }));
-
-    // If no projects in database, use standard default
-    if (projects.length === 0) {
-      projects.push({
-        projectId: 'workco',
-        name: 'workcomposer.com',
-        primaryDomain: 'https://www.workcomposer.com',
-        healthScore: 88,
-        trackedKeywords: 450,
-        openTasks: 5,
+    const projects: GlobalDashboardProjectSummaryDto[] = dbProjects.map((p) => {
+      const gscIntegration = p.integrations?.find(
+        (i) => (i.provider === 'google_search_console' || i.provider === 'gsc') && i.status === 'connected'
+      );
+      const calculatedHealth = Math.max(0, 100 - (p._count.auditIssues * 5));
+      return {
+        projectId: p.id,
+        name: p.name || p.domain,
+        primaryDomain: p.domain,
+        healthScore: calculatedHealth,
+        trackedKeywords: p._count.keywords,
+        openTasks: p._count.tasks,
         overdueTasks: 0,
-        gscSyncStatus: 'Active',
-      });
-    }
+        gscSyncStatus: gscIntegration ? 'Active' : 'Not Connected',
+      };
+    });
+
+    const totalProjects = projects.length;
+    const totalTrackedKeywords = projects.reduce((acc, p) => acc + p.trackedKeywords, 0);
+    const totalOpenTasks = projects.reduce((acc, p) => acc + p.openTasks, 0);
+    const averageHealthScore = totalProjects > 0
+      ? Math.round(projects.reduce((acc, p) => acc + (p.healthScore || 0), 0) / totalProjects)
+      : 0;
 
     const data: GlobalDashboardDto = {
-      totalProjects: projects.length,
-      totalTrackedKeywords: projects.reduce((acc, p) => acc + p.trackedKeywords, 0),
-      averageHealthScore: Math.round(
-        projects.reduce((acc, p) => acc + (p.healthScore || 0), 0) / projects.length
-      ),
-      totalOpenTasks: projects.reduce((acc, p) => acc + p.openTasks, 0),
-      totalOverdueTasks: projects.reduce((acc, p) => acc + p.overdueTasks, 0),
+      totalProjects,
+      totalTrackedKeywords,
+      averageHealthScore,
+      totalOpenTasks,
+      totalOverdueTasks: 0,
       projects,
     };
 

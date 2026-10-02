@@ -37,65 +37,20 @@ export type WizardTab =
   | 'competitors'
   | 'analytics';
 
+import { getAllCountries, getCountryInfo } from '@/lib/countryUtils';
+import { CountryFlag } from '@/components/ui/CountryFlag';
+
 interface CountryItem {
   code: string;
   name: string;
   flag: string;
 }
 
-const COUNTRIES_LIST: CountryItem[] = [
-  { code: 'in', name: 'India', flag: '🇮🇳' },
-  { code: 'us', name: 'United States of America', flag: '🇺🇸' },
-  { code: 'af', name: 'Afghanistan', flag: '🇦🇫' },
-  { code: 'al', name: 'Albania', flag: '🇦🇱' },
-  { code: 'dz', name: 'Algeria', flag: '🇩🇿' },
-  { code: 'as', name: 'American Samoa', flag: '🇦🇸' },
-  { code: 'ad', name: 'Andorra', flag: '🇦🇩' },
-  { code: 'ao', name: 'Angola', flag: '🇦🇴' },
-  { code: 'ai', name: 'Anguilla', flag: '🇦🇮' },
-  { code: 'aq', name: 'Antarctica', flag: '🇦🇶' },
-  { code: 'ag', name: 'Antigua and Barbuda', flag: '🇦🇬' },
-  { code: 'ar', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'am', name: 'Armenia', flag: '🇦🇲' },
-  { code: 'aw', name: 'Aruba', flag: '🇦🇼' },
-  { code: 'au', name: 'Australia', flag: '🇦🇺' },
-  { code: 'at', name: 'Austria', flag: '🇦🇹' },
-  { code: 'az', name: 'Azerbaijan', flag: '🇦🇿' },
-  { code: 'bh', name: 'Bahrain', flag: '🇧🇭' },
-  { code: 'bd', name: 'Bangladesh', flag: '🇧🇩' },
-  { code: 'be', name: 'Belgium', flag: '🇧🇪' },
-  { code: 'br', name: 'Brazil', flag: '🇧🇷' },
-  { code: 'ca', name: 'Canada', flag: '🇨🇦' },
-  { code: 'cn', name: 'China', flag: '🇨🇳' },
-  { code: 'dk', name: 'Denmark', flag: '🇩🇰' },
-  { code: 'eg', name: 'Egypt', flag: '🇪🇬' },
-  { code: 'fi', name: 'Finland', flag: '🇫🇮' },
-  { code: 'fr', name: 'France', flag: '🇫🇷' },
-  { code: 'de', name: 'Germany', flag: '🇩🇪' },
-  { code: 'id', name: 'Indonesia', flag: '🇮🇩' },
-  { code: 'ie', name: 'Ireland', flag: '🇮🇪' },
-  { code: 'il', name: 'Israel', flag: '🇮🇱' },
-  { code: 'it', name: 'Italy', flag: '🇮🇹' },
-  { code: 'jp', name: 'Japan', flag: '🇯🇵' },
-  { code: 'my', name: 'Malaysia', flag: '🇲🇾' },
-  { code: 'mx', name: 'Mexico', flag: '🇲🇽' },
-  { code: 'nl', name: 'Netherlands', flag: '🇳🇱' },
-  { code: 'nz', name: 'New Zealand', flag: '🇳🇿' },
-  { code: 'no', name: 'Norway', flag: '🇳🇴' },
-  { code: 'pk', name: 'Pakistan', flag: '🇵🇰' },
-  { code: 'ph', name: 'Philippines', flag: '🇵🇭' },
-  { code: 'pl', name: 'Poland', flag: '🇵🇱' },
-  { code: 'pt', name: 'Portugal', flag: '🇵🇹' },
-  { code: 'sa', name: 'Saudi Arabia', flag: '🇸🇦' },
-  { code: 'sg', name: 'Singapore', flag: '🇸🇬' },
-  { code: 'za', name: 'South Africa', flag: '🇿🇦' },
-  { code: 'kr', name: 'South Korea', flag: '🇰🇷' },
-  { code: 'es', name: 'Spain', flag: '🇪🇸' },
-  { code: 'se', name: 'Sweden', flag: '🇸🇪' },
-  { code: 'ch', name: 'Switzerland', flag: '🇨🇭' },
-  { code: 'ae', name: 'United Arab Emirates', flag: '🇦🇪' },
-  { code: 'gb', name: 'United Kingdom', flag: '🇬🇧' },
-];
+const COUNTRIES_LIST: CountryItem[] = getAllCountries().map((c) => ({
+  code: c.flagCode,
+  name: c.name,
+  flag: c.code,
+}));
 
 export function SEWizardView() {
   const router = useRouter();
@@ -185,18 +140,37 @@ export function SEWizardView() {
   const [selectedLocation, setSelectedLocation] = useState('');
   const countryDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Added search engines list
-  const [enginesList, setEnginesList] = useState([
-    {
-      id: 'eng-1',
-      engine: 'Google India',
-      location: 'India',
-      flag: '🇮🇳',
-      language: 'EN',
-      device: 'Desktop',
-    },
-  ]);
+  // Search engines state from database
+  const [enginesList, setEnginesList] = useState<
+    Array<{
+      id: string;
+      engine: string;
+      name?: string;
+      location: string;
+      country?: string;
+      countryCode: string;
+      language: string;
+      device: string;
+    }>
+  >([]);
   const [engineSearchFilter, setEngineSearchFilter] = useState('');
+  const [isLoadingEngines, setIsLoadingEngines] = useState(false);
+
+  // Load real engines from database for current project
+  useEffect(() => {
+    if (currentProject.id) {
+      setIsLoadingEngines(true);
+      fetch(`/api/projects/${currentProject.id}/engines`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.engines) {
+            setEnginesList(data.engines);
+          }
+        })
+        .catch(() => null)
+        .finally(() => setIsLoadingEngines(false));
+    }
+  }, [currentProject.id]);
 
   // Close country dropdown on click outside
   useEffect(() => {
@@ -210,29 +184,38 @@ export function SEWizardView() {
   }, []);
 
   const handleAddSearchEngine = async () => {
-    const newEng = {
-      id: `eng-${Date.now()}`,
-      engine: `${selectedEngineType} ${selectedCountry.name}`,
-      location: selectedLocation || selectedCountry.name,
-      flag: selectedCountry.flag,
-      language: 'EN',
-      device: selectedDevice === 'desktop' ? 'Desktop' : 'Mobile',
-    };
+    if (!currentProject.id) return;
 
-    setEnginesList((prev) => [...prev, newEng]);
-
-    // Save to backend
-    if (currentProject.id) {
-      await fetch(`/api/projects/${currentProject.id}/engines`, {
+    try {
+      const res = await fetch(`/api/projects/${currentProject.id}/engines`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          engine: selectedEngineType,
+          engine: selectedEngineType.toLowerCase(),
           country: selectedCountry.name,
           countryCode: selectedCountry.code,
           location: selectedLocation || selectedCountry.name,
           device: selectedDevice,
         }),
+      });
+
+      const data = await res.json();
+      if (data?.engine) {
+        setEnginesList((prev) => [...prev, data.engine]);
+        setSelectedLocation('');
+      }
+    } catch (e) {
+      console.error('Failed to add search engine:', e);
+    }
+  };
+
+  const handleDeleteSearchEngine = async (engineId: string) => {
+    setEnginesList((prev) => prev.filter((e) => e.id !== engineId));
+    if (currentProject.id) {
+      await fetch(`/api/projects/${currentProject.id}/engines`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ engineId }),
       }).catch(() => null);
     }
   };
@@ -257,7 +240,7 @@ export function SEWizardView() {
       group: string;
     }>
   >([]);
-  const [totalKeywordsCount, setTotalKeywordsCount] = useState(354);
+  const [totalKeywordsCount, setTotalKeywordsCount] = useState(0);
   const [isKeywordsExpanded, setIsKeywordsExpanded] = useState(true);
   const [keywordSearchQuery, setKeywordSearchQuery] = useState('');
   const [isEngineFilterDropdownOpen, setIsEngineFilterDropdownOpen] = useState(false);
@@ -272,7 +255,7 @@ export function SEWizardView() {
         .then((data) => {
           if (data?.keywords) {
             setKeywordsList(data.keywords);
-            setTotalKeywordsCount(data.totalCount || 354);
+            setTotalKeywordsCount(data.totalCount ?? data.keywords.length ?? 0);
           }
         })
         .catch(() => null);
@@ -299,7 +282,7 @@ export function SEWizardView() {
   const remainingLimits = Math.max(0, 750 - totalKeywordsCount);
 
   const handleAddKeywords = async () => {
-    if (enteredCount === 0) return;
+    if (enteredCount === 0 || !currentProject.id) return;
 
     try {
       const res = await fetch(`/api/projects/${currentProject.id}/keywords`, {
@@ -315,7 +298,7 @@ export function SEWizardView() {
       const data = await res.json();
       if (data?.success) {
         setKeywordsList(data.keywords || []);
-        setTotalKeywordsCount(data.totalCount || totalKeywordsCount + enteredCount);
+        setTotalKeywordsCount(data.totalCount || (totalKeywordsCount + enteredCount));
         setKeywordTextarea('');
       }
     } catch (e) {
@@ -331,6 +314,172 @@ export function SEWizardView() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ keywordId: id }),
     }).catch(() => null);
+  };
+
+  // ----------------------------------------------------
+  // COMPETITORS TAB STATE & HANDLERS
+  // ----------------------------------------------------
+  const [competitorTextarea, setCompetitorTextarea] = useState('');
+  const [competitorsList, setCompetitorsList] = useState<
+    Array<{
+      id: string;
+      domain: string;
+      name?: string;
+      totalKeywords?: number;
+      commonKeywordsCount?: number;
+    }>
+  >([]);
+  const [isLoadingCompetitors, setIsLoadingCompetitors] = useState(false);
+  const [isAddingCompetitors, setIsAddingCompetitors] = useState(false);
+
+  useEffect(() => {
+    if (currentProject.id) {
+      setIsLoadingCompetitors(true);
+      fetch(`/api/projects/${currentProject.id}/competitors`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.data) {
+            setCompetitorsList(data.data);
+          }
+        })
+        .catch(() => null)
+        .finally(() => setIsLoadingCompetitors(false));
+    }
+  }, [currentProject.id]);
+
+  const handleAddCompetitors = async () => {
+    const lines = competitorTextarea
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    if (lines.length === 0 || !currentProject.id) return;
+
+    setIsAddingCompetitors(true);
+    try {
+      for (const domain of lines) {
+        const res = await fetch(`/api/projects/${currentProject.id}/competitors`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain }),
+        });
+        const data = await res.json();
+        if (data?.data) {
+          setCompetitorsList((prev) => {
+            if (prev.some((c) => c.domain === data.data.domain)) return prev;
+            return [...prev, data.data];
+          });
+        }
+      }
+      setCompetitorTextarea('');
+    } catch (e) {
+      console.error('Failed to add competitor:', e);
+    } finally {
+      setIsAddingCompetitors(false);
+    }
+  };
+
+  const handleDeleteCompetitor = async (competitorId: string) => {
+    setCompetitorsList((prev) => prev.filter((c) => c.id !== competitorId));
+    if (currentProject.id) {
+      await fetch(`/api/projects/${currentProject.id}/competitors`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: competitorId }),
+      }).catch(() => null);
+    }
+  };
+
+  // ----------------------------------------------------
+  // GENERAL SETTINGS TAB STATE & HANDLERS
+  // ----------------------------------------------------
+  const [generalName, setGeneralName] = useState(currentProject.name || '');
+  const [generalUrl, setGeneralUrl] = useState(
+    (currentProject as any).websiteUrl || (currentProject as any).url || currentProject.domain || ''
+  );
+  const [generalWeeklyReport, setGeneralWeeklyReport] = useState(true);
+  const [generalAudit, setGeneralAudit] = useState(true);
+  const [generalBacklinks, setGeneralBacklinks] = useState(true);
+  const [isSavingGeneral, setIsSavingGeneral] = useState(false);
+  const [generalSaveSuccess, setGeneralSaveSuccess] = useState('');
+
+  // Sync general settings when currentProject changes
+  useEffect(() => {
+    if (currentProject) {
+      setGeneralName(currentProject.name || '');
+      setGeneralUrl(
+        (currentProject as any).websiteUrl || (currentProject as any).url || currentProject.domain || ''
+      );
+    }
+  }, [currentProject]);
+
+  const handleSaveGeneral = async () => {
+    if (!currentProject.id) return;
+    setIsSavingGeneral(true);
+    setGeneralSaveSuccess('');
+    try {
+      const res = await fetch(`/api/projects/${currentProject.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: generalName,
+          websiteUrl: generalUrl,
+          weeklyReport: generalWeeklyReport,
+          websiteAudit: generalAudit,
+          backlinkReport: generalBacklinks,
+        }),
+      });
+      if (res.ok) {
+        setGeneralSaveSuccess('Settings saved successfully');
+        refreshProjects();
+        setTimeout(() => setGeneralSaveSuccess(''), 3000);
+      }
+    } catch {
+      // error
+    } finally {
+      setIsSavingGeneral(false);
+    }
+  };
+
+  // ----------------------------------------------------
+  // ANALYTICS / INTEGRATIONS STATE & HANDLERS
+  // ----------------------------------------------------
+  const [integrationsList, setIntegrationsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (currentProject.id) {
+      fetch(`/api/integrations?projectId=${currentProject.id}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.availableProviders) {
+            setIntegrationsList(data.availableProviders);
+          }
+        })
+        .catch(() => null);
+    }
+  }, [currentProject.id]);
+
+  const handleToggleIntegration = async (providerId: string, currentStatus: boolean) => {
+    if (!currentProject.id) return;
+    try {
+      const res = await fetch('/api/integrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: currentProject.id,
+          provider: providerId,
+          isActive: !currentStatus,
+        }),
+      });
+      if (res.ok) {
+        setIntegrationsList((prev) =>
+          prev.map((item) =>
+            item.id === providerId ? { ...item, connected: !currentStatus } : item
+          )
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // Filtered country list
@@ -501,7 +650,7 @@ export function SEWizardView() {
                 <div className="bg-[#FEF3C7] border border-[#FCD34D] text-[#92400E] text-[12px] font-medium px-3 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
                   <Clock className="w-3.5 h-3.5 text-[#D97706]" />
                   <span>
-                    Competitors 0 / 5
+                    Competitors {competitorsList.length} / 5
                   </span>
                 </div>
               )}
@@ -763,29 +912,46 @@ export function SEWizardView() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100">
-                        {enginesList.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50/60 group">
-                            <td className="py-3 px-4 text-gray-400 cursor-grab">
-                              <GripVertical className="w-4 h-4" />
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-2.5">
-                                <span className="font-bold text-sm text-[#4285F4]">G</span>
-                                <span className="font-medium text-gray-900">{item.engine}</span>
-                                <MoreVertical className="w-3.5 h-3.5 text-gray-400 ml-1 opacity-0 group-hover:opacity-100 cursor-pointer" />
-                              </div>
-                            </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-2">
-                                <span className="text-base">{item.flag}</span>
-                                <span className="text-gray-700">{item.location}</span>
-                              </div>
-                            </td>
-                            <td className="py-3 px-4 text-gray-600 font-medium">
-                              {item.language}
+                        {enginesList.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} className="py-8 text-center text-xs text-gray-400">
+                              {isLoadingEngines ? 'Loading search engines...' : 'No search engines configured. Add one above.'}
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          enginesList.map((item) => (
+                            <tr key={item.id} className="hover:bg-gray-50/60 group">
+                              <td className="py-3 px-4 text-gray-400 cursor-grab">
+                                <GripVertical className="w-4 h-4" />
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-2.5">
+                                  <span className="font-bold text-sm text-[#4285F4]">G</span>
+                                  <span className="font-medium text-gray-900">{item.name || item.engine}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4">
+                                <div className="flex items-center gap-2">
+                                  <CountryFlag code={item.countryCode || 'in'} size="xs" />
+                                  <span className="text-gray-700">{item.country || item.location}</span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-gray-600 font-medium">
+                                <div className="flex items-center justify-between">
+                                  <span>{item.language}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSearchEngine(item.id)}
+                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                    title="Delete engine"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -818,7 +984,7 @@ export function SEWizardView() {
                                 defaultChecked
                                 className="rounded text-[#1054E2] focus:ring-0"
                               />
-                              <span>Search engine (1 out of 1)</span>
+                              <span>Search engine ({enginesList.length} configured)</span>
                             </th>
                             <th className="py-2 px-3">Location</th>
                             <th className="py-2 px-3">Language</th>
@@ -826,27 +992,37 @@ export function SEWizardView() {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="hover:bg-gray-50/50">
-                            <td className="py-2.5 px-3 flex items-center gap-2.5">
-                              <input
-                                type="checkbox"
-                                defaultChecked
-                                className="rounded text-[#1054E2] focus:ring-0"
-                              />
-                              <span className="font-bold text-sm text-[#4285F4]">G</span>
-                              <span className="font-medium text-gray-900">Google India</span>
-                            </td>
-                            <td className="py-2.5 px-3">
-                              <div className="flex items-center gap-1.5 text-gray-700">
-                                <span>🇮🇳</span>
-                                <span>India</span>
-                              </div>
-                            </td>
-                            <td className="py-2.5 px-3 text-gray-600 font-medium">EN</td>
-                            <td className="py-2.5 px-3 text-right font-medium text-gray-900">
-                              {totalKeywordsCount}
-                            </td>
-                          </tr>
+                          {enginesList.length === 0 ? (
+                            <tr>
+                              <td colSpan={4} className="py-4 text-center text-xs text-gray-400">
+                                No search engines configured. Please configure an engine first.
+                              </td>
+                            </tr>
+                          ) : (
+                            enginesList.map((eng) => (
+                              <tr key={eng.id} className="hover:bg-gray-50/50">
+                                <td className="py-2.5 px-3 flex items-center gap-2.5">
+                                  <input
+                                    type="checkbox"
+                                    defaultChecked
+                                    className="rounded text-[#1054E2] focus:ring-0"
+                                  />
+                                  <span className="font-bold text-sm text-[#4285F4]">G</span>
+                                  <span className="font-medium text-gray-900">{eng.name || eng.engine}</span>
+                                </td>
+                                <td className="py-2.5 px-3">
+                                  <div className="flex items-center gap-1.5 text-gray-700">
+                                    <CountryFlag code={eng.countryCode || 'in'} size="xs" />
+                                    <span>{eng.country || eng.location}</span>
+                                  </div>
+                                </td>
+                                <td className="py-2.5 px-3 text-gray-600 font-medium">{eng.language}</td>
+                                <td className="py-2.5 px-3 text-right font-medium text-gray-900">
+                                  {totalKeywordsCount}
+                                </td>
+                              </tr>
+                            ))
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -1199,7 +1375,9 @@ export function SEWizardView() {
 
                             <textarea
                               rows={10}
-                              placeholder="Enter competitor domain (e.g. semrush.com)..."
+                              value={competitorTextarea}
+                              onChange={(e) => setCompetitorTextarea(e.target.value)}
+                              placeholder="Enter competitor domain (e.g. semrush.com, ahrefs.com)..."
                               className="flex-1 p-2.5 text-xs text-gray-800 placeholder-gray-400 focus:outline-none resize-none leading-5 bg-transparent font-sans"
                             />
                           </div>
@@ -1224,99 +1402,74 @@ export function SEWizardView() {
                         {/* Add Competitors Button */}
                         <button
                           type="button"
-                          className="px-5 py-2.5 bg-gray-200 text-gray-500 rounded-lg text-xs font-bold uppercase tracking-wider cursor-not-allowed"
+                          onClick={handleAddCompetitors}
+                          disabled={!competitorTextarea.trim() || isAddingCompetitors}
+                          className="px-5 py-2.5 bg-[#1054E2] hover:bg-[#0048db] text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
-                          ADD COMPETITORS TO PROJECT
+                          {isAddingCompetitors ? 'ADDING...' : 'ADD COMPETITORS TO PROJECT'}
                         </button>
                       </div>
 
-                      {/* Right Column: Competitor suggestions matching Screenshots 2 & 3 */}
+                      {/* Right Column: Real Competitors List */}
                       <div className="space-y-4">
                         <div>
                           <label className="flex items-center gap-1.5 text-xs text-gray-700 font-medium mb-1.5">
-                            <span>Competitor suggestions</span>
-                            <span className="italic text-gray-400 font-serif text-xs">i</span>
+                            <span>Project Competitors ({competitorsList.length} / 5)</span>
                           </label>
 
-                          {/* Country selector bar with Teams.com */}
+                          {/* Country selector bar with project info */}
                           <div className="flex items-center justify-between px-3.5 py-2 bg-white border border-gray-300 rounded-lg text-xs">
                             <span className="font-semibold text-gray-800">
-                              {currentProject.name || 'Teams.com'}
+                              {currentProject.name || currentProject.domain}
                             </span>
 
-                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700 cursor-pointer">
+                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-700">
                               <span className="font-bold text-sm text-[#4285F4]">G</span>
-                              <span>🇮🇳</span>
-                              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                              <CountryFlag code={currentProject.countryCode || 'in'} size="xs" />
                             </div>
                           </div>
                         </div>
 
-                        {/* Suggestions Table Box */}
+                        {/* Competitors Table Box */}
                         <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
-                          <div className="p-2 border-b border-gray-100 flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1">
-                              <Search className="w-3.5 h-3.5 text-gray-400 ml-1" />
-                              <input
-                                type="text"
-                                placeholder="Search"
-                                className="w-full text-xs text-gray-700 focus:outline-none placeholder-gray-400"
-                              />
-                            </div>
-                          </div>
-
                           <table className="w-full text-left text-xs">
                             <thead className="bg-gray-50/70 border-b border-gray-100 text-[11px] font-bold text-gray-500">
                               <tr>
-                                <th className="py-2 px-3 flex items-center gap-2 font-normal">
-                                  <input type="checkbox" className="rounded text-[#1054E2] focus:ring-0" />
-                                  <span>All domains</span>
-                                </th>
-                                <th className="py-2 px-3 text-right font-normal"># of keywords</th>
+                                <th className="py-2.5 px-3 font-normal">Domain</th>
+                                <th className="py-2.5 px-3 text-right font-normal"># of keywords</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
-                              <tr className="hover:bg-gray-50/50">
-                                <td className="py-2 px-3 flex items-center gap-2">
-                                  <input type="checkbox" className="rounded text-[#1054E2] focus:ring-0" />
-                                  <span className="text-gray-800 font-medium">insidehomepage.com</span>
-                                </td>
-                                <td className="py-2 px-3 text-right text-gray-600">1</td>
-                              </tr>
-                              <tr className="hover:bg-gray-50/50">
-                                <td className="py-2 px-3 flex items-center gap-2">
-                                  <input type="checkbox" className="rounded text-[#1054E2] focus:ring-0" />
-                                  <span className="text-gray-800 font-medium">skype.net</span>
-                                </td>
-                                <td className="py-2 px-3 text-right text-gray-600">28</td>
-                              </tr>
-                              <tr className="hover:bg-gray-50/50">
-                                <td className="py-2 px-3 flex items-center gap-2">
-                                  <input type="checkbox" className="rounded text-[#1054E2] focus:ring-0" />
-                                  <span className="text-gray-800 font-medium">alwaysbeyond.com</span>
-                                </td>
-                                <td className="py-2 px-3 text-right text-gray-600">13</td>
-                              </tr>
-                              <tr className="hover:bg-gray-50/50">
-                                <td className="py-2 px-3 flex items-center gap-2">
-                                  <input type="checkbox" className="rounded text-[#1054E2] focus:ring-0" />
-                                  <span className="text-gray-800 font-medium">abtec.net</span>
-                                </td>
-                                <td className="py-2 px-3 text-right text-gray-600">5</td>
-                              </tr>
+                              {competitorsList.length === 0 ? (
+                                <tr>
+                                  <td colSpan={2} className="py-8 text-center text-xs text-gray-400">
+                                    {isLoadingCompetitors
+                                      ? 'Loading competitors...'
+                                      : 'No competitors added yet. Enter competitor domains on the left.'}
+                                  </td>
+                                </tr>
+                              ) : (
+                                competitorsList.map((comp) => (
+                                  <tr key={comp.id} className="hover:bg-gray-50/50 group">
+                                    <td className="py-2.5 px-3 flex items-center justify-between">
+                                      <span className="text-gray-800 font-medium">{comp.domain}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteCompetitor(comp.id)}
+                                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                                        title="Delete competitor"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </td>
+                                    <td className="py-2.5 px-3 text-right text-gray-600 font-medium">
+                                      {comp.totalKeywords || 0}
+                                    </td>
+                                  </tr>
+                                ))
+                              )}
                             </tbody>
                           </table>
-                        </div>
-
-                        {/* Suggest competitors toggle */}
-                        <div className="flex items-center justify-end gap-2 pt-1">
-                          <button
-                            type="button"
-                            className="w-9 h-5 flex items-center rounded-full p-0.5 cursor-pointer bg-[#1054E2]"
-                          >
-                            <div className="bg-white w-4 h-4 rounded-full shadow-md transform translate-x-4" />
-                          </button>
-                          <span className="text-xs text-gray-700">Suggest competitors</span>
                         </div>
                       </div>
                     </div>
@@ -1334,37 +1487,44 @@ export function SEWizardView() {
                       Connect statistics and analytics services
                     </h3>
                     <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                      Here you can connect popular statistics and analytics services to your account. This process might take several minutes to complete.
+                      Here you can connect popular statistics and analytics services to your project. Real data will sync once authorized.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    {/* Connect Google Analytics */}
-                    <button
-                      type="button"
-                      className="p-4 bg-white border border-gray-200 hover:border-blue-400 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs hover:shadow-sm transition-all cursor-pointer"
-                    >
-                      <BarChart3 className="w-4 h-4 text-amber-500" />
-                      <span>Connect Google Analytics</span>
-                    </button>
-
-                    {/* Connect Google Search Console */}
-                    <button
-                      type="button"
-                      className="p-4 bg-white border border-gray-200 hover:border-blue-400 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs hover:shadow-sm transition-all cursor-pointer"
-                    >
-                      <span className="font-bold text-sm text-[#4285F4]">G</span>
-                      <span>Connect Google Search Console</span>
-                    </button>
-
-                    {/* Connect Matomo Analytics */}
-                    <button
-                      type="button"
-                      className="p-4 bg-white border border-gray-200 hover:border-blue-400 rounded-xl flex items-center justify-center gap-2 text-xs font-semibold text-gray-800 shadow-2xs hover:shadow-sm transition-all cursor-pointer"
-                    >
-                      <span className="font-bold text-sm text-teal-600">Ⓜ</span>
-                      <span>Connect Matomo Analytics</span>
-                    </button>
+                    {integrationsList.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-4 bg-white border border-gray-200 rounded-xl flex items-center justify-between shadow-2xs hover:shadow-sm transition-all"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center font-bold text-[#1054E2] text-sm">
+                            {item.id.includes('search_console') ? 'G' : item.id.includes('analytics') ? 'GA' : 'GBP'}
+                          </div>
+                          <div>
+                            <h4 className="text-xs font-bold text-gray-900">{item.name}</h4>
+                            <span
+                              className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold mt-0.5 ${
+                                item.connected ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
+                              }`}
+                            >
+                              {item.connected ? 'Connected' : 'Not Connected'}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleIntegration(item.id, item.connected)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                            item.connected
+                              ? 'bg-red-50 text-red-600 hover:bg-red-100'
+                              : 'bg-[#1054E2] text-white hover:bg-[#0048db]'
+                          }`}
+                        >
+                          {item.connected ? 'Disconnect' : 'Connect'}
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -1384,7 +1544,8 @@ export function SEWizardView() {
                       <label className="text-xs text-gray-700 font-medium mb-1 block">Website URL</label>
                       <input
                         type="text"
-                        defaultValue={currentProject.domain || 'workcomposer.com'}
+                        value={generalUrl}
+                        onChange={(e) => setGeneralUrl(e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#1054E2]"
                       />
                     </div>
@@ -1392,10 +1553,59 @@ export function SEWizardView() {
                       <label className="text-xs text-gray-700 font-medium mb-1 block">Project name</label>
                       <input
                         type="text"
-                        defaultValue={currentProject.name || 'WorkComposer'}
+                        value={generalName}
+                        onChange={(e) => setGeneralName(e.target.value)}
                         className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-[#1054E2]"
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <h4 className="text-xs font-bold text-gray-700">Automated Modules & Reporting</h4>
+                    <label className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={generalWeeklyReport}
+                        onChange={(e) => setGeneralWeeklyReport(e.target.checked)}
+                        className="rounded text-[#1054E2] focus:ring-0"
+                      />
+                      <span>Send weekly ranking & traffic performance reports</span>
+                    </label>
+                    <label className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={generalAudit}
+                        onChange={(e) => setGeneralAudit(e.target.checked)}
+                        className="rounded text-[#1054E2] focus:ring-0"
+                      />
+                      <span>Perform automated weekly technical website audits</span>
+                    </label>
+                    <label className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={generalBacklinks}
+                        onChange={(e) => setGeneralBacklinks(e.target.checked)}
+                        className="rounded text-[#1054E2] focus:ring-0"
+                      />
+                      <span>Monitor backlink profile updates & new referring domains</span>
+                    </label>
+                  </div>
+
+                  <div className="pt-4 flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={handleSaveGeneral}
+                      disabled={isSavingGeneral || !generalUrl.trim()}
+                      className="px-6 py-2.5 bg-[#1054E2] hover:bg-[#0048db] text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+                    >
+                      {isSavingGeneral ? 'SAVING...' : 'SAVE CHANGES'}
+                    </button>
+                    {generalSaveSuccess && (
+                      <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-emerald-600" />
+                        {generalSaveSuccess}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}

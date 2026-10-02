@@ -371,38 +371,61 @@ export default function SearchAutocompletePage() {
               />
             </div>
 
-            {/* Dropdowns row: Select search engine & Select a country (matches Screenshot 1) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-              {/* Left: Select a search engine */}
+            {/* Dropdowns row: Select search engine & Select a country (matches Screenshot 9) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1 items-start">
+              {/* Left: Select a search engine matching Screenshot 9 */}
               <div>
                 <label className="block text-[13px] font-medium text-[#475569] mb-1.5">
                   Select a search engine:
                 </label>
-                <div className="relative">
-                  <select
-                    value={engine}
-                    onChange={(e) => setEngine(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-[#CBD5E1] rounded-lg text-[13px] text-gray-800 bg-white hover:border-[#94A3B8] focus:border-[#0B69FF] focus:outline-hidden appearance-none cursor-pointer pr-9 font-normal transition-colors"
-                  >
-                    <option value="Google">Google</option>
-                    <option value="Bing">Bing</option>
-                    <option value="Yahoo">Yahoo</option>
-                    <option value="YouTube">YouTube</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-                    <ChevronDown className="w-4 h-4" />
+                <div className="border border-[#CBD5E1] rounded-lg p-3 bg-white space-y-2.5">
+                  {[
+                    { id: 'Google', label: 'Google' },
+                    { id: 'Yahoo', label: 'Yahoo' },
+                    { id: 'Bing', label: 'Bing' },
+                  ].map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex items-center gap-2.5 text-xs text-gray-700 cursor-pointer hover:text-gray-900 select-none"
+                    >
+                      <input
+                        type="radio"
+                        name="search_engine_radio"
+                        checked={engine === item.id}
+                        onChange={() => setEngine(item.id)}
+                        className="w-3.5 h-3.5 text-[#0B69FF] focus:ring-0 cursor-pointer"
+                      />
+                      <span className="font-medium">{item.label}</span>
+                    </label>
+                  ))}
+
+                  {/* Numbered pagination 1 2 3 matching Screenshot 9 */}
+                  <div className="flex items-center gap-2 pt-1 border-t border-gray-100 text-xs">
+                    {[1, 2, 3].map((lvl) => (
+                      <button
+                        key={lvl}
+                        type="button"
+                        onClick={() => setDepth(lvl)}
+                        className={`w-6 h-6 rounded text-xs font-semibold transition-all cursor-pointer ${
+                          depth === lvl
+                            ? 'bg-[#0B69FF] text-white font-bold'
+                            : 'text-gray-500 hover:bg-gray-100'
+                        }`}
+                      >
+                        {lvl}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Right: Select a country matching Screenshot 1 open dropdown */}
+              {/* Right: Select a country matching Screenshot 9 */}
               <div className="relative" ref={dropdownRef}>
                 <label className="block text-[13px] font-medium text-[#475569] mb-1.5">
-                  Select a country:
+                  Select country:
                 </label>
 
                 {!isCountryOpen ? (
-                  /* Closed state button */
                   <button
                     type="button"
                     onClick={() => setIsCountryOpen(true)}
@@ -415,7 +438,6 @@ export default function SearchAutocompletePage() {
                     <ChevronDown className="w-4 h-4 text-gray-400" />
                   </button>
                 ) : (
-                  /* Open state with search box on top & chevron up (exact pixel match to screenshot) */
                   <div className="absolute left-0 right-0 top-0 z-30 bg-white border border-[#0B69FF] rounded-lg shadow-lg overflow-hidden animate-in fade-in duration-100">
                     <div className="px-3 py-2 flex items-center justify-between border-b border-[#E2E8F0] bg-white">
                       <input
@@ -465,36 +487,10 @@ export default function SearchAutocompletePage() {
               </div>
             </div>
 
-            {/* Select search depth for gathering suggestions matching Screenshot 1 */}
-            <div className="pt-2">
-              <label className="block text-[13px] font-medium text-[#475569] mb-1">
-                Select the search depth for gathering suggestions
-              </label>
-              <p className="text-[12px] text-[#64748B] mb-2 leading-relaxed">
-                The search depth is the number of SERP pages that are analyzed for keyword suggestions after a search has been performed.
-              </p>
-              <div className="flex gap-2">
-                {[1, 2, 3].map((lvl) => (
-                  <button
-                    key={lvl}
-                    type="button"
-                    onClick={() => setDepth(lvl)}
-                    className={`w-9 h-8 rounded text-[13px] font-semibold transition-all cursor-pointer border ${
-                      depth === lvl
-                        ? 'bg-[#0B69FF] text-white border-[#0B69FF] shadow-xs'
-                        : 'bg-white text-gray-700 border-[#CBD5E1] hover:bg-gray-50'
-                    }`}
-                  >
-                    {lvl}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Add various endings and symbols matching Screenshot 1 */}
+            {/* Add various prefixes and symbols matching Screenshot 9 */}
             <div className="pt-2 space-y-2">
               <label className="block text-[13px] font-medium text-[#475569]">
-                Add various endings and symbols to a search query to gather additional suggestions
+                Add various prefixes and symbols to a search query to gather additional suggestions
               </label>
               <div className="space-y-2 text-[13px] text-[#334155]">
                 <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -504,28 +500,7 @@ export default function SearchAutocompletePage() {
                     onChange={(e) => setAddAlpha(e.target.checked)}
                     className="w-3.5 h-3.5 rounded border-[#CBD5E1] text-[#0B69FF] focus:ring-0 cursor-pointer"
                   />
-                  <span>*query [a-z]*</span>
-                  <span
-                    className="text-[#94A3B8] hover:text-[#475569] cursor-help text-[11px]"
-                    title="Append letters from a to z to each query to uncover long-tail variants"
-                  >
-                    ℹ
-                  </span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={addDigits}
-                    onChange={(e) => setAddDigits(e.target.checked)}
-                    className="w-3.5 h-3.5 rounded border-[#CBD5E1] text-[#0B69FF] focus:ring-0 cursor-pointer"
-                  />
-                  <span>*query [0-9]*</span>
-                  <span
-                    className="text-[#94A3B8] hover:text-[#475569] cursor-help text-[11px]"
-                    title="Append numbers 0-9 to discover versions, years, and numbered listings"
-                  >
-                    ℹ
-                  </span>
+                  <span>*query [a-z]</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer select-none">
                   <input
@@ -534,13 +509,25 @@ export default function SearchAutocompletePage() {
                     onChange={(e) => setAddQuestions(e.target.checked)}
                     className="w-3.5 h-3.5 rounded border-[#CBD5E1] text-[#0B69FF] focus:ring-0 cursor-pointer"
                   />
-                  <span>*query [?]*</span>
-                  <span
-                    className="text-[#94A3B8] hover:text-[#475569] cursor-help text-[11px]"
-                    title="Prefix interrogative questions (how, what, why, best) for PAA content"
-                  >
-                    ℹ
-                  </span>
+                  <span>[a-z] query</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={addDigits}
+                    onChange={(e) => setAddDigits(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-[#CBD5E1] text-[#0B69FF] focus:ring-0 cursor-pointer"
+                  />
+                  <span>query [0-9]</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={level2}
+                    onChange={(e) => setLevel2(e.target.checked)}
+                    className="w-3.5 h-3.5 rounded border-[#CBD5E1] text-[#0B69FF] focus:ring-0 cursor-pointer"
+                  />
+                  <span>*query [0-9]</span>
                 </label>
               </div>
             </div>

@@ -40,9 +40,10 @@ export function middleware(request: NextRequest) {
   // 1. Allow Next.js internals, static assets, images, and public API endpoints
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
+    pathname.startsWith('/api/auth') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/icon.svg') ||
+    pathname.startsWith('/flags') ||
     pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|css|js|woff|woff2|ttf)$/)
   ) {
     return NextResponse.next();
@@ -58,12 +59,12 @@ export function middleware(request: NextRequest) {
     (p) => pathname === p || (p !== '/' && pathname.startsWith(p))
   );
 
-  const authCookie = request.cookies.get('seranking_auth_status')?.value;
-  const isDev = process.env.NODE_ENV !== 'production';
-  const isAuthenticated = authCookie === 'logged_in' || isDev;
+  const sessionCookie = request.cookies.get('seranking_session')?.value;
+  const legacyCookie = request.cookies.get('seranking_auth_status')?.value;
+  const isAuthenticated = Boolean(sessionCookie || legacyCookie === 'logged_in');
 
   // 4. If visitor is already authenticated and visits /login or /signup, direct them to dashboard
-  if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {
+  if (isAuthenticated && (pathname === '/login' || pathname === '/signup' || pathname === '/register')) {
     return NextResponse.redirect(new URL('/projects', request.url));
   }
 
@@ -72,18 +73,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 6. If not authenticated, redirect to login
+  // 6. If not authenticated and attempting to access protected route, redirect to login
   if (!isAuthenticated) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  const response = NextResponse.next();
-  if (isDev && authCookie !== 'logged_in') {
-    response.cookies.set('seranking_auth_status', 'logged_in', { path: '/' });
-  }
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {
@@ -93,8 +90,8 @@ export const config = {
      * - api/auth (auth API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
-     * - favicon.ico, icon.svg
+     * - favicon.ico, icon.svg, flags
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|icon.svg).*)',
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|icon.svg|flags).*)',
   ],
 };

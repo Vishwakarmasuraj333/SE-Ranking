@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Sparkles } from 'lucide-react';
-import { AppFooter } from '@/components/layout/AppFooter';
 
 interface ComingSoonModuleProps {
   title: string;
@@ -32,8 +31,6 @@ export function ComingSoonModule({ title, category, description }: ComingSoonMod
         </Link>
       </div>
 
-      {/* Unified SE Ranking Brand Footer */}
-      <AppFooter />
     </div>
   );
 }

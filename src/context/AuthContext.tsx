@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { api } from "../lib/api";
 import { UserDto } from "../lib/types";
 
 interface AuthContextType {
@@ -9,7 +8,8 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   isSuperAdmin: boolean;
   isSEOExecutive: boolean;
   isViewer: boolean;
@@ -23,81 +23,98 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadUser() {
-      const savedToken = localStorage.getItem("auth_token");
-      if (savedToken) {
-        setToken(savedToken);
-        try {
-          const res = await api.auth.me();
-          if (res.data) {
-            setUser(res.data);
-            setIsLoading(false);
-            return;
-          }
-        } catch {
-          localStorage.removeItem("auth_token");
-          setToken(null);
-          setUser(null);
+  const refreshUser = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          const u = data.user;
+          const userDto: UserDto = {
+            id: u.id,
+            email: u.email,
+            firstName: u.name?.split(" ")[0] || "",
+            lastName: u.name?.split(" ").slice(1).join(" ") || "",
+            fullName: u.name || u.email,
+            role: u.role === "OWNER" || u.role === "ADMIN" ? "SuperAdmin" : "SEOExecutive",
+            isActive: u.status === "active",
+            lastLoginAt: u.lastLoginAt,
+            assignedProjectIds: [],
+          };
+          setUser(userDto);
+          setToken(data.session?.id || "authenticated");
+          return;
         }
       }
-
-      // Auto-authenticate with local dev credentials so user is never blocked
-      try {
-        const res = await api.auth.login("admin@internal-seo.local", "AdminPassword123!");
-        if (res.data) {
-          const { accessToken, user: userData } = res.data;
-          localStorage.setItem("auth_token", accessToken);
-          setToken(accessToken);
-          setUser(userData);
-        }
-      } catch {
-        const mockUser: UserDto = {
-          id: "11111111-1111-1111-1111-111111111111",
-          email: "admin@internal-seo.local",
-          firstName: "System",
-          lastName: "Administrator",
-          fullName: "System Administrator",
-          role: "SuperAdmin",
-          isActive: true,
-          lastLoginAt: new Date().toISOString(),
-          assignedProjectIds: [],
-        };
-        setUser(mockUser);
-      } finally {
-        setIsLoading(false);
-      }
+      setUser(null);
+      setToken(null);
+    } catch {
+      setUser(null);
+      setToken(null);
+    } finally {
+      setIsLoading(false);
     }
-    loadUser();
+  };
+
+  useEffect(() => {
+    refreshUser();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const res = await api.auth.login(email, password);
-      if (res.data) {
-        const { accessToken, user: userData } = res.data;
-        localStorage.setItem("auth_token", accessToken);
-        setToken(accessToken);
-        setUser(userData);
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Authentication failed");
+      }
+
+      if (data.user) {
+        const u = data.user;
+        const userDto: UserDto = {
+          id: u.id,
+          email: u.email,
+          firstName: u.name?.split(" ")[0] || "",
+          lastName: u.name?.split(" ").slice(1).join(" ") || "",
+          fullName: u.name || u.email,
+          role: u.role === "OWNER" || u.role === "ADMIN" ? "SuperAdmin" : "SEOExecutive",
+          isActive: true,
+          lastLoginAt: new Date().toISOString(),
+          assignedProjectIds: [],
+        };
+        setUser(userDto);
+        setToken(data.token);
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("auth_token");
-    setToken(null);
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // ignore
+    }
     setUser(null);
-    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.href = "/login";
+    setToken(null);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("seranking_auth_status");
+      sessionStorage.removeItem("seranking_auth_status");
+      window.location.href = "/login";
+    }
   };
 
   const isSuperAdmin = user?.role === "SuperAdmin";
   const isSEOExecutive = user?.role === "SEOExecutive";
   const isViewer = user?.role === "Viewer";
-  const canManageProjects = isSuperAdmin;
+  const canManageProjects = isSuperAdmin || user?.role !== "Viewer";
 
   return (
     <AuthContext.Provider
@@ -107,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         login,
         logout,
+        refreshUser,
         isSuperAdmin,
         isSEOExecutive,
         isViewer,

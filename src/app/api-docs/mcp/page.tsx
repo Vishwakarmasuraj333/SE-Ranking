@@ -1,22 +1,40 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FeedbackModal } from '@/components/modals/FeedbackModal';
-import { ReportBugModal } from '@/components/modals/ReportBugModal';
+
+interface ClientStatus {
+  connected: boolean;
+  connectedAt?: string;
+}
 
 export default function ApiMcpPage() {
   const [copiedEndpoint, setCopiedEndpoint] = useState(false);
+  const [copiedCommand, setCopiedCommand] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [isBugModalOpen, setIsBugModalOpen] = useState(false);
-  const [connectedClients, setConnectedClients] = useState<Record<string, boolean>>({
-    claude: false,
-    cursor: false,
+  const [clientStatuses, setClientStatuses] = useState<Record<string, ClientStatus>>({
+    claude: { connected: false },
+    claudeCode: { connected: false },
+    cursor: { connected: false },
+    gemini: { connected: false },
+    codex: { connected: false },
   });
+  const [loading, setLoading] = useState(false);
 
   const mcpEndpoint = 'https://api.seranking.com/mcp';
   const apiKey = '12856b00-b1c7-f25b-68b9-294c542738ac';
+
+  // Load real status from backend
+  useEffect(() => {
+    fetch('/api/mcp')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.clientStatuses) {
+          setClientStatuses(data.clientStatuses);
+        }
+      })
+      .catch((err) => console.error('Error fetching MCP status:', err));
+  }, []);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -24,406 +42,321 @@ export default function ApiMcpPage() {
     setTimeout(() => setCopiedEndpoint(false), 2000);
   };
 
-  const toggleConnect = (client: string) => {
-    setConnectedClients((prev) => ({ ...prev, [client]: !prev[client] }));
-    setActiveModal(null);
+  const copyCommandText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedCommand(true);
+    setTimeout(() => setCopiedCommand(false), 2000);
+  };
+
+  const handleToggleConnection = async (clientKey: string, action: 'connect' | 'disconnect') => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/mcp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client: clientKey, action }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setClientStatuses((prev) => ({
+          ...prev,
+          [clientKey]: {
+            connected: action === 'connect',
+            connectedAt: action === 'connect' ? new Date().toISOString() : undefined,
+          },
+        }));
+      }
+    } catch (err) {
+      console.error('Failed to toggle connection:', err);
+    } finally {
+      setLoading(false);
+      setActiveModal(null);
+    }
   };
 
   return (
-    <div className="mcp-page w-full min-h-screen bg-[#F4F6F9] py-4 px-4 sm:px-6 font-sans text-[#171B24] flex flex-col justify-between">
-      <div className="max-w-5xl mx-auto w-full space-y-4">
+    <div className="w-full min-h-screen bg-[#F8FAFC] p-6 sm:p-8 lg:p-10 font-sans text-[#1E293B]">
+      <div className="max-w-[1080px] space-y-7">
 
-        {/* ===================== TOP ROW: BREADCRUMB + FEEDBACK + CREDITS ===================== */}
-        <div className="flex items-center justify-between py-1 text-xs">
-          <Link
-            href="/api-docs"
-            className="flex items-center gap-1.5 font-bold text-[#5B6370] hover:text-[#171B24] transition-colors"
-          >
-            <span className="w-5 h-5 rounded-full bg-white border border-[#E1E6EB] flex items-center justify-center text-gray-500 shadow-2xs text-sm font-bold">
-              ‹
-            </span>
-            <span>API Dashboard</span>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsFeedbackOpen(true)}
-              className="text-[#2870ED] hover:underline font-semibold text-xs cursor-pointer"
-            >
-              Feedback
-            </button>
-            <div className="flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] px-3 py-1 rounded-full text-xs font-bold border border-[#FDE68A] shadow-2xs">
-              <span>🪙</span>
-              <span>Credits 100K / 100K ▾</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ===================== MCP BANNER ===================== */}
-        <section className="mcp-page__banner mcp-banner bg-[#F0F7FF] border border-[#B8D7FF] rounded-[14px] p-5 shadow-xs flex items-start gap-3.5">
-          <span className="shrink-0 mt-0.5 text-[#1976D2]">
-            {/* mdi info icon */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="2rem"
-              height="2rem"
-              viewBox="0 0 24 24"
-              className="w-6 h-6"
-              style={{ color: 'rgb(25, 118, 210)' }}
-            >
-              <path
-                fill="currentColor"
-                d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2"
-              />
-            </svg>
-          </span>
-
-          <div className="mcp-banner__body space-y-2 flex-1">
-            <div className="mcp-banner__title font-bold text-base text-[#171B24]">
-              Connect SE Ranking to your AI tools
-            </div>
-            <div className="mcp-banner__text text-xs text-[#1E3A8A] leading-relaxed">
-              The SE Ranking MCP connects your AI tools to live SEO data in minutes. Analyze backlink profiles, research competitor domains, track AI search visibility, and more — all in natural language, without exporting CSVs, copying dashboards, or copy-pasting data into your AI chat.
-            </div>
-            <button
-              onClick={() => setActiveModal('docs')}
-              className="ui-link ui-link_s-m ui-link_a-primary mcp-banner__link inline-flex items-center gap-1 text-xs font-bold text-[#2870ED] hover:underline cursor-pointer pt-1"
-              type="button"
-            >
-              <span className="ui-link__text">View documentation</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16px"
-                height="16px"
-                viewBox="0 0 24 24"
-                className="w-4 h-4"
-              >
-                <path
-                  fill="currentColor"
-                  d="M14 3v2h3.59l-9.83 9.83l1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z"
-                />
-              </svg>
-            </button>
-          </div>
-        </section>
-
-        {/* ===================== SECTION 1: DATA API KEY ===================== */}
-        <section className="mcp-page__section mcp-keys space-y-3">
-          <div className="mcp-page__section-header">
-            <h2 className="mcp-page__section-title text-base font-bold text-[#171B24]">
-              Data API key
-            </h2>
-            <p className="mcp-page__section-description text-xs text-[#5B6370] mt-0.5">
-              The MCP Server uses your API keys to authenticate calls. Keys are managed on the{' '}
-              <Link href="/api-docs" className="text-[#2870ED] hover:underline font-semibold">
-                API Dashboard
-              </Link>.
-            </p>
-          </div>
-
-          <div className="uix-background-layer uix-bordered-layer uix-bordered-layer_w-null uix-bordered-layer_gap-null uix-bordered-layer_rad-l mcp-keys__card bg-white border border-[#E1E6EB] rounded-[14px] p-5 shadow-xs">
-            <div className="mcp-key-row mcp-key-row_active flex flex-wrap items-center justify-between gap-4" data-key-active="true">
-              <div className="flex items-center gap-3.5">
-                {/* Green Key Icon */}
-                <div className="w-10 h-10 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] flex items-center justify-center shrink-0 text-emerald-600">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
-                  </svg>
-                </div>
-
-                <div className="mcp-key-row__info">
-                  <div className="mcp-key-row__title font-bold text-sm text-[#171B24]">
-                    API key
-                  </div>
-                  <div className="mcp-key-row__description text-xs text-[#5B6370] mt-0.5">
-                    Research domains, analyze backlinks, track rankings, run audits, monitor AI Search
-                  </div>
-                </div>
-              </div>
-
-              <div className="mcp-key-row__active flex items-center gap-3 text-xs">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                  <span className="mcp-key-row__dot w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="mcp-key-row__active-label">Active</span>
-                </div>
-                <span className="mcp-key-row__divider text-gray-300">•</span>
-                <span className="mcp-key-row__tools font-semibold text-[#5B6370]">
-                  160+ tools available
-                </span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ===================== SECTION 2: SERVER ENDPOINT ===================== */}
-        <section className="mcp-page__section mcp-server space-y-3">
-          <div className="mcp-page__section-header">
-            <h2 className="mcp-page__section-title text-base font-bold text-[#171B24]">
+        {/* ===================== SECTION 1: SERVER ENDPOINT ===================== */}
+        <section className="space-y-2">
+          <div>
+            <h2 className="text-[17px] font-semibold text-[#1E293B] tracking-tight">
               Server endpoint
             </h2>
-            <p className="mcp-page__section-description text-xs text-[#5B6370] mt-0.5">
+            <p className="text-[13px] text-[#64748B] mt-0.5">
               Copy this URL into any MCP-compatible client.
             </p>
           </div>
 
-          <div className="uix-background-layer uix-bordered-layer uix-bordered-layer_w-null uix-bordered-layer_gap-xl uix-bordered-layer_rad-l mcp-server__card bg-white border border-[#E1E6EB] rounded-[14px] p-5 shadow-xs flex flex-wrap items-center justify-between gap-4">
-            <div className="mcp-server__input flex-1 min-w-[280px]">
-              <label className="mcp-server__label block text-[11px] font-bold text-[#7A8391] uppercase tracking-wider mb-1">
-                MCP URL
-              </label>
+          <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 shadow-2xs">
+            <label className="block text-[11px] font-semibold text-[#64748B] uppercase tracking-wider mb-2">
+              MCP URL
+            </label>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <input
-                className="mcp-server__field w-full bg-[#F8FAFC] border border-[#E1E6EB] rounded-[8px] px-3.5 py-2 font-mono text-xs font-semibold text-[#171B24] select-all focus:outline-hidden"
+                type="text"
                 readOnly
                 value={mcpEndpoint}
+                className="w-full bg-[#FFFFFF] border border-[#CBD5E1] rounded-lg px-3.5 py-2 text-[14px] font-normal text-[#1E293B] select-all outline-hidden focus:border-[#2563EB] transition-colors"
               />
+              <button
+                type="button"
+                onClick={() => copyToClipboard(mcpEndpoint)}
+                className="px-4 py-2 bg-white hover:bg-[#F8FAFC] active:bg-[#F1F5F9] text-[#1E293B] border border-[#CBD5E1] rounded-lg text-[13px] font-semibold flex items-center justify-center gap-2 shrink-0 transition-colors shadow-2xs cursor-pointer"
+              >
+                {copiedEndpoint ? (
+                  <>
+                    <svg className="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span className="text-emerald-700">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+                    </svg>
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
             </div>
-
-            <button
-              onClick={() => copyToClipboard(mcpEndpoint)}
-              className="ui-button ui-button_s-l ui-button_a-secondary mcp-server__copy self-end px-5 py-2.5 bg-white border border-[#E1E6EB] hover:bg-[#F2F5F8] text-[#171B24] font-semibold text-xs rounded-[8px] flex items-center gap-2 transition-colors cursor-pointer shadow-2xs"
-              type="button"
-            >
-              <span className="ui-button__content-box">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20px"
-                  height="20px"
-                  viewBox="0 0 24 24"
-                  className="w-4 h-4 text-[#5D5F65]"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M19 21H8V7h11m0-2H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2m-3-4H4a2 2 0 0 0-2 2v14h2V3h12z"
-                  />
-                </svg>
-              </span>
-              <span className="ui-button__text font-bold">
-                {copiedEndpoint ? 'Copied!' : 'Copy'}
-              </span>
-            </button>
           </div>
         </section>
 
-        {/* ===================== SECTION 3: CONNECT A CLIENT ===================== */}
-        <section className="mcp-page__section mcp-clients space-y-3">
-          <div className="mcp-page__section-header">
-            <h2 className="mcp-page__section-title text-base font-bold text-[#171B24]">
+        {/* ===================== SECTION 2: CONNECT A CLIENT ===================== */}
+        <section className="space-y-2">
+          <div>
+            <h2 className="text-[17px] font-semibold text-[#1E293B] tracking-tight">
               Connect a client
             </h2>
-            <p className="mcp-page__section-description text-xs text-[#5B6370] mt-0.5">
+            <p className="text-[13px] text-[#64748B] mt-0.5">
               One-click connectors for supported tools.
             </p>
           </div>
 
-          <div className="uix-background-layer uix-bordered-layer uix-bordered-layer_w-null uix-bordered-layer_gap-null uix-bordered-layer_rad-l mcp-clients__list bg-white border border-[#E1E6EB] rounded-[14px] divide-y divide-[#F0F2F5] shadow-xs overflow-hidden">
+          <div className="bg-white rounded-xl border border-[#E2E8F0] divide-y divide-[#F1F5F9] shadow-2xs overflow-hidden">
             
             {/* ROW 1: Claude */}
-            <div className="mcp-clients__row p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-[#CC785C]/10 border border-[#CC785C]/20 flex items-center justify-center font-bold text-sm text-[#CC785C] shrink-0">
-                  <span className="text-lg">✦</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Claude Logo Icon */}
+                <div className="w-10 h-10 rounded-xl bg-[#FFF6F0] border border-[#FED7AA] flex items-center justify-center shrink-0">
+                  <svg className="w-6 h-6 text-[#D9531E]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2a1 1 0 0 1 1 1v2.5a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm6.36 2.64a1 1 0 0 1 0 1.41l-1.77 1.77a1 1 0 0 1-1.41-1.41l1.77-1.77a1 1 0 0 1 1.41 0zM22 11a1 1 0 0 1 1 1v.01a1 1 0 0 1-2 0V12a1 1 0 0 1 1-1zm-2.64 6.36a1 1 0 0 1-1.41 0l-1.77-1.77a1 1 0 0 1 1.41-1.41l1.77 1.77a1 1 0 0 1 0 1.41zM12 20a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm-6.36-1.64a1 1 0 0 1 0-1.41l1.77-1.77a1 1 0 1 1 1.41 1.41l-1.77 1.77a1 1 0 0 1-1.41 0zM2 12a1 1 0 0 1 1-1h1.5a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm2.64-6.36a1 1 0 0 1 1.41 0l1.77 1.77a1 1 0 0 1-1.41 1.41l-1.77-1.77a1 1 0 0 1 0-1.41zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
-                      Claude
-                    </span>
-                    <span className="mcp-clients__tag mcp-clients__tag_orange text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFF0E6] text-[#E05A1F]">
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">Claude</span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#FFF4ED] text-[#D9531E] border border-[#FED7AA]">
                       Most popular
                     </span>
-                    <span className="mcp-clients__tag mcp-clients__tag_blue text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EBF3FF] text-[#2870ED]">
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]">
                       OAuth
                     </span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     Web &amp; Desktop · Turn Claude into your SEO analyst
-                  </div>
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveModal('claude')}
-                className={`ui-button ui-button_s-l ui-button_a-secondary mcp-clients__button px-4 py-2 rounded-[8px] font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border ${
-                  connectedClients.claude
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-white hover:bg-[#F2F5F8] text-[#171B24] border-[#E1E6EB]'
-                }`}
                 type="button"
+                onClick={() => setActiveModal('claude')}
+                className={`px-4 py-2 rounded-lg text-[13px] font-medium border transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 ${
+                  clientStatuses.claude?.connected
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-white hover:bg-[#F8FAFC] text-[#1E293B] border-[#CBD5E1]'
+                }`}
               >
-                <span className="ui-button__content-box">
-                  {connectedClients.claude ? (
-                    <span>✓</span>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16px"
-                      height="16px"
-                      viewBox="0 0 24 24"
-                      className="w-3.5 h-3.5"
-                    >
-                      <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z" />
+                {clientStatuses.claude?.connected ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
                     </svg>
-                  )}
-                </span>
-                <span className="ui-button__text font-bold">
-                  {connectedClients.claude ? 'Connected' : 'Connect'}
-                </span>
+                    <span>Connected</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[#64748B] font-bold">+</span>
+                    <span>Connect</span>
+                  </>
+                )}
               </button>
             </div>
 
             {/* ROW 2: Claude code */}
-            <div className="mcp-clients__row mcp-clients__row_with-divider p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-[#6E56CF]/10 border border-[#6E56CF]/20 flex items-center justify-center font-bold text-sm text-[#6E56CF] shrink-0">
-                  <span className="font-mono text-sm">&gt;_</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Claude Code Terminal Icon */}
+                <div className="w-10 h-10 rounded-xl bg-[#FFF6F0] border border-[#FED7AA] flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-[#D9531E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" x2="20" y1="19" y2="19" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
-                      Claude code
-                    </span>
-                    <span className="mcp-clients__tag mcp-clients__tag_violet text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F3EEFF] text-[#6E56CF]">
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">Claude code</span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]">
                       Cli
                     </span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     Build SEO tools from your terminal
-                  </div>
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveModal('claude-code')}
-                className="ui-button ui-button_s-l ui-button_a-secondary mcp-clients__button px-4 py-2 bg-white hover:bg-[#F2F5F8] text-[#171B24] border border-[#E1E6EB] rounded-[8px] font-bold text-xs transition-colors cursor-pointer"
                 type="button"
+                onClick={() => setActiveModal('claude-code')}
+                className="px-4 py-2 bg-white hover:bg-[#F8FAFC] text-[#1E293B] border border-[#CBD5E1] rounded-lg text-[13px] font-medium transition-colors cursor-pointer shadow-2xs"
               >
-                <span className="ui-button__text">Set up</span>
+                Set up
               </button>
             </div>
 
             {/* ROW 3: Cursor */}
-            <div className="mcp-clients__row mcp-clients__row_with-divider p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-[#000000]/10 border border-gray-200 flex items-center justify-center font-bold text-sm text-black shrink-0">
-                  <span className="text-base font-black">▲</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Cursor Logo Icon */}
+                <div className="w-10 h-10 rounded-xl bg-[#F1F5F9] border border-[#CBD5E1] flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-[#0F172A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                    <polyline points="2 17 12 22 22 17" />
+                    <polyline points="2 12 12 17 22 12" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
-                      Cursor
-                    </span>
-                    <span className="mcp-clients__tag mcp-clients__tag_blue text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#EBF3FF] text-[#2870ED]">
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">Cursor</span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE]">
                       OAuth
                     </span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     Reference SE Ranking data while you code
-                  </div>
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveModal('cursor')}
-                className={`ui-button ui-button_s-l ui-button_a-secondary mcp-clients__button px-4 py-2 rounded-[8px] font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer border ${
-                  connectedClients.cursor
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                    : 'bg-white hover:bg-[#F2F5F8] text-[#171B24] border-[#E1E6EB]'
-                }`}
                 type="button"
+                onClick={() => setActiveModal('cursor')}
+                className={`px-4 py-2 rounded-lg text-[13px] font-medium border transition-colors cursor-pointer shadow-2xs flex items-center gap-1.5 ${
+                  clientStatuses.cursor?.connected
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-white hover:bg-[#F8FAFC] text-[#1E293B] border-[#CBD5E1]'
+                }`}
               >
-                <span className="ui-button__content-box">
-                  {connectedClients.cursor ? (
-                    <span>✓</span>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16px"
-                      height="16px"
-                      viewBox="0 0 24 24"
-                      className="w-3.5 h-3.5"
-                    >
-                      <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z" />
+                {clientStatuses.cursor?.connected ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="20 6 9 17 4 12" />
                     </svg>
-                  )}
-                </span>
-                <span className="ui-button__text font-bold">
-                  {connectedClients.cursor ? 'Connected' : 'Connect'}
-                </span>
+                    <span>Connected</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[#64748B] font-bold">+</span>
+                    <span>Connect</span>
+                  </>
+                )}
               </button>
             </div>
 
             {/* ROW 4: Gemini */}
-            <div className="mcp-clients__row mcp-clients__row_with-divider p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-gradient-to-br from-[#1E88E5]/20 to-[#8E24AA]/20 border border-[#1E88E5]/30 flex items-center justify-center font-bold text-sm text-[#1E88E5] shrink-0">
-                  <span className="text-base">✦</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Gemini 4-Point Sparkle Icon */}
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1A73E8]/10 via-[#8AB4F8]/10 to-[#9334EA]/10 border border-[#8AB4F8]/30 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-[#1A73E8]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 24c-.38 0-.75-.15-1.02-.43C9.07 21.6 0 12.53 0 12c0-.53 9.07-9.6 10.98-11.57A1.44 1.44 0 0 1 12 0c.38 0 .75.15 1.02.43C14.93 2.4 24 11.47 24 12c0 .53-9.07 9.6-10.98 11.57A1.44 1.44 0 0 1 12 24z" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
-                      Gemini
-                    </span>
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">Gemini</span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     Connect SE Ranking to Gemini CLI
-                  </div>
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveModal('gemini')}
-                className="ui-button ui-button_s-l ui-button_a-secondary mcp-clients__button px-4 py-2 bg-white hover:bg-[#F2F5F8] text-[#171B24] border border-[#E1E6EB] rounded-[8px] font-bold text-xs transition-colors cursor-pointer"
                 type="button"
+                onClick={() => setActiveModal('gemini')}
+                className="px-4 py-2 bg-white hover:bg-[#F8FAFC] text-[#1E293B] border border-[#CBD5E1] rounded-lg text-[13px] font-medium transition-colors cursor-pointer shadow-2xs"
               >
-                <span className="ui-button__text">Set up</span>
+                Set up
               </button>
             </div>
 
             {/* ROW 5: Codex (CLI & IDE) */}
-            <div className="mcp-clients__row mcp-clients__row_with-divider p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-[#10A37F]/10 border border-[#10A37F]/20 flex items-center justify-center font-bold text-sm text-[#10A37F] shrink-0">
-                  <span className="text-base font-mono">{}</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Codex Icon */}
+                <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] border border-[#C7D2FE] flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-[#4338CA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 18l6-6-6-6" />
+                    <path d="M8 6l-6 6 6 6" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
-                      Codex (CLI &amp; IDE)
-                    </span>
-                    <span className="mcp-clients__tag mcp-clients__tag_violet text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F3EEFF] text-[#6E56CF]">
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">Codex (CLI &amp; IDE)</span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE]">
                       Cli
                     </span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     OpenAI Codex with the rmcp client
-                  </div>
+                  </p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveModal('codex')}
-                className="ui-button ui-button_s-l ui-button_a-secondary mcp-clients__button px-4 py-2 bg-white hover:bg-[#F2F5F8] text-[#171B24] border border-[#E1E6EB] rounded-[8px] font-bold text-xs transition-colors cursor-pointer"
                 type="button"
+                onClick={() => setActiveModal('codex')}
+                className="px-4 py-2 bg-white hover:bg-[#F8FAFC] text-[#1E293B] border border-[#CBD5E1] rounded-lg text-[13px] font-medium transition-colors cursor-pointer shadow-2xs"
               >
-                <span className="ui-button__text">Set up</span>
+                Set up
               </button>
             </div>
 
             {/* ROW 6: Other MCP-compatible tools */}
-            <div className="mcp-clients__row mcp-clients__row_with-divider p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#F8FAFC] transition-colors">
-              <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-[10px] bg-gray-100 border border-gray-200 flex items-center justify-center font-bold text-sm text-gray-700 shrink-0">
-                  <span className="text-lg">⚙</span>
+            <div className="p-4 sm:px-6 sm:py-5 flex flex-wrap items-center justify-between gap-4 hover:bg-[#FAFCFF] transition-colors">
+              <div className="flex items-center gap-4">
+                {/* Other Tools Colorful Puzzle/Grid Icon */}
+                <div className="w-10 h-10 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+                    <rect x="3" y="3" width="8" height="8" rx="2" fill="#3B82F6" />
+                    <rect x="13" y="3" width="8" height="8" rx="2" fill="#10B981" />
+                    <rect x="3" y="13" width="8" height="8" rx="2" fill="#F59E0B" />
+                    <rect x="13" y="13" width="8" height="8" rx="2" fill="#EF4444" />
+                  </svg>
                 </div>
-                <div className="mcp-clients__info">
-                  <div className="mcp-clients__name-row flex items-center gap-2">
-                    <span className="mcp-clients__name font-bold text-sm text-[#171B24]">
+
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-[14px] text-[#1E293B]">
                       Other MCP-compatible tools
                     </span>
                   </div>
-                  <div className="mcp-clients__description text-xs text-[#5B6370] mt-0.5">
+                  <p className="text-[13px] text-[#64748B] mt-0.5">
                     VS Code, Gemini CLI, Windsurf, Zed, n8n, Make, and more
-                  </div>
+                  </p>
                 </div>
               </div>
 
@@ -431,23 +364,14 @@ export default function ApiMcpPage() {
                 href="https://modelcontextprotocol.io"
                 target="_blank"
                 rel="noreferrer"
-                className="ui-button ui-button_s-l ui-button_a-tertiary mcp-clients__button px-4 py-2 bg-white hover:bg-[#F2F5F8] text-[#171B24] border border-[#E1E6EB] rounded-[8px] font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="px-3.5 py-2 text-[#1E293B] hover:text-[#2563EB] rounded-lg text-[13px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
               >
-                <span className="ui-button__text">Explore</span>
-                <span className="ui-button__content-box">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16px"
-                    height="16px"
-                    viewBox="0 0 24 24"
-                    className="w-3.5 h-3.5 text-[#5D5F65]"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M14 3v2h3.59l-9.83 9.83l1.41 1.41L19 6.41V10h2V3m-2 16H5V5h7V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2z"
-                    />
-                  </svg>
-                </span>
+                <span>Explore</span>
+                <svg className="w-3.5 h-3.5 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" x2="21" y1="14" y2="3" />
+                </svg>
               </a>
             </div>
 
@@ -456,62 +380,38 @@ export default function ApiMcpPage() {
 
       </div>
 
-      {/* Footer matching standard SE Ranking in-app footer */}
-      <footer className="border-t border-gray-200 bg-white py-3 px-6 text-xs text-gray-500 flex items-center justify-between mt-12">
-        <Link href="/projects" className="flex items-center gap-2 font-semibold text-gray-700 hover:text-gray-900 cursor-pointer">
-          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-[#0B69FF]">
-            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z" />
-          </svg>
-          <span>SE Ranking</span>
-        </Link>
-        <div className="flex items-center gap-5">
-          <button onClick={() => setIsBugModalOpen(true)} className="hover:underline text-gray-600 cursor-pointer">
-            Report a bug
-          </button>
-          <Link href="/affiliate" className="hover:underline text-gray-600">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:underline text-gray-600">
-            API
-          </Link>
-          <Link href="/whats-new" className="hover:underline text-gray-600">
-            What&apos;s new
-          </Link>
-          <Link href="/help" className="hover:underline text-gray-600">
-            Help
-          </Link>
-        </div>
-      </footer>
-
-      {/* Internal Modals */}
-      <FeedbackModal
-        isOpen={isFeedbackOpen}
-        onClose={() => setIsFeedbackOpen(false)}
-      />
-
-      <ReportBugModal
-        isOpen={isBugModalOpen}
-        onClose={() => setIsBugModalOpen(false)}
-      />
-
-      {/* ===================== MODAL: CLIENT CONFIGURATION ===================== */}
+      {/* ===================== INTERACTIVE MODALS ===================== */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-[#E1E6EB] relative">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 border border-[#E2E8F0] relative">
             <button
               onClick={() => setActiveModal(null)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full cursor-pointer"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1.5 rounded-lg cursor-pointer"
             >
               ✕
             </button>
 
+            {/* Modal: Claude */}
             {activeModal === 'claude' && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Connect Claude Desktop</h3>
-                <p className="text-xs text-[#5B6370]">
-                  Add SE Ranking MCP to your <code>claude_desktop_config.json</code>:
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#FFF6F0] border border-[#FED7AA] flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#D9531E]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2a1 1 0 0 1 1 1v2.5a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm6.36 2.64a1 1 0 0 1 0 1.41l-1.77 1.77a1 1 0 0 1-1.41-1.41l1.77-1.77a1 1 0 0 1 1.41 0zM22 11a1 1 0 0 1 1 1v.01a1 1 0 0 1-2 0V12a1 1 0 0 1 1-1zm-2.64 6.36a1 1 0 0 1-1.41 0l-1.77-1.77a1 1 0 0 1 1.41-1.41l1.77 1.77a1 1 0 0 1 0 1.41zM12 20a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm-6.36-1.64a1 1 0 0 1 0-1.41l1.77-1.77a1 1 0 1 1 1.41 1.41l-1.77 1.77a1 1 0 0 1-1.41 0zM2 12a1 1 0 0 1 1-1h1.5a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm2.64-6.36a1 1 0 0 1 1.41 0l1.77 1.77a1 1 0 0 1-1.41 1.41l-1.77-1.77a1 1 0 0 1 0-1.41zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-[#1E293B]">Connect Claude Desktop &amp; Web</h3>
+                    <p className="text-xs text-[#64748B]">OAuth &amp; Local Configuration</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  Add SE Ranking to your Claude Desktop config (<code>claude_desktop_config.json</code>):
                 </p>
-                <pre className="bg-[#1E293B] text-emerald-400 p-3.5 rounded-lg text-xs font-mono overflow-x-auto">
+
+                <div className="relative">
+                  <pre className="bg-[#0F172A] text-emerald-400 p-3.5 rounded-lg text-xs font-mono overflow-x-auto leading-normal">
 {`{
   "mcpServers": {
     "seranking": {
@@ -523,113 +423,226 @@ export default function ApiMcpPage() {
     }
   }
 }`}
-                </pre>
-                <div className="flex justify-end gap-2 pt-2">
+                  </pre>
                   <button
-                    onClick={() => toggleConnect('claude')}
-                    className="px-5 py-2 bg-[#2870ED] hover:bg-[#1C60DB] text-white text-xs font-semibold rounded-lg cursor-pointer"
+                    onClick={() => copyCommandText(`{\n  "mcpServers": {\n    "seranking": {\n      "command": "npx",\n      "args": ["-y", "@seranking/mcp-server"],\n      "env": {\n        "SERANKING_API_KEY": "${apiKey}"\n      }\n    }\n  }\n}`)}
+                    className="absolute top-2.5 right-2.5 bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium px-2 py-1 rounded-md transition-colors"
                   >
-                    {connectedClients.claude ? 'Disconnect' : 'Mark as Connected'}
+                    {copiedCommand ? 'Copied!' : 'Copy JSON'}
                   </button>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between border-t border-[#E2E8F0]">
+                  <span className="text-xs text-[#64748B]">
+                    Status: <strong className={clientStatuses.claude?.connected ? 'text-emerald-600' : 'text-slate-500'}>
+                      {clientStatuses.claude?.connected ? 'Connected' : 'Not connected'}
+                    </strong>
+                  </span>
+                  <div className="flex gap-2">
+                    {clientStatuses.claude?.connected ? (
+                      <button
+                        onClick={() => handleToggleConnection('claude', 'disconnect')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-semibold cursor-pointer"
+                      >
+                        Disconnect
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleToggleConnection('claude', 'connect')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
+                      >
+                        Authorize &amp; Connect
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
 
+            {/* Modal: Claude Code */}
             {activeModal === 'claude-code' && (
               <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Set up Claude Code (CLI)</h3>
-                <p className="text-xs text-[#5B6370]">Run this command in your terminal:</p>
-                <div className="bg-[#1E293B] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between">
-                  <code>claude mcp add seranking https://api.seranking.com/mcp</code>
-                  <button
-                    onClick={() => copyToClipboard('claude mcp add seranking https://api.seranking.com/mcp')}
-                    className="ml-2 text-xs text-white hover:text-emerald-300 font-bold"
-                  >
-                    Copy
-                  </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#FFF6F0] border border-[#FED7AA] flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#D9531E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="4 17 10 11 4 5" />
+                      <line x1="12" x2="20" y1="19" y2="19" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-[#1E293B]">Set up Claude Code CLI</h3>
+                    <p className="text-xs text-[#64748B]">Run one command in your terminal</p>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {activeModal === 'cursor' && (
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Connect Cursor IDE</h3>
-                <p className="text-xs text-[#5B6370]">
-                  Navigate to Cursor Settings → Features → MCP Servers → Add new server:
+                <p className="text-xs text-[#475569]">
+                  Run the following command in your terminal to register SE Ranking with Claude Code:
                 </p>
-                <div className="bg-[#F8FAFC] border border-[#E1E6EB] p-3 rounded-lg text-xs space-y-1.5 font-mono">
-                  <div>Type: <b>SSE</b></div>
-                  <div>URL: <b>https://api.seranking.com/mcp</b></div>
-                  <div>Header: <b>Authorization: Bearer {apiKey.substring(0, 10)}...</b></div>
-                </div>
-                <div className="flex justify-end gap-2 pt-2">
+
+                <div className="bg-[#0F172A] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between gap-3">
+                  <span className="truncate">claude mcp add seranking {mcpEndpoint}</span>
                   <button
-                    onClick={() => toggleConnect('cursor')}
-                    className="px-5 py-2 bg-[#2870ED] hover:bg-[#1C60DB] text-white text-xs font-semibold rounded-lg cursor-pointer"
+                    onClick={() => copyCommandText(`claude mcp add seranking ${mcpEndpoint}`)}
+                    className="shrink-0 bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors"
                   >
-                    {connectedClients.cursor ? 'Disconnect' : 'Mark as Connected'}
+                    {copiedCommand ? 'Copied!' : 'Copy'}
                   </button>
                 </div>
-              </div>
-            )}
 
-            {activeModal === 'gemini' && (
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Set up Gemini CLI</h3>
-                <p className="text-xs text-[#5B6370]">Run this command to bind SE Ranking MCP:</p>
-                <div className="bg-[#1E293B] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between">
-                  <code>gemini mcp add seranking --url https://api.seranking.com/mcp</code>
-                  <button
-                    onClick={() => copyToClipboard('gemini mcp add seranking --url https://api.seranking.com/mcp')}
-                    className="ml-2 text-xs text-white hover:text-emerald-300 font-bold"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeModal === 'codex' && (
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">Set up Codex / rmcp client</h3>
-                <p className="text-xs text-[#5B6370]">Add to rmcp config:</p>
-                <div className="bg-[#1E293B] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between">
-                  <code>rmcp install --server https://api.seranking.com/mcp</code>
-                  <button
-                    onClick={() => copyToClipboard('rmcp install --server https://api.seranking.com/mcp')}
-                    className="ml-2 text-xs text-white hover:text-emerald-300 font-bold"
-                  >
-                    Copy
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {activeModal === 'docs' && (
-              <div className="space-y-4">
-                <h3 className="text-base font-bold text-[#171B24]">SE Ranking MCP Documentation</h3>
-                <p className="text-xs text-[#5B6370] leading-relaxed">
-                  The SE Ranking MCP server exposes 160+ tools covering Keyword Research, Backlinks, Domain Analysis, Rank Tracking, and Website Audit directly to LLMs.
-                </p>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900 space-y-1">
-                  <div className="font-bold">Popular MCP Tool Functions:</div>
-                  <ul className="list-disc list-inside text-[11px] space-y-0.5">
-                    <li><code>get_keyword_data(keyword, country_code)</code></li>
-                    <li><code>get_domain_backlinks(domain, limit)</code></li>
-                    <li><code>get_competitor_rankings(domain)</code></li>
-                    <li><code>get_ai_search_overview(query)</code></li>
-                  </ul>
-                </div>
-                <div className="flex justify-end pt-2">
+                <div className="pt-2 flex justify-end">
                   <button
                     onClick={() => setActiveModal(null)}
-                    className="px-4 py-2 bg-[#2870ED] text-white text-xs font-semibold rounded-lg"
+                    className="px-4 py-2 bg-[#1E293B] hover:bg-[#0F172A] text-white rounded-lg text-xs font-semibold cursor-pointer"
                   >
-                    Close
+                    Done
                   </button>
                 </div>
               </div>
             )}
+
+            {/* Modal: Cursor */}
+            {activeModal === 'cursor' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#F1F5F9] border border-[#CBD5E1] flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#0F172A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                      <polyline points="2 17 12 22 22 17" />
+                      <polyline points="2 12 12 17 22 12" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-[#1E293B]">Connect Cursor IDE</h3>
+                    <p className="text-xs text-[#64748B]">Settings &gt; Features &gt; MCP</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#475569] leading-relaxed">
+                  In Cursor, navigate to <strong>Settings &gt; Features &gt; MCP</strong> and add a new SSE endpoint with the following URL:
+                </p>
+
+                <div className="bg-[#0F172A] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between gap-3">
+                  <span className="truncate">{mcpEndpoint}</span>
+                  <button
+                    onClick={() => copyCommandText(mcpEndpoint)}
+                    className="shrink-0 bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors"
+                  >
+                    {copiedCommand ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+
+                <div className="pt-2 flex items-center justify-between border-t border-[#E2E8F0]">
+                  <span className="text-xs text-[#64748B]">
+                    Status: <strong className={clientStatuses.cursor?.connected ? 'text-emerald-600' : 'text-slate-500'}>
+                      {clientStatuses.cursor?.connected ? 'Connected' : 'Not connected'}
+                    </strong>
+                  </span>
+                  <div className="flex gap-2">
+                    {clientStatuses.cursor?.connected ? (
+                      <button
+                        onClick={() => handleToggleConnection('cursor', 'disconnect')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg text-xs font-semibold cursor-pointer"
+                      >
+                        Disconnect
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleToggleConnection('cursor', 'connect')}
+                        disabled={loading}
+                        className="px-4 py-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
+                      >
+                        Authorize &amp; Connect
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal: Gemini */}
+            {activeModal === 'gemini' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#1A73E8]/10 to-[#9334EA]/10 border border-[#8AB4F8]/30 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#1A73E8]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 24c-.38 0-.75-.15-1.02-.43C9.07 21.6 0 12.53 0 12c0-.53 9.07-9.6 10.98-11.57A1.44 1.44 0 0 1 12 0c.38 0 .75.15 1.02.43C14.93 2.4 24 11.47 24 12c0 .53-9.07 9.6-10.98 11.57A1.44 1.44 0 0 1 12 24z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-[#1E293B]">Set up Gemini CLI</h3>
+                    <p className="text-xs text-[#64748B]">Google Gemini CLI connector</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#475569]">
+                  Run the following command to register SE Ranking with Gemini CLI:
+                </p>
+
+                <div className="bg-[#0F172A] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between gap-3">
+                  <span className="truncate">gemini mcp add seranking {mcpEndpoint}</span>
+                  <button
+                    onClick={() => copyCommandText(`gemini mcp add seranking ${mcpEndpoint}`)}
+                    className="shrink-0 bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors"
+                  >
+                    {copiedCommand ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="px-4 py-2 bg-[#1E293B] hover:bg-[#0F172A] text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Modal: Codex */}
+            {activeModal === 'codex' && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-[#EEF2FF] border border-[#C7D2FE] flex items-center justify-center">
+                    <svg className="w-5 h-5 text-[#4338CA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 18l6-6-6-6" />
+                      <path d="M8 6l-6 6 6 6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-[16px] font-bold text-[#1E293B]">Set up Codex (CLI &amp; IDE)</h3>
+                    <p className="text-xs text-[#64748B]">OpenAI Codex with the rmcp client</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[#475569]">
+                  Run this command to add the SE Ranking MCP server to your rmcp client:
+                </p>
+
+                <div className="bg-[#0F172A] text-emerald-400 p-3.5 rounded-lg text-xs font-mono flex items-center justify-between gap-3">
+                  <span className="truncate">rmcp add seranking {mcpEndpoint}</span>
+                  <button
+                    onClick={() => copyCommandText(`rmcp add seranking ${mcpEndpoint}`)}
+                    className="shrink-0 bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium px-2.5 py-1 rounded-md transition-colors"
+                  >
+                    {copiedCommand ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="px-4 py-2 bg-[#1E293B] hover:bg-[#0F172A] text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}

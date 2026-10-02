@@ -193,30 +193,7 @@ export default function UsersPage() {
         </main>
       </div>
 
-      {/* ================= BOTTOM FOOTER (Screenshot 3) ================= */}
-      <footer className="border-t border-gray-200 bg-white px-8 py-3 flex items-center justify-between text-xs text-gray-500">
-        <div className="flex items-center gap-2">
-          <SeRankingLogo width={90} height={20} />
-        </div>
 
-        <div className="flex items-center gap-6">
-          <button onClick={() => setIsBugOpen(true)} className="hover:text-gray-900 transition-colors cursor-pointer">
-            Report a bug
-          </button>
-          <Link href="/affiliate" className="hover:text-gray-900 transition-colors">
-            Affiliates
-          </Link>
-          <Link href="/api-docs" className="hover:text-gray-900 transition-colors">
-            API
-          </Link>
-          <Link href="/whats-new" className="hover:text-gray-900 transition-colors">
-            What&apos;s new
-          </Link>
-          <Link href="/help" className="hover:text-gray-900 transition-colors">
-            Help
-          </Link>
-        </div>
-      </footer>
 
       {/* ================= ADD USER MODAL ================= */}
       {isAddUserOpen && (
