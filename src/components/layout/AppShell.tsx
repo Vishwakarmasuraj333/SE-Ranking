@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { TopHeader } from '@/components/layout/TopHeader';
-import { GoogleUpdateAlertBanner } from '@/components/layout/TrialBanner';
 import { LeftRail } from '@/components/sidebar/LeftRail';
 import { SecondarySidebar } from '@/components/sidebar/SecondarySidebar';
 import { MobileDrawer } from '@/components/sidebar/MobileDrawer';
@@ -112,22 +111,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     pathname === '/admin.site.wizard';
 
   const hideSecondarySidebar =
-    !hasCreatedProject ||
-    pathname === '/projects' ||
-    pathname === '/admin.dashboard.html' ||
-    pathname === '/reports' ||
-    pathname.startsWith('/reports') ||
-    pathname.startsWith('/admin.reports') ||
-    pathname.startsWith('/smm') ||
-    pathname.startsWith('/content-marketing') ||
-    pathname.startsWith('/settings');
+    pathname === '/reports/print' ||
+    pathname.startsWith('/admin.reports.print') ||
+    pathname === '/admin.site.wizard';
 
   return (
     <div className="min-h-screen flex flex-col font-sans relative bg-[#F4F6F9] text-gray-900">
-      {/* Top Red Alert Banner and Dark Blue Header */}
+      {/* Main Top Header */}
       {!isStandaloneAdmin && (
         <div className="w-full shrink-0 z-50">
-          <GoogleUpdateAlertBanner />
           <TopHeader />
         </div>
       )}

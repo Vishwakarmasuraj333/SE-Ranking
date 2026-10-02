@@ -207,7 +207,7 @@ export function LeftRail() {
 
           const Icon = item.icon;
 
-          const isMuted = isMounted && !hasCreatedProject && item.id !== 'smm' && item.id !== 'api' && item.id !== 'agency';
+          const isMuted = false;
 
           return (
             <Link

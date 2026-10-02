@@ -79,9 +79,10 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [hasCreatedProject, setHasCreatedProjectState] = useState<boolean>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('se_ranking_has_project') === 'true';
+      const stored = localStorage.getItem('se_ranking_has_project');
+      if (stored !== null) return stored === 'true';
     }
-    return false;
+    return true; // Default to true so sidebars and navigation are instantly accessible
   });
   const [isAddWebsiteModalOpen, setIsAddWebsiteModalOpen] = useState(false);
 
@@ -118,10 +119,12 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           const matched = savedId ? list.find((p) => p.id === savedId) : null;
           const current = matched || list[0];
           setActiveProjectState(current);
-
-          const hasProjStored = typeof window !== 'undefined' ? localStorage.getItem('se_ranking_has_project') : null;
-          if (hasProjStored === 'true') {
-            setHasCreatedProjectState(true);
+          setHasCreatedProjectState(true);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('se_ranking_has_project', 'true');
+            if (!savedId) {
+              localStorage.setItem('se_ranking_active_project_id', current.id);
+            }
           }
         }
       }
