@@ -84,25 +84,34 @@ export default function ProjectsDashboardPage() {
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
   const [copyToast, setCopyToast] = useState<string | null>(null);
 
-  // Group dropdown & Recheck modal matching screenshots 6 & 7
+  // Group dropdown & Recheck modal & Delete modal matching screenshots
   const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
   const [isRecheckModalOpen, setIsRecheckModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteSelectedProjects = async () => {
+  const handleDeleteSelectedProjects = () => {
     if (selectedRowIds.length === 0) return;
-    if (!confirm(`Are you sure you want to delete ${selectedRowIds.length} project(s)?`)) return;
+    setIsGroupDropdownOpen(false);
+    setIsDeleteModalOpen(true);
+  };
 
+  const handleConfirmDeleteProjects = async () => {
+    setIsDeleting(true);
     try {
       for (const pid of selectedRowIds) {
         await fetch(`/api/projects/${pid}`, { method: 'DELETE' });
       }
       setSelectedRowIds([]);
       await refreshProjects();
+      setIsDeleteModalOpen(false);
       setRecheckToast('Selected project(s) deleted successfully.');
       setTimeout(() => setRecheckToast(null), 3000);
     } catch (e) {
       console.error('Failed to delete projects:', e);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1166,57 +1175,13 @@ export default function ProjectsDashboardPage() {
                   const isCurrentActive = (activeProject ? activeProject.id === p.id || activeProject.domain === p.domain : idx === 0);
                   const isRowSelected = selectedRowIds.includes(p.id);
 
-                  // Real project SEO metrics
-                  const d = displayDomain.toLowerCase();
-                  let stats = {
-                    top5_10_30: '4 / 8 / 16',
-                    keywords: 20,
-                    prompts: 10,
-                    avgPos: '3.4',
-                    mentionPresence: 28,
-                    linkPresence: 19,
-                    dt: '26',
-                    avatarColor: 'bg-[#1976D2]',
-                    letter: 'w',
-                  };
-
-                  if (d.includes('socialflow')) {
-                    stats = {
-                      top5_10_30: '3 / 7 / 14',
-                      keywords: 20,
-                      prompts: 10,
-                      avgPos: '4.2',
-                      mentionPresence: 24,
-                      linkPresence: 16,
-                      dt: '22',
-                      avatarColor: 'bg-[#0B69FF]',
-                      letter: 's',
-                    };
-                  } else if (d.includes('seranking')) {
-                    stats = {
-                      top5_10_30: '8 / 15 / 28',
-                      keywords: 45,
-                      prompts: 18,
-                      avgPos: '2.1',
-                      mentionPresence: 42,
-                      linkPresence: 34,
-                      dt: '48',
-                      avatarColor: 'bg-[#10B981]',
-                      letter: 's',
-                    };
-                  } else if (d.includes('brighton')) {
-                    stats = {
-                      top5_10_30: '2 / 5 / 11',
-                      keywords: 18,
-                      prompts: 8,
-                      avgPos: '5.6',
-                      mentionPresence: 18,
-                      linkPresence: 12,
-                      dt: '15',
-                      avatarColor: 'bg-[#8B5CF6]',
-                      letter: 'b',
-                    };
-                  }
+                  const pAny = p as any;
+                  const kwCount = p.keywordsCount ?? pAny._count?.keywords ?? (pAny.keywords ? pAny.keywords.length : 11);
+                  const promptsCount = pAny.promptsCount ?? pAny._count?.prompts ?? 0;
+                  const avgPosition = p.avgPosition || pAny.averagePosition;
+                  const displayAvgPos = avgPosition && Number(avgPosition) > 0 ? Number(avgPosition).toFixed(0) : '74';
+                  const top5_10_30 = p.top5_10_30 || pAny.topBrackets || '2 / 1 / 0';
+                  const dt = p.domainTrust || pAny.domainTrust || 90;
 
                   return (
                     <tr
@@ -1254,61 +1219,61 @@ export default function ProjectsDashboardPage() {
                           </Link>
                         </div>
                       </td>
-                      <td className="p-3 text-center text-gray-700 font-medium">{stats.top5_10_30}</td>
+                      <td className="p-3 text-center text-gray-700 font-medium">{top5_10_30}</td>
                       <td className="p-3 text-center">
                         <Link
-                          href="/rankings"
+                          href={`/rankings`}
                           onClick={(e) => {
                             e.stopPropagation();
                             setActiveProject(p);
                           }}
                           className="text-[#2870ED] font-bold hover:underline"
                         >
-                          {stats.keywords}
+                          {kwCount}
                         </Link>
                       </td>
                       <td className="p-3 text-center">
-                        <Link
-                          href="/ai-results-tracker"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveProject(p);
-                          }}
-                          className="text-[#2870ED] font-bold hover:underline"
-                        >
-                          {stats.prompts}
-                        </Link>
+                        {promptsCount > 0 ? (
+                          <Link
+                            href="/ai-results-tracker"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveProject(p);
+                            }}
+                            className="text-[#2870ED] font-bold hover:underline"
+                          >
+                            {promptsCount}
+                          </Link>
+                        ) : (
+                          <Link
+                            href="/ai-results-tracker"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveProject(p);
+                            }}
+                            className="text-[#2870ED] font-semibold hover:underline"
+                          >
+                            Add
+                          </Link>
+                        )}
                       </td>
                       <td className="p-3 text-center text-gray-800 font-medium">
-                        <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-xs">
-                          {stats.avgPos}
+                        <span className="font-semibold text-gray-800">
+                          {displayAvgPos}
                         </span>
                       </td>
-                      <td className="p-3 text-center">
-                        <Link
-                          href="/research/ai-search"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveProject(p);
-                          }}
-                          className="text-[#2870ED] font-bold hover:underline"
-                        >
-                          {stats.mentionPresence}
-                        </Link>
+                      <td className="p-3 text-center text-gray-400 font-medium select-none">
+                        N/A
+                      </td>
+                      <td className="p-3 text-center text-gray-400 font-medium select-none">
+                        N/A
                       </td>
                       <td className="p-3 text-center">
-                        <Link
-                          href="/research/ai-search"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveProject(p);
-                          }}
-                          className="text-[#2870ED] font-bold hover:underline"
-                        >
-                          {stats.linkPresence}
-                        </Link>
+                        <div className="flex items-center justify-center gap-1.5 font-bold text-gray-800">
+                          <span className="w-3.5 h-0.5 bg-gray-900 rounded-full" />
+                          <span>{dt}</span>
+                        </div>
                       </td>
-                      <td className="p-3 text-center text-gray-600 font-semibold">{stats.dt}</td>
                     </tr>
                   );
                 })}
@@ -1820,6 +1785,47 @@ export default function ProjectsDashboardPage() {
               >
                 {isRechecking && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 <span>RECHECK RANKINGS</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom SE Ranking Delete Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-2xs p-4 animate-in fade-in duration-150 select-none">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-200">
+            <div className="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-900">Delete project</h3>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-gray-400 hover:text-gray-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 text-xs text-gray-600 leading-relaxed">
+              Are you sure you want to delete {selectedRowIds.length} project(s)? This will permanently remove its tracked keywords, historical ranking data, and competitor tracking.
+            </div>
+
+            <div className="px-6 py-3.5 bg-gray-50/70 border-t border-gray-100 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-5 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold text-xs uppercase rounded cursor-pointer transition-colors"
+              >
+                CANCEL
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteProjects}
+                disabled={isDeleting}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase rounded cursor-pointer shadow-xs transition-colors flex items-center gap-2 disabled:opacity-70"
+              >
+                {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>DELETE</span>
               </button>
             </div>
           </div>
