@@ -56,7 +56,7 @@ export function AppFooter({ className = '' }: AppFooterProps) {
             What&apos;s new
           </a>
           <a
-            href="https://help.seranking.com/hc/en-us/"
+            href="/help"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-[#0B69FF] transition-colors text-gray-600 font-semibold"

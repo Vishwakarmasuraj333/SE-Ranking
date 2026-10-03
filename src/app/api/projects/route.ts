@@ -30,7 +30,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const projects: any[] = await (prisma.project as any).findMany({
+    const projectDb = (prisma as any).project;
+    const projects: any[] = await projectDb.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
@@ -159,8 +160,10 @@ export async function POST(req: NextRequest) {
     const resolvedCountryCode = countryInfo?.flagCode || 'in';
     const resolvedCountry = countryInfo?.name || country;
 
+    const projectDb = (prisma as any).project;
+
     // Check if duplicate project already exists for this domain
-    const existing = await (prisma.project as any).findFirst({
+    const existing = await projectDb.findFirst({
       where: {
         domain: cleanDomain,
         deletedAt: null,
@@ -178,36 +181,38 @@ export async function POST(req: NextRequest) {
     const userId = auth?.user?.id || (await prisma.user.findFirst({ select: { id: true } }))?.id || null;
 
     // Create project in database
-    const createdProject = await (prisma.project as any).create({
-      data: {
-        name: projectName,
-        websiteUrl: normalizedWebUrl,
-        normalizedUrl: normalizedWebUrl,
-        domain: cleanDomain,
-        brandName: projectName,
-        projectColor: color,
-        country: resolvedCountry,
-        countryCode: resolvedCountryCode,
-        languageCode,
-        defaultSearchEngine: searchEngine,
-        defaultDevice: device,
-        weeklyReport,
-        websiteAudit,
-        backlinkReport,
-        userId,
-        createdBy: auth?.user?.email || 'admin',
-        searchEngines: {
-          create: {
-            engine: searchEngine,
-            country: resolvedCountry,
-            countryCode: resolvedCountryCode,
-            language,
-            languageCode,
-            device,
-            isActive: true,
-          },
+    const projectData: any = {
+      name: projectName,
+      websiteUrl: normalizedWebUrl,
+      normalizedUrl: normalizedWebUrl,
+      domain: cleanDomain,
+      brandName: projectName,
+      projectColor: color,
+      country: resolvedCountry,
+      countryCode: resolvedCountryCode,
+      languageCode,
+      defaultSearchEngine: searchEngine,
+      defaultDevice: device,
+      weeklyReport,
+      websiteAudit,
+      backlinkReport,
+      userId,
+      createdBy: auth?.user?.email || 'admin',
+      searchEngines: {
+        create: {
+          engine: searchEngine,
+          country: resolvedCountry,
+          countryCode: resolvedCountryCode,
+          language,
+          languageCode,
+          device,
+          isActive: true,
         },
       },
+    };
+
+    const createdProject: any = await projectDb.create({
+      data: projectData,
       include: {
         searchEngines: true,
       },

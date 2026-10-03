@@ -24,6 +24,25 @@ import {
 import { useApp } from '../providers/AppProviders';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 import { CountryFlag } from '@/components/ui/CountryFlag';
+import {
+  GoogleIcon,
+  ChatGptIcon,
+  AiOverviewsIcon,
+  AiModeIcon,
+  BingIcon,
+  YahooIcon,
+  YandexIcon,
+  DuckDuckGoIcon,
+  YouTubeIcon,
+} from '@/components/ui/SearchEngineIcons';
+
+const ADDITIONAL_ENGINES = [
+  { id: 'bing', label: 'Bing', icon: BingIcon },
+  { id: 'yahoo', label: 'Yahoo', icon: YahooIcon },
+  { id: 'yandex', label: 'Yandex', icon: YandexIcon },
+  { id: 'duckduckgo', label: 'DuckDuckGo', icon: DuckDuckGoIcon },
+  { id: 'youtube', label: 'YouTube', icon: YouTubeIcon },
+];
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -290,6 +309,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
 
   // Search Engine & Tracking Options
   const [selectedEngines, setSelectedEngines] = useState<string[]>(['google']);
+  const [isMoreEnginesOpen, setIsMoreEnginesOpen] = useState(false);
   const [device, setDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [country, setCountry] = useState('India');
   const [isLocationOpen, setIsLocationOpen] = useState(false);
@@ -987,6 +1007,95 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                     </p>
                   </div>
 
+                  {/* Search Engine Selector */}
+                  <div className="p-4 bg-gray-50/70 border border-gray-200 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-gray-800">Tracked Search Engines</label>
+                      <span className="text-[11px] text-gray-500 font-medium">
+                        {selectedEngines.length} selected
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Google */}
+                      <button
+                        type="button"
+                        onClick={() => toggleEngine('google')}
+                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                          selectedEngines.includes('google')
+                            ? 'border-[#2870ED] bg-white text-[#2870ED] shadow-xs'
+                            : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <GoogleIcon size={16} />
+                        <span>Google</span>
+                        {selectedEngines.includes('google') && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                      </button>
+
+                      {/* AI Overviews */}
+                      <button
+                        type="button"
+                        onClick={() => toggleEngine('ai-overviews')}
+                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                          selectedEngines.includes('ai-overviews')
+                            ? 'border-[#2870ED] bg-white text-[#2870ED] shadow-xs'
+                            : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <AiOverviewsIcon size={16} />
+                        <span>AI Overviews</span>
+                        {selectedEngines.includes('ai-overviews') && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                      </button>
+
+                      {/* AI Mode */}
+                      <button
+                        type="button"
+                        onClick={() => toggleEngine('ai-mode')}
+                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                          selectedEngines.includes('ai-mode')
+                            ? 'border-[#2870ED] bg-white text-[#2870ED] shadow-xs'
+                            : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <AiModeIcon size={16} />
+                        <span>AI Mode</span>
+                        {selectedEngines.includes('ai-mode') && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                      </button>
+
+                      {/* ChatGPT */}
+                      <button
+                        type="button"
+                        onClick={() => toggleEngine('chatgpt')}
+                        className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer transition-all ${
+                          selectedEngines.includes('chatgpt')
+                            ? 'border-[#2870ED] bg-white text-[#2870ED] shadow-xs'
+                            : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        <ChatGptIcon size={16} />
+                        <span>ChatGPT</span>
+                        {selectedEngines.includes('chatgpt') && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                      </button>
+
+                      {/* Extra active engines */}
+                      {ADDITIONAL_ENGINES.filter((eng) => selectedEngines.includes(eng.id)).map((eng) => {
+                        const IconComp = eng.icon;
+                        return (
+                          <button
+                            key={eng.id}
+                            type="button"
+                            onClick={() => toggleEngine(eng.id)}
+                            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#2870ED] bg-white text-[#2870ED] text-xs font-semibold cursor-pointer transition-all shadow-xs"
+                          >
+                            <IconComp size={16} />
+                            <span>{eng.label}</span>
+                            <X className="w-3.5 h-3.5 ml-0.5 text-gray-400 hover:text-red-500" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="text-xs font-semibold text-gray-700 block mb-1.5">Country / Region</label>
@@ -1309,12 +1418,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                           : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                      </svg>
+                      <GoogleIcon size={16} />
                       <span>Google</span>
                     </button>
 
@@ -1328,7 +1432,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                           : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-[#0B69FF]" />
+                      <AiOverviewsIcon size={16} />
                       <span>AI Overviews</span>
                     </button>
 
@@ -1342,7 +1446,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                           : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      <Search className="w-3.5 h-3.5 text-indigo-500" />
+                      <AiModeIcon size={16} />
                       <span>AI Mode</span>
                     </button>
 
@@ -1356,21 +1460,66 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                           : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
                       }`}
                     >
-                      <div className="w-3.5 h-3.5 rounded-full bg-[#10A37F] flex items-center justify-center text-white text-[8px] font-bold">
-                        GPT
-                      </div>
+                      <ChatGptIcon size={16} />
                       <span>ChatGPT</span>
                     </button>
 
-                    {/* More icon */}
-                    <button
-                      type="button"
-                      onClick={() => alert('Additional engines: Bing, Yahoo, Yandex, DuckDuckGo can be configured in Advanced Settings.')}
-                      className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-500 cursor-pointer"
-                      title="More search engines"
-                    >
-                      <MoreVertical className="w-3.5 h-3.5" />
-                    </button>
+                    {/* Additional selected engines */}
+                    {ADDITIONAL_ENGINES.filter((eng) => selectedEngines.includes(eng.id)).map((eng) => {
+                      const IconComp = eng.icon;
+                      return (
+                        <button
+                          key={eng.id}
+                          type="button"
+                          onClick={() => toggleEngine(eng.id)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#2870ED] bg-blue-50/50 text-[#2870ED] text-xs font-medium cursor-pointer transition-colors"
+                        >
+                          <IconComp size={16} />
+                          <span>{eng.label}</span>
+                          <X className="w-3 h-3 ml-0.5 text-gray-400 hover:text-red-500" />
+                        </button>
+                      );
+                    })}
+
+                    {/* More icon dropdown */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsMoreEnginesOpen(!isMoreEnginesOpen)}
+                        className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-500 hover:text-gray-800 cursor-pointer flex items-center justify-center transition-colors"
+                        title="More search engines"
+                      >
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                      {isMoreEnginesOpen && (
+                        <div className="absolute left-0 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-lg z-50 py-1 animate-in fade-in duration-100">
+                          <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            More Search Engines
+                          </div>
+                          {ADDITIONAL_ENGINES.map((eng) => {
+                            const IconComp = eng.icon;
+                            const isSelected = selectedEngines.includes(eng.id);
+                            return (
+                              <button
+                                key={eng.id}
+                                type="button"
+                                onClick={() => {
+                                  toggleEngine(eng.id);
+                                  setIsMoreEnginesOpen(false);
+                                }}
+                                className="w-full flex items-center justify-between px-3 py-1.5 text-xs text-gray-700 hover:bg-gray-50 text-left cursor-pointer transition-colors"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <IconComp size={15} />
+                                  <span>{eng.label}</span>
+                                </span>
+                                {isSelected && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
 
                     {/* Divider */}
                     <div className="h-5 w-[1px] bg-gray-200 mx-1" />

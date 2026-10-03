@@ -14,6 +14,7 @@ import { formatDate } from "../../lib/formatters";
 import { useAuth } from "../../context/AuthContext";
 import { GscSettingsCard } from "../gsc/GscSettingsCard";
 import { Ga4SettingsCard } from "../ga4/Ga4SettingsCard";
+import { SearchEngineIcon } from "@/components/ui/SearchEngineIcons";
 
 export type SettingsTabId =
   | "general"
@@ -713,7 +714,7 @@ export function ProjectSettingsWizard({ projectId, initialTab }: ProjectSettings
     ];
     if (user?.email && !list.some((a) => a.email.toLowerCase() === user.email.toLowerCase())) {
       list.unshift({
-        name: user.fullName || user.email.split("@")[0].replace(/\./g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
+        name: user.fullName || user.email.split("@")[0].replace(/\./g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
         email: user.email,
         avatarLetter: (user.email[0] || "U").toUpperCase(),
         color: "bg-teal-600",
@@ -1978,13 +1979,14 @@ export function ProjectSettingsWizard({ projectId, initialTab }: ProjectSettings
                         key={eng}
                         type="button"
                         onClick={() => setSelectedEngineChip(eng)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-2 ${
                           selectedEngineChip === eng
                             ? "bg-blue-600 text-white shadow-xs"
                             : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100"
                         }`}
                       >
-                        {eng}
+                        <SearchEngineIcon engine={eng} size={15} />
+                        <span>{eng}</span>
                       </button>
                     ))}
                   </div>
@@ -2127,7 +2129,7 @@ export function ProjectSettingsWizard({ projectId, initialTab }: ProjectSettings
                         .map((eng) => (
                           <tr key={eng.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
                             <td className="py-3 px-4 font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                              <span>🌐</span>
+                              <SearchEngineIcon engine={eng.engine} size={16} />
                               <span>{eng.engine}</span>
                             </td>
                             <td className="py-3 px-4 text-slate-600 dark:text-slate-300">

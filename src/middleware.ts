@@ -37,10 +37,10 @@ const PUBLIC_PATHS = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Allow Next.js internals, static assets, images, and public API endpoints
+  // 1. Allow Next.js internals, static assets, images, and API endpoints
   if (
     pathname.startsWith('/_next') ||
-    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api') ||
     pathname.startsWith('/favicon.ico') ||
     pathname.startsWith('/icon.svg') ||
     pathname.startsWith('/flags') ||

@@ -24,6 +24,7 @@ import {
   DollarSign,
   LogOut,
   Lightbulb,
+  ChevronDown,
 } from 'lucide-react';
 import { useApp } from '../providers/AppProviders';
 import { useAuth } from '@/context/AuthContext';
@@ -315,38 +316,71 @@ export function TopHeader() {
           <Lightbulb className="w-4 h-4" />
         </button>
 
-        {/* Help Menu Dropdown */}
+        {/* Help Center Button & Dropdown */}
         <div ref={helpRef} className="relative h-full flex items-center">
-          <button
-            onClick={() => {
-              setIsHelpOpen(!isHelpOpen);
-              setIsAppsOpen(false);
-              setIsNotificationsOpen(false);
-              setIsProfileOpen(false);
-              setIsAddTabOpen(false);
-            }}
-            className={`w-7 h-7 flex items-center justify-center rounded-full transition-colors cursor-pointer ${
-              isHelpOpen ? 'bg-white/20 text-white shadow-xs' : 'text-white/90 hover:text-white hover:bg-white/10'
-            }`}
-            title="Help & Support"
-          >
-            <HelpCircle className="w-4 h-4" />
-          </button>
+          <div className="flex items-center rounded-md hover:bg-white/10 transition-colors">
+            <Link
+              href="/help"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-2.5 py-1 text-white/95 hover:text-white text-xs font-semibold cursor-pointer transition-colors"
+              title="Help Center & Knowledge Base"
+            >
+              <HelpCircle className="w-4 h-4 text-white" />
+              <span>Help</span>
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                setIsHelpOpen(!isHelpOpen);
+                setIsAppsOpen(false);
+                setIsNotificationsOpen(false);
+                setIsProfileOpen(false);
+                setIsAddTabOpen(false);
+              }}
+              className={`p-1 text-white/70 hover:text-white rounded-r-md transition-colors cursor-pointer ${
+                isHelpOpen ? 'bg-white/20 text-white' : ''
+              }`}
+              title="More help options"
+            >
+              <ChevronDown className={`w-3 h-3 transition-transform ${isHelpOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
 
           {isHelpOpen && (
-            <div className="absolute right-0 top-[calc(100%+3px)] w-56 bg-white rounded-lg shadow-xl border border-gray-200 text-gray-800 z-50 py-1.5 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
+            <div className="absolute right-0 top-[calc(100%+3px)] w-60 bg-white rounded-xl shadow-2xl border border-gray-200 text-gray-800 z-50 p-1.5 text-xs animate-in fade-in duration-100 before:content-[''] before:absolute before:-top-2 before:left-0 before:right-0 before:h-2">
               <div className="px-3 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 mb-1">
                 Help &amp; Guidance
               </div>
+
+              {/* Prominent Help Center Card linking to /help */}
+              <Link
+                href="/help"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsHelpOpen(false)}
+                className="flex items-center justify-between p-2.5 bg-blue-50/70 hover:bg-blue-50 text-[#0B69FF] font-semibold rounded-lg transition-colors cursor-pointer group mb-1 border border-blue-100"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#0B69FF] text-white flex items-center justify-center shrink-0 shadow-xs">
+                    <BookOpen className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-gray-900 group-hover:text-[#0B69FF] leading-tight">Help Center</div>
+                    <div className="text-[10px] text-gray-500 font-normal">Knowledge Base, Guides &amp; FAQ</div>
+                  </div>
+                </div>
+                <ExternalLink className="w-3.5 h-3.5 text-[#0B69FF] shrink-0" />
+              </Link>
 
               <button
                 onClick={() => {
                   setIsHelpOpen(false);
                   setIsGuideModalOpen(true);
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-blue-50/70 hover:text-[#0B69FF] font-medium transition-colors text-left cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors text-left cursor-pointer rounded-lg"
               >
-                <Compass className="w-4 h-4 text-[#0B69FF]" />
+                <Compass className="w-4 h-4 text-emerald-500" />
                 <span>Quick-start guide</span>
               </button>
 
@@ -355,32 +389,18 @@ export function TopHeader() {
                   setIsHelpOpen(false);
                   setIsBugModalOpen(true);
                 }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-red-50/70 hover:text-red-600 font-medium transition-colors text-left cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-gray-700 hover:bg-red-50/70 hover:text-red-600 font-medium transition-colors text-left cursor-pointer rounded-lg"
               >
                 <Bug className="w-4 h-4 text-red-500" />
                 <span>Report a bug</span>
               </button>
 
               <Link
-                href="/help"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsHelpOpen(false)}
-                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer group"
-              >
-                <div className="flex items-center gap-2.5">
-                  <BookOpen className="w-4 h-4 text-gray-500 group-hover:text-[#0B69FF]" />
-                  <span>Help Center</span>
-                </div>
-                <ExternalLink className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#0B69FF]" />
-              </Link>
-
-              <Link
                 href="/whats-new"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsHelpOpen(false)}
-                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer border-t border-gray-100 mt-1 pt-1.5 group"
+                className="flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0B69FF] font-medium transition-colors cursor-pointer border-t border-gray-100 mt-1 pt-1.5 group rounded-lg"
               >
                 <div className="flex items-center gap-2.5">
                   <Gift className="w-4 h-4 text-amber-500 group-hover:text-[#0B69FF]" />

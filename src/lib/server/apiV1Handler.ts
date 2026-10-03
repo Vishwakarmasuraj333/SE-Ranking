@@ -408,6 +408,24 @@ export async function handleApiV1(request: NextRequest, slug: string[]) {
         });
       }
 
+      if (subPath === "rankings/check" && method === "POST") {
+        for (const kw of kws) {
+          const prev = kw.currentPosition || Math.floor(Math.random() * 20) + 1;
+          const delta = ((kw.keywordText.charCodeAt(0) + Date.now() % 5) % 5) - 2;
+          const newPos = Math.max(1, prev + delta);
+          await prisma.keyword.update({
+            where: { id: kw.id },
+            data: {
+              previousPosition: prev,
+              currentPosition: newPos,
+              positionChange: prev - newPos,
+              updatedAt: new Date(),
+            },
+          });
+        }
+        return successResponse({ checkedCount: kws.length, message: `Checked ${kws.length} keywords.` });
+      }
+
       if (subPath === "rankings/detailed" || subPath === "rankings/historical") {
         return successResponse({
           items: kws,
@@ -429,6 +447,7 @@ export async function handleApiV1(request: NextRequest, slug: string[]) {
           const kws = await prisma.keyword.findMany({
             where: {
               projectId: project.id,
+              deletedAt: null,
               ...(search ? { keywordText: { contains: search } } : {}),
             },
             orderBy: { createdAt: "desc" },
@@ -445,7 +464,7 @@ export async function handleApiV1(request: NextRequest, slug: string[]) {
 
         if (method === "POST") {
           const body = await request.json();
-          const { keywordText, monthlySearchVolume = 2400 } = body || {};
+          const { keywordText, monthlySearchVolume = 2400, groupName = "General" } = body || {};
           if (!keywordText) return errorResponse("Keyword text is required.");
 
           const newKw = await prisma.keyword.create({
@@ -453,6 +472,7 @@ export async function handleApiV1(request: NextRequest, slug: string[]) {
               projectId: project.id,
               keywordText,
               monthlySearchVolume,
+              groupName,
               keywordDifficulty: Math.floor(Math.random() * 50) + 15,
               cpcUsd: parseFloat((Math.random() * 5 + 0.5).toFixed(2)),
               currentPosition: Math.floor(Math.random() * 20) + 1,
@@ -464,8 +484,46 @@ export async function handleApiV1(request: NextRequest, slug: string[]) {
         }
       }
 
-      if (keywordParts[1] === "import" && method === "POST") {
-        return successResponse({ importedCount: 5, duplicateCount: 0, invalidCount: 0 });
+      if ((keywordParts[1] === "bulk" || keywordParts[1] === "import-csv" || keywordParts[1] === "import") && method === "POST") {
+        const body = await request.json();
+        const incoming: string[] = Array.isArray(body.keywords)
+          ? body.keywords.map((k: any) => (typeof k === "string" ? k : k.keywordText || k.keyword)).filter(Boolean)
+          : typeof body.keywords === "string"
+          ? body.keywords.split("\n").map((k: string) => k.trim()).filter(Boolean)
+          : [];
+
+        if (incoming.length === 0) {
+          return errorResponse("No keywords provided", 400);
+        }
+
+        const existing = await prisma.keyword.findMany({
+          where: { projectId: project.id, deletedAt: null },
+          select: { keywordText: true },
+        });
+        const existingSet = new Set(existing.map((e) => e.keywordText.toLowerCase()));
+        const unique = incoming.filter((k) => !existingSet.has(k.toLowerCase()));
+
+        if (unique.length > 0) {
+          await prisma.keyword.createMany({
+            data: unique.map((kw) => ({
+              projectId: project.id,
+              keywordText: kw,
+              groupName: body.groupName || "General",
+              monthlySearchVolume: Math.floor(Math.random() * 8000) + 800,
+              keywordDifficulty: Math.floor(Math.random() * 50) + 15,
+              cpcUsd: parseFloat((Math.random() * 4 + 0.5).toFixed(2)),
+              currentPosition: Math.floor(Math.random() * 25) + 1,
+              previousPosition: Math.floor(Math.random() * 30) + 1,
+              positionChange: Math.floor(Math.random() * 5) - 2,
+            })),
+          });
+        }
+
+        return successResponse({
+          importedCount: unique.length,
+          duplicateCount: incoming.length - unique.length,
+          totalCount: existing.length + unique.length,
+        });
       }
 
       if (keywordParts.length === 2 && method === "DELETE") {

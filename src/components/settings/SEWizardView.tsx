@@ -28,6 +28,13 @@ import {
 } from 'lucide-react';
 import { SeRankingLogo } from '@/components/ui/SeRankingLogo';
 import { useApp } from '@/components/providers/AppProviders';
+import {
+  GoogleIcon,
+  ChatGptIcon,
+  AiOverviewsIcon,
+  AiModeIcon,
+  SearchEngineIcon,
+} from '@/components/ui/SearchEngineIcons';
 
 export type WizardTab =
   | 'general'
@@ -707,7 +714,7 @@ export function SEWizardView() {
                               : 'bg-transparent text-gray-700 hover:bg-gray-100'
                           }`}
                         >
-                          <span className="font-bold text-base text-[#4285F4]">G</span>
+                          <GoogleIcon size={16} />
                           <span>Google</span>
                         </button>
 
@@ -715,13 +722,13 @@ export function SEWizardView() {
                         <button
                           type="button"
                           onClick={() => setSelectedEngineType('AI Overviews')}
-                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                             selectedEngineType === 'AI Overviews'
                               ? 'bg-blue-50 text-[#1054E2] border border-blue-200 shadow-2xs'
                               : 'bg-transparent text-gray-700 hover:bg-gray-100'
                           }`}
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                          <AiOverviewsIcon size={16} />
                           <span>AI Overviews</span>
                         </button>
 
@@ -729,13 +736,13 @@ export function SEWizardView() {
                         <button
                           type="button"
                           onClick={() => setSelectedEngineType('AI Mode')}
-                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                             selectedEngineType === 'AI Mode'
                               ? 'bg-blue-50 text-[#1054E2] border border-blue-200 shadow-2xs'
                               : 'bg-transparent text-gray-700 hover:bg-gray-100'
                           }`}
                         >
-                          <span className="text-amber-500">💫</span>
+                          <AiModeIcon size={16} />
                           <span>AI Mode</span>
                         </button>
 
@@ -743,13 +750,13 @@ export function SEWizardView() {
                         <button
                           type="button"
                           onClick={() => setSelectedEngineType('ChatGPT')}
-                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                             selectedEngineType === 'ChatGPT'
                               ? 'bg-blue-50 text-[#1054E2] border border-blue-200 shadow-2xs'
                               : 'bg-transparent text-gray-700 hover:bg-gray-100'
                           }`}
                         >
-                          <span className="text-emerald-600 font-bold">❇</span>
+                          <ChatGptIcon size={16} />
                           <span>ChatGPT</span>
                         </button>
 
@@ -926,7 +933,7 @@ export function SEWizardView() {
                               </td>
                               <td className="py-3 px-4">
                                 <div className="flex items-center gap-2.5">
-                                  <span className="font-bold text-sm text-[#4285F4]">G</span>
+                                  <SearchEngineIcon engine={item.name || item.engine} size={16} />
                                   <span className="font-medium text-gray-900">{item.name || item.engine}</span>
                                 </div>
                               </td>
@@ -1007,7 +1014,7 @@ export function SEWizardView() {
                                     defaultChecked
                                     className="rounded text-[#1054E2] focus:ring-0"
                                   />
-                                  <span className="font-bold text-sm text-[#4285F4]">G</span>
+                                  <SearchEngineIcon engine={eng.name || eng.engine} size={16} />
                                   <span className="font-medium text-gray-900">{eng.name || eng.engine}</span>
                                 </td>
                                 <td className="py-2.5 px-3">
@@ -1280,7 +1287,7 @@ export function SEWizardView() {
                               </td>
                               <td className="py-2.5 px-4">
                                 <div className="flex items-center gap-1.5 text-gray-600">
-                                  <span className="font-bold text-xs text-[#4285F4]">G</span>
+                                  <GoogleIcon size={14} />
                                   <span>India, EN</span>
                                 </div>
                               </td>

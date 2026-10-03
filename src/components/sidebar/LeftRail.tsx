@@ -16,6 +16,7 @@ import {
   Boxes,
   ThumbsUp,
   Settings,
+  HelpCircle,
 } from 'lucide-react';
 import { useApp, RailSection } from '../providers/AppProviders';
 import { useAuth } from '@/context/AuthContext';
@@ -289,8 +290,19 @@ export function LeftRail() {
         })}
       </div>
 
-      {/* Bottom Profile and Settings */}
-      <div className="flex flex-col items-center gap-1 pt-2 border-t border-[#1a293e]">
+      {/* Bottom Profile, Settings and Help Center */}
+      <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-[#1a293e]">
+        <Link
+          href="/help"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Help Center & Knowledge Base"
+          className="w-[50px] h-[40px] rounded-lg flex flex-col items-center justify-center hover:bg-white/10 text-[#8B98A5] hover:text-white transition-colors group cursor-pointer"
+        >
+          <HelpCircle className="w-4 h-4 text-[#8B98A5] group-hover:text-white" />
+          <span className="text-[10px] text-[#8B98A5] group-hover:text-white mt-0.5 font-normal">Help</span>
+        </Link>
+
         <Link
           href="/settings"
           title="Profile & Settings"
