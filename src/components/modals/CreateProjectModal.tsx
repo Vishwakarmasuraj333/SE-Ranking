@@ -29,6 +29,8 @@ import {
   ChatGptIcon,
   AiOverviewsIcon,
   AiModeIcon,
+  GeminiIcon,
+  PerplexityIcon,
   BingIcon,
   YahooIcon,
   YandexIcon,
@@ -37,11 +39,13 @@ import {
 } from '@/components/ui/SearchEngineIcons';
 
 const ADDITIONAL_ENGINES = [
-  { id: 'bing', label: 'Bing', icon: BingIcon },
+  { id: 'gemini', label: 'Gemini', icon: GeminiIcon },
+  { id: 'perplexity', label: 'Perplexity', icon: PerplexityIcon },
   { id: 'yahoo', label: 'Yahoo', icon: YahooIcon },
-  { id: 'yandex', label: 'Yandex', icon: YandexIcon },
+  { id: 'bing', label: 'Bing', icon: BingIcon },
   { id: 'duckduckgo', label: 'DuckDuckGo', icon: DuckDuckGoIcon },
   { id: 'youtube', label: 'YouTube', icon: YouTubeIcon },
+  { id: 'yandex', label: 'Yandex', icon: YandexIcon },
 ];
 
 interface CreateProjectModalProps {
@@ -53,10 +57,19 @@ interface CreateProjectModalProps {
 import { getAllCountries, getCountryInfo } from '@/lib/countryUtils';
 import { getAllLanguages } from '@/lib/languageUtils';
 
-const POPULAR_COUNTRIES = getAllCountries().map((c) => ({
-  name: c.name,
-  code: c.flagCode,
-}));
+const POPULAR_COUNTRIES = [
+  { name: 'India', code: 'in' },
+  { name: 'India Hook, South Carolina, United States', code: 'us' },
+  { name: 'India Urban, India', code: 'in' },
+  { name: 'Indianapolis, Indiana, United States', code: 'us' },
+  { name: 'Indian Orchard, Massachusetts, United States', code: 'us' },
+  { name: 'Indian Head, Saskatchewan, Canada', code: 'ca' },
+  { name: 'Indian Wells, California, United States', code: 'us' },
+  ...getAllCountries().map((c) => ({
+    name: c.name,
+    code: c.flagCode,
+  })),
+];
 
 const LANGUAGES = getAllLanguages().map((l) => l.name);
 
@@ -353,25 +366,62 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Dynamic Keyword Suggestions based on Website URL
-  const suggestedKeywords = useMemo(() => {
-    if (!websiteUrl.trim()) return [];
+  // Dynamic Real Keyword Suggestions based on Website URL
+  const [suggestedKeywords, setSuggestedKeywords] = useState<{ keyword: string; vol: string | number }[]>([]);
+  const [suggestionSearch, setSuggestionSearch] = useState('');
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+
+  useEffect(() => {
     const clean = websiteUrl
       .replace(/^https?:\/\//i, '')
       .replace(/^www\./i, '')
       .replace(/\/.*$/, '')
       .trim();
-    const brand = clean.split('.')[0] || 'brand';
-    return [
-      { keyword: `${brand} login`, vol: '2.4K' },
-      { keyword: `${brand} pricing`, vol: '1.8K' },
-      { keyword: `${brand} reviews`, vol: '1.2K' },
-      { keyword: `${brand} alternatives`, vol: '950' },
-      { keyword: `best ${brand} software`, vol: '720' },
-      { keyword: `${brand} app download`, vol: '640' },
-      { keyword: `${brand} vs competitors`, vol: '420' },
-    ];
-  }, [websiteUrl]);
+
+    if (!clean || clean.length < 3) {
+      setSuggestedKeywords([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const res = await fetch(
+          `/api/keywords/suggestions?domain=${encodeURIComponent(clean)}&country=${encodeURIComponent(
+            country
+          )}&lang=${encodeURIComponent(language)}`
+        );
+        const data = await res.json();
+        if (data.suggestions && Array.isArray(data.suggestions)) {
+          const mapped = data.suggestions.map((s: { keyword: string; volume: number }) => ({
+            keyword: s.keyword,
+            vol: s.volume,
+          }));
+          setSuggestedKeywords(mapped);
+
+          // If textarea is currently empty, prefill top 5 seeds matching SE Ranking screenshot
+          setKeywordsText((prev) => {
+            if (!prev.trim() && mapped.length >= 3) {
+              return mapped.slice(0, 5).map((m: { keyword: string }) => m.keyword).join('\n');
+            }
+            return prev;
+          });
+        }
+      } catch {
+        // Fallback gracefully
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [websiteUrl, country, language]);
+
+  const filteredSuggestions = useMemo(() => {
+    if (!suggestionSearch.trim()) return suggestedKeywords;
+    const query = suggestionSearch.toLowerCase().trim();
+    return suggestedKeywords.filter((s) => s.keyword.toLowerCase().includes(query));
+  }, [suggestedKeywords, suggestionSearch]);
 
   // Keyword counts and lines
   const keywordLines = useMemo(() => {
@@ -386,15 +436,23 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
       .filter((k) => k.length > 0).length;
   }, [keywordsText]);
 
-  const handleAddKeyword = (kw: string) => {
-    const existing = keywordsText
+  const handleToggleKeyword = (kw: string) => {
+    const lines = keywordsText
       .split('\n')
       .map((k) => k.trim())
       .filter(Boolean);
-    if (!existing.includes(kw.trim())) {
-      const updated = existing.length > 0 ? `${keywordsText.trim()}\n${kw}` : kw;
-      setKeywordsText(updated);
+    const exists = lines.some((k) => k.toLowerCase() === kw.trim().toLowerCase());
+    if (exists) {
+      setKeywordsText(lines.filter((k) => k.toLowerCase() !== kw.trim().toLowerCase()).join('\n'));
+    } else {
+      setKeywordsText(lines.length > 0 ? `${keywordsText.trim()}\n${kw.trim()}` : kw.trim());
     }
+  };
+
+  const isKeywordSelected = (kw: string) => {
+    return keywordsText
+      .split('\n')
+      .some((k) => k.trim().toLowerCase() === kw.trim().toLowerCase());
   };
 
   const handleAddAllSuggestions = () => {
@@ -404,7 +462,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
       .filter(Boolean);
     const toAdd = suggestedKeywords
       .map((s) => s.keyword)
-      .filter((k) => !existing.includes(k));
+      .filter((k) => !existing.some((e) => e.toLowerCase() === k.toLowerCase()));
     if (toAdd.length > 0) {
       const merged = [...existing, ...toAdd].join('\n');
       setKeywordsText(merged);
@@ -493,8 +551,15 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
           country: cInfo?.name || country || 'India',
           countryCode: cInfo?.flagCode || 'in',
           searchEngine: selectedEngines[0] || 'google',
+          searchEngines: selectedEngines.map((eng) => ({
+            engine: eng,
+            country: cInfo?.name || country || 'India',
+            countryCode: cInfo?.flagCode || 'in',
+            language: language || 'English',
+            device,
+          })),
           language,
-          device: 'desktop',
+          device,
           weeklyReport,
           websiteAudit,
           backlinkReport,
@@ -1361,14 +1426,14 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                       type="text"
                       value={websiteUrl}
                       onChange={(e) => {
-                        setWebsiteUrl(e.target.value);
-                        if (!projectName) {
-                          const clean = e.target.value
-                            .replace(/^https?:\/\//i, '')
-                            .replace(/^www\./i, '')
-                            .replace(/\/.*$/, '');
-                          setProjectName(clean);
-                        }
+                        const val = e.target.value;
+                        setWebsiteUrl(val);
+                        const clean = val
+                          .replace(/^https?:\/\//i, '')
+                          .replace(/^www\./i, '')
+                          .replace(/\/.*$/, '')
+                          .trim();
+                        setProjectName(clean);
                       }}
                       placeholder="Enter domain or URL"
                       className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-gray-900 placeholder-gray-400 focus:outline-hidden focus:border-[#2870ED] focus:ring-1 focus:ring-[#2870ED]"
@@ -1513,7 +1578,10 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                                   <IconComp size={15} />
                                   <span>{eng.label}</span>
                                 </span>
-                                {isSelected && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                                <span className="flex items-center gap-1.5 shrink-0">
+                                  {isSelected && <Check className="w-3.5 h-3.5 text-[#2870ED]" />}
+                                  <Info className="w-3 h-3 text-gray-400" />
+                                </span>
                               </button>
                             );
                           })}
@@ -1568,37 +1636,48 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                       className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-gray-800 flex items-center justify-between cursor-pointer hover:border-gray-400 focus:outline-hidden"
                     >
                       <div className="flex items-center gap-2">
-                        <CountryFlag countryName={country} size="sm" />
-                        <span className="font-medium text-gray-900">{country}</span>
+                        {country && country !== 'Enter country, city or postal code' ? (
+                          <>
+                            <CountryFlag countryName={country} size="sm" />
+                            <span className="font-medium text-gray-900">{country}</span>
+                          </>
+                        ) : (
+                          <span className="text-gray-700">Enter country, city or postal code</span>
+                        )}
                       </div>
                       <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isLocationOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isLocationOpen && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-30 p-2 text-xs">
-                        <input
-                          type="text"
-                          value={locationSearch}
-                          onChange={(e) => setLocationSearch(e.target.value)}
-                          placeholder="Enter country, city or postal code"
-                          className="w-full px-3 py-1.5 border border-gray-200 rounded-lg mb-2 text-xs focus:outline-hidden focus:border-[#2870ED]"
-                          autoFocus
-                        />
-                        <div className="max-h-48 overflow-y-auto space-y-1">
+                        <div className="relative mb-2">
+                          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                            <Search className="w-3.5 h-3.5 text-gray-400" />
+                          </div>
+                          <input
+                            type="text"
+                            value={locationSearch}
+                            onChange={(e) => setLocationSearch(e.target.value)}
+                            placeholder="Enter country, city or postal code"
+                            className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-hidden focus:border-[#2870ED]"
+                            autoFocus
+                          />
+                        </div>
+                        <div className="max-h-52 overflow-y-auto space-y-0.5">
                           {POPULAR_COUNTRIES.filter((c) =>
                             c.name.toLowerCase().includes(locationSearch.toLowerCase())
-                          ).map((c) => (
+                          ).map((c, i) => (
                             <div
-                              key={c.code}
+                              key={`${c.code}-${i}`}
                               onClick={() => {
                                 setCountry(c.name);
                                 setIsLocationOpen(false);
                                 setLocationSearch('');
                               }}
-                              className="px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-800"
+                              className="px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-gray-800 text-xs"
                             >
                               <CountryFlag countryName={c.name} size="sm" />
-                              <span className="font-medium">{c.name}</span>
+                              <span className="font-medium truncate">{c.name}</span>
                             </div>
                           ))}
                         </div>
@@ -1653,7 +1732,7 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Left: Numbered lines keywords textarea */}
                   <div>
-                    <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#2870ED] focus-within:ring-1 focus-within:ring-[#2870ED] bg-white min-h-[220px]">
+                    <div className="flex border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#2870ED] focus-within:ring-1 focus-within:ring-[#2870ED] bg-white min-h-[240px]">
                       {/* Line numbers gutter */}
                       <div className="bg-gray-50 border-r border-gray-200 py-3 px-2 text-right select-none text-[11px] font-mono text-gray-400 w-8 shrink-0 space-y-1">
                         {keywordLines.map((_, i) => (
@@ -1667,14 +1746,14 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                         value={keywordsText}
                         onChange={(e) => setKeywordsText(e.target.value)}
                         placeholder="Enter keywords"
-                        className="flex-1 p-3 text-xs text-gray-900 placeholder-gray-400 focus:outline-hidden resize-none font-sans leading-[18px] min-h-[220px]"
+                        className="flex-1 p-3 text-xs text-gray-900 placeholder-gray-400 focus:outline-hidden resize-none font-sans leading-[18px] min-h-[240px]"
                       />
                     </div>
                   </div>
 
-                  {/* Right: Keyword suggestions box */}
-                  <div className="border border-gray-200 rounded-lg bg-[#FAFBFD] p-5 flex flex-col min-h-[220px]">
-                    <div className="flex items-center justify-between mb-3">
+                  {/* Right: Keyword suggestions box (Exact match to official SE Ranking screenshot) */}
+                  <div className="border border-gray-200 rounded-lg bg-[#FAFBFD] p-4 flex flex-col min-h-[240px]">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
                         <span>Keyword suggestions</span>
                         <Info className="w-3.5 h-3.5 text-gray-400" />
@@ -1690,59 +1769,97 @@ export function CreateProjectModal({ isOpen, onClose, onCreated }: CreateProject
                       )}
                     </div>
 
-                    {!websiteUrl.trim() ? (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                          <Search className="w-5 h-5" />
+                    {/* Domain + Engine + Country Pill */}
+                    <div className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs flex items-center justify-between shadow-2xs mb-2">
+                      <span className="font-semibold text-gray-800 truncate">
+                        {websiteUrl.trim() || 'teams.com'}
+                      </span>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <GoogleIcon size={15} />
+                        <CountryFlag countryName={country || 'India'} size="xs" />
+                        <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Suggestions search bar */}
+                    <div className="relative mb-2">
+                      <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <Search className="w-3.5 h-3.5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        value={suggestionSearch}
+                        onChange={(e) => setSuggestionSearch(e.target.value)}
+                        placeholder="Search"
+                        className="w-full pl-8 pr-3 py-1.5 border border-gray-200 rounded-lg bg-white text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:border-[#2870ED]"
+                      />
+                    </div>
+
+                    {/* Checkbox keyword list */}
+                    {!websiteUrl.trim() && suggestedKeywords.length === 0 ? (
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-2">
+                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                          <Search className="w-4 h-4" />
                         </div>
-                        <p className="text-xs text-gray-400 max-w-[220px] leading-relaxed">
+                        <p className="text-xs text-gray-400 max-w-[200px] leading-relaxed">
                           Suggested keywords will appear after you enter website URL
                         </p>
                       </div>
                     ) : (
-                      <div className="flex-1 overflow-y-auto space-y-2 max-h-[160px] pr-1">
-                        {suggestedKeywords.map((sug, idx) => {
-                          const isAdded = keywordsText
-                            .split('\n')
-                            .some((k) => k.trim().toLowerCase() === sug.keyword.toLowerCase());
-                          return (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between p-2 rounded-md bg-white border border-gray-100 text-xs hover:border-blue-200 transition-colors"
-                            >
-                              <span className="font-medium text-gray-800">{sug.keyword}</span>
-                              <div className="flex items-center gap-3">
-                                <span className="text-[11px] text-gray-400 font-mono">{sug.vol}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleAddKeyword(sug.keyword)}
-                                  disabled={isAdded}
-                                  className={`p-1 rounded text-xs transition-colors cursor-pointer ${
-                                    isAdded
-                                      ? 'text-gray-300 cursor-not-allowed'
-                                      : 'text-[#0B69FF] hover:bg-blue-50'
-                                  }`}
-                                  title={isAdded ? 'Already added' : 'Add keyword'}
-                                >
-                                  {isAdded ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                                </button>
+                      <div className="flex-1 overflow-y-auto max-h-[160px] border border-gray-200 rounded-lg bg-white divide-y divide-gray-100">
+                        {isLoadingSuggestions && suggestedKeywords.length === 0 ? (
+                          <div className="p-4 flex items-center justify-center gap-2 text-xs text-gray-400">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2870ED]" />
+                            <span>Loading suggestions...</span>
+                          </div>
+                        ) : filteredSuggestions.length === 0 ? (
+                          <div className="p-4 text-center text-xs text-gray-400">
+                            No suggestions found
+                          </div>
+                        ) : (
+                          filteredSuggestions.map((sug, idx) => {
+                            const checked = isKeywordSelected(sug.keyword);
+                            return (
+                              <div
+                                key={idx}
+                                onClick={() => handleToggleKeyword(sug.keyword)}
+                                className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 cursor-pointer text-xs transition-colors select-none"
+                              >
+                                <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={checked}
+                                    onChange={() => {}}
+                                    className="w-3.5 h-3.5 rounded border-gray-300 text-[#2870ED] focus:ring-0 cursor-pointer accent-[#2870ED]"
+                                  />
+                                  <span
+                                    className={`truncate ${
+                                      checked ? 'font-medium text-gray-900' : 'text-gray-700'
+                                    }`}
+                                  >
+                                    {sug.keyword}
+                                  </span>
+                                </div>
+                                <span className="text-[11px] text-gray-400 font-mono shrink-0">
+                                  {sug.vol}
+                                </span>
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          })
+                        )}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Keyword limits summary footer matching Image 1 */}
+                {/* Keyword limits summary footer matching screenshot 4 */}
                 <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-gray-500 pt-2 select-none">
                   <div>
                     <span>{keywordCount} of 750 remaining keywords limits will be used</span>
                   </div>
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF9E6] border border-[#FFE8A3] text-[#B45309] font-medium text-[11px]">
                     <KeyRound className="w-3 h-3 text-[#D97706]" />
-                    <span>Keyword limits: {keywordCount} / 750</span>
+                    <span>Keyword limits {keywordCount} / 750</span>
                     <Info className="w-3 h-3 text-[#D97706]" />
                   </div>
                 </div>

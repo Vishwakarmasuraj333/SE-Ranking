@@ -105,26 +105,9 @@ export default function SignUpPage() {
     setEmail(val);
     setError(null);
     const parts = val.split('@');
-    if (parts.length === 2) {
-      const domain = parts[1].toLowerCase().trim();
-      const isFree =
-        FREE_EMAIL_DOMAINS.includes(domain) ||
-        ['gmail', 'googlemail', 'yahoo', 'hotmail', 'outlook', 'live', 'msn', 'icloud', 'aol'].some(
-          (prefix) => domain === prefix || domain.startsWith(`${prefix}.`)
-        );
-
-      if (isFree) {
-        setIsFreeEmailWarning(true);
-        setIsValidWorkEmail(false);
-      } else if (domain.includes('.') && domain.split('.')[1].length >= 2) {
-        setIsFreeEmailWarning(false);
-        setIsValidWorkEmail(true);
-      } else {
-        setIsFreeEmailWarning(false);
-        setIsValidWorkEmail(false);
-      }
+    if (parts.length === 2 && parts[1].includes('.') && parts[1].split('.')[1].length >= 2) {
+      setIsValidWorkEmail(true);
     } else {
-      setIsFreeEmailWarning(false);
       setIsValidWorkEmail(false);
     }
   };
@@ -133,16 +116,14 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
-    const parts = email.split('@');
-    const domain = parts[1]?.toLowerCase().trim();
-    if (!domain || isFreeEmailWarning || FREE_EMAIL_DOMAINS.includes(domain)) {
-      setError(tAuth.freeEmailWarning);
-      setIsFreeEmailWarning(true);
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setError('Please enter a valid email address.');
       return;
     }
 
-    if (!password || password.length < 8) {
-      setError(tAuth.passwordMinLength);
+    if (!password || password.length < 6) {
+      setError('Password must be at least 6 characters.');
       return;
     }
 
@@ -188,10 +169,10 @@ export default function SignUpPage() {
         setActiveProject(data.project);
       }
 
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/admin.dashboard.html';
       setTimeout(() => {
         router.push(redirectUrl);
-      }, 1000);
+      }, 600);
     } catch (err: any) {
       setError(err?.message || 'Something went wrong. Please try again.');
     } finally {
@@ -384,9 +365,9 @@ export default function SignUpPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || isFreeEmailWarning || !isValidWorkEmail}
+              disabled={isLoading || !email.trim() || !password.trim()}
               className={`w-full py-3.5 px-4 rounded-lg text-white font-bold text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                isLoading || isFreeEmailWarning || !isValidWorkEmail
+                isLoading || !email.trim() || !password.trim()
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-[#0B69FF] hover:bg-[#005FE0] active:scale-[0.99]'
               }`}

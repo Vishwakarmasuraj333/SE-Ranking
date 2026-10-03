@@ -104,7 +104,7 @@ export default function LoginPage() {
         console.warn('refreshProjects notice:', projErr);
       }
 
-      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/projects';
+      const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/admin.dashboard.html';
       window.location.href = redirectUrl;
     } catch (err: any) {
       setError(err?.message || 'Invalid pair username/password!');
@@ -256,8 +256,8 @@ export default function LoginPage() {
               {/* Sign In Button */}
               <button
                 type="submit"
-                disabled={isLoading}
-                className="w-full h-11 bg-[#1877F2] hover:bg-[#166FE5] text-white font-medium rounded text-sm transition-colors flex items-center justify-center cursor-pointer shadow-xs disabled:opacity-75"
+                disabled={isLoading || !email.trim() || !password}
+                className="w-full h-11 bg-[#1877F2] hover:bg-[#166FE5] text-white font-medium rounded text-sm transition-colors flex items-center justify-center cursor-pointer shadow-xs disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <div className="flex items-center gap-2">

@@ -72,6 +72,8 @@ model Project {
   timezone            String               @default("UTC")
   defaultSearchEngine String               @default("google")
   defaultDevice       String               @default("desktop")
+  rankingFrequency    String               @default("Daily") // Daily, Weekly, Manual
+  lastRankingCheckAt  DateTime?
   isArchived          Boolean              @default(false)
   deletedAt           DateTime?
   deletedBy           String?
@@ -85,6 +87,7 @@ model Project {
   keywords            Keyword[]
   projectCompetitors  ProjectCompetitor[]
   auditIssues         AuditIssue[]
+  auditPages          AuditPage[]
   tasks               Task[]
   backlinks           Backlink[]
   reports             Report[]
@@ -95,6 +98,9 @@ model Project {
   integrations        ProjectIntegration[]
   analyses            Analysis[]
   socialBrands        SocialBrand[]
+  rankingHistory      RankingHistory[]
+  competitorRankings  CompetitorRanking[]
+  aiSearchRecords     AiSearchRecord[]
 }
 
 model SearchEngineConfig {
@@ -120,6 +126,7 @@ model Keyword {
   keywordText         String
   searchEngine        String    @default("google")
   countryCode         String    @default("us")
+  language            String    @default("en")
   device              String    @default("desktop")
   targetUrl           String?
   searchIntent        String?   // Commercial, Informational, Navigational, Transactional
@@ -130,6 +137,8 @@ model Keyword {
   currentPosition     Int?
   previousPosition    Int?
   positionChange      Int?
+  bestPosition        Int?
+  worstPosition       Int?
   rankedUrl           String?
   serpFeatures        String?   // JSON array string
   groupId             String?
@@ -139,6 +148,9 @@ model Keyword {
   deletedBy           String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+
+  rankingHistory      RankingHistory[]
+  competitorRankings  CompetitorRanking[]
 }
 
 model ProjectCompetitor {
@@ -153,10 +165,105 @@ model ProjectCompetitor {
   totalKeywords       Int?      @default(0)
   organicTraffic      String?
   notes               String?
+  isActive            Boolean   @default(true)
   deletedAt           DateTime?
   deletedBy           String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+
+  competitorRankings  CompetitorRanking[]
+}
+
+model RankingHistory {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keywordId        String
+  keyword          Keyword  @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  searchEngine     String   @default("google")
+  country          String   @default("in")
+  language         String   @default("en")
+  device           String   @default("desktop")
+  position         Int?     // 1-100, null if not found (>100)
+  previousPosition Int?
+  positionChange   Int?     @default(0)
+  searchVolume     Int?     @default(0)
+  url              String?
+  serpFeatures     String?  // JSON array string
+  checkedAt        DateTime @default(now())
+
+  @@index([projectId, checkedAt])
+  @@index([keywordId, checkedAt])
+  @@index([searchEngine])
+}
+
+model CompetitorRanking {
+  id               String            @id @default(cuid())
+  projectId        String
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  competitorId     String
+  competitor       ProjectCompetitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  keywordId        String
+  keyword          Keyword           @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  searchEngine     String            @default("google")
+  position         Int?
+  previousPosition Int?
+  positionChange   Int?              @default(0)
+  url              String?
+  checkedAt        DateTime          @default(now())
+
+  @@index([competitorId, checkedAt])
+  @@index([keywordId])
+  @@index([projectId])
+}
+
+model AuditPage {
+  id                 String    @id @default(cuid())
+  projectId          String
+  project            Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  url                String
+  statusCode         Int       @default(200)
+  loadTimeMs         Int?
+  title              String?
+  titleLength        Int?
+  metaDescription    String?
+  descriptionLength  Int?
+  h1Count            Int       @default(0)
+  h1Text             String?
+  h2Count            Int       @default(0)
+  canonicalUrl       String?
+  isIndexable        Boolean   @default(true)
+  robotsDirectives   String?
+  inSitemap          Boolean   @default(false)
+  depth              Int       @default(0)
+  internalLinksCount Int       @default(0)
+  externalLinksCount Int       @default(0)
+  brokenLinksCount   Int       @default(0)
+  imagesCount        Int       @default(0)
+  imagesMissingAlt   Int       @default(0)
+  issuesCount        Int       @default(0)
+  crawledAt          DateTime  @default(now())
+
+  @@index([projectId, url])
+}
+
+model AiSearchRecord {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  query            String
+  engine           String   // chatgpt, google-ai-overview, google-ai-mode
+  domain           String
+  mentioned        Boolean  @default(false)
+  citedUrl         String?
+  citationPosition Int?
+  mentionStatus    String   @default("Not Mentioned") // Mentioned, Cited, Not Mentioned
+  visibilityScore  Float    @default(0)
+  snippet          String?
+  checkedAt        DateTime @default(now())
+
+  @@index([projectId, checkedAt])
+  @@index([engine])
 }
 
 model Location {

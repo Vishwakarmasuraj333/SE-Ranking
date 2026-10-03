@@ -9,18 +9,24 @@ import {
   KeyRound,
   Search,
   ExternalLink,
+  Play,
   MessageSquare,
 } from 'lucide-react';
 import { useApp } from '@/components/providers/AppProviders';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { FeedbackModal } from '@/components/modals/FeedbackModal';
 import { AppFooter } from '@/components/layout/AppFooter';
+import ProjectsDashboardPage from '@/app/projects/page';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { setActiveProject, projects } = useApp();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+
+  if (projects && projects.length > 0) {
+    return <ProjectsDashboardPage />;
+  }
 
   const handleProjectCreated = (newProject?: any) => {
     setIsCreateModalOpen(false);
@@ -32,6 +38,21 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex-1 min-h-screen bg-[#F4F6F9] flex flex-col justify-between relative text-gray-900 select-none">
+      {/* Top Free Trial Banner matching official SE Ranking screenshot */}
+      <div className="w-full bg-[#00A86B] bg-gradient-to-r from-[#00A86B] via-[#059669] to-[#00A86B] text-white px-6 py-2.5 flex items-center justify-between shadow-xs select-none shrink-0">
+        <div className="flex items-center gap-2 text-xs sm:text-sm font-medium">
+          <span>You have 4 days of free trial left. Choose your preferred subscription plan to unlock all features.</span>
+        </div>
+        <a
+          href="https://online.seranking.com/admin.subscription.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-white hover:bg-gray-100 text-gray-900 font-bold text-xs uppercase px-4 py-1.5 rounded shadow-xs transition-colors shrink-0 tracking-wider ml-4 cursor-pointer"
+        >
+          SEE PRICING PLANS
+        </a>
+      </div>
+
       {/* Floating Feedback button on right margin matching screenshot */}
       <button
         type="button"
@@ -101,7 +122,7 @@ export default function AdminDashboardPage() {
               className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-[#0B69FF] hover:underline"
             >
               <span>Learn more</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <Play className="w-3 h-3 fill-current text-[#0B69FF]" />
             </Link>
           </div>
 

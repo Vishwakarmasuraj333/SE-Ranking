@@ -339,6 +339,8 @@ function RankingsPageContent() {
   const [keywordInput, setKeywordInput] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
   const [keywords, setKeywords] = useState<KeywordItem[]>(INITIAL_KEYWORDS);
+  const [isLoadingRankings, setIsLoadingRankings] = useState(false);
+  const [isRechecking, setIsRechecking] = useState(false);
 
   // Modals
   const [isGuestLinkOpen, setIsGuestLinkOpen] = useState(false);
@@ -349,8 +351,30 @@ function RankingsPageContent() {
 
   const showToast = (msg: string) => {
     setNotification(msg);
-    setTimeout(() => setNotification(null), 3000);
+    setTimeout(() => setNotification(null), 3500);
   };
+
+  const fetchRankingsData = async () => {
+    try {
+      setIsLoadingRankings(true);
+      const projectId = activeProject?.id || 'workcomposer.com';
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/rankings`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.keywords && Array.isArray(data.keywords) && data.keywords.length > 0) {
+          setKeywords(data.keywords);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load rankings:', e);
+    } finally {
+      setIsLoadingRankings(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRankingsData();
+  }, [activeProject?.id]);
 
   // Close popups on click outside
   useEffect(() => {
@@ -376,7 +400,7 @@ function RankingsPageContent() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleAddKeywords = (e: React.FormEvent) => {
+  const handleAddKeywords = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!keywordInput.trim()) return;
 
@@ -385,48 +409,80 @@ function RankingsPageContent() {
       .map((k) => k.trim())
       .filter((k) => k.length > 0);
 
-    const newItems: KeywordItem[] = lines.map((k, idx) => {
-      const randomRank = Math.floor(Math.random() * 25) + 1;
-      const prev = randomRank + (Math.floor(Math.random() * 7) - 3);
-      return {
-        id: `kw-${Date.now()}-${idx}`,
-        keyword: k,
-        rank: randomRank,
-        prevRank: prev,
-        change: prev - randomRank,
-        volume: Math.floor(Math.random() * 15000) + 1200,
-        cpc: `$${(Math.random() * 4 + 1).toFixed(2)}`,
-        difficulty: Math.floor(Math.random() * 60) + 20,
-        serpFeatures: ['Featured Snippet', 'Site Links', 'People Also Ask'],
-        url: `https://${domain.replace(/^https?:\/\//, '').replace(/\/$/, '')}/features`,
-        dateChecked: '29 Sep 2026',
-      };
-    });
-
-    setKeywords((prev) => [...prev, ...newItems]);
-    setKeywordInput('');
-    setIsAddModalOpen(false);
-    showToast(`${lines.length} keywords added to tracking!`);
+    const projectId = activeProject?.id || 'workcomposer.com';
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/keywords`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keywords: lines }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`Successfully added ${data.addedCount || lines.length} keywords to database!`);
+        setKeywordInput('');
+        setIsAddModalOpen(false);
+        fetchRankingsData();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        showToast(errData.error || 'Failed to add keywords.');
+      }
+    } catch {
+      showToast('Network error while adding keywords.');
+    }
   };
 
-  const addSelectedHighPotential = () => {
-    const newItems: KeywordItem[] = selectedHighPotential.map((kw, idx) => ({
-      id: `hp-${Date.now()}-${idx}`,
-      keyword: kw,
-      rank: Math.floor(Math.random() * 18) + 1,
-      prevRank: Math.floor(Math.random() * 25) + 1,
-      change: 2,
-      volume: 8100,
-      cpc: '$3.50',
-      difficulty: 24,
-      serpFeatures: ['Featured Snippet', 'Site Links'],
-      url: `https://${domain.replace(/^https?:\/\//, '').replace(/\/$/, '')}`,
-      dateChecked: '29 Sep 2026',
-    }));
+  const handleRecheckRankings = async (selectedIds?: string[]) => {
+    setIsRechecking(true);
+    setIsRecheckOpen(false);
+    const projectId = activeProject?.id || 'workcomposer.com';
+    showToast('Connecting to ranking provider...');
 
-    setKeywords((prev) => [...prev, ...newItems]);
-    setIsHighPotentialModalOpen(false);
-    showToast(`${newItems.length} high-potential keywords added!`);
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/rankings/check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keywordIds: selectedIds }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Rankings updated for ${data.checkedCount} keywords!`);
+        fetchRankingsData();
+      } else {
+        if (data.error?.code === 'PROVIDER_UNCONFIGURED') {
+          showToast('Live tracking requires SERPAPI_API_KEY set in server environment.');
+        } else {
+          showToast(data.error?.message || data.error || 'Ranking check failed.');
+        }
+      }
+    } catch {
+      showToast('Failed to connect to ranking check service.');
+    } finally {
+      setIsRechecking(false);
+    }
+  };
+
+  const handleExportCsv = () => {
+    const projectId = activeProject?.id || 'workcomposer.com';
+    window.location.href = `/api/projects/${encodeURIComponent(projectId)}/keywords/export`;
+    showToast('Exporting rankings CSV...');
+  };
+
+  const addSelectedHighPotential = async () => {
+    const projectId = activeProject?.id || 'workcomposer.com';
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/keywords`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ keywords: selectedHighPotential }),
+      });
+      if (res.ok) {
+        showToast(`${selectedHighPotential.length} high-potential keywords added!`);
+        setIsHighPotentialModalOpen(false);
+        fetchRankingsData();
+      }
+    } catch {
+      showToast('Network error adding keywords.');
+    }
   };
 
   // Metrics counts
@@ -748,7 +804,7 @@ function RankingsPageContent() {
             {/* Export Button */}
             <button
               type="button"
-              onClick={() => showToast('Exporting rankings report to XLSX...')}
+              onClick={handleExportCsv}
               className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-500 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-2xs cursor-pointer transition-colors"
             >
               <Download className="w-3.5 h-3.5 text-gray-400 rotate-180" />
@@ -827,10 +883,11 @@ function RankingsPageContent() {
             <button
               type="button"
               onClick={() => setIsRecheckOpen(!isRecheckOpen)}
-              className="bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider"
+              disabled={isRechecking}
+              className="bg-[#1B66FF] hover:bg-[#0B59EE] text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer uppercase tracking-wider disabled:opacity-60"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>RECHECK DATA</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isRechecking ? 'animate-spin' : ''}`} />
+              <span>{isRechecking ? 'CHECKING...' : 'RECHECK DATA'}</span>
               <ChevronDown className="w-3.5 h-3.5 ml-0.5" />
             </button>
 
@@ -851,7 +908,7 @@ function RankingsPageContent() {
                         type="button"
                         onClick={() => {
                           setIsRecheckOpen(false);
-                          showToast('Rechecking live ranking positions...');
+                          handleRecheckRankings(keywords.slice(0, 5).map((k) => k.id));
                         }}
                         className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
@@ -861,7 +918,7 @@ function RankingsPageContent() {
                         type="button"
                         onClick={() => {
                           setIsRecheckOpen(false);
-                          showToast('Rechecking all keywords across Google India...');
+                          handleRecheckRankings();
                         }}
                         className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer font-semibold"
                       >
@@ -886,7 +943,7 @@ function RankingsPageContent() {
                         type="button"
                         onClick={() => {
                           setIsRecheckOpen(false);
-                          showToast('Rechecking volume data for selected...');
+                          handleRecheckRankings();
                         }}
                         className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
@@ -896,7 +953,7 @@ function RankingsPageContent() {
                         type="button"
                         onClick={() => {
                           setIsRecheckOpen(false);
-                          showToast('Rechecking all search volume data...');
+                          handleRecheckRankings();
                         }}
                         className="w-full text-left px-3 py-1.5 text-gray-700 hover:bg-gray-100 cursor-pointer font-semibold"
                       >

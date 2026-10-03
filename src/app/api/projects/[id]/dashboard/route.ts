@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ProjectDashboardDto } from '@/lib/types';
 import { prisma } from '@/lib/db/prisma';
+import { verifyProjectAccess } from '@/lib/server/projectAuth';
 
 export async function GET(
   request: NextRequest,
@@ -9,11 +10,14 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const project = await prisma.project.findFirst({
-      where: {
-        id,
-        deletedAt: null,
-      },
+    const authResult = await verifyProjectAccess(request, id);
+    if (!authResult.success) {
+      return authResult.error;
+    }
+    const { project } = authResult.data;
+
+    const fullProject = await prisma.project.findUnique({
+      where: { id: project.id },
       include: {
         keywords: {
           where: { deletedAt: null },
@@ -28,7 +32,7 @@ export async function GET(
       },
     });
 
-    if (!project) {
+    if (!fullProject) {
       return NextResponse.json(
         {
           success: false,
@@ -40,11 +44,11 @@ export async function GET(
       );
     }
 
-    const domainName = project.domain;
-    const projectName = project.name || project.domain;
+    const domainName = fullProject.domain;
+    const projectName = fullProject.name || fullProject.domain;
     const cleanDomain = domainName.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-    const pKeywords = project.keywords || [];
+    const pKeywords = fullProject.keywords || [];
     const totalKeywords = pKeywords.length;
 
     const top3 = pKeywords.filter((k) => k.currentPosition && k.currentPosition <= 3).length;
@@ -63,26 +67,28 @@ export async function GET(
       ? Number(((top10 / totalKeywords) * 100).toFixed(1))
       : 0;
 
-    const openTasks = project.tasks.filter((t) => t.status === 'Todo').length;
-    const inProgressTasks = project.tasks.filter((t) => t.status === 'InProgress').length;
-    const reviewTasks = project.tasks.filter((t) => t.status === 'Review').length;
-    const closedTasks = project.tasks.filter((t) => t.status === 'Done').length;
+    const openTasks = fullProject.tasks.filter((t) => t.status === 'Todo').length;
+    const inProgressTasks = fullProject.tasks.filter((t) => t.status === 'InProgress').length;
+    const reviewTasks = fullProject.tasks.filter((t) => t.status === 'Review').length;
+    const closedTasks = fullProject.tasks.filter((t) => t.status === 'Done').length;
 
-    const gscIntegration = project.integrations.find(
+    const gscIntegration = fullProject.integrations.find(
       (i) => (i.provider === 'google_search_console' || i.provider === 'gsc') && i.status === 'connected'
     );
 
-    const errorIssues = project.auditIssues.filter((i) => i.severity === 'Error');
-    const warningIssues = project.auditIssues.filter((i) => i.severity === 'Warning');
+    const errorIssues = fullProject.auditIssues.filter((i) => i.severity === 'Error');
+    const warningIssues = fullProject.auditIssues.filter((i) => i.severity === 'Warning');
     const calculatedHealth = Math.max(0, 100 - (errorIssues.length * 10 + warningIssues.length * 2));
 
+    const totalUrlsCrawled = await prisma.auditPage.count({ where: { projectId: fullProject.id } });
+
     const data: ProjectDashboardDto = {
-      projectId: project.id,
+      projectId: fullProject.id,
       projectName,
       primaryDomain: cleanDomain,
       freshness: {
         isRankingsStale: false,
-        lastRankCheckAt: project.updatedAt.toISOString(),
+        lastRankCheckAt: fullProject.lastRankingCheckAt?.toISOString() || fullProject.updatedAt.toISOString(),
         lastAuditCrawlAt: null,
         lastGscSyncAt: gscIntegration?.updatedAt?.toISOString() || null,
         gscSyncStatus: gscIntegration ? 'Active' : 'Not Connected',
@@ -91,7 +97,7 @@ export async function GET(
         healthScore: calculatedHealth,
         errorsCount: errorIssues.length,
         warningsCount: warningIssues.length,
-        totalUrlsCrawled: 0,
+        totalUrlsCrawled,
       },
       rankings: {
         totalKeywords,
@@ -117,7 +123,7 @@ export async function GET(
         dailySeries: [],
       },
       tasks: {
-        totalCount: project.tasks.length,
+        totalCount: fullProject.tasks.length,
         openCount: openTasks,
         inProgressCount: inProgressTasks,
         readyForVerificationCount: reviewTasks,
@@ -138,13 +144,14 @@ export async function GET(
       timestamp: new Date().toISOString(),
       data,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch project dashboard';
     return NextResponse.json(
       {
         success: false,
         statusCode: 500,
         timestamp: new Date().toISOString(),
-        message: error?.message || 'Failed to fetch project dashboard',
+        message,
       },
       { status: 500 }
     );

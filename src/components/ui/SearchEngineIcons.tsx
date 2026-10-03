@@ -136,6 +136,59 @@ export function AiModeIcon({ className = 'w-4 h-4 shrink-0', size = 16 }: IconPr
 }
 
 /**
+ * Official Google Gemini Icon
+ */
+export function GeminiIcon({ className = 'w-4 h-4 shrink-0', size = 16 }: IconProps) {
+  const gradId = React.useId();
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="Google Gemini"
+      role="img"
+    >
+      <defs>
+        <linearGradient id={`geminiIconGrad-${gradId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1BA1E3" />
+          <stop offset="35%" stopColor="#5474FF" />
+          <stop offset="70%" stopColor="#9B51E0" />
+          <stop offset="100%" stopColor="#EA4335" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M12 2C12 7.523 7.523 12 2 12C7.523 12 12 16.477 12 22C12 16.477 16.477 12 22 12C16.477 12 12 7.523 12 2Z"
+        fill={`url(#geminiIconGrad-${gradId})`}
+      />
+    </svg>
+  );
+}
+
+/**
+ * Official Perplexity AI Icon
+ */
+export function PerplexityIcon({ className = 'w-4 h-4 shrink-0', size = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ color: '#20B2AA' }}
+      aria-label="Perplexity AI"
+      role="img"
+    >
+      <path d="M12.983 2.012v4.83h5.92V2.012h-5.92zm-1.966 0H5.097v4.83h5.92V2.012zm1.966 6.54v6.896l4.238 3.864 1.682-1.533V8.552h-5.92zm-1.966 0H5.097v8.785l1.682 1.533 4.238-3.864V8.552zm1.966 8.598v4.838h5.92V17.15h-5.92zm-1.966 0H5.097v4.838h5.92V17.15z" />
+    </svg>
+  );
+}
+
+/**
  * Official Microsoft Bing Icon
  */
 export function BingIcon({ className = 'w-4 h-4 shrink-0', size = 16 }: IconProps) {

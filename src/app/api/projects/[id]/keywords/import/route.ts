@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { verifyProjectAccess } from '@/lib/server/projectAuth';
 
 export async function POST(
   req: NextRequest,
@@ -7,13 +8,12 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-    });
 
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
     }
+    const { project } = authResult.data;
 
     const contentType = req.headers.get('content-type') || '';
     let rawText = '';
@@ -29,7 +29,7 @@ export async function POST(
       const groupParam = formData.get('group');
       if (groupParam && typeof groupParam === 'string') targetGroup = groupParam;
     } else {
-      const body = await req.json();
+      const body = await req.json().catch(() => ({}));
       rawText = body.content || body.csvText || '';
       if (body.group) targetGroup = body.group;
     }
@@ -44,11 +44,12 @@ export async function POST(
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      // Skip header if line matches common header keywords
-      if (i === 0 && (line.toLowerCase().startsWith('keyword') || line.toLowerCase().includes('search query'))) {
+      if (
+        i === 0 &&
+        (line.toLowerCase().startsWith('keyword') || line.toLowerCase().includes('search query'))
+      ) {
         continue;
       }
-      // Handle comma-separated line (take first column as keyword)
       const firstCol = line.split(',')[0].replace(/^["']|["']$/g, '').trim();
       if (firstCol && firstCol.length >= 2) {
         keywordsToProcess.push(firstCol);
@@ -59,7 +60,7 @@ export async function POST(
       return NextResponse.json({ error: 'No valid keywords found in CSV file.' }, { status: 400 });
     }
 
-    // Check existing keywords in project
+    // Deduplicate against existing active keywords in this project
     const existingKeywords = await prisma.keyword.findMany({
       where: {
         projectId: project.id,
@@ -82,15 +83,10 @@ export async function POST(
           keywordText: kw,
           searchEngine: project.defaultSearchEngine || 'google',
           countryCode: project.countryCode || 'in',
+          language: project.languageCode || 'en',
           device: project.defaultDevice || 'desktop',
           groupName: targetGroup,
           isActive: true,
-          currentPosition: Math.floor(Math.random() * 25) + 1,
-          previousPosition: Math.floor(Math.random() * 30) + 1,
-          positionChange: Math.floor(Math.random() * 5) - 2,
-          monthlySearchVolume: Math.floor(Math.random() * 10000) + 500,
-          keywordDifficulty: Math.floor(Math.random() * 60) + 15,
-          cpcUsd: parseFloat((Math.random() * 4 + 0.5).toFixed(2)),
         })),
       });
     }

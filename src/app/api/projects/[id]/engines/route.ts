@@ -1,28 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { SearchEngineConfig } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
 import { getCountryInfo } from '@/lib/countryUtils';
+import { verifyProjectAccess } from '@/lib/server/projectAuth';
+import { getActiveEngineCapabilities, getRankingProvider, SearchEngineType } from '@/lib/rankings';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-      include: {
-        searchEngines: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
 
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
     }
+    const { project } = authResult.data;
 
-    const formatted = project.searchEngines.map((eng) => {
+    const provider = getRankingProvider();
+    const engineCaps = getActiveEngineCapabilities();
+    const capMap = new Map(engineCaps.map((c) => [c.engine, c]));
+
+    const searchEngines = (project.searchEngines || []) as SearchEngineConfig[];
+    const formatted = searchEngines.map((eng: SearchEngineConfig) => {
       const cInfo = getCountryInfo(eng.countryCode);
+      const cap = capMap.get(eng.engine.toLowerCase() as SearchEngineType);
+      const isAvailable = cap ? cap.isAvailable : false;
+
       return {
         id: eng.id,
         engine: eng.engine,
@@ -34,12 +39,18 @@ export async function GET(
         languageCode: eng.languageCode || 'en',
         device: eng.device || 'desktop',
         isActive: eng.isActive,
+        isAvailable,
+        status: isAvailable ? 'active' : 'unconfigured',
+        notes: cap?.notes || (isAvailable ? 'Active' : 'Provider configuration required'),
         icon: eng.engine.toLowerCase(),
       };
     });
 
     return NextResponse.json({
       success: true,
+      activeProvider: provider.id,
+      isProviderConfigured: provider.isConfigured(),
+      capabilities: engineCaps,
       engines: formatted,
     });
   } catch (err: unknown) {
@@ -54,24 +65,26 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
 
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-    });
-
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
     }
+    const { project } = authResult.data;
 
+    const body = await req.json().catch(() => ({}));
     const cInfo = getCountryInfo(body.countryCode || body.country);
     const country = cInfo?.name || body.country || 'India';
-    const countryCode = cInfo?.flagCode || body.countryCode || 'in';
+    const countryCode = (cInfo?.flagCode || body.countryCode || 'in').toLowerCase();
     const location = body.location || country;
-    const engine = body.engine || 'google';
+    const engine = (body.engine || 'google').toLowerCase();
     const language = body.language || 'English';
-    const languageCode = body.languageCode || 'en';
+    const languageCode = (body.languageCode || 'en').toLowerCase();
     const device = body.device || 'desktop';
+
+    // Verify engine capability
+    const engineCaps = getActiveEngineCapabilities();
+    const cap = engineCaps.find((c) => c.engine === engine);
 
     const created = await prisma.searchEngineConfig.create({
       data: {
@@ -100,6 +113,9 @@ export async function POST(
         languageCode,
         device,
         isActive: true,
+        isAvailable: cap?.isAvailable ?? false,
+        status: cap?.isAvailable ? 'active' : 'unconfigured',
+        notes: cap?.notes,
         icon: created.engine.toLowerCase(),
       },
     });
@@ -114,12 +130,27 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: _projectId } = await params;
+    const { id } = await params;
+
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
+    }
+    const { project } = authResult.data;
+
     const { searchParams } = new URL(req.url);
     const engineId = searchParams.get('id');
 
     if (!engineId) {
       return NextResponse.json({ error: 'Search engine ID is required' }, { status: 400 });
+    }
+
+    const existing = await prisma.searchEngineConfig.findFirst({
+      where: { id: engineId, projectId: project.id },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Search engine not found in this project' }, { status: 404 });
     }
 
     await prisma.searchEngineConfig.delete({

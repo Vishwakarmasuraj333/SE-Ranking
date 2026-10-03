@@ -180,6 +180,28 @@ export async function POST(req: NextRequest) {
     // Determine owner
     const userId = auth?.user?.id || (await prisma.user.findFirst({ select: { id: true } }))?.id || null;
 
+    const enginesToCreate = Array.isArray(body.searchEngines) && body.searchEngines.length > 0
+      ? body.searchEngines.map((se: any) => ({
+          engine: typeof se === 'string' ? se : se.engine || searchEngine,
+          country: se.country || resolvedCountry,
+          countryCode: se.countryCode || resolvedCountryCode,
+          language: se.language || language,
+          languageCode: se.languageCode || languageCode,
+          device: se.device || device,
+          isActive: true,
+        }))
+      : [
+          {
+            engine: searchEngine,
+            country: resolvedCountry,
+            countryCode: resolvedCountryCode,
+            language,
+            languageCode,
+            device,
+            isActive: true,
+          },
+        ];
+
     // Create project in database
     const projectData: any = {
       name: projectName,
@@ -191,7 +213,7 @@ export async function POST(req: NextRequest) {
       country: resolvedCountry,
       countryCode: resolvedCountryCode,
       languageCode,
-      defaultSearchEngine: searchEngine,
+      defaultSearchEngine: enginesToCreate[0]?.engine || searchEngine,
       defaultDevice: device,
       weeklyReport,
       websiteAudit,
@@ -199,15 +221,7 @@ export async function POST(req: NextRequest) {
       userId,
       createdBy: auth?.user?.email || 'admin',
       searchEngines: {
-        create: {
-          engine: searchEngine,
-          country: resolvedCountry,
-          countryCode: resolvedCountryCode,
-          language,
-          languageCode,
-          device,
-          isActive: true,
-        },
+        create: enginesToCreate,
       },
     };
 

@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/prisma';
-import { getAuthSession } from '@/lib/server/auth';
+import { verifyProjectAccess } from '@/lib/server/projectAuth';
 import { normalizeDomain, normalizeUrl } from '@/lib/validation/schemas';
 import { getCountryInfo } from '@/lib/countryUtils';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
 
-    const project = await prisma.project.findFirst({
-      where: {
-        OR: [{ id }, { domain: id }],
-      },
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
+    }
+    const { project } = authResult.data;
+
+    const fullProject = await prisma.project.findUnique({
+      where: { id: project.id },
       include: {
         searchEngines: true,
         _count: {
@@ -30,21 +35,21 @@ export async function GET(
       },
     });
 
-    if (!project) {
+    if (!fullProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
       project: {
-        ...project,
-        primaryDomain: project.domain,
-        keywordsCount: project._count.keywords,
-        competitorsCount: project._count.projectCompetitors,
-        auditIssuesCount: project._count.auditIssues,
-        tasksCount: project._count.tasks,
-        locationsCount: project._count.locations,
-        reportsCount: project._count.reports,
+        ...fullProject,
+        primaryDomain: fullProject.domain,
+        keywordsCount: fullProject._count.keywords,
+        competitorsCount: fullProject._count.projectCompetitors,
+        auditIssuesCount: fullProject._count.auditIssues,
+        tasksCount: fullProject._count.tasks,
+        locationsCount: fullProject._count.locations,
+        reportsCount: fullProject._count.reports,
       },
     });
   } catch (err: unknown) {
@@ -59,20 +64,20 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
 
-    const existing = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-    });
-
-    if (!existing) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
     }
+    const { project } = authResult.data;
 
-    const updateData: any = {};
+    const body = await req.json().catch(() => ({}));
+    const updateData: Prisma.ProjectUpdateInput = {};
+
     if (body.name !== undefined) updateData.name = String(body.name).trim();
     if (body.brandName !== undefined) updateData.brandName = String(body.brandName).trim();
     if (body.isArchived !== undefined) updateData.isArchived = Boolean(body.isArchived);
+    if (body.rankingFrequency !== undefined) updateData.rankingFrequency = body.rankingFrequency;
     if (body.projectColor !== undefined || body.color !== undefined) {
       updateData.projectColor = body.projectColor || body.color;
     }
@@ -91,14 +96,13 @@ export async function PATCH(
     if (body.websiteAudit !== undefined) updateData.websiteAudit = Boolean(body.websiteAudit);
     if (body.backlinkReport !== undefined) updateData.backlinkReport = Boolean(body.backlinkReport);
 
-    // Restore action
     if (body.action === 'restore') {
       updateData.deletedAt = null;
       updateData.deletedBy = null;
     }
 
     const updated = await prisma.project.update({
-      where: { id: existing.id },
+      where: { id: project.id },
       data: updateData,
     });
 
@@ -115,31 +119,29 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const auth = await getAuthSession(req);
+
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
+    }
+    const { user, project } = authResult.data;
+
     const { searchParams } = new URL(req.url);
     const permanent = searchParams.get('permanent') === 'true';
 
-    const existing = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-    });
-
-    if (!existing) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-    }
-
     if (permanent) {
       await prisma.project.delete({
-        where: { id: existing.id },
+        where: { id: project.id },
       });
       return NextResponse.json({ success: true, message: 'Project permanently deleted.' });
     }
 
     // Soft delete to Trash
     await prisma.project.update({
-      where: { id: existing.id },
+      where: { id: project.id },
       data: {
         deletedAt: new Date(),
-        deletedBy: auth?.user?.email || 'admin',
+        deletedBy: user.email,
       },
     });
 

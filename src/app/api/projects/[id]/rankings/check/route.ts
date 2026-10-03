@@ -1,5 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { prisma } from '@/lib/db/prisma';
+import { verifyProjectAccess } from '@/lib/server/projectAuth';
+import { getRankingProvider, KeywordCheckRequest, SearchEngineType, DeviceType } from '@/lib/rankings';
+
+const CheckRankingsBodySchema = z.object({
+  keywordIds: z.array(z.string()).optional(),
+  searchEngine: z
+    .enum([
+      'google',
+      'google-ai-overview',
+      'google-ai-mode',
+      'bing',
+      'yahoo',
+      'yandex',
+      'duckduckgo',
+      'youtube',
+      'chatgpt',
+    ])
+    .optional(),
+  countryCode: z.string().min(2).max(5).optional(),
+  languageCode: z.string().min(2).max(5).optional(),
+  device: z.enum(['desktop', 'mobile']).optional(),
+});
 
 export async function POST(
   req: NextRequest,
@@ -7,116 +30,181 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const body = await req.json().catch(() => ({}));
-    const selectedKeywordIds: string[] | undefined = body.keywordIds;
 
-    const project = await prisma.project.findFirst({
-      where: { OR: [{ id }, { domain: id }] },
-      include: {
-        keywords: {
-          where: {
-            deletedAt: null,
-            ...(selectedKeywordIds && selectedKeywordIds.length > 0
-              ? { id: { in: selectedKeywordIds } }
-              : {}),
-          },
+    // 1. Authenticate user & verify project ownership
+    const authResult = await verifyProjectAccess(req, id);
+    if (!authResult.success) {
+      return authResult.error;
+    }
+    const { project } = authResult.data;
+
+    // 2. Validate request payload with Zod
+    const rawBody = await req.json().catch(() => ({}));
+    const parseResult = CheckRankingsBodySchema.safeParse(rawBody);
+    if (!parseResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Invalid ranking check request payload.',
+          details: parseResult.error.flatten(),
         },
+        { status: 400 }
+      );
+    }
+    const { keywordIds, searchEngine, countryCode, languageCode, device } = parseResult.data;
+
+    // 3. Query target keywords belonging to this project
+    const keywords = await prisma.keyword.findMany({
+      where: {
+        projectId: project.id,
+        deletedAt: null,
+        ...(keywordIds && keywordIds.length > 0 ? { id: { in: keywordIds } } : {}),
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    if (!project) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
-    }
-
-    const keywords = project.keywords;
     if (keywords.length === 0) {
       return NextResponse.json({
         success: true,
-        message: 'No keywords to check for this project.',
+        message: 'No keywords found for ranking check.',
         checkedCount: 0,
+        rankedCount: 0,
+        unrankedCount: 0,
+        results: [],
       });
     }
 
-    // Check if external SERP Provider is configured
-    const serperApiKey = process.env.SERPER_API_KEY;
-    const dataForSeoLogin = process.env.DATAFORSEO_LOGIN;
+    // 4. Resolve live provider
+    const provider = getRankingProvider();
 
-    let updatedCount = 0;
+    // Check if provider is configured - never generate fake data
+    if (!provider.isConfigured()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'PROVIDER_UNCONFIGURED',
+            message: `Ranking provider "${provider.id}" is not configured. Please set ${
+              provider.id === 'dataforseo'
+                ? 'DATAFORSEO_LOGIN and DATAFORSEO_PASSWORD'
+                : 'SERPAPI_API_KEY'
+            } in your environment variables to enable live SERP rank tracking.`,
+            provider: provider.id,
+          },
+          provider: provider.id,
+          checkedCount: 0,
+        },
+        { status: 400 }
+      );
+    }
 
-    // Process each keyword and update positions in database
-    for (const kw of keywords) {
-      let newPosition: number;
-      const prev = kw.currentPosition || Math.floor(Math.random() * 20) + 1;
+    // 5. Construct provider check requests
+    const checkRequests: KeywordCheckRequest[] = keywords.map((kw) => ({
+      keywordId: kw.id,
+      keyword: kw.keywordText,
+      targetDomain: project.domain,
+      searchEngine: (searchEngine || kw.searchEngine || project.defaultSearchEngine || 'google') as SearchEngineType,
+      countryCode: countryCode || kw.countryCode || project.countryCode || 'in',
+      languageCode: languageCode || kw.language || project.languageCode || 'en',
+      device: (device || kw.device || project.defaultDevice || 'desktop') as DeviceType,
+    }));
 
-      if (serperApiKey && serperApiKey.trim() !== '') {
-        try {
-          // Live provider integration: Serper Google Search API
-          const response = await fetch('https://google.serper.dev/search', {
-            method: 'POST',
-            headers: {
-              'X-API-KEY': serperApiKey,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              q: kw.keywordText,
-              gl: kw.countryCode || project.countryCode || 'in',
-              hl: project.languageCode || 'en',
-              num: 100,
-            }),
-          });
+    // 6. Execute live check against real provider
+    const providerResponse = await provider.checkRankings(checkRequests, { timeoutMs: 25000 });
 
-          if (response.ok) {
-            const data = await response.json();
-            const organic = data.organic || [];
-            const cleanDomain = project.domain.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split('/')[0].toLowerCase();
-            const matchIndex = organic.findIndex((item: any) =>
-              item.link && item.link.toLowerCase().includes(cleanDomain)
-            );
-            newPosition = matchIndex >= 0 ? matchIndex + 1 : 101;
-          } else {
-            // Fallback deterministic calculation
-            const delta = ((kw.keywordText.length % 5) - 2);
-            newPosition = Math.max(1, prev + delta);
-          }
-        } catch {
-          const delta = ((kw.keywordText.length % 5) - 2);
-          newPosition = Math.max(1, prev + delta);
-        }
-      } else {
-        // Deterministic organic rank variation based on keyword string & domain authority
-        const seed = (kw.keywordText.charCodeAt(0) + kw.keywordText.length + Date.now() % 3) % 5 - 2;
-        newPosition = Math.max(1, prev + seed);
+    if (!providerResponse.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: providerResponse.error,
+          provider: provider.id,
+        },
+        { status: providerResponse.error?.statusCode || 500 }
+      );
+    }
+
+    const checkTimestamp = new Date();
+    const updatedKeywordRecords = [];
+
+    // 7. Save ranking results, update position dynamics and ranking history
+    for (const res of providerResponse.results) {
+      const existingKw = keywords.find((k) => k.id === res.keywordId);
+      if (!existingKw) continue;
+
+      const prevPos = existingKw.currentPosition;
+      const newPos = res.position; // 1-100 or null
+
+      let posChange: number | null = null;
+      if (prevPos !== null && prevPos !== undefined && newPos !== null && newPos !== undefined) {
+        // In rankings, lower rank number is better (e.g. 10 -> 4 is +6 improvement)
+        posChange = prevPos - newPos;
       }
 
-      const positionChange = prev - newPosition; // Positive means position improved (e.g. 5 -> 3 is +2)
+      // Calculate best & worst positions
+      let bestPos = existingKw.bestPosition;
+      let worstPos = existingKw.worstPosition;
+      if (newPos !== null) {
+        bestPos = bestPos ? Math.min(bestPos, newPos) : newPos;
+        worstPos = worstPos ? Math.max(worstPos, newPos) : newPos;
+      }
 
-      await prisma.keyword.update({
-        where: { id: kw.id },
+      // Update Keyword record in DB
+      const updatedKw = await prisma.keyword.update({
+        where: { id: existingKw.id },
         data: {
-          previousPosition: prev,
-          currentPosition: newPosition,
-          positionChange,
-          updatedAt: new Date(),
+          previousPosition: prevPos,
+          currentPosition: newPos,
+          positionChange: posChange,
+          bestPosition: bestPos,
+          worstPosition: worstPos,
+          rankedUrl: res.rankedUrl || existingKw.rankedUrl,
+          serpFeatures: res.serpFeatures.length > 0 ? JSON.stringify(res.serpFeatures) : existingKw.serpFeatures,
+          updatedAt: checkTimestamp,
         },
       });
+      updatedKeywordRecords.push(updatedKw);
 
-      updatedCount++;
+      // Create RankingHistory entry in DB
+      await prisma.rankingHistory.create({
+        data: {
+          projectId: project.id,
+          keywordId: existingKw.id,
+          searchEngine: res.searchEngine,
+          country: res.countryCode,
+          language: existingKw.language || 'en',
+          device: res.device,
+          position: newPos,
+          previousPosition: prevPos,
+          positionChange: posChange || 0,
+          searchVolume: existingKw.monthlySearchVolume || 0,
+          url: res.rankedUrl,
+          serpFeatures: JSON.stringify(res.serpFeatures),
+          checkedAt: checkTimestamp,
+        },
+      });
     }
 
-    // Update project last updated timestamp
+    // 8. Update Project metadata
     await prisma.project.update({
       where: { id: project.id },
-      data: { updatedAt: new Date() },
+      data: {
+        lastRankingCheckAt: checkTimestamp,
+        updatedAt: checkTimestamp,
+      },
     });
 
     return NextResponse.json({
       success: true,
-      message: `Successfully checked rankings for ${updatedCount} keywords.`,
-      checkedCount: updatedCount,
-      timestamp: new Date().toISOString(),
+      message: `Successfully checked rankings for ${providerResponse.checkedCount} keywords using ${provider.name}.`,
+      provider: provider.id,
+      checkedCount: providerResponse.checkedCount,
+      rankedCount: providerResponse.rankedCount,
+      unrankedCount: providerResponse.unrankedCount,
+      checkedAt: checkTimestamp.toISOString(),
+      results: providerResponse.results,
     });
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Failed to recheck rankings.';
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error('Rankings check error:', err);
+    const msg = err instanceof Error ? err.message : 'Internal error during live ranking check.';
+    return NextResponse.json({ error: msg, code: 'INTERNAL_ERROR' }, { status: 500 });
   }
 }
